@@ -1,0 +1,9 @@
+{{page>data:tabs&nofooter}}
+
+
+Directory listing gives data files and file sizes within the data storage and subdirectory **mydata** connected. If you don't have this subdirectory, please create it to see the functionality.
+There is 2 types of synchronization provided. First via WEBDAV - which needs instant connection to b2drop service (to Internet) and via Owncloud protocol,
+which sync data when connected and when disconnected, you can work on local copy of data. Any changes will be synchronized after reconnection. Other synchronization protocols (DROPBOX, ...) may be implemented later.
+
+
+<directorylist: path="/home/vagrant/work/mydata" recursive="1" fileorder="asc">

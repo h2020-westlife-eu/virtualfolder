@@ -1,0 +1,7 @@
+backup
+.vagrant
+.idea
+*.iml
+*.box
+*~
+#*#

@@ -1,0 +1,12 @@
+{{page>data:tabs&nofooter}}
+
+The processing of data within this package can be integrated with existing services. Sample integration with PDB database at from http://www.rcsb.org. Clicking on the links will redirect to the database.
+Filling PDB search box e.g. "1DTX" will redirect to information to dendrotoxin protein. Future development would integrate other PDB databases (http://www.ebi.ac.uk/pdbe/).
+
+
+
+ {{pdb>fullSmall:1WLA}}
+ {{pdb>fullSmall:1DTX}} 
+ {{pdb>fullSmall:5BTS}} 
+
+{{pdb>searchbox}}
