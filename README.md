@@ -11,7 +11,7 @@ Prerequisites:
 
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
  1.  Virtualbox - VM stack. Download and install virtualbox from https://www.virtualbox.org/
-Download and unpack west-life-wp6 package from git://
+Download and unpack west-life-wp6 package from https://github.com/h2020-westlife-eu/west-life-wp6/archive/master.zip
 
 Optionally, if you are behind proxy, download and install proxyconf plugin
 
@@ -56,23 +56,8 @@ After self deployment and installation the virtual machine provides 3 basic serv
  3. Preinstalled and preconfigured CCP4 suite to allow further data refining, processing, analysis and automatic execution of XIA2 workflow on new data in webdav/mydata/xia folder
 
 The webapp is currently based as a set of customized PHP plugins and shell scripts for DOKUWIKI - PHP wiki engine on Apache web server. Further development will probably not continue with PHP server side processing and will follow rather RESTful web services (Java, Python, ...) and RIA with HTML5 and AJAX capabilities. 
-##TODO
-Highlighted topics, which are not yet implemented (07Apr2016).
-
-  * WebDAV folders from EUDAT (B2DROP / B2SAFE)
-  * Create project folder, **with CERIF metadata, and get its PID**
-  * UI to view files for research project, using WebDAV client
-  * VM mount for WP4 using davfs2 (Vagrant script) capable of exporting output and using input from B2DROP also B2SHARE, when that supports WebDAV.
-  * **Multiplex WebDAV view (a federation of data)**
-	* probably use http://milton.io/
-	* And with demountable device
-  * **WebDAV view of iCAT-FUSE / PaNData / CCP4 / dCache / Zenodo resources**
-    * More as required
-  * **Input from WP4**
-	* Add to ELIXIR Tools and Data Services Registry and B2FIND
-	* Data management for single particle electron microscopy
-	* Consider proposing Instruct becomes an Associate Partner of EUDAT
-
+##Further doc
+http://internal-wiki.west-life.eu/w/index.php?title=D6.1
 
 
 
