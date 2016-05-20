@@ -1,0 +1,146 @@
+﻿<html>
+	<head>
+		<title>pdbentry form</title>
+        <script src="js/dhtmlx.js" type="text/javascript"></script>
+		<script src="js/jquery-2.2.3.min.js" type="text/javascript"></script>
+        <link rel="STYLESHEET" type="text/css" href="dhtmlx.css"/>
+	</head>
+
+	<body>
+	<style>
+    html, body {
+        width: 100%;      /*provides the correct work of a full-screen layout*/ 
+        height: 100%;     /*provides the correct work of a full-screen layout*/
+        overflow: hidden; /*hides the default body's space*/
+        margin: 0px;      /*hides the body's scrolls*/
+    }
+</style>
+	    <script type="text/javascript">
+
+
+			dhtmlxEvent(window,"load",function(){ 
+    		var layout = new dhtmlXLayoutObject(document.body,"2U");
+			
+        //the code of your application
+            layout.cells("a").setText("PDBEntries");
+            layout.cells("b").setText("PDBEntry Detail"); 
+            layout.cells("b").setWidth(600);
+
+            //var menu = layout.attachMenu();
+            //menu.setIconsPath("");
+            //menu.loadStruct("menu.xml");
+
+            var toolbar = layout.attachToolbar();
+            toolbar.setIconsPath("");
+            toolbar.loadStruct("js/toolbar.xml");
+
+
+            var pdbgrid = layout.cells("a").attachGrid();
+            pdbgrid.setHeader("Id, Description, URI");   //sets the headers of columns
+			pdbgrid.setColumnIds("Id,Description,Uri");         //sets the columns' ids
+			pdbgrid.setInitWidths("25,250,*");   //sets the initial widths of columns
+			pdbgrid.setColAlign("left,left,left");     //sets the alignment of columns
+			pdbgrid.setColTypes("ro,ro,ro");               //sets the types of columns
+			pdbgrid.setColSorting("int,str,str");  //sets the sorting types of columns
+			pdbgrid.init();
+			pdbgrid._process_servicestack=function(rawjsdata){
+				this._parsing=true;
+				var jsdata = JSON.parse(rawjsdata.response);
+				//var rows = jsdata.doXPath("//item");       //gets all row elements from XML
+				for (var i = 0; i < jsdata.length; i++){
+					var id = jsdata[i].Id;
+					this.rowsBuffer[i]={                //stores references to each row element
+						idd: id,
+						data: jsdata[i],
+						_parser: this._process_servicestack_row, //cell parser method
+						_locator: this._get_custom_xml_data    //data locator method
+					};
+
+					this.rowsAr[id]=jsdata[i];             //stores id reference
+				}
+				this.render_dataset();            //forces update of grid's view after data loading
+				this._parsing=false;
+			};
+
+			pdbgrid._process_servicestack_row=function(r, jsdata){
+				var strAr = []
+				for (property in jsdata) {
+					strAr.push(jsdata[property]) //push the property value into an array of row
+				}
+				//sets just a plain array as no custom attributes are needed
+				r._attrs={};
+				for (j=0; j < r.childNodes.length; j++) r.childNodes[j]._attrs={};
+
+				//finishes data loading
+				this._fillRow(r, strAr);
+				return r;
+			}
+			pdbgrid.load("pdbentry?format=json","servicestack");
+			//pdbgrid.attachHeader("#text_filter,#text_filter,#text_filter");
+
+			var pdbform = layout.cells("b").attachForm();
+			pdbform.loadStruct("form.xml");
+			pdbform.bind(pdbgrid);
+
+			var dpg = new dataProcessor("pdbentry");
+			dpg.init(pdbgrid);
+			dpg.attachEvent("onAfterUpdate", function(sid, action, tid, tag){
+				    if (action == "inserted"){
+				    	pdbgrid.selectRowById(tid);        //selects the newly-created row   
+				    	pdbform.setFocusOnFirstActive();//set focus to the 1st form's input
+				    }
+			});
+
+
+			pdbform.attachEvent("onButtonClick", function(name, command){
+    			//pdbform.save();     //sends the values of the updated row to the server
+				var myobj = {}
+				pdbform.forEachItem(function(name){
+					//construct json object for each item
+					try {
+						var value = pdbform.getItemValue(name);
+						Object.defineProperty(myobj, name, {value: value});
+					} catch (err) {
+						console.log(err);
+					}
+				});
+				var myobjjson = JSON.stringify(myobj);
+				//myobjjson =
+				jQuery.ajax({
+					url: "pdbentry?format=json",
+					data: myobj,
+					datatype: "json",
+					contentType: "application/json; charset=utf-8",
+					success: function (data) {
+						console.log("data sent successfully, result:");
+						console.log(data);
+					}
+				});
+
+ 			});
+
+ 			//add
+ 			toolbar.attachEvent("onclick",function(id){
+   				if(id=="newContact"){ //'newContact' is the id of the button in the toolbar
+        			var rowId=pdbgrid.uid();                  //generates an unique id
+        			var pos = pdbgrid.getRowsNum();  //gets the number of rows in grid
+        			pdbgrid.addRow(rowId,[0,"",""],pos);  //adds a new row       
+        		};
+        		if(id=="delContact"){
+ 		        	var rowId = pdbgrid.getSelectedRowId();
+ 		        	var rowIndex = pdbgrid.getRowIndex(rowId);
+ 		        	if(rowId!=null){
+ 		        		pdbgrid.deleteRow(rowId);
+ 		        		if(rowIndex!=(pdbgrid.getRowsNum()-1)){
+ 		        			pdbgrid.selectRow(rowIndex+1,true);
+ 		                } else{
+ 		                    pdbgrid.selectRow(rowIndex-1,true)
+ 		                }
+ 		            }
+ 		        }
+			});
+
+			});
+    </script>
+	</body>
+</html>
