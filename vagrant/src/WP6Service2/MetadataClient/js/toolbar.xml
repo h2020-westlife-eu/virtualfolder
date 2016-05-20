@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<toolbar>
+   <item id="newContact" type="button" text="Add"/>
+   <item id="delContact" type="button" text="Delete"/>
+   <item id="sep01" type="separator"/>         
+   <item id="help" type="button" text="Help"/>
+</toolbar>
