@@ -60,7 +60,7 @@ if [ -z "$http_proxy" ]; then echo "proxy is not set"; else
   proxyport=${proxyhostport#*:}
   proxyhost=${proxyhostport%:*}
   echo "writing to configuration proxy setting, proxyhost: $proxyhost  proxyport: $proxyport"
-  echo "\$conf[\"proxy\"][\"host\"]=$proxyhost" >> /var/www/dokuwiki/conf/local.php
-  echo "\$conf[\"proxy\"][\"port\"]=$proxyport" >> /var/www/dokuwiki/conf/local.php
+  echo "\$conf['proxy']['host'] = $proxyhost;" >> /var/www/dokuwiki/conf/local.php
+  echo "\$conf['proxy']['port'] = $proxyport;" >> /var/www/dokuwiki/conf/local.php
 fi
 

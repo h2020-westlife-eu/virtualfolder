@@ -5,6 +5,7 @@ using ServiceStack;
 using Mono.Unix;
 using Mono.Unix.Native;
 using ServiceStack.Data;
+using ServiceStack.Web;
 
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.MySql;
@@ -19,6 +20,12 @@ namespace WP6Service2
 		public class AppHost : AppSelfHostBase {
 			public AppHost() 
 				: base("HttpListener Self-Host", Assembly.GetExecutingAssembly()){}
+
+			public override string ResolveAbsoluteUrl(string virtualPath, IRequest req)
+			{
+				virtualPath = virtualPath.SanitizedVirtualPath();
+				return req.GetAbsoluteUrl(virtualPath);
+			}
 
 			public override void Configure(Funq.Container container) { 
 				container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
