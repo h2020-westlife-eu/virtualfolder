@@ -3,7 +3,7 @@
 		<title>pdbentry form</title>
         <script src="js/dhtmlx.js" type="text/javascript"></script>
 		<script src="js/jquery-2.2.3.min.js" type="text/javascript"></script>
-        <link rel="STYLESHEET" type="text/css" href="dhtmlx.css"/>
+        <link rel="STYLESHEET" type="text/css" href="js/dhtmlx.css"/>
 	</head>
 
 	<body>
@@ -36,12 +36,12 @@
 
 
             var pdbgrid = layout.cells("a").attachGrid();
-            pdbgrid.setHeader("Id, Description, URI");   //sets the headers of columns
-			pdbgrid.setColumnIds("Id,Description,Uri");         //sets the columns' ids
-			pdbgrid.setInitWidths("25,250,*");   //sets the initial widths of columns
-			pdbgrid.setColAlign("left,left,left");     //sets the alignment of columns
-			pdbgrid.setColTypes("ro,ro,ro");               //sets the types of columns
-			pdbgrid.setColSorting("int,str,str");  //sets the sorting types of columns
+            pdbgrid.setHeader("Id,Description,Uri,PDBId");   //sets the headers of columns
+			pdbgrid.setColumnIds("Id,Description,Uri,PDBId");         //sets the columns' ids
+			pdbgrid.setInitWidths("25,250,25,*");   //sets the initial widths of columns
+			pdbgrid.setColAlign("right,left,left,left");     //sets the alignment of columns
+			pdbgrid.setColTypes("ro,ro,ro,ro");               //sets the types of columns
+			pdbgrid.setColSorting("int,str,str,str");  //sets the sorting types of columns
 			pdbgrid.init();
 			pdbgrid._process_servicestack=function(rawjsdata){
 				this._parsing=true;
@@ -75,11 +75,11 @@
 				this._fillRow(r, strAr);
 				return r;
 			}
-			pdbgrid.load("pdbentry?format=json","servicestack");
+			pdbgrid.load("../pdbentry?format=json","servicestack");
 			//pdbgrid.attachHeader("#text_filter,#text_filter,#text_filter");
 
 			var pdbform = layout.cells("b").attachForm();
-			pdbform.loadStruct("form.xml");
+			pdbform.loadStruct("js/form.xml");
 			pdbform.bind(pdbgrid);
 
 			var dpg = new dataProcessor("pdbentry");
@@ -107,7 +107,7 @@
 				var myobjjson = JSON.stringify(myobj);
 				//myobjjson =
 				jQuery.ajax({
-					url: "pdbentry?format=json",
+					url: "../pdbentry?format=json",
 					data: myobj,
 					datatype: "json",
 					contentType: "application/json; charset=utf-8",
