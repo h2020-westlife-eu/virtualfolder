@@ -1,11 +1,12 @@
 <?php
 /**
  * Action sendemail for DokuWiki plugin bureaucracy
+ * 24.05.2016 tomas - fix bug of space at the end, added check of nonnull length of params before writing secrets
  */
 
 class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_action {
 
-    protected $b2drop_address = '/home/vagrant/work';
+    protected $b2drop_address = '/home/vagrant/work/b2drop';
     protected $b2drop_oc_folder = '/home/vagrant/b2drop';
     protected $b2drop_oc_url = 'https://b2drop.eudat.eu';
 
@@ -24,7 +25,7 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
 
     function tailShell($filepath, $lines = 1) {
         ob_start();
-        passthru('tail -'  . $lines . ' ' . escapeshellarg($filepath));
+        passthru('sudo tail -'  . $lines . ' ' . escapeshellarg($filepath));
         return trim(ob_get_clean());
     }
 
@@ -32,14 +33,16 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
         global $ID;
         global $conf;
 
-        $text = $this->b2drop_address;
+        $text = "";
+        $text .= $this->b2drop_address;
         $textoc = "";
         $index = 0;
         //adds each field into the
         foreach($fields as $field) {
             $value = $field->getParam('value');
             $label = $field->getParam('label');
-            $text .= " $value";
+            if (strlen($value)>0) $text .= " ";
+            $text .= trim($value);
             if ($index == 1) { 
               $textoc .= "-u $value"; //first is username
             } elseif ($index == 2) {
@@ -52,6 +55,7 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
         $textoc .= " $this->b2drop_oc_folder $this->b2drop_oc_url";
 
         $secretfile = fopen($this->filename,"w") or die ("Unable to open file  $this->filename !");
+        //error_log('debug secrets: "'.$text.'"');
         fwrite($secretfile, $text);
         fclose($secretfile);
 
