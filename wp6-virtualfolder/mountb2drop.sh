@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
+# 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 whoami 1>&2
 #create directory if not created 
 mkdir -p /home/vagrant/work/b2drop

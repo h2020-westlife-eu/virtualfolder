@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install mono, TODO reduce monodevelop to only needed packages
+# install mono,  TODO reduce monodevelop to only needed packages
 sudo apt-get -y install mono-complete
 # install mysql
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
