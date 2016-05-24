@@ -3,6 +3,11 @@
 sudo apt-get update
 sudo apt-get install -y apache2 php5  libapache2-mod-php5 unzip libapache2-mod-encoding davfs2 tofrodos inotify-tools
 
+# enable firewall
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw enable
+
 # download dokuwiki / prototype web
 wget -q http://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
 tar xvf dokuwiki-stable.tgz
