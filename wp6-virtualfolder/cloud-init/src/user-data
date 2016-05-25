@@ -1,0 +1,19 @@
+#cloud-config
+  users:
+    - name: cloudadm
+      sudo: ALL=(ALL) NOPASSWD:ALL
+      lock-passwd: true
+      ssh-import-id: cloudadm
+      ssh-authorized-keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJk0PWb/dUrwToh1+i1DCXGeoIcSAlUiJ8mdcPQyFOkY/V5Wej+XZkQBrFI8N21lF6TGWVINu2XHZkWgU2mQDaBcnLySQfMnw1bUqKthNHbe5TBMmArt363ZumBVf5/C+ndpHdk/CYYVRBvWy1S1etNpH0QXb1bRii8jTfuck0xsnvzfZn5IaH1tYAIR9KoB1XYdUNJr9xibQqW9huxdosEygpsqUnVckAbQrLCzhbWfwxGjwWRgoRy2txqJKhSoCOJG7UuhdU7QyB5QUhZOMCu/shw+34vyTfsmzYfk/iZEMIB4e8g2llkT6hJTglY/YBlHkl++p3D9tXXRs2gMtPP52RLBtj2L21K8xQZ0GfdaEeZVkEPHYTihvtqTXv+yQVbg4uKD/s9qv8q59XreokDqH1Nug3iGhNMTz2TexSUZPKWuw/WY5TnA74JEDRBXI+5smRJzgZ+Z3/BbLOVPrglIb4NdIlHnT64LOLByC68Ug9HL6vkYxlr+hL1yOZ5pHR+NU7kLvBSr0sSK66Zg89h0GsbjrNDC22biUS2uWDgZshOUokZDdHab05yd1Ajb5frgjfPiGkgmE7LR8xHUATfkVdem8ZHlsdubovI0hxyZOSIF53QLtPY7NwLnAz8safV1NUWHoc7fWXhieEBrrt/Vw/GlwoXmrO8ckCdoHPzw== tomas.kulhanek@stfc.ac.uk
+    - name: vagrant
+      sudo: ALL=(ALL) NOPASSWD:ALL
+      lock-passwd: true
+      shell: /bin/bash
+      ssh-import-id: cloudadm
+      ssh-authorized-keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJk0PWb/dUrwToh1+i1DCXGeoIcSAlUiJ8mdcPQyFOkY/V5Wej+XZkQBrFI8N21lF6TGWVINu2XHZkWgU2mQDaBcnLySQfMnw1bUqKthNHbe5TBMmArt363ZumBVf5/C+ndpHdk/CYYVRBvWy1S1etNpH0QXb1bRii8jTfuck0xsnvzfZn5IaH1tYAIR9KoB1XYdUNJr9xibQqW9huxdosEygpsqUnVckAbQrLCzhbWfwxGjwWRgoRy2txqJKhSoCOJG7UuhdU7QyB5QUhZOMCu/shw+34vyTfsmzYfk/iZEMIB4e8g2llkT6hJTglY/YBlHkl++p3D9tXXRs2gMtPP52RLBtj2L21K8xQZ0GfdaEeZVkEPHYTihvtqTXv+yQVbg4uKD/s9qv8q59XreokDqH1Nug3iGhNMTz2TexSUZPKWuw/WY5TnA74JEDRBXI+5smRJzgZ+Z3/BbLOVPrglIb4NdIlHnT64LOLByC68Ug9HL6vkYxlr+hL1yOZ5pHR+NU7kLvBSr0sSK66Zg89h0GsbjrNDC22biUS2uWDgZshOUokZDdHab05yd1Ajb5frgjfPiGkgmE7LR8xHUATfkVdem8ZHlsdubovI0hxyZOSIF53QLtPY7NwLnAz8safV1NUWHoc7fWXhieEBrrt/Vw/GlwoXmrO8ckCdoHPzw== tomas.kulhanek@stfc.ac.uk
+    - name: vagrant2
+      passwd: $6$4oFKmx.d1DQM6V$inwm/GO5m7eVzwx9m09dNr2nU4m2I.Z5hZW/DZXxfNFb2x3nllzTR1HuRo.YSxuHVaRazr8sXLGD6DFVZ5QuF1
+      lock-passwd: false
+      sudo: ALL=(ALL) NOPASSWD:ALL
