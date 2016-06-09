@@ -9,7 +9,7 @@ sudo apt-get -y install mono-complete
 #mysqladmin -u root --password=changeit create westlifewp6
 
 # install postgresql
-sudo apt-get install postgresql
+sudo apt-get -y install postgresql
 #sudo -u postgres createdb westlifewp6 default db is postgres
 
 # build metadatservice
