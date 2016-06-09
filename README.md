@@ -10,7 +10,7 @@ The WP6 is distributed as a vagrant package. Configuration files and scripts whi
 Prerequisites:
 
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
- 1.  Virtualbox - VM stack. Download and install virtualbox from https://www.virtualbox.org/
+ 2. Virtualbox - VM stack. Download and install virtualbox from https://www.virtualbox.org/
 Download and unpack west-life-wp6 package from https://github.com/h2020-westlife-eu/west-life-wp6/archive/master.zip
 
 Optionally, if you are behind proxy, download and install proxyconf plugin
