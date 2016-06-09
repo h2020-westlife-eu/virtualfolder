@@ -6,7 +6,7 @@
 
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
-  config.vm.network "forwarded_port", guest: 80, host: 8081
+  config.vm.network "forwarded_port", guest: 80, host: 8080
   if Vagrant.has_plugin?("vagrant-proxyconf")
     config.proxy.http     = "http://wwwcache.dl.ac.uk:8080"
     config.proxy.https    = "https://wwwcache.dl.ac.uk:8080"

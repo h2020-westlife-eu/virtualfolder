@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+# 02.06.2016 tomas - added WEBDAV & tiddlywiki for virtual folder documentation, probably more CMS should be supported
 # install lamp
 sudo apt-get update
-sudo apt-get install -y apache2 php5  libapache2-mod-php5 unzip libapache2-mod-encoding davfs2 tofrodos inotify-tools
+sudo apt-get install -y apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php5  libapache2-mod-php5
 
 # enable firewall
 sudo ufw allow 22
@@ -54,5 +55,4 @@ sudo sh -c "echo 'deb http://download.opensuse.org/repositories/isv:/ownCloud:/d
 sudo apt-get update
 sudo apt-get install -y --force-yes owncloud-client
 
-# install mono
-sudo apt-get install mono-runtime
+
