@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<title>Westlife WP6 - Virtual Folder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="w3.css">
+<link rel="stylesheet" href="w3-theme-teal.css">
+<link rel="stylesheet" href="font-awesome.min.css">
+<body>
+
+<!-- Side Navigation -->
+<nav class="w3-sidenav w3-white w3-card-2 w3-animate-left" style="display:none">
+    <a href="javascript:void(0)" onclick="w3_close()" class="w3-closenav w3-xxxlarge w3-text-theme">Close
+        <i class="fa fa-remove"></i>
+    </a>
+    <a href="javascript:void(0)">Link 1</a>
+    <a href="javascript:void(0)">Link 2</a>
+    <a href="javascript:void(0)">Link 3</a>
+    <a href="javascript:void(0)">Link 4</a>
+    <a href="javascript:void(0)">Link 5</a>
+</nav>
+
+<!-- Header -->
+<header class="w3-container w3-theme w3-padding" id="myHeader">
+    <i onclick="w3_open()" class="fa fa-bars w3-xlarge w3-opennav"></i>
+    <div class="w3-center">
+        <h4>BEAUTIFUL RESPONSIVE WEB SITES</h4>
+        <h1 class="w3-xxxlarge w3-animate-bottom">BUILT WITH W3.CSS</h1>
+        <div class="w3-padding-32">
+            <button class="w3-btn w3-xlarge w3-theme-dark w3-hover-teal" onclick="document.getElementById('id01').style.display='block'" style="font-weight:900;">LEARN W3.CSS</button>
+        </div>
+    </div>
+</header>
+
+<!-- Modal -->
+<div id="id01" class="w3-modal">
+    <div class="w3-modal-content w3-card-8 w3-animate-top">
+        <header class="w3-container w3-theme">
+            <span onclick="document.getElementById('id01').style.display='none'" class="w3-closebtn">&times;</span>
+            <h4>Oh snap! We just showed you a modal..</h4>
+            <h5>Because we can <i class="fa fa-smile-o"></i></h5>
+        </header>
+        <div class="w3-padding">
+            <p>Cool huh? Ok, enough teasing around..</p>
+            <p>Go to our <a class="w3-btn" href="/w3css/default.asp">W3.CSS Tutorial</a> to learn more!</p>
+        </div>
+        <footer class="w3-container w3-theme">
+            <p>Modal footer</p>
+        </footer>
+    </div>
+</div>
+
+<div class="w3-row-padding w3-center w3-margin-top">
+    <div class="w3-third">
+        <div class="w3-card-2 w3-padding-top" style="min-height:460px">
+            <h4>Responsive</h4><br>
+            <i class="fa fa-desktop w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+            <p>Built-in responsiveness</p>
+            <p>Mobile first fluid grid</p>
+            <p>Fits any screen sizes</p>
+            <p>PC Tablet and Mobile</p>
+        </div>
+    </div>
+
+    <div class="w3-third">
+        <div class="w3-card-2 w3-padding-top" style="min-height:460px">
+            <h4>Standard CSS</h4><br>
+            <i class="fa fa-css3 w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+            <p>Standard CSS only</p>
+            <p>Easy to learn</p>
+            <p>No need for jQuery</p>
+            <p>No JavaScript library</p>
+        </div>
+    </div>
+
+    <div class="w3-third">
+        <div class="w3-card-2 w3-padding-top" style="min-height:460px">
+            <h4>Design</h4><br>
+            <i class="fa fa-diamond w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+            <p>Paper like design</p>
+            <p>Bold colors and shadows</p>
+            <p>Equal across platforms</p>
+            <p>Equal across devices</p>
+        </div>
+    </div>
+</div>
+
+<!-- Script for Sidenav, Tabs, Accordions, Progress bars and slideshows -->
+<script>
+    // Side navigation
+    function w3_open() {
+        document.getElementsByClassName("w3-sidenav")[0].style.width = "100%";
+        document.getElementsByClassName("w3-sidenav")[0].style.textAlign = "center";
+        document.getElementsByClassName("w3-sidenav")[0].style.fontSize = "50px";
+        document.getElementsByClassName("w3-sidenav")[0].style.paddingTop = "10%";
+        document.getElementsByClassName("w3-sidenav")[0].style.display = "block";
+    }
+    function w3_close() {
+        document.getElementsByClassName("w3-sidenav")[0].style.display = "none";
+    }
+
+    // Tabs
+    function openCity(evt, cityName) {
+        var i;
+        var x = document.getElementsByClassName("city");
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none";
+        }
+        var activebtn = document.getElementsByClassName("testbtn");
+        for (i = 0; i < x.length; i++) {
+            activebtn[i].className = activebtn[i].className.replace(" w3-theme-dark", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " w3-theme-dark";
+    }
+
+    var mybtn = document.getElementsByClassName("testbtn")[0];
+    mybtn.click();
+
+    // Accordions
+    function myAccFunc(id) {
+        var x = document.getElementById(id);
+        if (x.className.indexOf("w3-show") == -1) {
+            x.className += " w3-show";
+            x.previousElementSibling.className += " w3-theme-dark";
+        } else {
+            x.className = x.className.replace(" w3-show", "");
+            x.previousElementSibling.className =
+                    x.previousElementSibling.className.replace(" w3-theme-dark", "");
+        }
+    }
+
+    // Slideshows
+    var slideIndex = 1;
+
+    function plusDivs(n) {
+        slideIndex = slideIndex + n;
+        showDivs(slideIndex);
+    }
+
+    function showDivs(n) {
+        var x = document.getElementsByClassName("mySlides");
+        if (n > x.length) {slideIndex = 1}
+        if (n < 1) {slideIndex = x.length} ;
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none";
+        }
+        x[slideIndex-1].style.display = "block";
+    }
+
+    showDivs(1);
+
+    // Progress Bars
+    function move() {
+        var elem = document.getElementById("myBar");
+        var width = 1;
+        var id = setInterval(frame, 10);
+        function frame() {
+            if (width == 100) {
+                clearInterval(id);
+            } else {
+                width++;
+                elem.style.width = width + '%';
+                document.getElementById("demoprgr").innerHTML = width * 1  + '%';
+            }
+        }
+    }
+</script>
+</body>
+</html>

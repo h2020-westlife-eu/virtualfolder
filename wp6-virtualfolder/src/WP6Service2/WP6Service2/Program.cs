@@ -8,8 +8,7 @@ using ServiceStack.Data;
 using ServiceStack.Web;
 
 using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.MySql;
-using MySql.Data.MySqlClient;
+using ServiceStack.OrmLite.PostgreSQL;
 
 namespace WP6Service2
 {
@@ -29,7 +28,7 @@ namespace WP6Service2
 
 			public override void Configure(Funq.Container container) { 
 				container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
-					AppSettings.GetString("ConnectionString"), MySqlDialect.Provider));
+					AppSettings.GetString("ConnectionString"), PostgreSqlDialect.Provider));
 				
 				using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {			
 					//drops table
@@ -58,7 +57,7 @@ namespace WP6Service2
 		//Run it!
 		static void Main(string[] args)
 		{
-			var listeningOn = args.Length == 0 ? "http://*:8082/" : args[0];
+			var listeningOn = args.Length == 0 ? "http://*:8080/" : args[0];
 			var appHost = new AppHost()
 				.Init()
 				.Start(listeningOn);
