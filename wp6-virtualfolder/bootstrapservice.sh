@@ -9,10 +9,13 @@ sudo apt-get -y install mono-complete
 #mysqladmin -u root --password=changeit create westlifewp6
 
 # install postgresql
-sudo apt-get install postgresql
+sudo apt-get -y install postgresql
+sudo service postgresql start
+
+#set postgres password
+sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
 #sudo -u postgres createdb westlifewp6 default db is postgres
 
 # build metadatservice
 cp -R /vagrant/src /home/vagrant
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
-
