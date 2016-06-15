@@ -12,5 +12,6 @@
 # By default this script does nothing.
 
 nohup mono /home/vagrant/build/MetadataService/MetadataService.exe > /home/vagrant/logs/MetadataService.log 2>&1 &
+nohup /home/vagrant/VRE-master/start.sh > /home/vagrant/logs/VRE.log 2>&1 &
 
 exit 0

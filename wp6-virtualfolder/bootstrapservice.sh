@@ -19,3 +19,17 @@ sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 
 # build metadatservice
 cp -R /vagrant/src /home/vagrant
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
+
+#install VRE
+wget https://github.com/h2020-westlife-eu/VRE/archive/master.zip
+unzip master.zip
+rm master.zip
+
+#configure all needed packages by VRE
+sudo apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
+sudo pip install virtualenv
+cp -R /vagrant/VRE /home/vagrant/VRE-master
+cd /home/vagrant/VRE-master
+bash make_venv.sh
+source rc.sh
+python manage.py migrate
