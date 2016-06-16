@@ -4,6 +4,7 @@
 sudo apt-get install -y tofrodos
 fromdos /vagrant/*.sh
 fromdos /vagrant/rc.local
+chmod ugo+x /vagrant/*.sh
 /vagrant/bootstrapweb.sh
 /vagrant/bootstrapconf.sh
 #/vagrant/bootstrapccp4.sh
