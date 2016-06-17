@@ -1,11 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-# changes: 
-# - tomas 20/05/2016 changed from precise64 (ubuntu 12.04) to trusty64 (ubuntu 14.04) - newer version of packages, 
+# changes:
+# - tomas 20/05/2016 changed from precise64 (ubuntu 12.04) to trusty64 (ubuntu 14.04) - newer version of packages,
 #                    added start.sh provision to run always - starts background processes
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "boxcutter/ubuntu1604"
   config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 8000, host: 8000
   if Vagrant.has_plugin?("vagrant-proxyconf")
@@ -19,7 +19,10 @@ Vagrant.configure(2) do |config|
   #
   #   # Customize the amount of memory on the VM:
     vb.memory = "1024"
+    # vb.name = "wp6-virtualfolder-ubuntu16.04"
   end
-
+  config.vm.synced_folder ".", "/vagrant"
   config.vm.provision "shell",  path: "bootstrap.sh"
+  #config.ssh.username = "vagrant"
+  #config.ssh.insert_key = true
 end

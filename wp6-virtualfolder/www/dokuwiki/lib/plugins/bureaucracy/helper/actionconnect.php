@@ -12,7 +12,7 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
 
     protected $filename = '/home/vagrant/secrets'; //secret file for davfs
     protected $filename_oc = '/home/vagrant/secrets_oc'; //secret file for owncloud
-    protected $cmd= 'sudo /home/vagrant/mountb2drop.sh'; //custom script to mount davfs and start owncloud sync
+    protected $cmd= 'sudo /home/vagrant/scripts/mountb2drop.sh'; //custom script to mount davfs and start owncloud sync
     /**
      * Set a new B2DROP connection from the submitted data and write it to the file
      *
@@ -43,7 +43,7 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
             $label = $field->getParam('label');
             if (strlen($value)>0) $text .= " ";
             $text .= trim($value);
-            if ($index == 1) { 
+            if ($index == 1) {
               $textoc .= "-u $value"; //first is username
             } elseif ($index == 2) {
               $textoc .= " -p $value"; //second is password
