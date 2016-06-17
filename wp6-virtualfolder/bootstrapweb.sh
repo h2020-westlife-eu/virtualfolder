@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # 02.06.2016 tomas - added WEBDAV & tiddlywiki for virtual folder documentation, probably more CMS should be supported
+# 17.06.2016 tomas - added noninteractive for davfs2 in ubuntu1604
 # install lamp
 sudo apt-get update
-sudo apt-get install -y apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php5  libapache2-mod-php5
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php  libapache2-mod-php
 
 # enable firewall
 sudo ufw allow 22
@@ -54,5 +55,3 @@ rm master.zip
 sudo sh -c "echo 'deb http://download.opensuse.org/repositories/isv:/ownCloud:/desktop/Ubuntu_12.04/ /' >> /etc/apt/sources.list.d/owncloud-client.list"
 sudo apt-get update
 sudo apt-get install -y --force-yes owncloud-client
-
-

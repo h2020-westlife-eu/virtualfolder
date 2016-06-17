@@ -10,7 +10,7 @@ sudo chown -R www-data:www-data /var/www
 sudo a2enmod dav
 sudo a2enmod dav_fs
 sudo a2enmod proxy_http
-sudo a2enmod php5
+sudo a2enmod php
 sudo service apache2 restart
 
 ## TODO create dokuwiki.conf inspired by https://techknight.eu/2015/06/19/setup-dokuwiki-ubuntu-14-04-lamp/
@@ -34,14 +34,14 @@ sudo usermod -a -G davfs2 vagrant
 # TODO optional will be done by dokuwiki plugin - if needed
 #mkdir /home/vagrant/.davfs
 #copy script for mounting B2DROP and setting root SetUID bit
-fromdos /vagrant/mountb2drop.sh
-cp /vagrant/mountb2drop.sh /home/vagrant
+#fromdos /home/vagrant/mountb2drop.sh
+#cp /vagrant/mountb2drop.sh /home/vagrant
 sudo chown root:root /home/vagrant/mountb2drop.sh
 sudo chmod 4755 /home/vagrant/mountb2drop.sh
-fromdos /vagrant/scripts/*
-sudo cp /vagrant/scripts/sudoers /etc/sudoers
+cp -R /vagrant/scripts /home/vagrant/scripts
+fromdos /home/vagrant/scripts/*
+sudo cp /home/vagrant/scripts/sudoers /etc/sudoers
 sudo chmod 0440 /etc/sudoers
-cp -R /vagrant/scripts /home/vagrant
 
 #PHP plugin will make a secrets file and execute the mountb2drop.sh script
 touch /home/vagrant/secrets
@@ -62,4 +62,3 @@ if [ -z "$http_proxy" ]; then echo "proxy is not set"; else
   echo "\$conf['proxy']['host'] = $proxyhost;" >> /var/www/dokuwiki/conf/local.php
   echo "\$conf['proxy']['port'] = $proxyport;" >> /var/www/dokuwiki/conf/local.php
 fi
-
