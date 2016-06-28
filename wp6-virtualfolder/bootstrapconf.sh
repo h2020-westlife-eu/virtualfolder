@@ -11,6 +11,7 @@ sudo a2enmod dav
 sudo a2enmod dav_fs
 sudo a2enmod proxy_http
 sudo a2enmod php
+sudo a2enmod proxy_html
 sudo service apache2 restart
 
 ## TODO create dokuwiki.conf inspired by https://techknight.eu/2015/06/19/setup-dokuwiki-ubuntu-14-04-lamp/
