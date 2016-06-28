@@ -29,5 +29,5 @@ root	ALL=(ALL:ALL) ALL
 
 #includedir /etc/sudoers.d
 
-Cmnd_Alias MOUNTB2 = /home/vagrant/mountb2drop.sh, /usr/bin/cp, /usr/bin/mount, /usr/bin/umount
+Cmnd_Alias MOUNTB2 = /home/vagrant/scripts/mountb2drop.sh, /usr/bin/cp, /usr/bin/mount, /usr/bin/umount
 www-data ALL=(ALL) NOPASSWD: MOUNTB2

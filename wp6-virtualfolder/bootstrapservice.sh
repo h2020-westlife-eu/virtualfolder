@@ -27,7 +27,8 @@ rm master.zip
 
 #configure all needed packages by VRE
 sudo apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
-sudo pip install virtualenv
+sudo -H pip install -U pip 
+sudo -H pip install virtualenv
 sudo cp -R /vagrant/VRE-master/* /home/vagrant/VRE-master
 #cd /home/vagrant/VRE-master
 #bash make_venv.sh
