@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # prepare and restart apache, rewrite configuration
-sudo cp -R /vagrant/apache2 /etc
-sudo cp -R /vagrant/www/* /var/www
+cp -R /vagrant/apache2 /etc
+cp -R /vagrant/www/* /var/www
 unzip /vagrant/thirdparty/ngl.zip -d /var/www
 #sudo cp /vagrant/index.html /var/www
-sudo rm /var/www/dokuwiki/install.php
-sudo chown -R www-data:www-data /var/www
+rm /var/www/dokuwiki/install.php
+chown -R www-data:www-data /var/www
 #sudo chmod -R 707 /var/www/dokuwiki
-sudo a2enmod dav
-sudo a2enmod dav_fs
-sudo a2enmod proxy_http
-sudo a2enmod php
-sudo a2enmod proxy_html
-sudo service apache2 restart
+a2enmod dav
+a2enmod dav_fs
+a2enmod proxy_http
+a2enmod php
+a2enmod proxy_html
+service apache2 restart
 
 ## TODO create dokuwiki.conf inspired by https://techknight.eu/2015/06/19/setup-dokuwiki-ubuntu-14-04-lamp/
 ## cp /etc/apache2/sites-available/000-default.conf dokuwiki.conf
@@ -37,17 +37,17 @@ sudo usermod -a -G davfs2 vagrant
 #copy script for mounting B2DROP and setting root SetUID bit
 #fromdos /home/vagrant/mountb2drop.sh
 #cp /vagrant/mountb2drop.sh /home/vagrant
-sudo chown root:root /home/vagrant/mountb2drop.sh
-sudo chmod 4755 /home/vagrant/mountb2drop.sh
+chown root:root /home/vagrant/mountb2drop.sh
+chmod 4755 /home/vagrant/mountb2drop.sh
 cp -R /vagrant/scripts /home/vagrant/scripts
 fromdos /home/vagrant/scripts/*
-sudo cp /home/vagrant/scripts/sudoers /etc/sudoers
-sudo chmod 0440 /etc/sudoers
+cp /home/vagrant/scripts/sudoers /etc/sudoers
+chmod 0440 /etc/sudoers
 
 #PHP plugin will make a secrets file and execute the mountb2drop.sh script
 touch /home/vagrant/secrets
 touch /home/vagrant/secrets_oc
-sudo chown www-data:www-data /home/vagrant/secrets /home/vagrant/secrets_oc
+chown www-data:www-data /home/vagrant/secrets /home/vagrant/secrets_oc
 
 # set proxy for davfs - as it seems not taking the http_proxy environment variable
 if [ -z "$http_proxy" ]; then echo "proxy is not set"; else
