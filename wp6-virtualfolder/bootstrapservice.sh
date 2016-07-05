@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # 02.06.2016 replaced mysql by postgres
 # install mono,  TODO reduce monodevelop to only needed packages
-apt-get install -y mono-complete
+#apt-get install -y mono-complete
+apt-get install -y mono-runtime
 # install mysql
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password changeit'
@@ -21,7 +22,7 @@ cp -R /vagrant/src /home/vagrant
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
 #install VRE
-wget https://github.com/h2020-westlife-eu/VRE/archive/master.zip
+wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
 unzip master.zip
 rm master.zip
 
