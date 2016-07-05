@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 02.06.2016 replaced mysql by postgres
 # install mono,  TODO reduce monodevelop to only needed packages
-sudo apt-get -y install mono-complete
+apt-get install -y mono-complete
 # install mysql
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password changeit'
@@ -9,8 +9,8 @@ sudo apt-get -y install mono-complete
 #mysqladmin -u root --password=changeit create westlifewp6
 
 # install postgresql
-sudo apt-get -y install postgresql
-sudo service postgresql start
+apt-get install -y postgresql
+service postgresql start
 
 #set postgres password
 sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
@@ -26,10 +26,10 @@ unzip master.zip
 rm master.zip
 
 #configure all needed packages by VRE
-sudo apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
-sudo -H pip install -U pip 
+apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
+sudo -H pip install -U pip
 sudo -H pip install virtualenv
-sudo cp -R /vagrant/VRE-master/* /home/vagrant/VRE-master
+cp -R /vagrant/VRE-master/* /home/vagrant/VRE-master
 #cd /home/vagrant/VRE-master
 #bash make_venv.sh
 #source rc.sh
