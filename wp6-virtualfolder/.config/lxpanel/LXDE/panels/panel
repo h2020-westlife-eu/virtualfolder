@@ -8,9 +8,9 @@ Global {
   widthtype=percent
   width=100
   height=26
-  transparent=1
-  tintcolor=#180000
-  alpha=155
+  transparent=0
+  tintcolor=#000000
+  alpha=0
   setdocktype=1
   setpartialstrut=1
   usefontcolor=1
@@ -23,7 +23,6 @@ Plugin {
   Config {
     Size=2
   }
-  expand=0
 }
 Plugin {
   type=menu
@@ -53,6 +52,9 @@ Plugin {
     Button {
       id=lxde-x-www-browser.desktop
     }
+    Button {
+      id=menu://applications/System/lxterminal.desktop
+    }
   }
 }
 Plugin {
@@ -60,7 +62,6 @@ Plugin {
   Config {
     Size=4
   }
-  expand=0
 }
 Plugin {
   type=wincmd
@@ -74,7 +75,6 @@ Plugin {
   Config {
     Size=4
   }
-  expand=0
 }
 Plugin {
   type=pager
@@ -86,7 +86,6 @@ Plugin {
   Config {
     Size=4
   }
-  expand=0
 }
 Plugin {
   type=taskbar
@@ -120,7 +119,7 @@ Plugin {
   Config {
     ClockFmt=%R
     TooltipFmt=%A %x
-    BoldFont=1
+    BoldFont=0
     IconOnly=0
     CenterText=0
   }
