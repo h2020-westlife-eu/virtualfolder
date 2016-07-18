@@ -1,2 +1,3 @@
 @lxpanel --profile LXDE
 @pcmanfm --desktop --profile LXDE
+@python ~/src/pythonwebdesktop/pythonwebdesktop http://localhost &
