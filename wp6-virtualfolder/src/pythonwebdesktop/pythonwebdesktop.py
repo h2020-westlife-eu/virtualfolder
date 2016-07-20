@@ -9,8 +9,8 @@ import sys
 import gtk
 import webkit
 import webbrowser
-import ctypes
-import os
+#import ctypes
+#import os
 
 DEFAULT_URL = 'http://localhost/' # Change this as you Wish
 class SimpleBrowser: # needs GTK, Python, Webkit-GTK
