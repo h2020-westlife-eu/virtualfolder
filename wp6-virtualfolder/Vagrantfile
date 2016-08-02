@@ -6,10 +6,10 @@
 # - tomas 20/05/2016 changed from precise64 (ubuntu 12.04) to trusty64 (ubuntu 14.04) - newer version of packages,
 # - tomas 19/07/2016 changed to lubuntu 16.04 and insert_key false to prevent second vagrant up fail
 #                    added start.sh provision to run always - starts background processes
-
+# - tomas 02/08/2016 changed to ubuntu 16.04 - desktop is installed with bootstrapdesktop.sh
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "halvards/lubuntu1604"
+  config.vm.box = "boxcutter/ubuntu1604"
   config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 8000, host: 8000
   if Vagrant.has_plugin?("vagrant-proxyconf")
@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
      vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-    vb.memory = "1024"
+    vb.memory = "2048"
     vb.cpus = 2
     # vb.name = "wp6-virtualfolder-ubuntu16.04"
   end

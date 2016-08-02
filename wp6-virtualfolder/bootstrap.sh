@@ -12,6 +12,6 @@ chmod ugo+x /home/vagrant/*.sh
 /home/vagrant/bootstrapweb.sh
 /home/vagrant/bootstrapconf.sh
 #/home/vagrant/bootstrapccp4.sh
-/home/vagrant/bootstrapservice.sh
-/home/vagrant/bootstrapscipion.sh
+#/home/vagrant/bootstrapservice.sh
+#/home/vagrant/bootstrapscipion.sh
 /home/vagrant/bootstrapstart.sh
