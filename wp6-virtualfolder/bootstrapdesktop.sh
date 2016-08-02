@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#apt-get install lxde
+apt-get install xfce lightdm
+cp -R /vagrant/lightdm /etc/lightdm
 cp -R /vagrant/.config /home/vagrant/.config
 cp -R /vagrant/Desktop /home/vagrant/Desktop
 fromdos /home/vagrant/Desktop/*.*
