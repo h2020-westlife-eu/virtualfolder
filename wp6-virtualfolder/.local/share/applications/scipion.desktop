@@ -1,0 +1,7 @@
+[Desktop Entry]
+Comment=
+Terminal=true
+Name=Scipion Install
+Exec=sudo /home/vagrant/bootstrapscipion.sh
+Type=Application
+Icon=gnome-panel-launcher

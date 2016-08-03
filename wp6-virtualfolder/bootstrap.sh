@@ -9,9 +9,9 @@ cp /vagrant/rc.local /home/vagrant
 fromdos /home/vagrant/*.sh
 fromdos /home/vagrant/rc.local
 chmod ugo+x /home/vagrant/*.sh
-/home/vagrant/bootstrapdesktop.sh
 /home/vagrant/bootstrapweb.sh
 #/home/vagrant/bootstrapccp4.sh
-#/home/vagrant/bootstrapservice.sh
+/home/vagrant/bootstrapservice.sh
 #/home/vagrant/bootstrapscipion.sh
+/home/vagrant/bootstrapdesktop.sh
 /home/vagrant/bootstrapstart.sh

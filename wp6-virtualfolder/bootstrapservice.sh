@@ -25,6 +25,7 @@ xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
 unzip master.zip
 rm master.zip
+cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
 #configure all needed packages by VRE
 apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev

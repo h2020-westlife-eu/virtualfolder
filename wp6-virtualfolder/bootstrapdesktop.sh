@@ -2,16 +2,19 @@
 
 #apt-get install lxde
 apt-get update
-apt-get -y install lightdm lxde
-#xfce4
+apt-get -y install lightdm xfce4
+
 cp -R /vagrant/lightdm/* /etc/lightdm/
 cp -R /vagrant/.config /home/vagrant/.config
-cp -R /vagrant/Desktop /home/vagrant/Desktop
-fromdos /home/vagrant/Desktop/*.*
+cp -R /vagrant/.local /home/vagrant/.local
+# remove desktop icons
+#cp -R /vagrant/Desktop /home/vagrant/Desktop
+#fromdos /home/vagrant/Desktop/*.*
 fromdos /home/vagrant/.config/*
 fromdos /home/vagrant/.config/*/*
 fromdos /home/vagrant/.config/*/*/*
 fromdos /home/vagrant/.config/*/*/*/*
+fromdos /home/vagrant/.local/*/*/*
 chown -R vagrant:vagrant /home/vagrant/Desktop
 #chown -R vagrant:vagrant /home/vagrant/.config
 #ln -s -f  /home/vagrant/VRE-master/static/img/westlife-background2.jpg /etc/alternatives/desktop-background
