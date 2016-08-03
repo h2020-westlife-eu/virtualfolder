@@ -1,3 +1,0 @@
-@lxpanel --profile LXDE
-@pcmanfm --desktop --profile LXDE
-python /home/vagrant/src/pythonwebdesktop/pythonwebdesktop.py http://localhost &

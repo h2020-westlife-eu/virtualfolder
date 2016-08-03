@@ -10,8 +10,8 @@ class helper_plugin_bureaucracy_actionconnect extends helper_plugin_bureaucracy_
     protected $b2drop_oc_folder = '/home/vagrant/b2drop';
     protected $b2drop_oc_url = 'https://b2drop.eudat.eu';
 
-    protected $filename = '/home/vagrant/secrets'; //secret file for davfs
-    protected $filename_oc = '/home/vagrant/secrets_oc'; //secret file for owncloud
+    protected $filename = '/tmp/secrets'; //secret file for davfs
+    protected $filename_oc = '/tmp/secrets_oc'; //secret file for owncloud
     protected $cmd= 'sudo /home/vagrant/scripts/mountb2drop.sh'; //custom script to mount davfs and start owncloud sync
     /**
      * Set a new B2DROP connection from the submitted data and write it to the file

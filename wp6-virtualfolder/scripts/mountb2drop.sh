@@ -8,7 +8,7 @@ chown www-data /home/vagrant/work
 umount /home/vagrant/work/b2drop
 #kill all previous b2dropsync and xiacont
 killall /bin/sh
-mv /home/vagrant/secrets /etc/davfs2/secrets
+mv /tmp/secrets /etc/davfs2/secrets
 chown root:root /etc/davfs2/secrets
 chmod 600 /etc/davfs2/secrets
 chmod ugo+rx /var/log/apache2
