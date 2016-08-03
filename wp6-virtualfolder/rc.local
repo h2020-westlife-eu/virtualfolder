@@ -10,7 +10,8 @@
 # bits.
 #
 # By default this script does nothing.
-
-nohup mono /home/vagrant/build/MetadataService/MetadataService.exe > /home/vagrant/logs/MetadataService.log 2>&1 &
+mkdir -p /home/vagrant/logs
+OBnohup mono /home/vagrant/build/MetadataService/MetadataService.exe > /home/vagrant/logs/MetadataService.log 2>&1 &
+nohup /home/vagrant/scripts/startVRE.sh > /home/vagrant/logs/VRE.log 2>&1 &
 
 exit 0

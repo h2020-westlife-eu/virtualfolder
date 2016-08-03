@@ -12,12 +12,12 @@ using ServiceStack.OrmLite.PostgreSQL;
 
 namespace WP6Service2
 {
-	class Program 
+	class Program
 	{
 
 		//Define the Web Services AppHost
 		public class AppHost : AppSelfHostBase {
-			public AppHost() 
+			public AppHost()
 				: base("HttpListener Self-Host", Assembly.GetExecutingAssembly()){}
 
 			public override string ResolveAbsoluteUrl(string virtualPath, IRequest req)
@@ -26,11 +26,11 @@ namespace WP6Service2
 				return req.GetAbsoluteUrl(virtualPath);
 			}
 
-			public override void Configure(Funq.Container container) { 
+			public override void Configure(Funq.Container container) {
 				container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
 					AppSettings.GetString("ConnectionString"), PostgreSqlDialect.Provider));
-				
-				using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {			
+
+				using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {
 					//drops table
 					db.DropTable<PDBArtifact> ();
 					//create table
@@ -50,25 +50,25 @@ namespace WP6Service2
 						db.Insert (p);
 						//Add seed data
 					}
-				}									
+				}
 			}
 		}
 
 		//Run it!
 		static void Main(string[] args)
 		{
-			var listeningOn = args.Length == 0 ? "http://*:8080/metadataservice/" : args[0];
+			var listeningOn = args.Length == 0 ? "http://*:8001/" : args[0];
 			var appHost = new AppHost()
 				.Init()
 				.Start(listeningOn);
 
-			Console.WriteLine("AppHost Created at {0}, listening on {1}", 
+			Console.WriteLine("AppHost Created at {0}, listening on {1}",
 				DateTime.Now, listeningOn);
 
 			//Unix specific
-			UnixSignal [] signals = new UnixSignal[] { 
-				new UnixSignal(Signum.SIGINT), 
-				new UnixSignal(Signum.SIGTERM), 
+			UnixSignal [] signals = new UnixSignal[] {
+				new UnixSignal(Signum.SIGINT),
+				new UnixSignal(Signum.SIGTERM),
 			};
 
 			// Wait for a unix signal
