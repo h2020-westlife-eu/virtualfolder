@@ -1,7 +1,7 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="doc/w3.css">
-
+<link rel="stylesheet" href="doc/font-awesome.min.css">
 
 <style>
     div.w3-card-2 {
@@ -12,16 +12,34 @@
 </style>
 <body class="w3-container">
 
-<header class="w3-card w3-center w3-pale-blue">
-    <p>
-        Westlife WP6 desktop
-    </p>
+<header class="w3-card w3-center w3-transparent w3-round-large">
+    <h1>
+        Westlife Virtual Folder
+    </h1>
 </header>
+<nav class="w3-sidenav w3-round-large w3-pale-green w3-opacity w3-border w3-card" style="width:10%">
+  <a href="#" class="tablink" onclick="openTab(event, 'Home')">Home</a>
+  <div class="w3-accordion">
+  <a href="#" class="tablink"  onclick="myAccFunc('PDBAcc');openTab(event, 'PDB')" href="#">
+    Protein DB files <i class="fa fa-caret-down"> </i>
+  </a>
+  <div id="PDBAcc" class="w3-accordion-content w3-white w3-card-4">
+    <a href="#" onclick="openTab(event, 'Home')">2hhd</a>
+    <a href="#" onclick="openTab(event, 'Home')">1dtu</a>
+    <a href="#"  onclick="openTab(event, 'Home'")>5iz7</a>
+  </div>
+</div>
+  <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file set</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'MD')">MD notes</a>
+</nav>
+
+<div style="margin-left:11%">
+<div id="Home" class="tab">
 <div class="w3-row-padding w3-center">
     <p class="w3-small"> Select from the modules bellow.</p>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-sand w3-hover-shadow"><p>
+        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large"><p>
             <a href="dokuwiki/doku.php" target="_blank">Dokuwiki documentation, prototype application</a>
             Set existing EUDAT B2DROP account, connection with PDB.org ...
         </p>
@@ -29,14 +47,14 @@
     </div>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-pale-blue w3-hover-shadow"><p>
+        <div class="w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large"><p>
             <a href="doc/notes.html" target="_blank">Individual Notes - TiddlyWiki</a>
             User specific notes, editable. Needs to improve storage of it in within VM.
         </p>
         </div>
     </div>
     <div class="w3-third">
-        <div class="w3-card-2 w3-pale-green w3-hover-shadow">
+        <div class="w3-card-2 w3-pale-green w3-hover-shadow w3-round-large">
             <p>
                 <a href="doc/index.html" target="_blank">W3CSS prototype page</a>
                 W3CSS prototype page, good looking and no need of Javascript frameworks, pure HTML and CSS.
@@ -76,6 +94,18 @@
         </div>
     </div>
 </div>
+</div>
+<div id="RAW" class="tab">
+
+</div>
+<div id="PDB" class="tab">
+
+</div>
+<div id="MD" class="tab">
+
+</div>
+
+
 <footer>
     <div class="w3-small w3-card w3-center"><p>
         Development documentation at <a href="http://internal-wiki.west-life.eu/w/index.php?title=WP6" target="_blank">internal-wiki.west-life.eu/w/index.php?title=WP6</a>
@@ -84,5 +114,32 @@
 
 </footer>
 
+<script>
+function openTab(evt, cityName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("tab");
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " w3-red";
+}
+
+function myAccFunc(accid) {
+    var x = document.getElementById(accid);
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+        x.previousElementSibling.className += " w3-green";
+    } else {
+        x.className = x.className.replace(" w3-show", "");
+        x.previousElementSibling.className =
+        x.previousElementSibling.className.replace(" w3-green", "");
+    }
+}
+</script>
 </body>
 </html>
