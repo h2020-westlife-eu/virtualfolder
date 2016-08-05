@@ -1,8 +1,21 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- minimalistic functional CSS with almost no jscript overhead -->
 <link rel="stylesheet" href="doc/w3.css">
-<link rel="stylesheet" href="doc/font-awesome.min.css">
+<!-- font for some icons and symbols -->
+<link rel="stylesheet" href="css/font-awesome.min.css">
 
+<!-- begin PDBComponent library -->
+<!-- Complied & minified library css -->
+<link rel="stylesheet" href="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/css/pdb.component.library.min-1.0.0.css" />
+
+<!-- Dependencey scripts (these can be skipped if already included in page) -->
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
+
+<!-- Complied & minified library JS -->
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/js/pdb.component.library.min-1.0.0.js"></script>
+<!-- end PDBComponent-->
 <style>
     div.w3-card-2 {
         min-height: 150px;
@@ -12,7 +25,7 @@
 </style>
 <body class="w3-container">
 
-<header class="w3-card w3-center w3-transparent w3-round-large">
+<header class="w3-card w3-center w3-black w3-round-large">
     <h1>
         Westlife Virtual Folder
     </h1>
@@ -24,9 +37,9 @@
     Protein DB files <i class="fa fa-caret-down"> </i>
   </a>
   <div id="PDBAcc" class="w3-accordion-content w3-white w3-card-4">
-    <a href="#" onclick="openTab(event, 'Home')">2hhd</a>
-    <a href="#" onclick="openTab(event, 'Home')">1dtu</a>
-    <a href="#"  onclick="openTab(event, 'Home'")>5iz7</a>
+    <a href="#"  class="tablink" onclick="openTab(event, '2hhd')">2hhd</a>
+    <a href="#"  class="tablink" onclick="openTab(event, '1dtu')">1dtu</a>
+    <a href="#"   class="tablink" onclick="openTab(event, '5iz7')")>5iz7</a>
   </div>
 </div>
   <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file set</a>
@@ -34,6 +47,7 @@
 </nav>
 
 <div style="margin-left:11%">
+
 <div id="Home" class="tab">
 <div class="w3-row-padding w3-center">
     <p class="w3-small"> Select from the modules bellow.</p>
@@ -47,21 +61,6 @@
     </div>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large"><p>
-            <a href="doc/notes.html" target="_blank">Individual Notes - TiddlyWiki</a>
-            User specific notes, editable. Needs to improve storage of it in within VM.
-        </p>
-        </div>
-    </div>
-    <div class="w3-third">
-        <div class="w3-card-2 w3-pale-green w3-hover-shadow w3-round-large">
-            <p>
-                <a href="doc/index.html" target="_blank">W3CSS prototype page</a>
-                W3CSS prototype page, good looking and no need of Javascript frameworks, pure HTML and CSS.
-            </p>
-        </div>
-    </div>
-    <div class="w3-third">
         <div class="w3-card-2 w3-light-grey w3-hover-shadow">
             <p>
                 <a href="webdav/" target="_blank">Browse content WEBDAV</a>
@@ -69,14 +68,7 @@
             </p>
         </div>
     </div>
-    <div class="w3-third">
-        <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
-            <p>
-                <a href="ngl/html/ngl.html" target="_blank">NGL PDB Viewer</a>
-                PDB viewer, uses WEBGL and HTML5.
-            </p>
-        </div>
-    </div>
+
     <div class="w3-third">
         <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
             <p>
@@ -104,17 +96,34 @@
 <div id="MD" class="tab">
 
 </div>
+<div id="2hhd" class="tab" style="position:relative;height:600px;display:none">
+  <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
+</div>
+<div id="1dtu" class="tab"  style="position:relative;height:600px;display:none">
+  <pdb-lite-mol pdb-id="'1dtu'" hide-controls="true"></pdb-lite-mol>
+</div>
+<div id="5iz7" class="tab"  style="position:relative;height:600px;display:none">
+  <pdb-lite-mol pdb-id="'5iz7'" hide-controls="true"></pdb-lite-mol>
+</div>
 
+</div>
 
 <footer>
-    <div class="w3-small w3-card w3-center"><p>
+    <div class="w3-center w3-black w3-bottom w3-bottombar">
         Development documentation at <a href="http://internal-wiki.west-life.eu/w/index.php?title=WP6" target="_blank">internal-wiki.west-life.eu/w/index.php?title=WP6</a>
-    </p>
     </div>
 
 </footer>
 
 <script>
+
+(function () {
+'use strict';
+angular.element(document).ready(function () {
+    angular.bootstrap(document, ['pdb.component.library']);
+});
+}());
+
 function openTab(evt, cityName) {
   var i, x, tablinks;
   x = document.getElementsByClassName("tab");
