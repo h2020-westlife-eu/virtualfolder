@@ -4,6 +4,9 @@
 apt-get update
 apt-get -y install lightdm xfce4
 
+#remove unused packages installed from metapackage
+apt-get -y remove xscreensaver
+
 cp -R /vagrant/lightdm/* /etc/lightdm/
 cp -R /vagrant/.config /home/vagrant/.config
 cp -R /vagrant/.local /home/vagrant/.local
