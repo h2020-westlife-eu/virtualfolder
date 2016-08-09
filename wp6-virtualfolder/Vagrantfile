@@ -6,16 +6,23 @@
 # - tomas 20/05/2016 changed from precise64 (ubuntu 12.04) to trusty64 (ubuntu 14.04) - newer version of packages,
 # - tomas 19/07/2016 changed to lubuntu 16.04 and insert_key false to prevent second vagrant up fail
 #                    added start.sh provision to run always - starts background processes
-# - tomas 02/08/2016 changed to ubuntu 16.04 - desktop is installed with bootstrapdesktop.sh
+# - tomas 02/08/2016 changed back to xenial (ubuntu 16.04) - desktop is installed with bootstrapdesktop.sh
+# - tomas 09/08/2016 changed proxy config based on environment variables rather than manually hardcoded
 
 Vagrant.configure(2) do |config|
   config.vm.box = "boxcutter/ubuntu1604"
   config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 8000, host: 8000
   if Vagrant.has_plugin?("vagrant-proxyconf")
-    config.proxy.http     = "http://wwwcache.dl.ac.uk:8080"
-    config.proxy.https    = "http://wwwcache.dl.ac.uk:8080"
-    config.proxy.no_proxy = "localhost,127.0.0.1"
+    if ENV["http_proxy"] 
+      config.proxy.http     =  ENV["http_proxy"] #"http://wwwcache.dl.ac.uk:8080"
+    end
+    if ENV["https_proxy"]
+      config.proxy.https    = ENV["https_proxy"] #"http://wwwcache.dl.ac.uk:8080"
+    end
+    if ENV["no_proxy"]
+      config.proxy.no_proxy = ENV["no_proxy"] #"localhost,127.0.0.1"
+    end
   end
   config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
