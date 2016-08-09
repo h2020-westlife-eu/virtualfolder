@@ -1,9 +1,19 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- minimalistic functional CSS with almost no jscript overhead -->
-<link rel="stylesheet" href="doc/w3.css">
+<link rel="stylesheet" href="doc/w3.css"/>
 <!-- font for some icons and symbols -->
-<link rel="stylesheet" href="css/font-awesome.min.css">
+<link rel="stylesheet" href="css/font-awesome.min.css"/>
+
+<link rel="stylesheet" href="doc/jquery.dynatable.css"/>
+
+<script src="doc/jquery-1.7.2.min.js"/>
+<script src="doc/jquery.dynatable.js"/>
+
+<!-- React.js -->
+<script src="doc/react.js"></script>
+<script src="doc/react-dom.js"></script>
+
 
 <!-- begin PDBComponent library -->
 <!-- Complied & minified library css -->
@@ -42,8 +52,9 @@
     <a href="#"   class="tablink" onclick="openTab(event, '5iz7')")>5iz7</a>
   </div>
 </div>
-  <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file set</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file browser</a>
   <a href="#" class="tablink" onclick="openTab(event, 'MD')">MD notes</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'vffm')">Virtual Folder File Manager</a>
 </nav>
 
 <div style="margin-left:11%">
@@ -85,6 +96,14 @@
             </p>
         </div>
     </div>
+    <div class="w3-third">
+        <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
+            <p>
+                <a href="tabletest.html" target="_blank">TablesTest</a>
+                File Manager Test
+            </p>
+        </div>
+    </div>
 </div>
 </div>
 <div id="RAW" class="tab" style="display:none">
@@ -106,6 +125,9 @@
   <pdb-lite-mol pdb-id="'5iz7'" hide-controls="true"></pdb-lite-mol>
 </div>
 
+<div id="vffm" class="tab">
+
+</div>
 </div>
 
 <footer>
