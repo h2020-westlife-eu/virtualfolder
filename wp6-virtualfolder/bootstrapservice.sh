@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # 02.06.2016 replaced mysql by postgres
 # install mono,  TODO reduce monodevelop to only needed packages
+
 #apt-get install -y mono-complete
 apt-get install -y mono-devel
+
 # install mysql
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password changeit'

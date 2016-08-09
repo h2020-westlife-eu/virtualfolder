@@ -22,6 +22,7 @@ fromdos /home/vagrant/.local/*/*/*
 chown -R vagrant:vagrant /home/vagrant/Desktop
 chown -R vagrant:vagrant /home/vagrant/.config
 chown -R vagrant:vagrant /home/vagrant/.local
+chown -R vagrant:vagrant /home/vagrant/scripts
 
 #ln -s -f  /home/vagrant/VRE-master/static/img/westlife-background2.jpg /etc/alternatives/desktop-background
 #python webkit as desktop background, firefox as default frontend browser
