@@ -1,0 +1,88 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- minimalistic functional CSS with almost no jscript overhead -->
+<link rel="stylesheet" href="../doc/w3.css"/>
+<!-- font for some icons and symbols -->
+<link rel="stylesheet" href="../css/font-awesome.min.css"/>
+
+<link rel="stylesheet" href="../doc/jquery.dynatable.css"/>
+<script src="../doc/jquery-1.7.2.min.js"></script>
+
+<script src="../doc/jquery.dynatable.js"></script>
+
+
+<!-- begin PDBComponent library -->
+<!-- Complied & minified library css -->
+<link rel="stylesheet" href="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/css/pdb.component.library.min-1.0.0.css" />
+
+<!-- Dependencey scripts (these can be skipped if already included in page) -->
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
+
+<!-- Complied & minified library JS -->
+<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/js/pdb.component.library.min-1.0.0.js"></script>
+<!-- end PDBComponent-->
+<style>
+    div.w3-card-2 {
+        min-height: 150px;
+        margin: 8px;
+        padding:8px;
+    }
+</style>
+<body class="w3-container">
+
+<header class="w3-card w3-center w3-black w3-round-large">
+    <h1>
+        Westlife Virtual Folder
+    </h1>
+</header>
+<nav class="w3-sidenav w3-round-large w3-pale-green w3-opacity w3-border w3-card" style="width:10%">
+  <a href="#" class="tablink" onclick="openTab(event, 'Home')">Home</a>
+  <div class="w3-accordion">
+  <a href="#" class="tablink"  onclick="myAccFunc('PDBAcc');openTab(event, 'PDB')" href="#">
+    Protein DB files <i class="fa fa-caret-down"> </i>
+  </a>
+  <div id="PDBAcc" class="w3-accordion-content w3-white w3-card-4">
+    <a href="#"  class="tablink" onclick="openTab(event, '2hhd')">2hhd</a>
+    <a href="#"  class="tablink" onclick="openTab(event, '1dtu')">1dtu</a>
+    <a href="#"   class="tablink" onclick="openTab(event, '5iz7')")>5iz7</a>
+  </div>
+</div>
+  <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file browser</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'MD')">MD notes</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'vffm')">Virtual Folder File Manager</a>
+</nav>
+
+<div style="margin-left:11%">
+<div id="vffm" class="tabs">
+  <div class="w3-half">
+    <table id="vffmt" class="w3-table w3-bordered w3-striped w3-border w3-hoverable">
+      <thead>
+        <th>name</th>
+        <th>attributes</th>
+        <th>size</th>
+        <th>Date</th>
+      </thead>
+    </table>
+  </div>
+  <div class="w3-half">
+    <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
+  </div>
+   <script>
+   var files = [{"name":"hg_images.tar","attributes":"-rw-r--r--","size":"127907840","Date":"2002-11-18T14:48:00"},
+   {"name":"1BIK.pdb","attributes":"-rw-r--r--","size":"32967","Date":"2015-08-26T14:48:00"},
+   {"name":"1IHM.pdb","attributes":"-rw-r--r--","size":"999088","Date":"2015-08-26T14:48:00"},
+   {"name":"1blu.pdb","attributes":"-rw-r--r--","size":"89790","Date":"2016-03-31T14:48:00"}
+ ]
+ $('#vffmt').dynatable({
+   dataset:{records:files}
+ });
+ $('#vffmt').dynatable().on('click', 'tr', function() {
+  console.log(this.textContent);
+  
+  // do stuff here
+});
+   </script>
+</div>
+</body>
+</html>
