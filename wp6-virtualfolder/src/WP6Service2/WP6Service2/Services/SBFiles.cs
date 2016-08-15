@@ -18,10 +18,17 @@ namespace WP6Service2
 		public String date { get; set; }
 		public String path { get; set; }
 
-		public Boolean directory { get; set; }
-		public Boolean read { get; set; }
-		public Boolean write { get; set; }
+	//	public Boolean directory { get; set; }
+	//	public Boolean read { get; set; }
+	//	public Boolean write { get; set; }
+		public FileType filetype {get;set;}
 		public String webdavuri { get; set; }
+	}
+	[Flags] enum FileType {
+		None= 0,
+		Directory = 1,
+		Read = 2,
+		Write = 4
 	}
 
 	public class SBFileService : Service
