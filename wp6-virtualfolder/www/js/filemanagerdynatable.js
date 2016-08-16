@@ -32,7 +32,9 @@ var FILETYPE = {
 var DirInfoRow = React.createClass({
     render:function(){
         return (
-            <b> {this.props.dirinfo.name} </b>
+            <span>
+                <b>{this.props.dirinfo.name}</b>
+            </span>
         )
     }
 });
@@ -46,10 +48,10 @@ var FileTable = React.createClass({
         });*/
         /*reference for further dynatable*/
         return (
-        <div className="w3-half">
+        <div class="w3-half">
         <DirInfoRow dirinfo={this.props.dirinfos}/>
 
-        <table ref={(ref) => this.myTable = ref} className="w3-table w3-striped w3-border w3-hoverable w3-small">
+        <table ref={(ref) => this.myTable = ref} >
                 <thead>
                 <tr>
                     <th>name</th>
@@ -63,12 +65,9 @@ var FileTable = React.createClass({
     },
     /*integrate jQuery, dynatable into rendered table by REACT*/
     componentDidMount: function(){
-
         jQuery(this.myTable).dynatable({
-            features:{ paginate:false},
             dataset:{records:this.props.files}
         });
-
         jQuery(this.myTable).dynatable().on('click', 'tr', function() {
             console.log(this.textContent);
             // do stuff here
@@ -82,7 +81,6 @@ var FileManager = React.createClass({
         return (
             <div>
                 <FileTable files={this.props.files} dirinfos={this.props.dirinfos}/>
-                <FileTable files={this.props.files2} dirinfos={this.props.dirinfos2}/>
             </div>
         );
     },
@@ -96,22 +94,11 @@ var FILES = [
     {name:'1dtu.pdb', size:14234241,time:'2016-08-07T9:50', filetype:6},
     {name:'5ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6}
 ];
-var FILES2 = [
-    {name:'..', size:0,time:'2016-08-07T9:50', filetype:7},
-    {name:'RAW', size:0,time:'2016-08-07T9:50', filetype:7},
-    {name:'4hhd.pdb', size:3648,time:'2016-08-07T9:50', filetype:6},
-    {name:'4dtu.pdb', size:14234241,time:'2016-08-07T9:50', filetype:6},
-    {name:'4ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6},
-    {name:'5hhd.pdb', size:3648,time:'2016-08-07T9:50', filetype:6},
-    {name:'5dtu.pdb', size:14234241,time:'2016-08-07T9:50', filetype:6},
-    {name:'5ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6}
-];
 
 var DIRINFO= {name:'WestlifeVirtualFolder',size:1024};
-var DIRINFO2= {name:'WestlifeVirtualFolder2',size:1024};
 
 ReactDOM.render(
-    <FileManager files={FILES} dirinfos={DIRINFO} files2={FILES2} dirinfos2={DIRINFO2}/>,
+    <FileManager files={FILES} dirinfos={DIRINFO}/>,
     document.getElementById('vffmcontainer')
 );
 

@@ -59,9 +59,8 @@
     <table id="vffmt" class="w3-table w3-bordered w3-striped w3-border w3-hoverable">
       <thead>
         <th>name</th>
-        <th>attributes</th>
         <th>size</th>
-        <th>Date</th>
+        <th>time</th>
       </thead>
     </table>
   </div>
@@ -69,13 +68,21 @@
     <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
   </div>
    <script>
-   var files = [{"name":"hg_images.tar","attributes":"-rw-r--r--","size":"127907840","Date":"2002-11-18T14:48:00"},
+     var FILES = [
+       {name:'..', size:'UP-DIR',time:'2016-08-07T9:50', filetype:7},
+       {name:'PDB', size:'DIR',time:'2016-08-07T9:50', filetype:7},
+       {name:'2hhd.pdb', size:3648,time:'2016-08-07T9:50', filetype:6},
+       {name:'1dtu.pdb', size:14234241,time:'2016-08-07T9:50', filetype:6},
+       {name:'5ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6}
+     ];
+
+     var files2 = [{"name":"hg_images.tar","attributes":"-rw-r--r--","size":"127907840","Date":"2002-11-18T14:48:00"},
    {"name":"1BIK.pdb","attributes":"-rw-r--r--","size":"32967","Date":"2015-08-26T14:48:00"},
    {"name":"1IHM.pdb","attributes":"-rw-r--r--","size":"999088","Date":"2015-08-26T14:48:00"},
    {"name":"1blu.pdb","attributes":"-rw-r--r--","size":"89790","Date":"2016-03-31T14:48:00"}
  ]
  $('#vffmt').dynatable({
-   dataset:{records:files}
+   dataset:{records:FILES}
  });
  $('#vffmt').dynatable().on('click', 'tr', function() {
   console.log(this.textContent);
