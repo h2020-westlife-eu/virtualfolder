@@ -14,21 +14,6 @@ var FILETYPE = {
     read:2,
     write:4
 };
-/*var FileRow = React.createClass({
-    render:function(){
-        var name = (this.props.file.type & FILETYPE.directory) ?
-            <b> {this.props.file.name} </b> :
-            this.props.file.name;
-        return (
-            <tr>
-                <td>{name}</td>
-                <td>{this.props.file.size}</td>
-                <td>{this.props.file.time}</td>
-            </tr>
-        );
-    }
-});
-*/
 var DirInfoRow = React.createClass({
     render:function(){
         return (
@@ -40,6 +25,8 @@ var DirInfoRow = React.createClass({
 var FileTable = React.createClass({
     render:function(){
         var rows = [];
+        var dir = this.props.dir;
+        var dirinfo = {name: dir,size:0};
 
         /*this.props.files.forEach(function(afile){
             rows.push(<FileRow file={afile} key={afile.name}/>);
@@ -47,31 +34,36 @@ var FileTable = React.createClass({
         /*reference for further dynatable*/
         return (
         <div className="w3-half">
-        <DirInfoRow dirinfo={this.props.dirinfos}/>
+        <DirInfoRow dirinfo={dirinfo}/>
 
         <table ref={(ref) => this.myTable = ref} className="w3-table w3-striped w3-border w3-hoverable w3-small">
                 <thead>
                 <tr>
                     <th>name</th>
                     <th>size</th>
-                    <th>time</th>
+                    <th>date</th>
                 </tr>
                 </thead>
             </table>
             </div>
         )
     },
+
     /*integrate jQuery, dynatable into rendered table by REACT*/
     componentDidMount: function(){
-
-        jQuery(this.myTable).dynatable({
-            features:{ paginate:false},
-            dataset:{records:this.props.files}
-        });
-
-        jQuery(this.myTable).dynatable().on('click', 'tr', function() {
-            console.log(this.textContent);
-            // do stuff here
+        jQuery.getJSON(FILESURL+this.props.dir,function(data){
+            //render table
+            console.log(data);
+            console.log(FILES2);
+            jQuery(this.myTable).dynatable({
+                features:{ paginate:false},
+                dataset:{records:data}
+            });
+            //click on row will execute action
+            jQuery(this.myTable).dynatable().on('click', 'tr', function() {
+                console.log(this.textContent);
+                // do stuff here
+            });
         });
     }
 });
@@ -81,21 +73,26 @@ var FileManager = React.createClass({
         console.log("rendering react output");
         return (
             <div>
-                <FileTable files={this.props.files} dirinfos={this.props.dirinfos}/>
-                <FileTable files={this.props.files2} dirinfos={this.props.dirinfos2}/>
+                <FileTable dir={this.state.leftdir} />
+                <FileTable dir={this.state.rightdir} />
             </div>
         );
     },
-
+    getInitialState: function(){
+        return{
+            leftdir:"",
+            rightdir:""
+        }
+    }
 });
 
-var FILES = [
+var FILES = [];/*[
     {name:'..', size:0,time:'2016-08-07T9:50', filetype:7},
     {name:'PDB', size:0,time:'2016-08-07T9:50', filetype:7},
     {name:'2hhd.pdb', size:3648,time:'2016-08-07T9:50', filetype:6},
     {name:'1dtu.pdb', size:14234241,time:'2016-08-07T9:50', filetype:6},
     {name:'5ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6}
-];
+];*/
 var FILES2 = [
     {name:'..', size:0,time:'2016-08-07T9:50', filetype:7},
     {name:'RAW', size:0,time:'2016-08-07T9:50', filetype:7},
@@ -107,11 +104,17 @@ var FILES2 = [
     {name:'5ire.pdb', size:1576573,time:'2016-08-07T9:50', filetype:6}
 ];
 
-var DIRINFO= {name:'WestlifeVirtualFolder',size:1024};
-var DIRINFO2= {name:'WestlifeVirtualFolder2',size:1024};
+var DIRINFO= {};/*name:'WestlifeVirtualFolder',size:1024};*/
+var DIRINFO2= {};/*name:'WestlifeVirtualFolder2',size:1024};*/
+
+//states for left and right panel
+var DIRLEFT="";
+var DIRRIGHT="";
+
+var FILESURL="/metadataservice/sbfiles/"
 
 ReactDOM.render(
-    <FileManager files={FILES} dirinfos={DIRINFO} files2={FILES2} dirinfos2={DIRINFO2}/>,
+    <FileManager />,
     document.getElementById('vffmcontainer')
 );
 
