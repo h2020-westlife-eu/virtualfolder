@@ -6,8 +6,17 @@ using ServiceStack.OrmLite;
 
 namespace WP6Service2
 {
+
+	[Flags] public enum FileType {
+		None= 0,
+		Directory = 1,
+		Read = 2,
+		Write = 4
+	}
+
 	[Route("/sbfiles")]
 	[Route("/sbfiles/{path*}")]
+
 	/*** DTO of file infos
 	 */
 	public class SBFile
@@ -24,12 +33,7 @@ namespace WP6Service2
 		public FileType filetype {get;set;}
 		public String webdavuri { get; set; }
 	}
-	[Flags] enum FileType {
-		None= 0,
-		Directory = 1,
-		Read = 2,
-		Write = 4
-	}
+
 
 	public class SBFileService : Service
 	{
@@ -60,9 +64,7 @@ namespace WP6Service2
 					attributes=fi.Attributes,//.ToString(),
 					size=mysize,
 					date=fi.LastWriteTime.ToLongDateString(),
-					directory=isdirectory,
-					read=true,
-					write = (fi.Attributes & FileAttributes.ReadOnly)>0? false:true,
+					filetype = (isdirectory?FileType.Directory:FileType.None) & FileType.Read & ((fi.Attributes & FileAttributes.ReadOnly)>0?FileType.None:FileType.Write),
 					webdavuri = webdavroot+path+"/"+fi.Name 
 				});
 			};
