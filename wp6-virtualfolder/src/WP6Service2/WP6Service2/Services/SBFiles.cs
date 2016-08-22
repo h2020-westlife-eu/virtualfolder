@@ -24,7 +24,7 @@ namespace WP6Service2
 		public String name { get; set;}
 		public FileAttributes attributes { get; set; }
 		public long size { get; set; }
-		public String date { get; set; }
+		public DateTime date { get; set; }
 		public String path { get; set; }
 
 	//	public Boolean directory { get; set; }
@@ -63,7 +63,7 @@ namespace WP6Service2
 					name=fi.Name,
 					attributes=fi.Attributes,//.ToString(),
 					size=mysize,
-					date=fi.LastWriteTime.ToLongDateString(),
+					date=fi.LastWriteTime,
 					filetype = (isdirectory?FileType.Directory:FileType.None) & FileType.Read & ((fi.Attributes & FileAttributes.ReadOnly)>0?FileType.None:FileType.Write),
 					webdavuri = webdavroot+path+"/"+fi.Name 
 				});
