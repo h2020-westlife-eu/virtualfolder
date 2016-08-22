@@ -51,10 +51,9 @@ var FileTable = React.createClass({
 
     /*integrate jQuery, dynatable into rendered table by REACT*/
     componentDidMount: function(){
-        jQuery.getJSON(FILESURL+this.props.dir,function(data){
-            //render table
+        this.serverRequest = $.getJSON(FILESURL+this.props.dir, function (data) {
             console.log(data);
-            console.log(FILES2);
+            //console.log(FILES2);
             jQuery(this.myTable).dynatable({
                 features:{ paginate:false},
                 dataset:{records:data}
@@ -64,7 +63,7 @@ var FileTable = React.createClass({
                 console.log(this.textContent);
                 // do stuff here
             });
-        });
+        }.bind(this));
     }
 });
 
