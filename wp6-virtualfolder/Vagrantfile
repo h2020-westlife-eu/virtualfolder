@@ -13,12 +13,14 @@
 $script = <<SCRIPT
 echo Provisioning CernVM...
 usermod -G wheel,docker,users,vagrant vagrant
-passwd -d vagrant
+#passwd -d vagrant
+echo Provisioning CernVM. Setting site.conf
 echo "CERNVM_USER=vagrant" >> /etc/cernvm/site.conf
 echo "CERNVM_START_XDM=on" >> /etc/cernvm/site.conf
 echo "CERNVM_AUTOLOGIN=on" >> /etc/cernvm/site.conf
 /etc/cernvm/config -x
 date > /etc/vagrant_provisioned_at
+echo Provisioning CernVM. Telinit 5
 /sbin/telinit 5
 SCRIPT
 
