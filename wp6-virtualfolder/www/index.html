@@ -19,7 +19,8 @@
 
 <!-- Dependencey scripts (these can be skipped if already included in page) -->
 <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
-<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
+<!--script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script-->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.js"></script>
 
 <!-- Complied & minified library JS -->
 <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/js/pdb.component.library.min-1.0.0.js"></script>
@@ -129,9 +130,6 @@
 <div id="MD" class="tab">
 
 </div>
-<div id="2hhd" class="tab" style="position:relative;height:600px;display:none">
-  <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
-</div>
 <div id="1dtu" class="tab"  style="position:relative;height:600px;display:none">
   <pdb-lite-mol pdb-id="'1dtu'" hide-controls="true"></pdb-lite-mol>
 </div>
@@ -139,16 +137,19 @@
   <pdb-lite-mol pdb-id="'5iz7'" hide-controls="true"></pdb-lite-mol>
 </div>
 
-<div id="vffm" class="tab">
-<div id="vffmcontainer">
+<div id="vffm" class="tab" style="display:none">
+<!-- React.js -->
+<script src="doc/react.js"></script>
+<script src="doc/react-dom.js"></script>
+<script src="doc/browser.js"></script>
+<script type="text/babel" src="js/filemanager.js"></script>
+<div id="vffmcontainer" class="w3-half">
 
 </div>
-    <!-- React.js -->
-    <script src="doc/react.js"></script>
-    <script src="doc/react-dom.js"></script>
-    <script src="doc/browser.js"></script>
-    <script type="text/babel" src="js/filemanager.js"></script>
-
+    <p><b>EMBL EBI PDB Viewer: 2hhd.pdb</b></p>
+    <div id="2hhd2" class="w3-half" style="position:relative;height:300px;">
+        <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
+    </div>
 </div>
 </div>
 
