@@ -1,8 +1,7 @@
 #!/bin/sh.after
 . /etc/cernvm/site.conf
 echo vagrant context: setting vagrant user
-
-# user created in cernvm configuration
+# user added in cervm context
 # useradd -p '$6$aSrbQftI$Q/Yk7xI0E4eNV58cRuvjqOHGXS.99BLU19QuJ5M.4X2.tTNSke2J9Cu6kf8fjegq0f1hk/MU8x/RR.TFy3nW50' vagrant
 echo vagrant context: user created
 echo "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -31,7 +30,6 @@ organisations=None
 repositories=
 shell=/bin/bash
 config_url=http://cernvm.cern.ch/config
-services=cernvm
 users=vagrant:vagrant:$6$UlU6Rl9a$TOSbHFSKhiqodkkate.nIb82dtTYOphWG4CePwrEp9IHCrFxeczRgoYn8mAf6IansKHjDCw6dr7kFaUrurg41/
 edition=Desktop
 screenRes=1024x768
@@ -39,6 +37,7 @@ keyboard=us-acentos
 startXDM=on
 
 [ucernvm-begin]
+resize_rootfs=true
 cvmfs_branch=cernvm-sl7.cern.ch
 cvmfs_server=hepvm.cern.ch
 [ucernvm-end]
