@@ -4,14 +4,14 @@
 #03/08/2016 tomas - merged boostrapweb and bootstrapconf
 apt-get update
 apt-get install -y tofrodos
-cp /vagrant/*.sh /home/vagrant
+cp -R /vagrant/bootstrap /home/vagrant
 cp /vagrant/rc.local /home/vagrant
-fromdos /home/vagrant/*.sh
+fromdos /home/vagrant/bootstrap/*
 fromdos /home/vagrant/rc.local
-chmod ugo+x /home/vagrant/*.sh
-/home/vagrant/bootstrapweb.sh
-#/home/vagrant/bootstrapccp4.sh
-/home/vagrant/bootstrapservice.sh
-#/home/vagrant/bootstrapscipion.sh
-/home/vagrant/bootstrapdesktop.sh
-/home/vagrant/bootstrapstart.sh
+chmod -R ugo+x /home/vagrant/bootstrap
+/home/vagrant/bootstrap/bootstrapweb.sh
+#/home/vagrant/bootstrap/bootstrapccp4.sh
+/home/vagrant/bootstrap/bootstrapservice.sh
+#/home/vagrant/bootstrap/bootstrapscipion.sh
+/home/vagrant/bootstrap/bootstrapdesktop.sh
+/home/vagrant/bootstrap/bootstrapstart.sh
