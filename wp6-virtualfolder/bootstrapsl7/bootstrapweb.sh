@@ -103,13 +103,17 @@ sudo usermod -a -G davfs2 vagrant
 #copy script for mounting B2DROP and setting root SetUID bit
 #fromdos /home/vagrant/mountb2drop.sh
 #cp /vagrant/mountb2drop.sh /home/vagrant
+cp -R /vagrant/scripts /home/vagrant/scripts
+dos2unix /home/vagrant/scripts/*
+
 chown root:root /home/vagrant/scripts/mountb2drop.sh
 chmod 4755 /home/vagrant/scripts/mountb2drop.sh
-cp -R /vagrant/scripts /home/vagrant/scripts
-
-dos2unix /home/vagrant/scripts/sudoers
-cat /home/vagrant/scripts/sudoers >>/etc/sudoers
-chmod 0440 /etc/sudoers
+if  grep -q MOUNTB2 /etc/sudoers; then
+  echo sudoers already provisioned
+else
+  cat /home/vagrant/scripts/sudoers >>/etc/sudoers
+  #chmod 0440 /etc/sudoers
+fi
 
 #PHP plugin will make a secrets file and execute the mountb2drop.sh script
 touch /home/vagrant/secrets

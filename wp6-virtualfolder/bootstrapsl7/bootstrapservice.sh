@@ -3,7 +3,7 @@
 # install mono,  TODO reduce monodevelop to only needed packages
 
 #apt-get install -y mono-complete
-apt-get install -y mono-devel
+#apt-get install -y mono-devel
 
 # install mysql
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
@@ -12,7 +12,8 @@ apt-get install -y mono-devel
 #mysqladmin -u root --password=changeit create westlifewp6
 
 # install postgresql
-apt-get install -y postgresql
+#apt-get install -y postgresql
+yum -y install postgresql
 service postgresql start
 
 #set postgres password
