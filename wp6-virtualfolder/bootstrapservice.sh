@@ -3,7 +3,7 @@
 # install mono,  TODO reduce monodevelop to only needed packages
 
 #apt-get install -y mono-complete
-apt-get install -y mono-devel
+#apt-get install -y mono-devel
 
 # install mysql
 #sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password changeit'
@@ -12,14 +12,32 @@ apt-get install -y mono-devel
 #mysqladmin -u root --password=changeit create westlifewp6
 
 # install postgresql
-apt-get install -y postgresql
-service postgresql start
+#apt-get install -y postgresql
+#service postgresql start
+yum -y install postgresql-server postgresql-contrib
+postgresql-setup initdb
+#allow postgresql md5 authentication
+gawk '{gsub(/ident/,"md5",$5); print}' /var/lib/pgsql/data/pg_hba.conf > pg_hba_new.conf
+mv pg_hba_new.conf /var/lib/pgsql/data/pg_hba.conf
 
-#set postgres password
+#start postgresql
+systemctl start postgresql
+systemctl enable postgresql
+#set default db account password
 sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
-#sudo -u postgres createdb westlifewp6 default db is postgres
 
-# build metadatservice
+#install mono
+yum -y remove mono-*
+yum -y remove monodoc
+
+yum -y install yum-utils
+rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
+yum -y install mono-devel
+#fix mono configuration
+sed -i '{s/\$mono_libdir/\/var\/lib64/}' /etc/mono/config
+
+# build metadataservice
 cp -R /vagrant/src /home/vagrant
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
@@ -30,7 +48,9 @@ rm master.zip
 cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
 #configure all needed packages by VRE
-apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
+#apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
+yum -y install redis nodejs
+yum -y install supervisor uwsgi python-pip python-devel postgresql-devel libffi-devel
 sudo -H pip install -U pip
 sudo -H pip install virtualenv
 cp -R /vagrant/VRE-master/* /home/vagrant/VRE-master

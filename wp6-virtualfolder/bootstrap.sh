@@ -14,7 +14,7 @@ dos2unix /home/vagrant/bootstrap/rc.local
 chmod ugo+x /home/vagrant/bootstrap/*.sh
 #/home/vagrant/bootstrap/bootstrapweb.sh
 #/home/vagrant/bootstrap/bootstrapccp4.sh
-#/home/vagrant/bootstrap/bootstrapservice.sh
+/home/vagrant/bootstrap/bootstrapservice.sh
 #/home/vagrant/bootstrap/bootstrapscipion.sh
 #/home/vagrant/bootstrap/bootstrapdesktop.sh
-#/home/vagrant/bootstrap/bootstrapstart.sh
+/home/vagrant/bootstrap/bootstrapstart.sh
