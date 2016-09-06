@@ -33,7 +33,7 @@ namespace WP6Service2
 		}
 		public object Put(SBRepository request)
 		{
-			return Put (request);
+			return Post (request);
 		}
 		public void Delete(SBRepository request)
 		{

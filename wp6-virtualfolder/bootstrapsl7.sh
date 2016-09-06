@@ -13,6 +13,7 @@ chmod ugo+x /home/vagrant/bootstrap/*.sh
 chown -R vagrant:vagrant /home/vagrant/bootstrap
 /home/vagrant/bootstrap/bootstrapweb.sh
 #/home/vagrant/bootstrapccp4.sh
+/home/vagrant/bootstrap/bootstrapcvmfs.sh
 /home/vagrant/bootstrap/bootstrapservice.sh
 #/home/vagrant/bootstrapscipion.sh
 #/home/vagrant/bootstrap/bootstrapdesktop.sh

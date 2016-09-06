@@ -52,8 +52,10 @@
   </div>
 </div>
   <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file browser</a>
-  <a href="#" class="tablink" onclick="openTab(event, 'MD')">MD notes</a>
+  <a href="#" class="tablink" onclick="openTab(event, 'MD')">B2DROP connector</a>
   <a href="#" class="tablink" onclick="openTab(event, 'vffm')">Virtual Folder File Manager</a>
+
+
 </nav>
 
 <div style="margin-left:11%">
@@ -128,7 +130,19 @@
 
 </div>
 <div id="MD" class="tab">
-
+    <script src="scripts/system.js"></script>
+    <script src="scripts/config-typescript.js"></script>
+    <script src="scripts/aurelia-core.min.js"></script>
+    <script>
+        System.import('aurelia-bootstrapper');
+    </script>
+    <template>
+<form submit.trigger="addb2drop()">
+    <input type="text" value.bind="username">
+    <input type="password" value.bind="usertoken">
+    <button type="submit">Connect to B2DROP</button>
+</form>
+    </template>
 </div>
 <div id="1dtu" class="tab"  style="position:relative;height:600px;display:none">
   <pdb-lite-mol pdb-id="'1dtu'" hide-controls="true"></pdb-lite-mol>

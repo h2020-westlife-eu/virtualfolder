@@ -74,9 +74,10 @@ chmod -R 707 /var/www/html/
 #a2enmod proxy_http
 #a2enmod php7.0
 #a2enmod proxy_html
-sudo rpm -Uvh --force http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
-sudo yum -y install davfs2
-sudo yum -y install mod_proxy_html
+#sudo rpm -Uvh --force http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
+yum -y install epel-release
+yum repolist
+yum -y install davfs2 mod_proxy_html
 
 service httpd restart
 

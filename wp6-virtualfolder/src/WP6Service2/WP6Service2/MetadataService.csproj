@@ -68,6 +68,7 @@
     <Compile Include="Services\SBArtifact.cs" />
     <Compile Include="Services\SBRepository.cs" />
     <Compile Include="Services\SBFiles.cs" />
+    <Compile Include="Services\B2DropConnector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
