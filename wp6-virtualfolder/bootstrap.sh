@@ -4,10 +4,10 @@
 #03/08/2016 tomas - merged boostrapweb and bootstrapconf
 apt-get update
 apt-get install -y tofrodos
-cp -R /vagrant/bootstrap /home/vagrant
-cp /vagrant/rc.local /home/vagrant
+cp -R /vagrant/bootstrap /home/vagrant/bootstrap
+cp /vagrant/rc.local /home/vagrant/bootstrap
 fromdos /home/vagrant/bootstrap/*
-fromdos /home/vagrant/rc.local
+
 chmod -R ugo+x /home/vagrant/bootstrap
 /home/vagrant/bootstrap/bootstrapweb.sh
 #/home/vagrant/bootstrap/bootstrapccp4.sh
