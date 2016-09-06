@@ -3,7 +3,11 @@
 # 17.06.2016 tomas - added noninteractive for davfs2 in ubuntu1604
 # install lamp
 #sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php  libapache2-mod-php
+#sudo DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php  libapache2-mod-php
+
+#install epel repository
+rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+
 
 # enable firewall
 ufw allow 22
