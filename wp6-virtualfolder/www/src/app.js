@@ -31,7 +31,7 @@ export class App {
 
     addb2drop() {
 
-        let postdata= {UserName:this.username,Securetoken:this.usertoken};
+        let postdata= {username:this.username,securetoken:this.usertoken};
         console.log(postdata);
         let postdatajson=JSON.stringify(postdata);
         console.log(postdatajson);

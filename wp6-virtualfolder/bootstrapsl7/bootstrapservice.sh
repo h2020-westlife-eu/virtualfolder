@@ -27,18 +27,24 @@ systemctl enable postgresql
 sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
 
 #install mono
+#remove default mono
 yum -y remove mono-*
 yum -y remove monodoc
-
+#install mono repository
 yum -y install yum-utils
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
 yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
 yum -y install mono-devel
+#install nuget package tool
+sudo yum -y --nogpgcheck install nuget
 #fix mono configuration
 sed -i '{s/\$mono_libdir/\/var\/lib64/}' /etc/mono/config
 
 # build metadataservice
 cp -R /vagrant/src /home/vagrant
+# download depended nuget packages DLL
+nuget restore /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
+# build project EXEcutable
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
 #install VRE
