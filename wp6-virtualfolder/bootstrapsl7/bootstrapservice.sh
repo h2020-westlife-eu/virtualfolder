@@ -38,12 +38,12 @@ yum -y install mono-devel
 #install nuget package tool
 sudo yum -y --nogpgcheck install nuget
 #fix mono configuration
-sed -i '{s/\$mono_libdir/\/var\/lib64/}' /etc/mono/config
+sed -i '{s/\$mono_libdir/\/usr\/lib64/}' /etc/mono/config
 
 # build metadataservice
 cp -R /vagrant/src /home/vagrant
 # download depended nuget packages DLL
-nuget restore /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
+nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
