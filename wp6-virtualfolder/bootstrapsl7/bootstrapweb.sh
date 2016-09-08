@@ -79,7 +79,8 @@ yum -y install epel-release
 yum repolist
 yum -y install davfs2 mod_proxy_html
 
-service httpd restart
+systemctl start httpd
+systemctl enable httpd
 
 ## TODO create dokuwiki.conf inspired by https://techknight.eu/2015/06/19/setup-dokuwiki-ubuntu-14-04-lamp/
 ## cp /etc/apache2/sites-available/000-default.conf dokuwiki.conf
