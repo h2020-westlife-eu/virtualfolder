@@ -9,9 +9,9 @@ namespace WP6Service2
 	public class B2DropConnector
 	{
 		public bool connected { get; set;}
-		public String Username { get; set;}		
-		public String Securetoken {get;set;}
-		public String Output { get; set; }
+		public String username { get; set;}		
+		public String securetoken {get;set;}
+		public String output { get; set; }
 	}
 	public class B2DropConnectorService : Service
 	{
@@ -25,7 +25,7 @@ namespace WP6Service2
 		public object Post(B2DropConnector request)
 		{
 			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets")) {
-				outputFile.WriteLine(B2DROPDIR+" "+request.Username+" "+request.Securetoken);
+				outputFile.WriteLine(B2DROPDIR+" "+request.username+" "+request.securetoken);
 			}
 
 			ProcessStartInfo psi = new ProcessStartInfo();
@@ -36,8 +36,8 @@ namespace WP6Service2
 
 			psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh";
 			Process p = Process.Start(psi);
-			request.Output=p.StandardOutput.ReadToEnd();
-			request.Output += p.StandardError.ReadToEnd ();
+			request.output=p.StandardOutput.ReadToEnd();
+			request.output += p.StandardError.ReadToEnd ();
 			p.WaitForExit();
 			//Console.WriteLine(strOutput);
 			request.connected = GetB2DropStatus();

@@ -1,0 +1,9 @@
+<template>
+    <h1>${heading}</h1>
+    <form submit.trigger="addb2drop()">
+        <input type="text" value.bind="username">
+        <input type="password" value.bind="usertoken">
+        <button type="submit">Connect to B2DROP</button>
+        <span>${status}</span>
+    </form>
+</template>
