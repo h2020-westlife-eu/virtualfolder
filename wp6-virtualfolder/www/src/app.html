@@ -1,9 +1,15 @@
 <template>
-    <h1>${heading}</h1>
-    <form submit.trigger="addb2drop()">
+    <h3>${heading}</h3>
+    <!-- form is showed only if the b2drop is not connected -->
+    <form show.bind="showdialog" submit.trigger="addb2drop()">
         <input type="text" value.bind="username">
         <input type="password" value.bind="usertoken">
         <button type="submit">Connect to B2DROP</button>
         <span>${status}</span>
+    </form>
+    <!-- if it is connected, then status info is showed and option to reconnect is showed-->
+    <form show.bind="!showdialog" submit.trigger="reconnect()">
+        <span> </span>
+        <button type="submit">reconnect</button>
     </form>
 </template>

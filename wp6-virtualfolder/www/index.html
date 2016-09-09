@@ -32,6 +32,7 @@
         padding:8px;
     }
 </style>
+<!-- background ; background:url('westlife-background2.jpg')-->
 <body class="w3-container">
 
 <header class="w3-card w3-center w3-black w3-round-large">
@@ -65,15 +66,21 @@
     <p class="w3-small"> Select from the modules bellow.</p>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large"><p>
-            <a href="dokuwiki/doku.php" target="_blank">Dokuwiki documentation, prototype application</a>
-            Set existing EUDAT B2DROP account, connection with PDB.org ...
-        </p>
+        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
+            <div aurelia-app="src/main">
+                <script src="scripts/system.js"></script>
+                <script src="scripts/config-esnext.js"></script>
+                <script src="scripts/aurelia-core.min.js"></script>
+
+                <script>
+                    System.import('aurelia-bootstrapper');
+                </script>
+            </div>
         </div>
     </div>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-light-grey w3-hover-shadow">
+        <div class="w3-card-2 w3-light-grey w3-hover-shadow w3-round-large">
             <p>
                 <a href="webdav/" target="_blank">Browse content WEBDAV</a>
                 browsing webdav folder using web browser, this link can be used to mount it locally
@@ -82,7 +89,7 @@
     </div>
 
     <div class="w3-third">
-        <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
+        <div class="w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large">
             <p>
                 <a href="metadataservice" target="_blank">Metadata Service</a>
                 Metadata service, uses Servicestack.NET and postgres DB.
@@ -90,7 +97,7 @@
         </div>
     </div>
     <div class="w3-third">
-        <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
+        <div class="w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large">
             <p>
                 <a href="vre" target="_blank">VRE</a>
                 Virtual Research Environment

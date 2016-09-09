@@ -12,25 +12,32 @@ export class App {
         this.username = "";
         this.usertoken = "";
         this.status = "";
+        this.showdialog = false;
         client.configure(config=>{
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
-    }
-
-    getb2drop() {
+        //gets the status of the b2drop connection
         client.get("http://localhost/metadataservice/b2dropconnector")
             .then(data => {
-                if (data.connected) {
-                    this.status="OK"
-                } else {
-                    this.status="fail"
+                this.status="disconnected"
+                this.showdialog=true;
+                if (data.response) {
+                    let myresponse = JSON.parse(data.response);
+                    if (myresponse.connected) {
+                        this.status = "OK"
+                        this.showdialog = false;
+                    }
                 }
             })
     }
 
-    addb2drop() {
+    reconnect(){
+        //triggers to show dialog
+        this.showdialog=true;
+    }
 
+    addb2drop() { //post credentials to connect to b2dropconnector rest service
         let postdata= {username:this.username,securetoken:this.usertoken};
         console.log(postdata);
         let postdatajson=JSON.stringify(postdata);
@@ -38,16 +45,16 @@ export class App {
 
         client.post("http://localhost/metadataservice/b2dropconnector",postdatajson)
             .then(data => {
-                console.log(data);
-                if (data.response.connected) this.status="OK"
+                console.log(data.response);
+                let myresponse = JSON.parse(data.response);
+                if (myresponse.connected) this.status="OK"
                 else {
                     this.status="fail:";
-                    if (data.response.output) {
-                        this.status+=data.response.output;
+                    if (myresponse.output) {
+                        this.status+=myresponse.output;
                     }
                 }
             });
-
     }
 
 }

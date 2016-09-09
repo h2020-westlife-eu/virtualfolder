@@ -94,7 +94,7 @@ mkdir /home/vagrant/work
 # dir for logs
 mkdir /home/vagrant/logs
 sudo chown apache:apache /home/vagrant/work
-sudo usermod -a -G davfs2 vagrant
+sudo usermod -a -G davfs2 vagrant apache
 
 # download and install b2drop webdav connection
 # TODO will be done by dokuwiki plugin
