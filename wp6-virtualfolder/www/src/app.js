@@ -43,7 +43,7 @@ export class App {
         let postdatajson=JSON.stringify(postdata);
         console.log(postdatajson);
 
-        client.post("http://localhost/metadataservice/b2dropconnector",postdatajson)
+        client.post("/metadataservice/b2dropconnector",postdatajson)
             .then(data => {
                 console.log(data.response);
                 let myresponse = JSON.parse(data.response);
