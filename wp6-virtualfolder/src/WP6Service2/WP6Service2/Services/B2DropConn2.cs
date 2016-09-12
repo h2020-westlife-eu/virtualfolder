@@ -28,9 +28,15 @@ namespace WP6Service2
 
 		public object Post(B2DropConnector2 request)
 		{
+			try {
 			// Specify the user credentials and use it to create a WebDavSession instance.
 			var credentials = new NetworkCredential(request.username, request.securetoken);
 			var webDavSession = new WebDavSession("https://b2drop.eudat.eu/remote.php/webdav", credentials);
+			if (Environment.GetEnvironmentVariable ("http_proxy")!=null) {
+				WebProxy proxy = new WebProxy ();
+				proxy.Address = new Uri (Environment.GetEnvironmentVariable ("http_proxy"));
+				webDavSession.WebProxy = proxy;
+			}
 			var items = webDavSession.ListAsync(@"/").Result;
 
 			foreach (var item in items)
@@ -39,6 +45,10 @@ namespace WP6Service2
 			}
 
 			request.connected = connected;
+			} catch (Exception e) {
+				request.connected = false;
+				request.output = e.Message; 
+			}
 			return request;
 		}
 
