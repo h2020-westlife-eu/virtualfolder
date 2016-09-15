@@ -5,7 +5,7 @@ using ServiceStack;
 
 namespace WP6Service2
 {
-	[Route("/b2dropconnector2")]
+	[Route("/b2dropconnector")]
 	public class B2DropConnector
 	{
 		public bool connected { get; set;}

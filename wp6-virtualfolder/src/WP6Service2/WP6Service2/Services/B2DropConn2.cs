@@ -7,7 +7,7 @@ using DecaTec.WebDav;
 
 namespace WP6Service2
 {
-	[Route("/b2dropconnector")]
+	[Route("/b2dropconnector2")]
 	public class B2DropConnector2
 	{
 		public bool connected { get; set;}
@@ -16,6 +16,8 @@ namespace WP6Service2
 		public String securetoken {get;set;}
 		public String output { get; set; }
 	}
+
+	/* testing decatec webdav client */
 	public class B2DropConnector2Service : Service
 	{
 		public object Get(B2DropConnector2 request) 
@@ -37,7 +39,7 @@ namespace WP6Service2
 				proxy.Address = new Uri (Environment.GetEnvironmentVariable ("http_proxy"));
 				webDavSession.WebProxy = proxy;
 			}
-			var items = webDavSession.ListAsync(@"/").Result;
+			var items = webDavSession.ListAsync("mydata2").Result;
 
 			foreach (var item in items)
 			{

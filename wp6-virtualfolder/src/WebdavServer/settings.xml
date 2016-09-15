@@ -1,0 +1,20 @@
+<settings>
+    <proxies>
+        <proxy>
+            <id>wwwcache</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>wwwcache.dl.ac.uk</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost</nonProxyHosts>
+        </proxy>
+        <proxy>
+            <id>wwwcache2</id>
+            <active>true</active>
+            <protocol>https</protocol>
+            <host>wwwcache.dl.ac.uk</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost</nonProxyHosts>
+        </proxy>
+    </proxies>
+</settings>

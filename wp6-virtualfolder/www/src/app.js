@@ -18,7 +18,7 @@ export class App {
             config.withHeader('Content-Type','application/json');
         });
         //gets the status of the b2drop connection
-        client.get("http://localhost/metadataservice/b2dropconnector")
+        client.get("/metadataservice/b2dropconnector")
             .then(data => {
                 this.status="disconnected"
                 this.showdialog=true;

@@ -27,6 +27,11 @@ namespace WP6Service2
 			}
 
 			public override void Configure(Funq.Container container) {
+				//make metadata urls relative behind reverse proxy
+				var hc = new HostConfig ();
+				hc.WebHostUrl = "/metadataservice";
+				SetConfig (hc);
+
 				container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
 					AppSettings.GetString("ConnectionString"), PostgreSqlDialect.Provider));
 
