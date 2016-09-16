@@ -27,7 +27,9 @@ namespace WP6Service2
 			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets")) {
 				outputFile.WriteLine(B2DROPDIR+" "+request.username+" "+request.securetoken);
 			}
-
+			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets2")) {
+				outputFile.WriteLine(request.username+":"+request.securetoken);
+			}
 			ProcessStartInfo psi = new ProcessStartInfo();
 			psi.FileName = "/usr/bin/sudo";
 			psi.UseShellExecute = false;
