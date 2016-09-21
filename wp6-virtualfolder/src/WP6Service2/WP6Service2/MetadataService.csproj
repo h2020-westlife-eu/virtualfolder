@@ -36,8 +36,8 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
-    <Reference Include="Npgsql">
-      <HintPath>..\packages\Npgsql.3.1.7\lib\net45\Npgsql.dll</HintPath>
+    <Reference Include="DecaTec.WebDav.NetFx">
+      <HintPath>..\packages\PortableWebDavLibrary.0.4.0\lib\DecaTec.WebDav.NetFx.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Interfaces">
       <HintPath>..\packages\ServiceStack.Interfaces.4.5.0\lib\portable-wp80+sl5+net45+win8+wpa81+monotouch+monoandroid+xamarin.ios10\ServiceStack.Interfaces.dll</HintPath>
@@ -47,12 +47,6 @@
     </Reference>
     <Reference Include="ServiceStack.Common">
       <HintPath>..\packages\ServiceStack.Common.4.5.0\lib\net45\ServiceStack.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.OrmLite">
-      <HintPath>..\packages\ServiceStack.OrmLite.4.5.0\lib\net45\ServiceStack.OrmLite.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.OrmLite.PostgreSQL">
-      <HintPath>..\packages\ServiceStack.OrmLite.PostgreSQL.4.5.0\lib\net45\ServiceStack.OrmLite.PostgreSQL.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Client">
       <HintPath>..\packages\ServiceStack.Client.4.5.0\lib\net45\ServiceStack.Client.dll</HintPath>
@@ -68,8 +62,14 @@
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="DecaTec.WebDav.NetFx">
-      <HintPath>..\packages\PortableWebDavLibrary.0.4.0\lib\DecaTec.WebDav.NetFx.dll</HintPath>
+    <Reference Include="Npgsql">
+      <HintPath>..\packages\Npgsql.3.1.7\lib\net45\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite">
+      <HintPath>..\packages\ServiceStack.OrmLite.4.5.0\lib\net45\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.PostgreSQL">
+      <HintPath>..\packages\ServiceStack.OrmLite.PostgreSQL.4.5.0\lib\net45\ServiceStack.OrmLite.PostgreSQL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

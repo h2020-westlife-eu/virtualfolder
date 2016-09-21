@@ -28,8 +28,7 @@ sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 
 
 #install mono
 #remove default mono
-yum -y remove mono-*
-yum -y remove monodoc
+yum -y remove mono-* monodoc
 #install mono repository
 yum -y install yum-utils
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"

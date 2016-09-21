@@ -46,22 +46,29 @@ class SimpleBrowser: # needs GTK, Python, Webkit-GTK
         vbox.pack_start(self.scrolled_window, fill=True, expand=True)
         self.window.add(vbox)
         self.webview.connect("new-window-policy-decision-requested", self.newWin)
+
     def _txt_url_activate(self, entry):
         self._load(entry.get_text())
+
     def _load(self, url):
         self.webview.open(url)
+
     def open(self, url):
         self.txt_url.set_text(url)
         self.window.set_title('%s' % url)
         self._load(url)
+
     def show(self):
         self.window.show_all()
+
     def close_application(self, widget, event, data=None):
         gtk.main_quit()
+
     def newWin(self, view, frame, request, nav_action, policy_decision):
         # calls the open on the desktop background ??
         webbrowser.open_new_tab(request.get_uri())
         return True
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         url = sys.argv[1]
