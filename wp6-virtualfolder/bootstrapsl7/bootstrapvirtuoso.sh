@@ -2,12 +2,14 @@
 # this script downloads/compiles/installs virtuoso tool into /opt/virtuoso
 
 yum -y install gperf
-curl -o virtuoso.zip https://codeload.github.com/openlink/virtuoso-opensource/zip/master
+wget https://codeload.github.com/openlink/virtuoso-opensource/zip/develop/7 -O virtuoso.zip
+#curl -o virtuoso.zip https://codeload.github.com/openlink/virtuoso-opensource/zip/master
 unzip -q virtuoso.zip
-CFLAGS="-O2 -m64"
+CFLAGS="-m64"
 export CFLAGS
 export VIRTUOSOPATH='/opt/virtuoso'
-cd virtuoso-opensource-master
+export VIRTUOSOBUILD='virtuoso-opensource-develop-7'
+cd $VIRTUOSOBUILD
 ./autogen.sh
 # add sparql endpoint
 # maybe also http://opldownload.s3.amazonaws.com/uda/vad-packages/7.2/isparql_dav.vad
@@ -15,6 +17,7 @@ cd virtuoso-opensource-master
 # and http://opldownload.s3.amazonaws.com/uda/vad-packages/7.2/pivot_dav.vad
 
 # for options, see ./configure --help
+#    --program-transform-name="s/isql/isql-vt/" \
 ./configure \
     --enable-silent-rules \
     --program-transform-name="s/isql/isql-vt/" \
@@ -35,3 +38,6 @@ cd virtuoso-opensource-master
 
 make
 make install prefix=$VIRTUOSOPATH
+cd ..
+rm -rf $VIRTUOSOBUILD
+rm virtuoso.zip

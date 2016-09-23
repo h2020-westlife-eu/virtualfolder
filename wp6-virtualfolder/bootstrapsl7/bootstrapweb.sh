@@ -14,6 +14,8 @@
 sudo systemctl start firewalld
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --zone=public --add-port=22/tcp --permanent
+firewall-cmd --zone=public --add-port=8890/tcp --permanent
+firewall-cmd --zone=public --add-port=1111/tcp --permanent
 # could firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --reload
 
