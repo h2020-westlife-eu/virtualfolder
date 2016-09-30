@@ -10,35 +10,31 @@ The WP6 is distributed as a vagrant package. Configuration files and scripts whi
 Prerequisites:
 
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
- 2. Virtualbox - VM stack. Download and install virtualbox (version 5.0.x compatible with vagrant) from https://www.virtualbox.org/wiki/Download_Old_Builds_5_0
+ 2. Virtualbox - VM stack. Download and install virtualbox (version 5.0.x compatible with vagrant, note version 5.1 not compatible with vagrant yet) from https://www.virtualbox.org/wiki/Download_Old_Builds_5_0
 Download and unpack west-life-wp6 package from https://github.com/h2020-westlife-eu/west-life-wp6/archive/master.zip
 
 Optionally, if you are behind proxy, download and install proxyconf plugin
 
     export http_proxy=http://user:password@host:port
     export https_proxy=https://user:password@host:port
+    export no_proxy=localhost
     vagrant plugin install vagrant-proxyconf
-
-Optionally, edit the west-life-wp6/wp6-virtualfolder/Vagrantfile to match the http-proxy and https-proxy to your environment:
-
-    ...
-    config.proxy.http     = "http://yourproxy:8080"
-    config.proxy.https    = "http://yourproxy:8080"
-    config.proxy.no_proxy = "localhost,127.0.0.1"
 
 Open command-line (e.g. cmd, cygwin or terminal)
 
     cd wp6-virtualfolder
     vagrant up
 
-This will start to download and install appropriate packages - depending on network speed it will take several to several tens of minutes - downloading 200 MB of data.
+This will start to download and install OS and configure appropriate packages - depending on network speed it will take several to several tens of minutes - downloading 200 MB of data.
 
 ## Usage
-The new virtual machine can be access by SSH (by default the 2222 port is forwarded to VM)
+The new virtual machine can be accessed by SSH (by default the 2222 port is forwarded to VM)
 
     vagrant ssh
 
-Or via web browser (port 8080 is forwarded to VM)
+or via GUI in virtualbox (username/password: vagrant/vagrant)
+
+Or via web browser (port 8080 is by default forwarded to VM)
 
     http://localhost:8080/
 
