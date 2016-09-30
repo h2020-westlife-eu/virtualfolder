@@ -12,8 +12,13 @@
 
 if ARGV[0] == 'up'
   if !Vagrant.has_plugin? "vagrant-reload"
-    system "vagrant plugin install vagrant-reload"
-    exec "vagrant up"
+      if Vagrant::Util::Platform.windows? then
+        system "vagrant plugin install vagrant-reload"
+        exec "vagrant up"
+      else
+        system "sudo vagrant plugin install vagrant-reload"
+        exec "vagrant up"
+      end
   end
 end
 
