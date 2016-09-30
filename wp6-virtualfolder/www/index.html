@@ -67,7 +67,7 @@
 
     <div class="w3-third">
         <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
-            <div aurelia-app="src/main">
+            <div aurelia-app="src/b2dropcontrol/main">
                 <script src="scripts/system.js"></script>
                 <script src="scripts/config-esnext.js"></script>
                 <script src="scripts/aurelia-core.min.js"></script>
@@ -75,6 +75,7 @@
                 <script>
                     System.import('aurelia-bootstrapper');
                 </script>
+                Loading ...
             </div>
         </div>
     </div>
@@ -147,17 +148,8 @@
 </div>
 
 <div id="vffm" class="tab" style="display:none">
-<!-- React.js -->
-<script src="doc/react.js"></script>
-<script src="doc/react-dom.js"></script>
-<script src="doc/browser.js"></script>
-<script type="text/babel" src="js/filemanager.js"></script>
-<div id="vffmcontainer" class="w3-half">
-
-</div>
-    <p><b>EMBL EBI PDB Viewer: 2hhd.pdb</b></p>
-    <div id="2hhd2" class="w3-half" style="position:relative;height:300px;">
-        <pdb-lite-mol pdb-id="'2hhd'" hide-controls="true"></pdb-lite-mol>
+    <div aurelia-app="src/filemanager/main">
+        Loading ...
     </div>
 </div>
 </div>

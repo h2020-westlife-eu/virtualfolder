@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # this script downloads/compiles/installs virtuoso tool into /opt/virtuoso
+yum -y install net-tools wget unzip autoconf automake libtool flex bison gperf gawk m4 make openssl-devel readline-devel
+#yum -y install gperf
 
-yum -y install gperf
-wget https://codeload.github.com/openlink/virtuoso-opensource/zip/develop/7 -O virtuoso.zip
+wget https://codeload.github.com/openlink/virtuoso-opensource/zip/develop/7 -nv -O virtuoso.zip
 #curl -o virtuoso.zip https://codeload.github.com/openlink/virtuoso-opensource/zip/master
 unzip -q virtuoso.zip
-CFLAGS="-m64"
+CFLAGS="-m64 -w"
 export CFLAGS
 export VIRTUOSOPATH='/opt/virtuoso'
 export VIRTUOSOBUILD='virtuoso-opensource-develop-7'
@@ -38,6 +39,9 @@ cd $VIRTUOSOBUILD
 
 make
 make install prefix=$VIRTUOSOPATH
-cd ..
-rm -rf $VIRTUOSOBUILD
-rm virtuoso.zip
+
+#cd ..
+
+#rm -rf $VIRTUOSOBUILD
+
+#rm virtuoso.zip

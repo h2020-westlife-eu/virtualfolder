@@ -20,12 +20,12 @@ export class App {
         //gets the status of the b2drop connection
         client.get("/metadataservice/b2dropconnector")
             .then(data => {
-                this.status="disconnected"
+                this.status="disconnected";
                 this.showdialog=true;
                 if (data.response) {
                     let myresponse = JSON.parse(data.response);
                     if (myresponse.connected) {
-                        this.status = "OK"
+                        this.status = "OK";
                         this.showdialog = false;
                     }
                 }
@@ -47,7 +47,7 @@ export class App {
             .then(data => {
                 console.log(data.response);
                 let myresponse = JSON.parse(data.response);
-                if (myresponse.connected) this.status="OK"
+                if (myresponse.connected) this.status="OK";
                 else {
                     this.status="fail:";
                     if (myresponse.output) {
