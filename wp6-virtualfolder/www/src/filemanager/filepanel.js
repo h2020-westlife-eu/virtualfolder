@@ -35,7 +35,7 @@ export const FilepanelCustomElement = decorators (
                 if (data.response) {
                     //console.log(data.response);
 
-                    this.files = JSON.parse(data.response);//populate window list
+                    this.files = JSON.parse(data.response,dateTimeReviver);//populate window list
                     //debug
                     //console.log(this.files);
                     //attached();
@@ -100,6 +100,17 @@ export const FilepanelCustomElement = decorators (
             })
     }
 
-    })
+    });
+
+dateTimeReviver = function (key, value) {
+    var a;
+    if (typeof value === 'string') {
+        a = /\/Date\((\d*)\)\//.exec(value);
+        if (a) {
+            return new Date(+a[1]);
+        }
+    }
+    return value;
+}
 
 
