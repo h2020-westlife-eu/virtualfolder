@@ -36,8 +36,8 @@ screenRes=1024x768
 keyboard=us-acentos
 startXDM=on
 
+
 [ucernvm-begin]
-cvmfs_branch=cernvm-prod.cern.ch
-cvmfs_http_proxy=http://wwwcache.dl.ac.uk:8080
-cvmfs_proxy=http://wwwcache.dl.ac.uk:8080
+cvmfs_branch=cernvm-sl7.cern.ch
+cvmfs_server=hepvm.cern.ch
 [ucernvm-end]
