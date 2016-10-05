@@ -3,7 +3,7 @@
 whoami 1>&2
 #create directory if not created
 mkdir -p /home/vagrant/work/b2drop
-chown www-data /home/vagrant/work
+chown apache /home/vagrant/work
 #mount work folder via webdav to b2drop
 umount /home/vagrant/work/b2drop
 #kill all previous b2dropsync and xiacont
@@ -13,11 +13,11 @@ umount /home/vagrant/work/b2drop
 mv /tmp/secrets /etc/davfs2/secrets
 chown root:root /etc/davfs2/secrets
 chmod 600 /etc/davfs2/secrets
-chmod ugo+rx /var/log/apache2
+chmod ugo+rx /var/log/httpd
 mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop
 #configure reverse proxy for webdav in apache
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
-if [-a /tmp/secrets2] 
+if [ -e /tmp/secrets2 ] 
   then
   AUTH="$(base64 /tmp/secrets2)"
   sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf
