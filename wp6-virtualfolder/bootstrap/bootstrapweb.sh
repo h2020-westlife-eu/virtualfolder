@@ -91,7 +91,7 @@ mkdir /home/vagrant/b2drop
 chown vagrant:vagrant /home/vagrant/b2drop
 # dir for logs
 mkdir /home/vagrant/logs
-sudo chown www-data:www-data /home/vagrant/work
+sudo chown apache:apache /home/vagrant/work
 sudo usermod -a -G davfs2 vagrant
 
 # download and install b2drop webdav connection

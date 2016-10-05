@@ -3,7 +3,9 @@
 whoami 1>&2
 #create directory if not created
 mkdir -p /home/vagrant/work/b2drop
-chown apache /home/vagrant/work
+chown -R apache /home/vagrant/work
+# allow browsing for apache user the work dir
+chmod o+x /home/vagrant
 #mount work folder via webdav to b2drop
 umount /home/vagrant/work/b2drop
 #kill all previous b2dropsync and xiacont
