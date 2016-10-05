@@ -41,5 +41,4 @@ startXDM=on
 cvmfs_branch=cernvm-sl7.cern.ch
 cvmfs_server=hepvm.cern.ch
 cvmfs_proxy=http://wwwcache.dl.ac.uk:8080
-cvmfs_http_proxy=http://wwwcache.dl.ac.uk:8080
 [ucernvm-end]
