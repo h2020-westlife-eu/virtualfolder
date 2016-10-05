@@ -10,17 +10,17 @@
 # - tomas 09/08/2016 changed proxy config based on environment variables rather than manually hardcoded
 # - tomas 26/08/2016 prepared cernvm box (17MB) for initial startup
 
-if ARGV[0] == 'up'
-  if !Vagrant.has_plugin? "vagrant-reload"
-      if Vagrant::Util::Platform.windows? then
-        system "vagrant plugin install vagrant-reload"
-        exec "vagrant up"
-      else
-        system "sudo vagrant plugin install vagrant-reload"
-        exec "vagrant up"
-      end
-  end
-end
+#if ARGV[0] == 'up'
+#  if !Vagrant.has_plugin? "vagrant-reload"
+#      if Vagrant::Util::Platform.windows? then
+#        system "vagrant plugin install vagrant-reload"
+#        exec "vagrant up"
+#      else
+#        system "sudo vagrant plugin install vagrant-reload"
+#        exec "vagrant up"
+#      end
+#  end
+#end
 
 $script = <<SCRIPT
 echo Provisioning CernVM...
@@ -70,5 +70,5 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $script
   config.vm.provision "shell",  path: "bootstrapsl7.sh"
   #bug when installing virtuoso, workaround -- reboot
-  config.vm.provision :reload
+  #config.vm.provision :reload
 end
