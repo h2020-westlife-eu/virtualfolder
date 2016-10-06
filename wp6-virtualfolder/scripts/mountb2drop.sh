@@ -23,7 +23,7 @@ if [ -e /tmp/secrets2 ]
   then
   AUTH="$(base64 /tmp/secrets2)"
   sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf
-  service httpd restart
+  service httpd reload
   rm /tmp/secrets2
 fi
 #chown -R www-data:www-data /home/vagrant/work
