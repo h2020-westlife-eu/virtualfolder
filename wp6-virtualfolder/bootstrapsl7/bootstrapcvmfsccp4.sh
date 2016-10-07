@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # configure cvmfs with ccp4 and ccpem
 
-echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk >/etc/cvmfs/default.local
-CVMFS_DEBUGLOG=/tmp/cvmfs.log >>/etc/cvmfs/default.local
+echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
+CVMFS_DEBUGLOG=/tmp/cvmfs.log
 CVMFS_HTTP_PROXY=\"http://cvmfs-squid.gridpp.rl.ac.uk:3128\"
 " >/etc/cvmfs/default.local
 
-echo "CVMFS_SERVER_URL=\"http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/\@org\@.gridpp.ac.uk;http://cvmfs01.nikhef.nl/cvmfs/\@org\@.gridpp.ac.uk\"
+echo "CVMFS_SERVER_URL=\"http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@org@.gridpp.ac.uk;http://cvmfs01.nikhef.nl/cvmfs/@org@.gridpp.ac.uk\"
 CVMFS_PUBLIC_KEY=/etc/cvmfs/keys/gridpp.ac.uk.pub
 " >/etc/cvmfs/domain.d/gridpp.ac.uk.conf
 
