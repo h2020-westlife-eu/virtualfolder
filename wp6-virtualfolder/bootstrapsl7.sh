@@ -18,6 +18,7 @@ chown -R vagrant:vagrant /home/vagrant/bootstrap
 #/home/vagrant/bootstrapscipion.sh
 #/home/vagrant/bootstrap/bootstrapdesktop.sh
 #/home/vagrant/bootstrap/bootstrapvirtuoso.sh
+/home/vagrant/bootstrap/bootstrapcvmfswestlife.sh
 /home/vagrant/bootstrap/bootstrapstart.sh
 
  

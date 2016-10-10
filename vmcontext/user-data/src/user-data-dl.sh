@@ -1,5 +1,11 @@
 #!/bin/sh.after
 . /etc/cernvm/site.conf
+echo Provisioning CernVM...
+usermod -G wheel,docker,users,vagrant vagrant
+#passwd -d vagrant
+date > /etc/vagrant_provisioned_at
+
+. /etc/cernvm/site.conf
 echo vagrant context: setting vagrant user
 # user added in cervm context
 # useradd -p '$6$aSrbQftI$Q/Yk7xI0E4eNV58cRuvjqOHGXS.99BLU19QuJ5M.4X2.tTNSke2J9Cu6kf8fjegq0f1hk/MU8x/RR.TFy3nW50' vagrant
@@ -15,6 +21,8 @@ chmod 0600               .ssh/authorized_keys
 chmod 0700               .ssh
 chown -R vagrant:vagrant .ssh
 echo vagrant context: ssh public key created
+#workaround for autologin
+killall lxdm-binary
 exit
 [amiconfig]
 plugins=cernvm cernvm_appliance rapadminpassword
@@ -35,7 +43,7 @@ edition=Desktop
 screenRes=1024x768
 keyboard=us-acentos
 startXDM=on
-
+auto_login=on
 
 [ucernvm-begin]
 cvmfs_branch=cernvm-sl7.cern.ch
