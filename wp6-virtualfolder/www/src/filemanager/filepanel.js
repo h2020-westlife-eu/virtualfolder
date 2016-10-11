@@ -11,6 +11,7 @@ export const FilepanelCustomElement = decorators (
     bindable({ name: 'tableid', defaultBindingMode: bindingMode.oneTime }),
     bindable('allowDestruction')
      ).on(class {
+
     constructor() {
         this.files = [];
         this.filescount = this.files.length;
@@ -32,10 +33,8 @@ export const FilepanelCustomElement = decorators (
         client.get("/metadataservice/sbfiles")
             .then(data => {
                 if (data.response) {
-                    this.files = JSON.parse(data.response,this.dateTimeReviver);//populate window list
+                    this.populateFiles(dataresponse);
 
-                    this.files.forEach(function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
-                    this.filescount =  this.files.length;
                     this.dynatable = $('#'+this.tableid).dynatable({
                         dataset: {records: this.files},
                         features: {
@@ -80,19 +79,15 @@ export const FilepanelCustomElement = decorators (
     }
 
 
-
+    //change folder, reads the folder content and updates the table structure
     changefolder(folder){
         if (folder=='..') this.cdup();
         else this.cddown(folder);
         client.get("/metadataservice/sbfiles/"+this.path)
             .then(data => {
                 if (data.response) {
-                    this.files = JSON.parse(data.response,this.dateTimeReviver);//populate window list
-                    this.filescount =  this.files.length;
-                    if (this.path.length>0) {//non root path
-                        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
-                    }
-                    this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
+                    this.populateFiles(data.response);
+                    //update files in table view
                     var d = this.dynatable.data('dynatable');
                     d.settings.dataset.originalRecords = this.files;
                     d.process();
@@ -101,7 +96,16 @@ export const FilepanelCustomElement = decorators (
             })
     }
 
-    });
+    populateFiles(dataresponse){
+        this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
+        this.filescount =  this.files.length;
+        if (this.path.length>0) {//non root path
+            this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+        }
+        this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
+    }
+
+});
 
 
 
