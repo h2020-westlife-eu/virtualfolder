@@ -33,6 +33,8 @@ export const FilepanelCustomElement = decorators (
             .then(data => {
                 if (data.response) {
                     this.files = JSON.parse(data.response,this.dateTimeReviver);//populate window list
+
+                    this.files.forEach(function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
                     this.filescount =  this.files.length;
                     this.dynatable = $('#'+this.tableid).dynatable({
                         dataset: {records: this.files},
@@ -45,7 +47,11 @@ export const FilepanelCustomElement = decorators (
                     });
                     let a = this;
                     this.dynatable.on('click', 'tr', function () {
-                        a.changefolder(this.firstChild.innerText);
+                        if (this.children[1].innerText.endsWith('DIR')) //if directory in second column
+                            a.changefolder(this.firstChild.innerText);
+                        else
+                            //do some file related stuff
+                            console.log(this.firstChild.innerText);
                     });
                 }
             })
@@ -86,6 +92,7 @@ export const FilepanelCustomElement = decorators (
                     if (this.path.length>0) {//non root path
                         this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
                     }
+                    this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
                     var d = this.dynatable.data('dynatable');
                     d.settings.dataset.originalRecords = this.files;
                     d.process();
