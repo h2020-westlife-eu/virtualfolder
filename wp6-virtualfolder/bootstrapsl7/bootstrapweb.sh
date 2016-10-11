@@ -11,6 +11,7 @@
 #ufw allow 80
 #ufw enable
 
+yum install firewalld
 sudo systemctl start firewalld
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --zone=public --add-port=22/tcp --permanent
@@ -43,8 +44,10 @@ mkdir /home/vagrant/work
 #chown vagrant:vagrant /home/vagrant/b2drop
 # dir for logs
 mkdir /home/vagrant/logs
-sudo chown apache:apache /home/vagrant/work
-sudo usermod -a -G davfs2 vagrant apache
+chown apache:apache /home/vagrant/work
+#adding vagrant and apache into davfs2 group
+usermod -a -G davfs2 vagrant
+usermod -a -G davfs2 apache
 
 # download and install b2drop webdav connection
 # TODO will be done by dokuwiki plugin

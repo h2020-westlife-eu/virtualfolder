@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # 05.07.2016 added scipion software
+# commented all except mpi, scipion distributed via cvmfs
 #apt-get install -y python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 #yum -y install python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
-#yum -y install openmpi openmpi-devel
+yum -y install openmpi openmpi-devel
 #install java-8, silently
 
 #apt-add-repository -y ppa:webupd8team/java
@@ -22,7 +23,7 @@
 
 #change owner, otherwise tests will fail for permission denied
 #chown -R vagrant:vagrant /home/vagrant/scipion
-sed -i -e 's/MPI_LIBDIR.*$/MPI_LIBDIR=\/usr\/lib64\/openmpi\/lib/g' /home/vagrant/scipion/config/scipion.conf
-sed -i -e 's/MPI_INCLUDE.*$/MPI_INCLUDE=\/usr\/src\/debug\/openmpi-1.6.4\/ompi\/include/g' /home/vagrant/scipion/config/scipion.conf
-sed -i -e 's/MPI_BINDIR.*$/MPI_BINDIR=\/usr\/lib64\/openmpi\/bin/g' /home/vagrant/scipion/config/scipion.conf
-sudo -E -i -u vagrant /home/vagrant/scipion/scipion config
+#sed -i -e 's/MPI_LIBDIR.*$/MPI_LIBDIR=\/usr\/lib64\/openmpi\/lib/g' /home/vagrant/scipion/config/scipion.conf
+#sed -i -e 's/MPI_INCLUDE.*$/MPI_INCLUDE=\/usr\/src\/debug\/openmpi-1.6.4\/ompi\/include/g' /home/vagrant/scipion/config/scipion.conf
+#sed -i -e 's/MPI_BINDIR.*$/MPI_BINDIR=\/usr\/lib64\/openmpi\/bin/g' /home/vagrant/scipion/config/scipion.conf
+#sudo -E -i -u vagrant /home/vagrant/scipion/scipion config
