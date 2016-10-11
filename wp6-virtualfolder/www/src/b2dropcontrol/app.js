@@ -13,10 +13,13 @@ export class App {
         this.usertoken = "";
         this.status = "";
         this.showdialog = false;
-        client.configure(config=>{
-            config.withHeader('Accept','application/json');
-            config.withHeader('Content-Type','application/json');
+        client.configure(config=> {
+            config.withHeader('Accept', 'application/json');
+            config.withHeader('Content-Type', 'application/json');
         });
+    }
+
+    attached() {
         //gets the status of the b2drop connection
         client.get("/metadataservice/b2dropconnector")
             .then(data => {

@@ -11,12 +11,6 @@ import {bindable, bindingMode} from 'aurelia-framework';
 export class App {
     constructor() {
         this.heading = "File manager";
-/*        this.files = [];
-        this.mytable = '#filetable1';
-
-        //gets the status of the b2drop connection
-
-*/
     }
 
 }

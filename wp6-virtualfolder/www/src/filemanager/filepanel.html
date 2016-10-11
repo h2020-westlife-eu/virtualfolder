@@ -1,13 +1,16 @@
 <template bindable="tableid">
 <div class="w3-half">
-    <table id="${tableid}">
-        <thead>
-        <tr>
-            <th>name</th>
-            <th>size</th>
-            <th>date</th>
-        </tr>
-        </thead>
-    </table>
+    <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
+        <span>${path} contains ${filescount} items.</span>
+        <table id="${tableid}">
+            <thead>
+            <tr>
+                <th style="text-align:left">name</th>
+                <th style="text-align:right">size</th>
+                <th style="text-align:center">date</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
 </div>
 </template>

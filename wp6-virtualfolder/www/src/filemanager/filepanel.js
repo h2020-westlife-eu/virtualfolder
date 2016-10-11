@@ -10,10 +10,12 @@ let client = new HttpClient();
 export const FilepanelCustomElement = decorators (
     bindable({ name: 'tableid', defaultBindingMode: bindingMode.oneTime }),
     bindable('allowDestruction')
-).on(class {
+     ).on(class {
     constructor() {
         this.files = [];
+        this.filescount = this.files.length;
         this.path= "";
+        this.dynatable = {};
         //not yet accessible here console.log("file panel constructed:" + this.tableid);
         client.configure(config=>{
             config.withHeader('Accept','application/json');
@@ -26,40 +28,44 @@ export const FilepanelCustomElement = decorators (
     }
 
     attached() {
-        console.log("file panel attached:" + this.tableid);
+        //console.log("file panel attached:" + this.tableid);
         client.get("/metadataservice/sbfiles")
             .then(data => {
-                //console.log("debug filemanager files:");
-                //console.log(data);
-                //console.log(data.response);
                 if (data.response) {
-                    //console.log(data.response);
-
-                    this.files = JSON.parse(data.response,dateTimeReviver);//populate window list
-                    //debug
-                    //console.log(this.files);
-                    //attached();
-                    console.log("populating:"+this.tableid+" files:"+data.response);
-                    //console.log(this.files);
-                    $('#'+this.tableid).dynatable({
-                        dataset: {records: this.files}
+                    this.files = JSON.parse(data.response,this.dateTimeReviver);//populate window list
+                    this.filescount =  this.files.length;
+                    this.dynatable = $('#'+this.tableid).dynatable({
+                        dataset: {records: this.files},
+                        features: {
+                            paginate: false,
+                            search: false,
+                            recordCount: false,
+                            perPageSelect: false
+                        }
                     });
                     let a = this;
-                    $('#'+this.tableid).dynatable().on('click', 'tr', function () {
-                        console.log(a);
-                        console.log(this);
-                        console.log(this.firstChild.innerText);
+                    this.dynatable.on('click', 'tr', function () {
                         a.changefolder(this.firstChild.innerText);
-                        // do stuff here
                     });
                 }
             })
     }
 
+    dateTimeReviver(key, value) {
+        var a;
+        if (typeof value === 'string') {
+            a = /\/Date\(([\d\+]*)\)\//.exec(value);
+            if (a) {
+                return new Date(parseInt(a[1])).toLocaleDateString('en-GB');
+            }
+        }
+        return value;
+    }
+
     //removes last subdirectory
     cdup(){
-        let sepIndex= this.folder.lastIndexOf('/');
-        this.path = this.directory.substring(0,sepIndex);
+        let sepIndex= this.path.lastIndexOf('/');
+        this.path = this.path.substring(0,sepIndex);
     }
 
     //adds subdirectory to the path
@@ -72,45 +78,23 @@ export const FilepanelCustomElement = decorators (
     changefolder(folder){
         if (folder=='..') this.cdup();
         else this.cddown(folder);
-        console.log("file panel attached:" + this.tableid);
         client.get("/metadataservice/sbfiles/"+this.path)
             .then(data => {
-                //console.log("debug filemanager files:");
-                //console.log(data);
-                //console.log(data.response);
                 if (data.response) {
-                    //console.log(data.response);
-                    if (this.path.length>0) //non root path
-                        this.files = [{name:"..",size:"UP DIR"}]; //up dir item
-                    else this.files = []; //root path - empty list
-                    this.files.push(JSON.parse(data.response));//populate window list
-                    //debug
-                    //console.log(this.files);
-                    //attached();
-                    console.log("populating:"+this.tableid+" files:"+data.response);
-                    //console.log(this.files);
-                    $('#'+this.tableid).dynatable({
-                        dataset: {records: this.files}
-                    });
-                    $('#'+this.tableid).dynatable().on('click', 'tr', function () {
-                        console.log(this.firstChild.innerText);
-                        // do stuff here
-                    });
+                    this.files = JSON.parse(data.response,this.dateTimeReviver);//populate window list
+                    this.filescount =  this.files.length;
+                    if (this.path.length>0) {//non root path
+                        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+                    }
+                    var d = this.dynatable.data('dynatable');
+                    d.settings.dataset.originalRecords = this.files;
+                    d.process();
+                    let a = this;
                 }
             })
     }
 
     });
 
-dateTimeReviver = function (key, value) {
-    var a;
-    if (typeof value === 'string') {
-        a = /\/Date\((\d*)\)\//.exec(value);
-        if (a) {
-            return new Date(+a[1]);
-        }
-    }
-    return value;
-}
 
 
