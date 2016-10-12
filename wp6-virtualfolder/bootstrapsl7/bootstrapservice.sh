@@ -28,21 +28,23 @@ sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 
 
 #install mono
 #remove default mono
-yum -y remove mono-* monodoc
+#yum -y remove mono-* monodoc
 #install mono repository
-yum -y install yum-utils
-rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
-yum -y install mono-devel
+#yum -y --installroot=/opt/tools/latest/ install yum-utils
+#rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+#yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
+#yum -y install --installroot=/opt/tools/latest/ mono-devel
 #install nuget package tool
-sudo yum -y --nogpgcheck install nuget
+#sudo yum -y --nogpgcheck --installroot=/opt/tools/latest/ install nuget
 #fix mono configuration
-sed -i '{s/\$mono_libdir/\/usr\/lib64/}' /etc/mono/config
+#sed -i '{s/\$mono_libdir/\/usr\/lib64/}' /opt/tools/latest/etc/mono/config
 
 # build metadataservice
 cp -R /vagrant/src /home/vagrant
 # download depended nuget packages DLL
-nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
+wget https://nuget.org/nuget.exe
+source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
+mono nuget.exe restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
