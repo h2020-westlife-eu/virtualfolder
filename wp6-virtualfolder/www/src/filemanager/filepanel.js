@@ -33,7 +33,7 @@ export const FilepanelCustomElement = decorators (
         client.get("/metadataservice/sbfiles")
             .then(data => {
                 if (data.response) {
-                    this.populateFiles(dataresponse);
+                    this.populateFiles(data.response);
 
                     this.dynatable = $('#'+this.tableid).dynatable({
                         dataset: {records: this.files},
