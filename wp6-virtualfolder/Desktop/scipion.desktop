@@ -5,8 +5,8 @@
 Version=1.0
 Type=Application
 Terminal=true
-Icon=/home/vagrant/scipion/pyworkflow/resources/scipion_logo.png
-Exec=/home/vagrant/scipion/scipion
+Icon=/cvmfs/west-life.egi.eu/software/scipion/latest/pyworkflow/resources/scipion_logo.png
+Exec=/cvmfs/west-life.egi.eu/software/scipion/latest/scipion
 Name=scipion workflow
 Comment=Scipion is for EM use cases
 Categories=Scientific;

@@ -1,0 +1,5 @@
+mkdir -p /home/vagrant/logs
+source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
+nohup mono /home/vagrant/build/MetadataService/MetadataService.exe > /home/vagrant/logs/MetadataService.log 2>&1 &
+nohup /home/vagrant/scripts/startVRE.sh > /home/vagrant/logs/VRE.log 2>&1 &
+nohup /cvmfs/west-life.egi.eu/software/virtuoso/latest/bin/virtuoso-t -f -c /home/vagrant/bootstrap/virtuoso.ini > /home/vagrant/logs/virtuoso.log 2>&1 &

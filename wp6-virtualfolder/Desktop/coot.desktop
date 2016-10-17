@@ -4,9 +4,9 @@
 Version=1.0
 Type=Application
 Terminal=false
-Icon[en_GB]=/home/vagrant/ccp4/coot.png
-Exec=/home/vagrant/ccp4/bin/coot
+Icon[en_GB]=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/coot.png
+Exec=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/bin/coot
 Name[en_GB]=coot
 Name=coot
-Icon=/home/vagrant/ccp4/coot.png
+Icon=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/coot.png
 Categories=Scientific
