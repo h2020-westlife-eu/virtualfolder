@@ -8,7 +8,7 @@ using ServiceStack.Data;
 using ServiceStack.Web;
 
 using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.PostgreSQL;
+using ServiceStack.OrmLite.Sqlite;
 
 namespace WP6Service2
 {
@@ -33,7 +33,7 @@ namespace WP6Service2
 				SetConfig (hc);
 
 				container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
-					AppSettings.GetString("ConnectionString"), PostgreSqlDialect.Provider));
+					":memory:", SqliteDialect.Provider));
 
 				using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {
 					//drops table
@@ -62,7 +62,7 @@ namespace WP6Service2
 		//Run it!
 		static void Main(string[] args)
 		{
-			var listeningOn = args.Length == 0 ? "http://*:8001/" : args[0];
+			var listeningOn = args.Length == 0 ? "http://*:8001/metadataservice/" : args[0];
 			var appHost = new AppHost()
 				.Init()
 				.Start(listeningOn);

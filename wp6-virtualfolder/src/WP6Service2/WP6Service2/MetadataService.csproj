@@ -68,8 +68,11 @@
     <Reference Include="ServiceStack.OrmLite">
       <HintPath>..\packages\ServiceStack.OrmLite.4.5.0\lib\net45\ServiceStack.OrmLite.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.OrmLite.PostgreSQL">
-      <HintPath>..\packages\ServiceStack.OrmLite.PostgreSQL.4.5.0\lib\net45\ServiceStack.OrmLite.PostgreSQL.dll</HintPath>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>..\packages\ServiceStack.OrmLite.Sqlite.Mono.4.5.0\lib\net45\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.Sqlite">
+      <HintPath>..\packages\ServiceStack.OrmLite.Sqlite.Mono.4.5.0\lib\net45\ServiceStack.OrmLite.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +108,7 @@
     <None Include="Client\js\jquery-2.2.3.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="sqlite3.dll" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
