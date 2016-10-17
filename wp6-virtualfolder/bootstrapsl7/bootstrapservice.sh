@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# 17.10.2016 replaced postgresql by sqlite3
+# 10.10.2016 moved mono 4.5 build to cvmfs
 # 02.06.2016 replaced mysql by postgres
 # install mono,  TODO reduce monodevelop to only needed packages
 
@@ -13,18 +15,19 @@
 
 # install postgresql
 #apt-get install -y postgresql
-#service postgresql start
-yum -y install postgresql-server postgresql-contrib
-postgresql-setup initdb
-#allow postgresql md5 authentication
-gawk '{gsub(/ident/,"md5",$5); print}' /var/lib/pgsql/data/pg_hba.conf > pg_hba_new.conf
-mv pg_hba_new.conf /var/lib/pgsql/data/pg_hba.conf
 
-#start postgresql
-systemctl start postgresql
-systemctl enable postgresql
-#set default db account password
-sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
+##service postgresql start
+#yum -y install postgresql-server postgresql-contrib
+#postgresql-setup initdb
+##allow postgresql md5 authentication
+#gawk '{gsub(/ident/,"md5",$5); print}' /var/lib/pgsql/data/pg_hba.conf > pg_hba_new.conf
+#mv pg_hba_new.conf /var/lib/pgsql/data/pg_hba.conf
+
+##start postgresql
+#systemctl start postgresql
+#systemctl enable postgresql
+##set default db account password
+#sudo -u postgres psql template1 -c "ALTER USER postgres with encrypted password 'changeit';"
 
 #install mono
 #remove default mono
@@ -56,7 +59,7 @@ cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
 #configure all needed packages by VRE
 #apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
-yum -y install redis nodejs supervisor uwsgi python-pip python-devel postgresql-devel libffi-devel
+yum -y install redis nodejs supervisor uwsgi python-pip python-devel libffi-devel
 sudo -H pip install -U pip
 sudo -H pip install virtualenv
 cp -R /vagrant/VRE-master/* /home/vagrant/VRE-master
