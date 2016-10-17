@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# 12.10.2016 - moved to cvmfs, copy local db
+export VIRTUOSOPATH='/cvmfs/west-life.egi.eu/software/virtuoso/latest'
+export LOCALVIRTUOSOPATH='/opt/virtuoso'
+mkdir -p $LOCALVIRTUOSOPATH/var/lib/virtuoso
+cp -R $VIRTUOSOPATH/var/lib/virtuoso/db $LOCALVIRTUOSOPATH/var/lib/virtuoso
+chown -R vagrant:vagrant $LOCALVIRTUOSOPATH
+exit
+# other is ignored
 # this script downloads/compiles/installs virtuoso tool into /opt/virtuoso
 yum -y install net-tools wget unzip autoconf automake libtool flex bison gperf gawk m4 make openssl-devel readline-devel
 #yum -y install gperf
