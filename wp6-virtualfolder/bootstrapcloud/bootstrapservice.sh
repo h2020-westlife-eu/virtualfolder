@@ -54,7 +54,7 @@ xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
 #install VRE
 wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
-unzip master.zip
+unzip -q master.zip
 rm master.zip
 cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
