@@ -63,7 +63,8 @@ namespace WP6Service2
 		static void Main(string[] args)
 		{
 			var listeningOn = args.Length == 0 ? "http://*:8001/metadataservice/" : args[0];
-			var appHost = new AppHost()
+			//var appHost = 
+			new AppHost()
 				.Init()
 				.Start(listeningOn);
 

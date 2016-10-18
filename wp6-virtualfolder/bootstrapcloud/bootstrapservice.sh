@@ -55,8 +55,8 @@ mozroots --import --sync
 #certmgr -ssl -m https://nuget.org
 # restore nuget packages 
 nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
-# build project EXEcutable
-xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj 
+# build project EXEcutable, workaround on xbuild bug - hangs after compilation 
+xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln & sleep 20; killall /cvmfs/west-life.egi.eu/tools/mono/4.6.1/bin/mono
 
 #install VRE
 wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
@@ -66,9 +66,9 @@ cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
 #configure all needed packages by VRE
 #apt-get -y install redis-server nodejs supervisor uwsgi python-pip python-dev postgresql-server-dev-all libffi-dev
-yum -y install redis nodejs supervisor uwsgi python-pip python-devel libffi-devel
-sudo -H pip install -U pip
-sudo -H pip install virtualenv
+yum -y install python-virtualenv python-pip python-redis nodejs-supervisor python-devel libffi-devel
+#sudo -H pip install -U pip
+#sudo -H pip install virtualenv
 cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
 #cd /home/vagrant/VRE-master
 #bash make_venv.sh

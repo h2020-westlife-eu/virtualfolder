@@ -14,8 +14,8 @@ dos2unix /home/vagrant/bootstrap/*
 chmod ugo+x /home/vagrant/bootstrap/*.sh
 chown -R vagrant:vagrant /home/vagrant/bootstrap
 
-#/home/vagrant/bootstrap/bootstrapweb.sh
+/home/vagrant/bootstrap/bootstrapweb.sh
 /home/vagrant/bootstrap/bootstrapservice.sh
-#/home/vagrant/bootstrap/bootstrapscipion.sh
-#/home/vagrant/bootstrap/bootstrapvirtuoso.sh
-#/home/vagrant/bootstrap/bootstrapstart.sh
+/home/vagrant/bootstrap/bootstrapscipion.sh
+/home/vagrant/bootstrap/bootstrapvirtuoso.sh
+/home/vagrant/bootstrap/bootstrapstart.sh
