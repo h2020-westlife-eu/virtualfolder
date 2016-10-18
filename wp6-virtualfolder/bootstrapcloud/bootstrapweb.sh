@@ -11,7 +11,7 @@
 #ufw allow 80
 #ufw enable
 
-yum install firewalld
+yum -y install firewalld
 sudo systemctl start firewalld
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --zone=public --add-port=22/tcp --permanent
