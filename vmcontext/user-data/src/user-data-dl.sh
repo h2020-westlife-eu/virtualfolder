@@ -35,7 +35,8 @@ password=
 
 [cernvm]
 organisations=None
-repositories=
+repositories=west-life.egi.eu
+#extra-repositories=west-life.egi.eu|west-life.egi.eu|MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxKhc7s1HmmPWH4Cq1U3K4FNFKcMQgZxUrgQEfvgkF97OZ8I8wzC9MWqmegX6tqlPmAzYWTM+Xi4nEBWYRhd+hVN/prHyYGzb/kTyCSHa9EQtIk9SUyoPfQxkGRnx68pD5con8KJySNa8neplsXx+2gypwjasBRQLzB3BrrGhrzZ5fL84+dsxNBBW6QfNO1BS5ATeWl3g1J27f0GoGtROYbPhaAd9D+B+qVo9pt3jKXvjTZQG0pE16xaX1elciFT9OhtZGaErDJyURskD7g3/NotcpBL5K5v95zA/kh5u+TRrmeTxHyDOpyrGrkqRaT5p+/C1z0HDyKFQbptegCbnGwIDAQAB
 shell=/bin/bash
 config_url=http://cernvm.cern.ch/config
 users=vagrant:vagrant:$6$UlU6Rl9a$TOSbHFSKhiqodkkate.nIb82dtTYOphWG4CePwrEp9IHCrFxeczRgoYn8mAf6IansKHjDCw6dr7kFaUrurg41/
@@ -44,8 +45,12 @@ screenRes=1024x768
 keyboard=us-acentos
 startXDM=on
 auto_login=on
+swap_size=2G
+proxy=http://wwwcache.dl.ac.uk:8080
 
 [ucernvm-begin]
 cvmfs_branch=cernvm-sl7.cern.ch
 cvmfs_server=hepvm.cern.ch
+cvmfs_proxy=http://wwwcache.dl.ac.uk:8080
+cvmfs_http_proxy=http://wwwcache.dl.ac.uk:8080
 [ucernvm-end]

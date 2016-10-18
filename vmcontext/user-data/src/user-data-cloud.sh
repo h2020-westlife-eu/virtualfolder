@@ -23,6 +23,18 @@ chown -R vagrant:vagrant .ssh
 echo vagrant context: ssh public key created
 #workaround for autologin
 killall lxdm-binary
+#bootstrap from cloud
+wget --quiet https://github.com/h2020-westlife-eu/west-life-wp6/archive/master.zip
+unzip -q master.zip -d /home/vagrant
+rm master.zip
+export WP6SRC=/home/vagrant/west-life-wp6-master/wp6-virtualfolder
+mkdir -p /home/vagrant/bootstrap
+cp -R $WP6SRC/bootstrapcloud/* /home/vagrant/bootstrap
+dos2unix /home/vagrant/bootstrap/*
+chmod ugo+x /home/vagrant/bootstrap/*.sh
+chown -R vagrant:vagrant /home/vagrant/bootstrap
+/home/vagrant/bootstrap/bootstrap.sh
+
 exit
 [amiconfig]
 plugins=cernvm cernvm_appliance rapadminpassword
