@@ -46,8 +46,10 @@
 cp -R $WP6SRC/src /home/vagrant
 # download depended nuget packages DLL
 #wget https://nuget.org/nuget.exe
+/bin/sh
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
 # fix http://stackoverflow.com/questions/15181888/
+mozroots --import --sync
 certmgr -ssl -m https://go.microsoft.com
 certmgr -ssl -m https://nugetgallery.blob.core.windows.net
 certmgr -ssl -m https://nuget.org
