@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # 17.10.2016 replaced postgresql by sqlite3
 # 10.10.2016 moved mono 4.5 build to cvmfs
 # 02.06.2016 replaced mysql by postgres
@@ -46,17 +46,17 @@
 cp -R $WP6SRC/src /home/vagrant
 # download depended nuget packages DLL
 #wget https://nuget.org/nuget.exe
-/bin/sh
+#/bin/sh
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
 # fix http://stackoverflow.com/questions/15181888/
 mozroots --import --sync
-certmgr -ssl -m https://go.microsoft.com
-certmgr -ssl -m https://nugetgallery.blob.core.windows.net
-certmgr -ssl -m https://nuget.org
+#certmgr -ssl -m https://go.microsoft.com
+#certmgr -ssl -m https://nugetgallery.blob.core.windows.net
+#certmgr -ssl -m https://nuget.org
 # restore nuget packages 
 nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable
-xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
+xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj 
 
 #install VRE
 wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
