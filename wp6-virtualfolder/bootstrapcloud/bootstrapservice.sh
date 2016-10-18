@@ -45,9 +45,10 @@
 # build metadataservice
 cp -R $WP6SRC/src /home/vagrant
 # download depended nuget packages DLL
-wget https://nuget.org/nuget.exe
+#wget https://nuget.org/nuget.exe
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
-mono nuget.exe restore /home/vagrant/src/WP6Service2/WP6Service2.sln
+# build 
+nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable
 xbuild /home/vagrant/src/WP6Service2/WP6Service2/MetadataService.csproj
 
