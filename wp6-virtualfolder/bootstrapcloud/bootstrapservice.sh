@@ -56,7 +56,7 @@ mozroots --import --sync
 # restore nuget packages 
 nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable, workaround on xbuild bug - hangs after compilation 
-xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln & sleep 20; killall /cvmfs/west-life.egi.eu/tools/mono/4.6.1/bin/mono
+xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln & sleep 90; killall /cvmfs/west-life.egi.eu/tools/mono/4.6.1/bin/mono
 
 #install VRE
 wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
