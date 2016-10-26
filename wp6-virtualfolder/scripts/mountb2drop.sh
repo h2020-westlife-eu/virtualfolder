@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+# This scripts mounts /home/vagrant/work/b2drop as davfs to b2drop.eudat.eu
+# and configures proxy of http://localhost/webdav/b2drop to use encoded auth
+# Input:
+# - the secrets file for davfs in /tmp/secrets
+# - the secrets file in format user:password in /tmp/secrets2
+# Output:
+# - /home/vagrant/work/b2drop mounted using davfs2
+# - proxy configured to use user credentials passed to b2drop.eudat.eu
+#
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 whoami 1>&2
 #create directory if not created
@@ -26,7 +35,3 @@ if [ -e /tmp/secrets2 ]
   service httpd reload
   rm /tmp/secrets2
 fi
-#chown -R www-data:www-data /home/vagrant/work
-#start owncloud synchronization of local copy
-#sudo -u vagrant nohup /home/vagrant/scripts/b2dropsync.sh > /home/vagrant/logs/b2drop.log 2>&1 &
-#sudo -u vagrant nohup /home/vagrant/scripts/xiacont.sh > /home/vagrant/logs/xia.log 2>&1 &

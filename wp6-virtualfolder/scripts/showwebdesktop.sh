@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# this script change the desktop of Gnome or XDM to show web page instead of color or image
 terminal_wm_class="pythonwebdesktop.py"
 terminal_exec="python /home/vagrant/src/pythonwebdesktop/pythonwebdesktop.py http://localhost/"
 
