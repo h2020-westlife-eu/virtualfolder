@@ -4,7 +4,8 @@ export VIRTUOSOPATH='/cvmfs/west-life.egi.eu/software/virtuoso/latest'
 export LOCALVIRTUOSOPATH='/opt/virtuoso'
 mkdir -p $LOCALVIRTUOSOPATH/var/lib/virtuoso
 cp -R $VIRTUOSOPATH/var/lib/virtuoso/db $LOCALVIRTUOSOPATH/var/lib/virtuoso
-chown -R vagrant:vagrant $LOCALVIRTUOSOPATH
+rm $LOCALVIRTUOSOPATH/var/lib/virtuoso/db/virtuoso.lck
+#chown -R vagrant:vagrant $LOCALVIRTUOSOPATH
 exit
 # other rows are ignored
 
