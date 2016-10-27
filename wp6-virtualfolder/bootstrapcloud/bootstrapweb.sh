@@ -11,14 +11,14 @@
 #ufw allow 80
 #ufw enable
 
-yum -y install firewalld
-sudo systemctl start firewalld
-firewall-cmd --zone=public --add-port=80/tcp --permanent
-firewall-cmd --zone=public --add-port=22/tcp --permanent
-firewall-cmd --zone=public --add-port=8890/tcp --permanent
-firewall-cmd --zone=public --add-port=1111/tcp --permanent
+#yum -y install firewalld
+#sudo systemctl start firewalld
+#firewall-cmd --zone=public --add-port=80/tcp --permanent
+#firewall-cmd --zone=public --add-port=22/tcp --permanent
+#firewall-cmd --zone=public --add-port=8890/tcp --permanent
+#firewall-cmd --zone=public --add-port=1111/tcp --permanent
 # could firewall-cmd --zone=public --add-port=80/tcp --permanent
-firewall-cmd --reload
+#firewall-cmd --reload
 
 # prepare and restart apache, rewrite configuration
 cp -R $WP6SRC/apache2/sites-available/* /etc/httpd/conf.d
