@@ -23,5 +23,8 @@ DwIDAQAB
 service autofs restart
 cvmfs_config probe
 
-cp $WP6SRC/Desktop/ccp* ~/Desktop
-chmod ugo+x ~/Desktop/*
+if [ -z ${WP6SRC+x} ];
+  then cp /home/vagrant/west-life-wp6-master/wp6-virtualfolder/Desktop/ccp* ~/Desktop #WP6SRC is not set
+  else cp $WP6SRC/Desktop/ccp* ~/Desktop
+fi
+chmod ugo+rwx /home/vagrant/Desktop/*
