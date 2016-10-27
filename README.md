@@ -11,8 +11,8 @@ Prerequisites:
  2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
 
 Choose one of the following
- - download meta repository: download [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory].
- - or download (3MB) or clone (21MB) this repository. This option is intended for development purposes.
+ - download metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory] or clone the meta repository from https://github.com/h2020-westlife-eu/wp6-vm.git.
+ - or download (3MB) or clone (21MB) this repository. Clone/Download links above. This option is intended for development purposes.
 
 (Optionally), if you are behind proxy, download and install proxyconf plugin and set environment variables
 
