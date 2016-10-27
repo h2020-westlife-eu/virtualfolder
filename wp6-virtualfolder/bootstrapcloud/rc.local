@@ -1,4 +1,0 @@
-mkdir -p /home/vagrant/logs
-/home/vagrant/scripts/startMetaDataService.sh
-/home/vagrant/scripts/startVRE.sh
-/home/vagrant/scripts/startVirtuoso.sh
