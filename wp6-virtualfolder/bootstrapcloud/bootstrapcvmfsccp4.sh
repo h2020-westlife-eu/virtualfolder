@@ -22,3 +22,6 @@ DwIDAQAB
 ">/etc/cvmfs/keys/gridpp.ac.uk.pub
 service autofs restart
 cvmfs_config probe
+
+cp $WP6SRC/Desktop/ccp* ~/Desktop
+chmod ugo+x ~/Desktop/*
