@@ -10,9 +10,9 @@ Prerequisites:
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
  2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
 
-Download one of the following
- - either download meta repository [ZIP](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) or clone https://github.com/h2020-westlife-eu/wp6-vm.git into some [wp6-vm directory].
- - or download or clone this repository. This option is intended for development purposes.
+Choose one of the following
+ - download meta repository: download [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory].
+ - or download (3MB) or clone (21MB) this repository. This option is intended for development purposes.
 
 (Optionally), if you are behind proxy, download and install proxyconf plugin and set environment variables
 
