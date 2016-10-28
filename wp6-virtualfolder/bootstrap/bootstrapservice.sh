@@ -18,4 +18,5 @@ mozroots --import --sync
 # restore nuget packages 
 nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 # build project EXEcutable, workaround on xbuild bug - hangs after compilation
+chmod ugo+x /home/vagrant/scripts
 /home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
