@@ -17,5 +17,5 @@ mozroots --import --sync
 #certmgr -ssl -m https://nuget.org
 # restore nuget packages 
 nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
-# build project EXEcutable, workaround on xbuild bug - hangs after compilation 
-xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln & sleep 60; killall /cvmfs/west-life.egi.eu/tools/mono/4.6.1/bin/mono
+# build project EXEcutable, workaround on xbuild bug - hangs after compilation
+/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
