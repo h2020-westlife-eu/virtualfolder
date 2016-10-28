@@ -60,6 +60,7 @@ usermod -a -G davfs2 apache
 #cp $WP6SRC/mountb2drop.sh /home/vagrant
 cp -R $WP6SRC/scripts /home/vagrant/scripts
 dos2unix /home/vagrant/scripts/*
+chmod ugo+x /home/vagrant/scripts/*
 
 chown root:root /home/vagrant/scripts/mountb2drop.sh
 chmod 4755 /home/vagrant/scripts/mountb2drop.sh
