@@ -1,7 +1,7 @@
 <template bindable="tableid">
 <div class="w3-half">
-    <div class="w3-card-2 w3-pale-blue w3-hover-shadow">
-        <span>${path} contains ${filescount} items.</span>
+    <div class="w3-card-2 w3-pale-blue w3-hoverable">
+        <span>${path} contains ${filescount} items.<button click.delegate="refresh()">refresh</button></span>
         <table id="${tableid}">
             <thead>
             <tr>
@@ -12,5 +12,6 @@
             </thead>
         </table>
     </div>
+
 </div>
 </template>

@@ -36,12 +36,16 @@ export const FilepanelCustomElement = decorators (
                     this.populateFiles(data.response);
 
                     this.dynatable = $('#'+this.tableid).dynatable({
-                        dataset: {records: this.files},
+                        dataset: {
+                            records: this.files
+                        },
                         features: {
                             paginate: false,
                             search: false,
                             recordCount: false,
-                            perPageSelect: false
+                            perPageSelect: false,
+                            pushState:false
+
                         }
                     });
                     let a = this;
@@ -53,7 +57,12 @@ export const FilepanelCustomElement = decorators (
                             console.log(this.firstChild.innerText);
                     });
                 }
-            })
+            }).catch(error => {
+                console.log('Error');
+                console.log(error);
+                this.status="unavailable"
+                this.showdialog=false;
+            });
     }
 
     dateTimeReviver(key, value) {
@@ -81,19 +90,33 @@ export const FilepanelCustomElement = decorators (
 
     //change folder, reads the folder content and updates the table structure
     changefolder(folder){
-        if (folder=='..') this.cdup();
-        else this.cddown(folder);
-        client.get("/metadataservice/sbfiles/"+this.path)
-            .then(data => {
-                if (data.response) {
-                    this.populateFiles(data.response);
-                    //update files in table view
-                    var d = this.dynatable.data('dynatable');
-                    d.settings.dataset.originalRecords = this.files;
-                    d.process();
-                    let a = this;
-                }
-            })
+        if (!this.lock) {
+            this.lock = true;
+            if (folder) {
+                if (folder == '..') this.cdup();
+                else this.cddown(folder);
+            }
+            client.get("/metadataservice/sbfiles/" + this.path)
+                .then(data => {
+                    if (data.response) {
+                        this.populateFiles(data.response);
+                        //update files in table view
+                        var d = this.dynatable.data('dynatable');
+                        d.settings.dataset.originalRecords = this.files;
+                        d.process();
+                        let a = this;
+                    }
+                    this.lock = false;
+                }).catch(error => {
+                console.log('Error');
+                console.log(error);
+                this.lock = false;
+            });
+        } //else doubleclick when the previous operation didn't finished
+    }
+
+    refresh() {
+        this.changefolder(); //changefolder with empty folder - just refresh
     }
 
     populateFiles(dataresponse){
@@ -104,6 +127,8 @@ export const FilepanelCustomElement = decorators (
         }
         this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
     }
+
+
 
 });
 
