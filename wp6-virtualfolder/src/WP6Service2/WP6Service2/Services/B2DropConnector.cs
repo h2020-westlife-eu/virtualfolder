@@ -15,6 +15,9 @@ namespace WP6Service2
 	}
 	public class B2DropConnectorService : Service
 	{
+		/* Gets the status of the connection true or false
+		 * 
+		 */
 		public object Get(B2DropConnector request) 
 		{
 			
@@ -22,6 +25,11 @@ namespace WP6Service2
 		}
 
 		String B2DROPDIR= "/home/vagrant/work/b2drop";
+
+		/* takes username and securetoken to launch script for mounting b2drop
+		 * returns whether it's connectect or not
+		 */
+
 		public object Post(B2DropConnector request)
 		{
 			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets")) {
@@ -42,6 +50,7 @@ namespace WP6Service2
 			request.output += p.StandardError.ReadToEnd ();
 			p.WaitForExit();
 			//Console.WriteLine(strOutput);
+			request.securetoken=""; //just remove secure token, as it is not needed anymore
 			request.connected = GetB2DropStatus();
 			return request;
 		}
