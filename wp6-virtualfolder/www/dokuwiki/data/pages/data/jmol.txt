@@ -1,8 +1,0 @@
-{{page>data:tabs&nofooter}}
-
-==== Westlife - WP6 prototype jmol visualisation ====
-
-<jmol {{:pku:pdb:phe.mol}} 500 500 white>
-jmolSccript("spin on; set echo top left; color echo green; echo PHE - Fenylalanin");
-</jmol>
-

@@ -28,8 +28,8 @@ Vagrant.configure(2) do |config|
   else
     config.vm.box = "westlife-eu/wp6-cernvm"
   end
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 8000, host: 8000
+  config.vm.network "forwarded_port", guest: 80, host: 8082
+  config.vm.network "forwarded_port", guest: 8000, host: 8002
 #  config.ssh.username = "vagrant"
 #  config.ssh.password = "vagrant"
   if Vagrant.has_plugin?("vagrant-proxyconf")
