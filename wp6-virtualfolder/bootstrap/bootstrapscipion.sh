@@ -5,8 +5,8 @@
 #yum -y install python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 yum -y install openmpi openmpi-devel
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
-cp $WP6SRC/Desktop/scipion* /home/vagrant/Desktop
-chmod ugo+x /home/vagrant/Desktop/*
+#cp $WP6SRC/Desktop/scipion* /home/vagrant/Desktop
+#chmod ugo+x /home/vagrant/Desktop/*
 #install java-8, silently
 
 #apt-add-repository -y ppa:webupd8team/java
