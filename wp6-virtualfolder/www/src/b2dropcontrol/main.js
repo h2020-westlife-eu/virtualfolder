@@ -3,10 +3,7 @@
  */
 
 export function configure(aurelia) {
-    aurelia.use
-        .basicConfiguration()
-        .developmentLogging();
-
+    aurelia.use.basicConfiguration();
     aurelia.start().then(() => aurelia.setRoot());
 }
 

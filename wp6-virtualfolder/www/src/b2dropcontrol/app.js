@@ -25,8 +25,6 @@ export class App {
             .then(data => {
                 this.status="disconnected";
                 this.showdialog=true;
-                console.log("data response");
-                console.log(data);
                 if (data.response) {
                     let myresponse = JSON.parse(data.response);
                     if (myresponse.connected) {
@@ -34,22 +32,12 @@ export class App {
                         this.showdialog = false;
                     }
                 }
-            }).catch(error => {
-                console.log('Error');
-                console.log(error);
-                this.status="unavailable"
-                this.showdialog=false;
-            });
+            })
     }
 
     reconnect(){
         //triggers to show dialog
-        //this.showdialog=true;
-        if (this.status=="unavailable") {
-            this.attached();
-        } else {
-            this.showdialog=true;
-        }
+        this.showdialog=true;
     }
 
     addb2drop() { //post credentials to connect to b2dropconnector rest service

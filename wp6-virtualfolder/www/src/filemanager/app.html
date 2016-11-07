@@ -1,7 +1,13 @@
 <template>
+    <require from="./actions"></require>
     <require from="./filepanel"></require>
 
     <h4>${heading}</h4>
+    <div class="filepanel">
     <filepanel tableid="filepanel1"></filepanel>
     <filepanel tableid="filepanel2"></filepanel>
+    </div>
+    <div class="buttonline">
+    <actions></actions>
+    </div>
 </template>
