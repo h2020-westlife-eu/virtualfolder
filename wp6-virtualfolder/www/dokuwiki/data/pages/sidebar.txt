@@ -1,3 +1,0 @@
-=== Westlife Data management ===
-
-  * [[start|Login to B2Drop EUDAT service]]
