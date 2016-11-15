@@ -8,5 +8,5 @@ cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagra
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/scipion/config/hosts.conf /home/vagrant/.config/scipion/myresmap
 
 /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
-/cvmfs/west-life.egi.eu/software/scipion/latest/scipion webserver
+/cvmfs/west-life.egi.eu/software/scipion/latest/scipion
 
