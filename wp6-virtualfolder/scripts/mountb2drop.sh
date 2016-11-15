@@ -25,7 +25,15 @@ mv /tmp/secrets /etc/davfs2/secrets
 chown root:root /etc/davfs2/secrets
 chmod 600 /etc/davfs2/secrets
 chmod ugo+rx /var/log/httpd
-mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop
+#first mount
+mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop || status=1
+#second attemp mount, sometimes having https_proxy seems not working with davfs
+if [ $status -ne 0 ]
+then
+  echo "first mount failed, second attemp"
+  unset https_proxy
+  mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop
+fi
 #configure reverse proxy for webdav in apache
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
 if [ -e /tmp/secrets2 ] 
