@@ -1,7 +1,0 @@
-<WRAP tabs>
-  * [[..:start|configure]]
-  * [[data:start|processing]]
-  * [[data:visualisation|pdb visualisation]]
-  * [[data:list|list of current data]]
-  * [[data:ngl | ngl visualisation]]
-</WRAP>

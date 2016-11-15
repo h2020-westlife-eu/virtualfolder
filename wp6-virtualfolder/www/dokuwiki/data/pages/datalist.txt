@@ -1,1 +1,0 @@
-<directorylist: path="/home/vagrant/work/mydata" recursive="false" ignore="lost*">
