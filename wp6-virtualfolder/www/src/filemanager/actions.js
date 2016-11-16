@@ -1,7 +1,6 @@
 /**
  * Created by vagrant on 9/6/16.
  */
-
 import {HttpClient} from 'aurelia-http-client';
 
 let client = new HttpClient();
