@@ -2,6 +2,7 @@
 # this script prepares web server, opens ports on firewall
 # 02.06.2016 tomas - added WEBDAV & tiddlywiki for virtual folder documentation, probably more CMS should be supported
 # 17.06.2016 tomas - added noninteractive for davfs2 in ubuntu1604
+# 16.11.2016 tomas - added permission +x for SSI support
 # install lamp
 #sudo apt-get update
 #sudo DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php  libapache2-mod-php
@@ -23,11 +24,16 @@
 # prepare and restart apache, rewrite configuration
 cp -R $WP6SRC/apache2/sites-available/* /etc/httpd/conf.d
 cp -R $WP6SRC/www/* /var/www/html
+
 #unzip $WP6SRC/thirdparty/ngl.zip -d /var/www
 #sudo cp $WP6SRC/index.html /var/www
 #rm /var/www/html/dokuwiki/install.php
 chown -R apache:apache /var/www/html
 chmod -R 707 /var/www/html/
+
+#add +x permission on all html files which has include directive
+chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
+
 
 yum -y install epel-release
 yum repolist
