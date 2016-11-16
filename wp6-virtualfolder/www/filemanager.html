@@ -1,0 +1,41 @@
+<html>
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- minimalistic functional CSS with almost no jscript overhead -->
+<link rel="stylesheet" href="css/w3.css"/>
+<!-- font for some icons and symbols -->
+<link rel="stylesheet" href="css/font-awesome.min.css"/>
+
+<link rel="stylesheet" href="scripts/jquery.dynatable.css"/>
+<script src="scripts/jquery-1.7.2.min.js"></script>
+<script src="scripts/jquery.dynatable.js"></script>
+<style>
+    div.w3-card-2 {
+        min-height: 150px;
+        margin: 8px;
+        padding:8px;
+    }
+</style>
+<!-- background ; background:url('westlife-background2.jpg')-->
+<body class="w3-container">
+<!--#include file="header.html" -->
+
+
+<div id="vffm" class="tab">
+    <div aurelia-app="src/filemanager/main">
+        <script src="scripts/system.js"></script>
+        <script src="scripts/config-esnext.js"></script>
+        <script src="scripts/aurelia-core.min.js"></script>
+
+        <script>
+            System.import('aurelia-bootstrapper');
+        </script>
+        Loading ....
+    </div>
+</div>
+
+<!--#include file="footer.html" -->
+
+</body>
+</html>

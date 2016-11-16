@@ -4,28 +4,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- minimalistic functional CSS with almost no jscript overhead -->
 <link rel="stylesheet" href="css/w3.css"/>
-
 <!-- font for some icons and symbols -->
 <link rel="stylesheet" href="css/font-awesome.min.css"/>
 
 <link rel="stylesheet" href="scripts/jquery.dynatable.css"/>
-
 <script src="scripts/jquery-1.7.2.min.js"></script>
 <script src="scripts/jquery.dynatable.js"></script>
-
-
-<!-- begin PDBComponent library -->
-<!-- Complied & minified library css 
-<link rel="stylesheet" href="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/css/pdb.component.library.min-1.0.0.css" />
-
-<-- Dependencey scripts (these can be skipped if already included in page)>
-<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
-<--script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.js"></script>
-
-<-- Complied & minified library JS >
-<script src="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/js/pdb.component.library.min-1.0.0.js"></script>
-<!-- end PDBComponent-->
 <style>
     div.w3-card-2 {
         min-height: 150px;
@@ -35,21 +19,11 @@
 </style>
 <!-- background ; background:url('westlife-background2.jpg')-->
 <body class="w3-container">
+<!--#include file="header.html" -->
 
-<header class="w3-card w3-center w3-black w3-round-large">
-    <h1>
-        Westlife Virtual Folder
-    </h1>
-</header>
-<nav class="w3-sidenav w3-round-large w3-pale-green w3-opacity w3-border w3-card" style="width:10%">
-  <a href="#" class="tablink" onclick="openTab(event, 'Home')">Home</a>
-  <a href="#" class="tablink" onclick="openTab(event, 'RAW')">RAW file browser</a>
-  <a href="#" class="tablink" onclick="openTab(event, 'vffm')">Virtual Folder File Manager</a>
-</nav>
 
-<div style="margin-left:11%">
 
-<div id="Home" class="tab">
+
 <div class="w3-row-padding w3-center">
     <p class="w3-small"> Select from the modules bellow.</p>
 
@@ -84,60 +58,9 @@
         </div>
     </div>
 </div>
-</div>
-<div id="RAW" class="tab" style="display:none">
- <iframe src="/webdav/" style="width:100%;height:100%"></iframe>
-</div>
 
-<div id="vffm" class="tab" style="display:none">
-    <div aurelia-app="src/filemanager/main">
-        Loading ...
-    </div>
-</div>
-</div>
 
-<footer>
-    <div class="w3-center w3-black w3-bottom w3-bottombar">
-        Development documentation at <a href="http://internal-wiki.west-life.eu/w/index.php?title=WP6" target="_blank">internal-wiki.west-life.eu/w/index.php?title=WP6</a>
-    </div>
+<!--#include file="footer.html" -->
 
-</footer>
-
-<script>
-
-(function () {
-'use strict';
-angular.element(document).ready(function () {
-    angular.bootstrap(document, ['pdb.component.library']);
-});
-}());
-
-function openTab(evt, cityName) {
-  var i, x, tablinks;
-  x = document.getElementsByClassName("tab");
-  for (i = 0; i < x.length; i++) {
-     x[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablink");
-  for (i = 0; i < x.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
-  }
-  document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " w3-red";
-}
-
-function myAccFunc(accid) {
-    var x = document.getElementById(accid);
-    if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-        x.previousElementSibling.className += " w3-green";
-    } else {
-        x.className = x.className.replace(" w3-show", "");
-        x.previousElementSibling.className =
-        x.previousElementSibling.className.replace(" w3-green", "");
-    }
-}
-
-</script>
 </body>
 </html>
