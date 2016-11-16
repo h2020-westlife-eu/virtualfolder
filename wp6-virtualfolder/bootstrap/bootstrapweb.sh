@@ -29,7 +29,9 @@ cp -R $WP6SRC/www/* /var/www/html
 #sudo cp $WP6SRC/index.html /var/www
 #rm /var/www/html/dokuwiki/install.php
 chown -R apache:apache /var/www/html
-chmod -R 707 /var/www/html/
+chmod -R 644 /var/www/html
+find /var/www/html -type d -exec chmod ugo+rx {} \;
+
 
 #add +x permission on all html files which has include directive
 chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
