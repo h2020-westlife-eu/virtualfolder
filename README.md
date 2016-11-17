@@ -63,7 +63,7 @@ After testing you may, stop (halt) or delete/clean (destroy) all VM related file
 The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with SSI (Server Side Include) module with Xbithack feature. To add new HTML page:
 * add ```your.html``` and all relevant content (JS,CSS) into ```wp6-virtualfolder/www``` and it's subdirectories:
 * edit ```your.html``` and 
-  * include w3.css styles
+include w3.css styles
 ```
 <head>
 ...
@@ -71,14 +71,14 @@ The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server
 ...
 </head>
 ```
-  * include head of the pages shared among all of them, add this line up to the html content of ```your.html```:
+include head of the pages shared among all of them, add this line up to the html content of ```your.html```:
 ```
 <body>
 <!--#include file="header.html" -->
 ...
 
 ```
-  * (Optionaly) include footer, add this line bottom to the html content of ```your.html```:
+(Optionaly) include footer, add this line bottom to the html content of ```your.html```:
 ```
 <!--#include file="footer.html" -->
 </body>
@@ -86,7 +86,7 @@ The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server
 
 ```
 * edit ```header.html``` to contain link into your new page.
-  * add e.g. following row into desirable place of the menu
+add e.g. following row into desirable place of the menu
 ```
 <li><a href="your.html">Your Service</a></li>
 ```
