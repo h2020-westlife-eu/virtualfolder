@@ -22,6 +22,6 @@ service autofs restart
 cvmfs_config probe
 
 if [ -z ${WP6SRC+x} ];  then cp /home/vagrant/west-life-wp6-master/wp6-virtualfolder/Desktop/c* /home/vagrant/Desktop
-  else cp $WP6SRC/Desktop/ccp* /home/vagrant/Desktop
+  else cp $WP6SRC/Desktop/c* /home/vagrant/Desktop
 fi
-chmod ugo+rwx /home/vagrant/Desktop/*
+chmod ugo+x /home/vagrant/Desktop/*
