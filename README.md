@@ -60,7 +60,7 @@ After testing you may, stop (halt) or delete/clean (destroy) all VM related file
     vagrant destroy
 # Extending the code
 ## Adding static content
-The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with SSI (Server Side Include) module with Xbithack feature. To add new HTML page:
+The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with [SSI (Server Side Include)](http://httpd.apache.org/docs/current/howto/ssi.html) module. The ```header.html``` and ```footer.html``` can  be included into other html. To add new HTML page:
 * add ```your.html``` and all relevant content (JS,CSS) into ```wp6-virtualfolder/www``` and it's subdirectories:
 * edit ```your.html``` and 
 include w3.css styles
