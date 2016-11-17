@@ -46,12 +46,12 @@ namespace WP6Service2
 						db.Insert (p);
 						//Add seed data
 					}
-					db.DropTable<SBRepository> ();
+					db.DropTable<SBService> ();
 					//create table
-					if (db.CreateTableIfNotExists<SBRepository> ()) {
-						var p = new SBRepository { Id = 1, Description = "DB2DROP", MountScript="mount2db2drop.sh" };
+					if (db.CreateTableIfNotExists<SBService> ()) {
+						var p = new SBService { Id = 1, Description = "DB2DROP", MountScript="mount2db2drop.sh" };
 						db.Insert (p);
-						p = new SBRepository { Id = 2,  Description = "Dropbox", MountScript="mount2dropbox.sh"};
+						p = new SBService { Id = 2,  Description = "Dropbox", MountScript="mount2dropbox.sh"};
 						db.Insert (p);
 						//Add seed data
 					}
