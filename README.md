@@ -58,7 +58,37 @@ After testing you may, stop (halt) or delete/clean (destroy) all VM related file
    
     vagrant halt
     vagrant destroy
+# Extending the code
+## Adding static content
+The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with SSI (Server Side Include) module with Xbithack feature. To add new HTML page:
+* add ```your.html``` into ```wp6-virtualfolder/www``` or it's subdirectory
+  * include w3.css styles
+```
+<head>
+...
+<link rel="stylesheet" href="css/w3.css"/>
+...
+</head>
+```
+  * include header, add this line up to the html content of ```your.html```:
+```
+<body>
+<!--#include file="header.html" -->
+...
 
+```
+  * (Optionaly) include footer, add this line up to the html content of ```your.html```:
+```
+<body>
+<!--#include file="footer.html" -->
+...
+
+```
+* edit ```header.html``` to contain link into your new page.
+  * add e.g. following row into desirable place of the menu
+```
+<li><a href="your.html">Your Service</a></li>
+```
 ##Release Notes
 
   * 26/10/2016 - moved VagrantFile to new repository https://github.com/h2020-westlife-eu/wp6-vm, updated base box with uCernVM2.7.4 bootloader for CernVM 4 fixes security bug 'dirty COW' and aufs bug in kernel, https://atlas.hashicorp.com/westlife-eu, 
