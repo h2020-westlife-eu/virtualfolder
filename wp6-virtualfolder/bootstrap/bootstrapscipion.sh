@@ -13,7 +13,8 @@ mkdir -p /home/vagrant/ScipionUserData/data/tests
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myfirstmap
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/mymovies
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myresmap
-
+chown -R /home/vagrant/.config vagrant:vagrant
+chown -R /home/vagrant/ScipionUserData vagrant:vagrant
 cp $WP6SRC/Desktop/scipion* /home/vagrant/Desktop
 chmod ugo+x /home/vagrant/Desktop/*
 #install java-8, silently
