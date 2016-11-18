@@ -11,7 +11,7 @@ cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 yum -y install python-virtualenv python-pip python-redis nodejs-supervisor python-devel libffi-devel
 #sudo -H pip install -U pip
 #sudo -H pip install virtualenv
-cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
+#cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
 #cd /home/vagrant/VRE-master
 #bash make_venv.sh
 #source rc.sh
