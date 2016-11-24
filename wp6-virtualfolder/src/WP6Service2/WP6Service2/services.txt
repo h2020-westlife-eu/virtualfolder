@@ -1,0 +1,4 @@
+﻿b2drop, /home/vagrant/scripts/mountb2drop.sh
+ccp4suite, /home/vagrant/bootstrap/bootstrapcvmfsccp4.sh
+scipion, /home/vagrant/bootstrap/startscipionWeb.sh
+virtuoso, /home/vagrant/scripts/startVirtuoso.sh

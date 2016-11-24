@@ -47,12 +47,20 @@ namespace WP6Service2
 						//Add seed data
 					}
 					db.DropTable<SBService> ();
+					String [][] services = {new string[]
+						{"b2drop", "/home/vagrant/scripts/mountb2drop.sh"},
+						new string[]{"ccp4suite", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh"},
+						new string[]{"scipion", "/home/vagrant/bootstrap/startscipionWeb.sh"},
+						new string[]{"virtuoso", "/home/vagrant/scripts/startVirtuoso.sh"}
+					};
+
 					//create table
 					if (db.CreateTableIfNotExists<SBService> ()) {
-						var p = new SBService { Id = 1, Description = "DB2DROP", MountScript="mount2db2drop.sh" };
-						db.Insert (p);
-						p = new SBService { Id = 2,  Description = "Dropbox", MountScript="mount2dropbox.sh"};
-						db.Insert (p);
+						foreach (var service in services) {
+							var p = new SBService { Name = service [0], TriggerScript = service [1] };
+							db.Insert (p);
+						}
+						
 						//Add seed data
 					}
 				}
