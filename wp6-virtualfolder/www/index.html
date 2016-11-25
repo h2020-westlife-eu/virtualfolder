@@ -1,27 +1,13 @@
 <html>
-<meta charset="utf-8"/>
+<head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- minimalistic functional CSS with almost no jscript overhead -->
-<link rel="stylesheet" href="css/w3.css"/>
-<!-- font for some icons and symbols -->
-<link rel="stylesheet" href="css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="scripts/jquery.dynatable.css"/>
-<script src="scripts/jquery-1.7.2.min.js"></script>
-<script src="scripts/jquery.dynatable.js"></script>
-<style>
-    div.w3-card-2 {
-        min-height: 150px;
-        margin: 8px;
-        padding:8px;
-    }
-</style>
-<!-- background ; background:url('westlife-background2.jpg')-->
+<!--#include virtual="/heads.html" -->
+
+</head>
 <body class="w3-container">
-<!--#include file="header.html" -->
 
-
+<!--#include virtual="/header.html" -->
 
 
 <div class="w3-row-padding w3-center">
@@ -75,16 +61,16 @@
             <p>Virtuoso-opensource is Virtuoso is a scalable cross-platform server that combines Relational, Graph, and Document Data Management with Web Application Server and Web Services Platform functionality.
                 </p>
             <p>To enable and start local instance of Virtuoso, please click the Enable button.</p>
-            <button class="w3-btn w3-round-large" onclick="$.post('/sbservice/virtuoso'); this.disabled=true">Enable Scipion</button>
+            <button class="w3-btn w3-round-large" onclick="$.post('/sbservice/virtuoso'); this.disabled=true">Enable Virtuoso</button>
             <p>
-                Access Scipion Services:<a href="/virtuoso">local Scipion webtool</a>
+                Access Virtuoso Services:<a href="/virtuoso">local Scipion webtool</a>
             </p>
         </div>
     </div>
 </div>
 
 
-<!--#include file="footer.html" -->
+<!--#include virtual="/footer.html" -->
 
 </body>
 </html>
