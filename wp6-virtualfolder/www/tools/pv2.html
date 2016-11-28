@@ -8,7 +8,7 @@
 <!-- Dependencey scripts (these can be skipped if already included in page) -->
 <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
 <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
-
+    <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.32/angular.js"></script-->
 <!-- Complied & minified library JS -->
 <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/js/pdb.component.library.min-1.0.0.js"></script>
 
@@ -19,19 +19,41 @@
 <!--#include virtual="/header.html" -->
 
 <div>
-<p><b>EMBL EBI PDB Viewer: 2hhd.pdb</b></p>
-<div style="position:relative;height:400px;width:600px;">
+
+<p><b>EMBL EBI PDB Viewer: </b><span id="pdbid"></span></p>
+        <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
+               maxlength="4" size="4"
+               onchange='loadPdb(this.value)'/>from PDB database</input>
+    <div id="pdbwrapper">
+<div style="position:relative;height:400px;width:800px;" id="pdbviewer">
     <pdb-lite-mol pdb-id="'2hhd'" load-ed-maps="true"></pdb-lite-mol>
 </div>
+    </div>
 </div>
 <!--#include virtual="/footer.html" -->
 <script>
     (function () {
         'use strict';
         angular.element(document).ready(function () {
-            angular.bootstrap(document, ['pdb.component.library']);
+            angular.bootstrap(document.getElementById('pdbviewer'), ['pdb.component.library']);
         });
     }());
+    
+    function loadPdb(pdbentry) {
+        $('#pdbviewer').remove();
+        var pdbviewer = $('<div style="position:relative;height:400px;width:800px;" id="pdbviewer">');
+        $('#pdbwrapper').append(pdbviewer);
+        //var pdbviewer = document.createElement('div');
+        var pdblitemol =  $('<pdb-lite-mol load-ed-maps="true"></pdb-lite-mol>')
+        $('#pdbviewer').append(pdblitemol)
+        $('pdb-lite-mol').attr('pdb-id',"'"+pdbentry+"'");
+
+        angular.bootstrap(document.getElementById('pdbviewer'), ['pdb.component.library']);
+        $('#pdbid').empty().text(pdbentry);
+
+        //$route.reload();
+
+    }
 </script>
 </body>
 </html>
