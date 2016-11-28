@@ -49,7 +49,7 @@ namespace WP6Service2
 					db.DropTable<SBService> ();
 					String [][] services = {new string[]
 						{"b2drop", "/home/vagrant/scripts/mountb2drop.sh"},
-						new string[]{"ccp4suite", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh"},
+						new string[]{"ccp4suite", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
 						new string[]{"scipion", "/home/vagrant/bootstrap/startscipionWeb.sh"},
 						new string[]{"virtuoso", "/home/vagrant/scripts/startVirtuoso.sh"}
 					};

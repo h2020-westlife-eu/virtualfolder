@@ -12,11 +12,22 @@ export class App {
         this.username = "";
         this.usertoken = "";
         this.status = "";
-        this.showdialog = false;
+        this.dialogstate = 1;
+        this.dialogstateconnected,this.dialogstateconnecting=false;
+        this.dialogstateentry = true;
+
+
         client.configure(config=> {
             config.withHeader('Accept', 'application/json');
             config.withHeader('Content-Type', 'application/json');
         });
+    }
+
+    updatestate(state){
+        this.dialogstate = state;
+        this.dialogstateconnected = state == 3;
+        this.dialogstateconnecting = state ==2;
+        this.dialogstateentry = state==1;
     }
 
     attached() {
@@ -24,14 +35,14 @@ export class App {
         client.get("/metadataservice/b2dropconnector")
             .then(data => {
                 this.status="disconnected";
-                this.showdialog=true;
+                this.updatestate(1);
                 //console.log("data response");
                 //console.log(data);
                 if (data.response) {
                     let myresponse = JSON.parse(data.response);
                     if (myresponse.connected) {
                         this.status = "OK";
-                        this.showdialog = false;
+                        this.updatestate(3);
                     }
                 }
             })
@@ -39,10 +50,11 @@ export class App {
 
     reconnect(){
         //triggers to show dialog
-        this.showdialog=true;
+        this.updatestate(1);
     }
 
     addb2drop() { //post credentials to connect to b2dropconnector rest service
+        this.updatestate(2);
         let postdata= {username:this.username,securetoken:this.usertoken};
         //console.log(postdata);
         let postdatajson=JSON.stringify(postdata);
@@ -52,8 +64,9 @@ export class App {
             .then(data => {
                 //console.log(data.response);
                 let myresponse = JSON.parse(data.response);
-                if (myresponse.connected) this.status="OK";
+                if (myresponse.connected) { this.status="OK"; this.updatestate(3);}
                 else {
+                    this.updatestate(1);
                     this.status="fail:";
                     if (myresponse.output) {
                         this.status+=myresponse.output;
@@ -61,6 +74,5 @@ export class App {
                 }
             });
     }
-
 }
 

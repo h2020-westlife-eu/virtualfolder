@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # configure cvmfs with ccp4 and ccpem
 
+if [ "$1" != "yes" ]; then
+   echo "To enable local copy of CCP4 suite, you agree that you have Academic or Commercial License. If not, please obtain a license first at http://www.ccp4.ac.uk/ccp4license.php."
+   echo -n "Agree and enable [yes/NO]:"
+   read agree
+   if [ $agree != "yes" ]; then
+     exit 1;
+   fi
+fi
+
 echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
 " >/etc/cvmfs/default.local
 

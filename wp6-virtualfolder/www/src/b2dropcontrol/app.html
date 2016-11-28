@@ -1,10 +1,9 @@
 <template>
     <h3>${heading}</h3>
-    <p>B2DROP is a secure and trusted data exchange service provided by EUDAT.</p>
-    <p>West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>
-
+    <p>B2DROP is a secure and trusted data exchange service provided by EUDAT.
+        West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>
     <!-- form is showed only if the b2drop is not connected -->
-    <form show.bind="showdialog" submit.trigger="addb2drop()">
+    <form show.bind="dialogstateentry" submit.trigger="addb2drop()">
         <p>You need to create B2DROP account first at <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">b2drop.eudat.eu/pwm/public/NewUser?</a>
 Then ,if you have an existing account, fill in the B2DROP username and password here:</p>
         <input type="text" value.bind="username">
@@ -13,8 +12,12 @@ Then ,if you have an existing account, fill in the B2DROP username and password 
         Status: <span>${status}</span>
     </form>
     <!-- if it is connected, then status info is showed and option to reconnect is showed-->
-    <form show.bind="!showdialog" submit.trigger="reconnect()">
+    <form show.bind="dialogstateconnected" submit.trigger="reconnect()">
         <span>B2Drop service connected.</span>
         <button class="w3-btn w3-round-large" type="submit">reconnect</button>
     </form>
+
+    <div show.bind="dialogstateconnecting">
+        <span>B2Drop connecting ...</span>
+    </div>
 </template>

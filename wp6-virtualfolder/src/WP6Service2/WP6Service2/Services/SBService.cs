@@ -43,7 +43,7 @@ namespace WP6Service2
 			if (string.IsNullOrEmpty(request.Name))
 				throw new ArgumentNullException("Name");
 			
-			var service = Db.Single<SBService>(x => x.Name == request.Name);; //returns single resource
+			var service = Db.Single<SBService>(x => x.Name == request.Name); //returns single resource
 
 			ProcessStartInfo psi = new ProcessStartInfo();
 			psi.FileName = "/usr/bin/sudo";
