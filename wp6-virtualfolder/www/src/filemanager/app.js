@@ -3,29 +3,24 @@
  */
 
 import {HttpClient} from 'aurelia-http-client';
-import {bindable, bindingMode} from 'aurelia-framework';
-
 
 export class App {
+
     constructor() {
         this.heading = "File manager";
         this.viewpanel1 = false;
         this.viewpanel2 = false;
+        this.fileurl = "test1";
     }
 
     doAction(fileitem,panelid) {
-        //console.log('app.doaction');
-        //console.log(fileitem);
-        //console.log(this);
+        this.fileurl = fileitem.webdavuri;
         if (panelid=="filepanel1") {
             //hide filepanel2, show file
-            this.viewpanel2 = true;
-            this.fileurl2 = fileitem.webdavuri;
-
-            //if (fileitem)
+            this.viewpanel2 = !this.viewpanel2; //switch
         } else {
-            this.viewpanel1 = true;
-            this.fileurl1 = fileitem.webdavuri;
+            this.viewpanel1 = !this.viewpanel1; //switch
+
         }
     }
 }

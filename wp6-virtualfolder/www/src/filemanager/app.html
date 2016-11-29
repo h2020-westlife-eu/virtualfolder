@@ -1,13 +1,18 @@
 <template>
     <require from="./actions"></require>
     <require from="./filepanel"></require>
+    <require from="./viewpanel"></require>
 
     <h4>${heading}</h4>
     <div class="filepanel">
         <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
-        <viewpanel show.bind="viewpanel1" value.bind="fileurl1"> </viewpanel>
+
+        <viewpanel if.bind="viewpanel1" fileurl.bind="fileurl"> </viewpanel>
+        <!-- TODO investigate correct binding -->
+
         <filepanel show.bind="!viewpanel2" tableid="filepanel2" ></filepanel>
-        <viewpanel show.bind="viewpanel2" value.bind="fileurl2"> </viewpanel>
+
+        <viewpanel if.bind="viewpanel2" fileurl.bind="fileurl"> </viewpanel>
     </div>
     <div class="buttonline">
         <actions></actions>

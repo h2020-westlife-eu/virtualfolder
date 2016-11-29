@@ -7,11 +7,13 @@ import {bindable, bindingMode, decorators} from 'aurelia-framework';
 
 let client = new HttpClient();
 
+
 export const FilepanelCustomElement = decorators (
     bindable({ name: 'tableid', defaultBindingMode: bindingMode.oneTime }),
     bindable('allowDestruction')
      ).on(class {
 
+/*export class FilePanel {*/
     constructor() {
         this.files = [];
         this.filescount = this.files.length;
@@ -89,7 +91,7 @@ export const FilepanelCustomElement = decorators (
             }).catch(error => {
                 console.log('Error');
                 console.log(error);
-                this.status="unavailable"
+                this.status="unavailable";
                 this.showdialog=false;
             });
     }
@@ -166,7 +168,8 @@ export const FilepanelCustomElement = decorators (
         this.parent.doAction(fileitem);
     }
 
-});
+}
+);
 
 
 

@@ -38,7 +38,7 @@ namespace WP6Service2
 	public class SBFileService : Service
 	{
 		public String root = "/home/vagrant/work/";
-		public String webdavroot = "/webdav";
+		public String webdavroot = "/webdav/";
 
 		/*** returns list of files and directories under specified path of the configured root
 		 * directory. 
