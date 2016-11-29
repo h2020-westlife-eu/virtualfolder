@@ -18,18 +18,37 @@ export const FilepanelCustomElement = decorators (
         this.path= "";
         this.dynatable = {};
         //not yet accessible here console.log("file panel constructed:" + this.tableid);
+        //http to accept json
         client.configure(config=>{
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
 
+        //probably not used, handle click delegated to file table items
+        /*
         this.handleBodyClick = e => {
             console.log(e.target);
         };
+*/
     }
 
+    /* not triggered during initialization
+    activate(model) {
+        console.log('activate');
+        console.log(model);
+        this.parent = model.parent;
+    }*/
+    created(owningView,myview) {
+        this.parent = owningView;//.controller.viewModel;
+//        console.log('parent');
+//        console.log(this.parent);
+    }
+
+    //triggered after this object is placed to DOM
     attached() {
         //console.log("file panel attached:" + this.tableid);
+
+        //read the directory infos
         client.get("/metadataservice/sbfiles")
             .then(data => {
                 if (data.response) {
@@ -48,13 +67,23 @@ export const FilepanelCustomElement = decorators (
 
                         }
                     });
+                    //adds click listener to the table items
                     let a = this;
+                    let b = this.parent.controller.viewModel;
+
+//                    console.log('b');
+//                    console.log(b);
                     this.dynatable.on('click', 'tr', function () {
                         if (this.children[1].innerText.endsWith('DIR')) //if directory in second column
                             a.changefolder(this.firstChild.innerText);
-                        else
-                            //do some file related stuff
-                            console.log(this.firstChild.innerText);
+                        else {
+                            var fileitem = this.firstChild.innerText;
+                            var fileindex = a.files.map(function(e) {return e.name;}).indexOf(fileitem);
+                            console.log('fileitem');
+                            console.log(fileitem);
+                            console.log(fileindex);
+                            b.doAction(a.files[fileindex], a.tableid);//do some file related stuff
+                        }
                     });
                 }
             }).catch(error => {
@@ -65,6 +94,7 @@ export const FilepanelCustomElement = decorators (
             });
     }
 
+    //parse .NET encoded Date in JSON
     dateTimeReviver(key, value) {
         var a;
         if (typeof value === 'string') {
@@ -115,10 +145,12 @@ export const FilepanelCustomElement = decorators (
         } //else doubleclick when the previous operation didn't finished
     }
 
+    //refresh the file content
     refresh() {
         this.changefolder(); //changefolder with empty folder - just refresh
     }
 
+    //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
         this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
@@ -126,9 +158,13 @@ export const FilepanelCustomElement = decorators (
             this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
         }
         this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
+        console.log(this.files);
     }
 
-
+    doAction(fileitem) {
+        console.log(fileitem.children);
+        this.parent.doAction(fileitem);
+    }
 
 });
 

@@ -38,8 +38,8 @@ fi
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
 if [ -e /tmp/secrets2 ] 
   then
-  AUTH="$(base64 /tmp/secrets2)"
+  AUTH="$(base64 /home/vagrant/.westlife/secrets2)"
   sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf
   service httpd reload
-  rm /tmp/secrets2
+  #rm /home/vagrant/.westlife/secrets2
 fi

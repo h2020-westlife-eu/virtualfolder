@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 9/6/16.
+ * Created by Tomas Kulhanek on 9/6/16.
  */
 
 export function configure(aurelia) {

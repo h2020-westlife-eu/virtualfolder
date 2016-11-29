@@ -4,8 +4,10 @@
 
     <h4>${heading}</h4>
     <div class="filepanel">
-        <filepanel tableid="filepanel1"></filepanel>
-        <filepanel tableid="filepanel2"></filepanel>
+        <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
+        <viewpanel show.bind="viewpanel1" value.bind="fileurl1"> </viewpanel>
+        <filepanel show.bind="!viewpanel2" tableid="filepanel2" ></filepanel>
+        <viewpanel show.bind="viewpanel2" value.bind="fileurl2"> </viewpanel>
     </div>
     <div class="buttonline">
         <actions></actions>

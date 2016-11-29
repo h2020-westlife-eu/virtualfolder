@@ -46,6 +46,9 @@ systemctl enable httpd
 
 # share work directory via webdav - may be used to directly pass and process data
 mkdir /home/vagrant/work
+# workaround issue #6 store some config 
+mkdir /home/vagrant/.westlife
+
 #chown vagrant:vagrant /home/vagrant/work
 # dir for local copy (owncloud synchronized)
 #mkdir /home/vagrant/b2drop

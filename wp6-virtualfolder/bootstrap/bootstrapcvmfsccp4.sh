@@ -10,6 +10,9 @@ if [ "$1" != "yes" ]; then
    fi
 fi
 
+# workaround issue #6
+unmount /home/vagrant/work/b2drop
+
 echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
 " >/etc/cvmfs/default.local
 
@@ -34,3 +37,6 @@ if [ -z ${WP6SRC+x} ];  then cp /home/vagrant/west-life-wp6-master/wp6-virtualfo
   else cp $WP6SRC/Desktop/c* /home/vagrant/Desktop
 fi
 chmod ugo+x /home/vagrant/Desktop/*
+
+#workaround issue #6
+/home/vagrant/scripts/mountb2drop.sh
