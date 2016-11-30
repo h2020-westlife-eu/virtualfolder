@@ -32,10 +32,10 @@ namespace WP6Service2
 
 		public object Post(B2DropConnector request)
 		{
-			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets")) {
+			using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets")) {
 				outputFile.WriteLine(B2DROPDIR+" "+request.username+" "+request.securetoken);
 			}
-			using (StreamWriter outputFile = new StreamWriter("/tmp/secrets2")) {
+			using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2")) {
 				outputFile.Write(request.username+":"+request.securetoken);
 			}
 			ProcessStartInfo psi = new ProcessStartInfo();

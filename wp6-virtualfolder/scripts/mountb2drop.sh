@@ -21,7 +21,7 @@ umount /home/vagrant/work/b2drop
 #killall /bin/sh
 
 #move secrets from temporary files and mount
-mv /tmp/secrets /etc/davfs2/secrets
+mv /home/vagrant/.westlife/secrets /etc/davfs2/secrets
 chown root:root /etc/davfs2/secrets
 chmod 600 /etc/davfs2/secrets
 chmod ugo+rx /var/log/httpd
@@ -36,7 +36,7 @@ then
 fi
 #configure reverse proxy for webdav in apache
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
-if [ -e /tmp/secrets2 ] 
+if [ -e /home/vagrant/.westlife/secrets2 ]
   then
   AUTH="$(base64 /home/vagrant/.westlife/secrets2)"
   sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf

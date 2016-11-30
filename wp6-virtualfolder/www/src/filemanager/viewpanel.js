@@ -39,7 +39,7 @@ export class Viewpanel {
 
     detached(){
         console.log('viewpanel.detached()');
-        
+
         this.viewer = null;
         $('#viewer').empty();
         $('#viewer').remove();
