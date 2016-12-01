@@ -8,6 +8,7 @@
 #wget https://nuget.org/nuget.exe
 #/bin/sh
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
+rm -rf /home/vagrant/build
 # fix http://stackoverflow.com/questions/15181888/
 for i in {1..3}; do 
     echo attemp $i
