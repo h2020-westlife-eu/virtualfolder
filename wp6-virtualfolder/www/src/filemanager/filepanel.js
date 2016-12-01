@@ -25,21 +25,8 @@ export const FilepanelCustomElement = decorators (
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
-
-        //probably not used, handle click delegated to file table items
-        /*
-        this.handleBodyClick = e => {
-            console.log(e.target);
-        };
-*/
     }
 
-    /* not triggered during initialization
-    activate(model) {
-        console.log('activate');
-        console.log(model);
-        this.parent = model.parent;
-    }*/
     created(owningView,myview) {
         this.parent = owningView;//.controller.viewModel;
 //        console.log('parent');
@@ -164,6 +151,7 @@ export const FilepanelCustomElement = decorators (
     }
 
     doAction(fileitem) {
+      console.log("filepane.doaction()");
         console.log(fileitem.children);
         this.parent.doAction(fileitem);
     }

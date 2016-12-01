@@ -1,30 +1,30 @@
 <html>
+<head>
 <!--#include virtual="/heads.html" -->
+</head>
 <!-- background ; background:url('westlife-background2.jpg')-->
 <body class="w3-container">
-<!--#include file="header.html" -->
+<!--#include virtual="/header.html" -->
 <script type='text/javascript' src='https://cdn.rawgit.com/biasmv/pv/master/bio-pv.min.js'></script>
 
 <div id="vffm" class="tab">
     <div aurelia-app="src/filemanager/main">
-        <script src="scripts/system.js"></script>
-        <script src="scripts/config-esnext.js"></script>
-        <script src="scripts/aurelia-core.min.js"></script>
+      <script src="scripts/system.js"></script>
+      <script src="scripts/config-esnext.js"></script>
+      <script src="scripts/aurelia-core.min.js"></script>
 
-        <script>
-            System.import('aurelia-bootstrapper');
-        </script>
+      <script>
+        System.import('aurelia-bootstrapper');
+
+      </script>
+      <!--script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script-->
         Loading ....
     </div>
     <div id="viewer">
     </div>
 </div>
 
-<!--#include file="footer.html" -->
+<!--#include virtual="/footer.html" -->
 
-<script>
-
-
-</script>
 </body>
 </html>

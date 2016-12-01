@@ -6,13 +6,13 @@
     <h4>${heading}</h4>
     <div class="filepanel">
         <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
-
-        <viewpanel if.bind="viewpanel1" fileurl.bind="fileurl"> </viewpanel>
+        <button class="w3-button" show.bind="viewpanel1" click.trigger="close1()">X</button>
+        <viewpanel show.bind="viewpanel1" viewid="view1" fileurl.two-way="fileurl"> </viewpanel>
         <!-- TODO investigate correct binding -->
 
         <filepanel show.bind="!viewpanel2" tableid="filepanel2" ></filepanel>
-
-        <viewpanel if.bind="viewpanel2" fileurl.bind="fileurl"> </viewpanel>
+        <button class="w3-button" show.bind="viewpanel2" click.trigger="close2()">X</button>
+        <viewpanel show.bind="viewpanel2" viewid="view2" fileurl.two-way="fileurl"> </viewpanel>
     </div>
     <div class="buttonline">
         <actions></actions>
