@@ -69,7 +69,7 @@ usermod -a -G davfs2 apache
 #copy script for mounting B2DROP and setting root SetUID bit
 #fromdos /home/vagrant/mountb2drop.sh
 #cp $WP6SRC/mountb2drop.sh /home/vagrant
-cp -R $WP6SRC/scripts /home/vagrant/scripts
+cp -R $WP6SRC/scripts/* /home/vagrant/scripts
 dos2unix /home/vagrant/scripts/*
 chmod ugo+x /home/vagrant/scripts/*
 
