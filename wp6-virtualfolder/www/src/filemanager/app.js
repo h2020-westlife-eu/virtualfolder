@@ -13,18 +13,20 @@ export class App {
         this.fileurl = "test1";
 
     }
+
     doAction(fileitem,panelid) {
         this.fileurl = fileitem.webdavuri;
       console.log('app.doaction()');
-      console.log(this);
+      console.log(this.fileurl);
         if (panelid=="filepanel1") {
             //hide filepanel2, show file
             this.viewpanel2 = true;//!this.viewpanel2; //switch
-
+            if (this.childview2)
             this.childview2.viewfile(fileitem.webdavuri);
         } else {
             this.viewpanel1 = true;//!this.viewpanel1; //switch
-            this.childview.viewfile(fileitem.webdavuri);
+            if (this.childview)
+                this.childview.viewfile(fileitem.webdavuri);
 
         }
     }

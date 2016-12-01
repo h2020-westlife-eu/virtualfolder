@@ -13,26 +13,32 @@ export class  Viewpanel {
 
     attached(){
         console.log('viewpanel.attached()')
-        console.log(this);
-      if (this.bindingContext.childview) {
+
+      if (this.bindingContext.viewpanel2) {
         this.bindingContext.childview2 = this;
-        this.viewer = $('.fileviewer')[1];
-      } else {
-        this.bindingContext.childview = this;
-        this.viewer = $(".fileviewer")[0];
+        this.viewerdom = $('.fileviewer')[0]; //was[1] if.bind removes from DOM
+          console.log(this.viewerdom);
       }
+      if (this.bindingContext.viewpanel1) {
+        this.bindingContext.childview = this;
+        this.viewerdom = $(".fileviewer")[0];
+          console.log(this.viewerdom);
+      }
+      if (this.bindingContext.fileurl) this.fileurl = this.bindingContext.fileurl;
+        console.log(this.fileurl);
       var options = {
-        width: 600,
-        height: 600,
+        width: 'auto',
+        height: 'auto',
         antialias: true,
         quality : 'medium'
         // background='black', outlineColor='white'
       };
       // insert the viewer under the Dom element with id 'gl'.
-
-      console.log(this.viewer);
-      //console.log(document.getElementById('viewer'));
-      this.viewer = pv.Viewer(this.viewer, options);
+        console.log(this);
+        console.log(this.viewer);
+        if (!this.viewer)
+            this.viewer = pv.Viewer(this.viewerdom, options);
+            if (this.fileurl) this.viewfile();
         }
 
 // override the default options with something less restrictive.
@@ -48,14 +54,15 @@ export class  Viewpanel {
 
     }
 
-    viewfile(fileurl){
-      this.fileurl = fileurl;
-      console.log("viewFile(). fileurl:");
-      console.log(this.fileurl);
-      if (this.fileurl && this.fileurl.endsWith('pdb')) {
-        this.loadfromurl(this.fileurl);
-        //loadlocalpdbfile();
-      }
+    viewfile(fileurl) {
+        if (fileurl) this.fileurl = fileurl;
+        console.log("viewFile(). fileurl:");
+        console.log(this.fileurl);
+        if (this.fileurl && this.fileurl.endsWith('pdb')) {
+            this.loadfromurl(this.fileurl);
+            //loadlocalpdbfile();
+        }
+
     }
 
     created(owningView,myview) {
@@ -90,7 +97,7 @@ export class  Viewpanel {
             })
             .catch(error => {
                 console.log(error);
-                alert('Sorry, response: '+error.message+' when trying to get: '+url);
+                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+url);
             });
     }
 
