@@ -10,8 +10,25 @@ export class App {
         this.heading = "File manager";
         this.viewpanel1 = false;
         this.viewpanel2 = false;
+        this.showhelp = false;
         this.fileurl = "test1";
+        this.myKeypressCallback = this.keypressInput.bind(this);
 
+    }
+
+    activate(){
+        window.addEventListener('keypress', this.myKeypressCallback, false);
+    }
+
+    deactivate() {
+        window.removeEventListener('keypress', this.myKeypressCallback);
+    }
+
+    // This function is called by the aliased method
+    keypressInput(e) {
+        console.log('keypressed');
+        if (e.key=='F1') this.help();
+        console.log(e);
     }
 
     doAction(fileitem,panelid) {
@@ -35,5 +52,8 @@ export class App {
     }
     close2(){
       this.viewpanel2=false;
+    }
+    help(){
+        this.showhelp=!this.showhelp;
     }
 }

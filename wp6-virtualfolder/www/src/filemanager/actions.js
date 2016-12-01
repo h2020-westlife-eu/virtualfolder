@@ -29,26 +29,5 @@ export class Actions {
     }
 
 
-
-    addb2drop() { //post credentials to connect to b2dropconnector rest service
-        let postdata= {username:this.username,securetoken:this.usertoken};
-        console.log(postdata);
-        let postdatajson=JSON.stringify(postdata);
-        console.log(postdatajson);
-
-        client.post("/metadataservice/b2dropconnector",postdatajson)
-            .then(data => {
-                console.log(data.response);
-                let myresponse = JSON.parse(data.response);
-                if (myresponse.connected) this.status="OK";
-                else {
-                    this.status="fail:";
-                    if (myresponse.output) {
-                        this.status+=myresponse.output;
-                    }
-                }
-            });
-    }
-
 }
 

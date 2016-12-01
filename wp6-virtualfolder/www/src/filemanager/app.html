@@ -1,9 +1,14 @@
 <template>
-    <require from="./actions"></require>
     <require from="./filepanel"></require>
     <require from="./viewpanel"></require>
 
     <h4>${heading}</h4>
+    <div show.bind="showhelp" class="w3-round-large w3-card w3-pale-blue">
+        <p>This if VirtualFolder FileManager.</p>
+        <p>Use mouse to navigate the files.</p>
+        <p>Click on directory will change to the directory. Click on ".." will change to parent directory</p>
+        <p>Click on PDB file will visualize the PDB file in next panel.</p>
+    </div>
     <div class="filepanel">
         <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
         <button class="w3-button" show.bind="viewpanel1" click.trigger="close1()">X</button>
@@ -15,8 +20,15 @@
         <viewpanel if.bind="viewpanel2" viewid="view2" fileurl.two-way="fileurl"> </viewpanel>
     </div>
     <div class="buttonline">
-
-        <actions></actions>
-
+        <div class="w3-round-large w3-col">
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large" click.trigger="help()">F1 Help</button>
+            <!--button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F2 Menu</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F3 View</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F4 Edit</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F5 Copy</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F6 Move</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F7 Mkdir</button>
+            <button class="w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large">F8 Delete</button-->
+        </div>
     </div>
 </template>
