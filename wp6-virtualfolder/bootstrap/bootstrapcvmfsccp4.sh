@@ -11,7 +11,7 @@ if [ "$1" != "yes" ]; then
 fi
 
 # workaround issue #6
-unmount /home/vagrant/work/b2drop
+umount /home/vagrant/work/b2drop
 
 echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
 " >/etc/cvmfs/default.local
