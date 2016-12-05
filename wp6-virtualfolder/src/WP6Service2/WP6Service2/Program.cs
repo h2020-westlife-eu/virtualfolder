@@ -70,13 +70,15 @@ namespace WP6Service2
 		//Run it!
 		static void Main(string[] args)
 		{
-			var listeningOn = args.Length == 0 ? "http://*:8001/metadataservice/" : args[0];
+			var listeningOn = "http://*:8001/metadataservice/";
+		    //set account token
+		    if (args.Length>0) WP6Service2.DropBoxFS.accesstoken = args[0];
 			//var appHost = 
 			new AppHost()
 				.Init()
 				.Start(listeningOn);
 
-			Console.WriteLine("AppHost Created at {0}, listening on {1}",
+			Console.WriteLine("MetadataService2 Created at {0}, listening on {1}",
 				DateTime.Now, listeningOn);
 
 			//Unix specific
