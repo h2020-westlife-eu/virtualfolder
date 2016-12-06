@@ -4,6 +4,10 @@ using ServiceStack.OrmLite;
 using ServiceStack.DataAnnotations;
 using System.IO;
 using System.Diagnostics;
+using ServiceStack.Common;
+using ServiceStack.Common.Web;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface;
 
 namespace WP6Service2
 {
@@ -31,7 +35,7 @@ namespace WP6Service2
 		public object Get(SBService request) 
 		{
 			if (request.Name != default(String))
-				return Db.Single<SBService>(x => x.Name == request.Name);; //returns single resource
+				return Db.First<SBService>(x => x.Name == request.Name);; //returns single resource
 
 			return Db.Select<SBService>(); //returns all
 		}
@@ -43,7 +47,7 @@ namespace WP6Service2
 			if (string.IsNullOrEmpty(request.Name))
 				throw new ArgumentNullException("Name");
 			
-			var service = Db.Single<SBService>(x => x.Name == request.Name);; //returns single resource
+			var service = Db.First<SBService>(x => x.Name == request.Name);; //returns single resource
 
 			ProcessStartInfo psi = new ProcessStartInfo();
 			psi.FileName = "/usr/bin/sudo";
@@ -75,9 +79,10 @@ namespace WP6Service2
 				outputFile.Write(request.Username+":"+request.Securetoken);
 			}
 			request.Securetoken = "/tmp/.westlife/"+request.Name+".secrets"; //do not store secure token in DB
-			var id = Db.Insert(request);
+		    Db.Insert(request);
+		    var id = Db.GetLastInsertId();
 			var pathToResource =  base.Request.AbsoluteUri.CombineWith(request.Name);
-			return HttpResult.Status201Created (Db.SingleById<SBService> (id), pathToResource);
+			return HttpResult.Status201Created (Db.First<SBService>(x=> x.Id == id), pathToResource);
 		}
 
 		public void Delete(SBService request)

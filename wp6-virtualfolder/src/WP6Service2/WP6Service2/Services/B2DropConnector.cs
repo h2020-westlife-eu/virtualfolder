@@ -2,6 +2,8 @@
 using System.IO;
 using System.Diagnostics;
 using ServiceStack;
+using ServiceStack.ServiceHost;
+using ServiceStack.ServiceInterface;
 
 namespace WP6Service2
 {
