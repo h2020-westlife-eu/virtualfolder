@@ -7,11 +7,11 @@ using ServiceStack.ServiceInterface;
 
 namespace WP6Service2
 {
-    [Route("/sbfiles")]
     [Route("/sbfiles/{path*}")]
-    //[Route("/sbfiles/b2drop/{path*}")]
-    public class FileSystemSBFile : SBFile
+    public class FileSystemSBFile
     {
+        public string path { get; set; }
+
     }
 
     public partial class SBFileService : Service
@@ -30,12 +30,12 @@ namespace WP6Service2
         }
     }
 
-    public static class FileSystemFS
+    public class FileSystemFS : IFileProvider
     {
         public static String root = "/home/vagrant/work/";
         public static String webdavroot = "/webdav/";
 
-        public static object ListOfFiles(String path) {
+        public static List<SBFile> ListOfFiles(String path) {
             Console.WriteLine("ListOfFiles( "+path+" )");
             var di = new DirectoryInfo (root+path);
             var fis = di.GetFileSystemInfos();
@@ -55,6 +55,11 @@ namespace WP6Service2
                 });
             };
             return listOfFiles; //returns all
+        }
+
+        public string GetContext()
+        {
+            return null;//throw new NotImplementedException();
         }
     }
 

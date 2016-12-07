@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Dropbox.Api.Sharing;
 using ServiceStack;
+using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using ServiceStack.Text;
 
 namespace WP6Service2
 {
@@ -15,9 +19,11 @@ namespace WP6Service2
 	}
 
 
-	/*** DTO of file infos
-	 */
-	public class SBFile
+
+    /*** DTO of file infos
+     */
+    [Route("/sbfiles")]
+    public class SBFile
 	{
 		public String name { get; set;}
 		public FileAttributes attributes { get; set; }
@@ -28,19 +34,51 @@ namespace WP6Service2
 		public String webdavuri { get; set; }
 	}
 
-
+    public interface IFileProvider
+    {
+        /** returns context URL under which the service is listening
+        */
+        String GetContext();
+    }
 
     public partial class SBFileService : Service
-	{
-		/** returns list of files and directories under specified path of the configured root
-		 * directory. 
-		 */
-		/*public object Get(SBFile request)
-		{
-			//sets default subpath
-		    return FileSystem.ListOfFiles("");
-		}*/
+    {
+        protected const String WEBDAVROOT ="/webdav";
 
+		public object Get(SBFile request)
+		{
+		    Console.WriteLine("SBFile().Get()");
+		    //gets all implementation of IFileProvider
+		    var type = typeof(IFileProvider);
+		    var types = AppDomain.CurrentDomain.GetAssemblies()
+		        .SelectMany(s => s.GetTypes())
+		        .Where(p => type.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
+		    //var listOfContext = new List<SBFile>();
+		    //gets files on root directory of working space
+		    var listOfContext = FileSystemFS.ListOfFiles("");
+		    //adds services which are not listed
+		    //construct list of providers by calling mandatory method of the
+		    foreach (var providerimplementation in types)
+		    {
+		        Console.WriteLine("implementation name:" +providerimplementation.FullName);
+
+		        var context = ((IFileProvider) providerimplementation.CreateInstance()).GetContext();
+		        if (!string.IsNullOrEmpty(context))
+		        {
+		            //add the context if it is notyet cached in file system
+		            if (listOfContext.FindAll(x => x.name==context).Count==0)
+		            listOfContext.Add(new SBFile()
+		            {
+		                name = context,
+		                attributes = FileAttributes.Directory,
+		                path = context,
+		                filetype = FileType.Directory,
+		                webdavuri = WEBDAVROOT + "/" + context
+		            });
+		        }
+		    }
+		    return listOfContext;
+		}
 	}
 	
 

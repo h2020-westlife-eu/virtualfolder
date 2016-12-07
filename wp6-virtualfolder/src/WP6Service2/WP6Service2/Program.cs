@@ -15,7 +15,6 @@ namespace WP6Service2
 {
 	class Program
 	{
-
 		//Define the Web Services AppHost
 	    //Define the Web Services AppHost
 	    public class AppHost : AppHostHttpListenerBase {
