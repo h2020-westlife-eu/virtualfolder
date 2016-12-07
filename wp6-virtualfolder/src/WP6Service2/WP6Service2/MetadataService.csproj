@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\DropboxConnector.cs" />
     <Compile Include="Services\DropBoxFS.cs" />
     <Compile Include="Services\FileSystemFS.cs" />
     <Compile Include="Services\SBArtifact.cs" />
@@ -117,6 +118,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Properties" />
     <Folder Include="Services\" />
     <Folder Include="Client\" />
     <Folder Include="Client\js\" />

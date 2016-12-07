@@ -1,23 +1,50 @@
 <template>
-    <h3>${heading}</h3>
-    <p>B2DROP is a secure and trusted data exchange service provided by EUDAT.
-        West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>
-    <!-- form is showed only if the b2drop is not connected -->
-    <form show.bind="dialogstateentry" submit.trigger="addb2drop()">
-        <p>You need to create B2DROP account first at <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">b2drop.eudat.eu/pwm/public/NewUser?</a>
-Then ,if you have an existing account, fill in the B2DROP username and password here:</p>
-        <input type="text" value.bind="username">
-        <input type="password" value.bind="usertoken">
-        <button class="w3-btn w3-round-large" type="submit">Connect to B2DROP</button>
-        Status: <span>${status}</span>
-    </form>
-    <!-- if it is connected, then status info is showed and option to reconnect is showed-->
-    <form show.bind="dialogstateconnected" submit.trigger="reconnect()">
-        <span>B2Drop service connected.</span>
-        <button class="w3-btn w3-round-large" type="submit">reconnect</button>
-    </form>
+    <div class="w3-third">
+        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
+            <h3>${heading}</h3>
+            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.
+                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>
+            <!-- form is showed only if the b2drop is not connected -->
+            <form show.bind="dialogstateentry" submit.trigger="addb2drop()">
+                <p>You need to create B2DROP account first at <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">b2drop.eudat.eu/pwm/public/NewUser?</a>
+                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>
+                <input type="text" value.bind="username">
+                <input type="password" value.bind="usertoken">
+                <button class="w3-btn w3-round-large" type="submit">Connect to B2DROP</button>
+                Status: <span>${status}</span>
+            </form>
+            <!-- if it is connected, then status info is showed and option to reconnect is showed-->
+            <form show.bind="dialogstateconnected" submit.trigger="reconnect()">
+                <span>B2Drop service connected.</span>
+                <button class="w3-btn w3-round-large" type="submit">reconnect</button>
+            </form>
 
-    <div show.bind="dialogstateconnecting">
-        <span>B2Drop connecting ...</span>
+            <div show.bind="dialogstateconnecting">
+                <span>B2Drop connecting ...</span>
+            </div>
+        </div>
     </div>
+
+    <div class="w3-third">
+        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
+            <h3>DROPBOX</h3>
+            <p>DROPBOX is a commercial data store and exchange service.
+                West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->
+            <form show.bind="dropboxentry">
+                <p>You need to have existing DROPBOX account. </p>
+                <a show.bind="showdropboxbutton" class="w3-btn w3-round-large" href="${dropBoxAuthUrl}" id="authlink" class="button">Connect to DROPBOX</a>
+                <hr/>Status: <span>${statusdropbox}</span>
+            </form>
+            <!-- if it is connected, then status info is showed and option to reconnect is showed-->
+            <form show.bind="dropboxconnected" submit.trigger="dropboxreconnect()">
+                <span>DROPBOX service connected.</span>
+                <button class="w3-btn w3-round-large" type="submit">reconnect</button>
+            </form>
+
+            <div show.bind="dropboxconnecting">
+                <span>B2Drop connecting ...</span>
+            </div>
+        </div>
+    </div>
+
 </template>

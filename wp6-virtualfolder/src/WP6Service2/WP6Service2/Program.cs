@@ -33,7 +33,8 @@ namespace WP6Service2
 	            SetConfig (hc);
 */
 	            SetConfig(new EndpointHostConfig {
-	                ServiceStackHandlerFactoryPath = "metadataservice"
+	                ServiceStackHandlerFactoryPath = "metadataservice",
+	                WebHostUrl = "/metadataservice"
 	            });
 	            using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {
 	                //drops table
