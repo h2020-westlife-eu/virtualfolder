@@ -12,7 +12,7 @@ fi
 
 # workaround issue #6
 umount /home/vagrant/work/b2drop
-
+sleep 5
 echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
 " >/etc/cvmfs/default.local
 
@@ -20,16 +20,7 @@ echo "CVMFS_SERVER_URL=\"http://cvmfs-egi.gridpp.rl.ac.uk:8000/cvmfs/@org@.gridp
 CVMFS_PUBLIC_KEY=/etc/cvmfs/keys/gridpp.ac.uk.pub
 " >/etc/cvmfs/domain.d/gridpp.ac.uk.local
 
-echo "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp7C4KDvOIEVJepuAHjxE
-EES1sDdohz0hiU6uvSqxVYjKVR4Y4/0I/D/zLijQI+MHR7859RN0/6fsZ3b3At3l
-UbvNfqq6DN1zVjjd0xagC6SMBhSfj/iQKQSsG8MXSyiNmM8YalVHJSPqoova6CPE
-EgLEjnHKTNEogTNjKBwbP2ELPLkfVoNoxxrXPSox7aln8JdgyZzZlBwm98gnFa1v
-JTVAl0HQnUJ6cjMwO31wIGVMdvZ+P962t+2bPGfOCm6Ly6BusXcLoIIeez5SBerB
-aHz//NSTZDbHVNPEqpoo1AQVVOo4XJmqo64jBa3G4Dr0zSda1bkZMVhsyUtjhfEB
-DwIDAQAB
------END PUBLIC KEY-----
-">/etc/cvmfs/keys/gridpp.ac.uk.pub
+echo LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwN0M0S0R2T0lFVkplcHVBSGp4RQpFRVMxc0Rkb2h6MGhpVTZ1dlNxeFZZaktWUjRZNC8wSS9EL3pMaWpRSStNSFI3ODU5Uk4wLzZmc1ozYjNBdDNsClVidk5mcXE2RE4xelZqamQweGFnQzZTTUJoU2ZqL2lRS1FTc0c4TVhTeWlObU04WWFsVkhKU1Bxb292YTZDUEUKRWdMRWpuSEtUTkVvZ1ROaktCd2JQMkVMUExrZlZvTm94eHJYUFNveDdhbG44SmRneVp6WmxCd205OGduRmExdgpKVFZBbDBIUW5VSjZjak13TzMxd0lHVk1kdlorUDk2MnQrMmJQR2ZPQ202THk2QnVzWGNMb0lJZWV6NVNCZXJCCmFIei8vTlNUWkRiSFZOUEVxcG9vMUFRVlZPbzRYSm1xbzY0akJhM0c0RHIwelNkYTFia1pNVmhzeVV0amhmRUIKRHdJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==|base64 -d >/etc/cvmfs/keys/gridpp.ac.uk.pub
 service autofs restart
 cvmfs_config probe
 
