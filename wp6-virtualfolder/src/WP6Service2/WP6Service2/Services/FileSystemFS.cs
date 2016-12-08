@@ -21,7 +21,7 @@ namespace WP6Service2
          */
        public object Get(FileSystemSBFile request)
         {
-            Console.WriteLine("Get( " + request.path + " )");
+            //Console.WriteLine("Get( " + request.path + " )");
             String path = (request.path != null) ? request.path : "";
             if ((request.path != null) && request.path.Contains(".."))
                 path = ""; //prevents directory listing outside
@@ -36,7 +36,7 @@ namespace WP6Service2
         public static String webdavroot = "/webdav/";
 
         public static List<SBFile> ListOfFiles(String path) {
-            Console.WriteLine("ListOfFiles( "+path+" )");
+            //Console.WriteLine("ListOfFiles( "+path+" )");
             var di = new DirectoryInfo (root+path);
             var fis = di.GetFileSystemInfos();
             List<SBFile> listOfFiles = new List<SBFile> ();
@@ -62,5 +62,4 @@ namespace WP6Service2
             return null;//throw new NotImplementedException();
         }
     }
-
 }

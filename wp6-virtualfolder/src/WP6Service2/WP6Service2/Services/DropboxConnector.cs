@@ -17,11 +17,9 @@ namespace WP6Service2
 	public class DropboxConnectorService : Service
 	{
 		/* Gets the status of the connection true or false
-		 * 
 		 */
 		public object Get(DropboxConnector request) 
 		{
-			
 			return new DropboxConnector (){ connected = GetDropboxStatus() };
 		}
 
@@ -31,7 +29,6 @@ namespace WP6Service2
 	    /* takes username and securetoken to launch script for mounting b2drop
          * returns whether it's connectect or not
          */
-
 		public object Post(DropboxConnector request)
 		{
 			using (StreamWriter outputFile = new StreamWriter(DROPBOXSECRET)) {
@@ -66,12 +63,10 @@ namespace WP6Service2
 	        return request;
 	    }
 
-
 		private bool GetDropboxStatus()
 		{
 		    return File.Exists(DROPBOXSECRET);
 		}
 	}
-
 }
 

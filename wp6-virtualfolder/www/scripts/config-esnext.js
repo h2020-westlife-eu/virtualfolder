@@ -7,7 +7,8 @@ System.config({
   },
   paths: {
     "babel:": "scripts/babel/",
-    "aurelia-http-client":"scripts/aurelia-http-client.js"
+    "aurelia-http-client":"scripts/aurelia-http-client.js",
+    "acontrol":"src/b2dropcontrol/acontrol.js"
   },
   packageConfigPaths: [
     "babel:@*/*.json",

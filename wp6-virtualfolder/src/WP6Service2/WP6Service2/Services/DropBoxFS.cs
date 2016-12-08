@@ -30,7 +30,7 @@ namespace WP6Service2
 
         public object Get(DropBoxSBFile request)
         {
-            Console.WriteLine("Get( " + request.path + " )");
+            //Console.WriteLine("Get( " + request.path + " )");
             String path = (request.path != null) ? request.path : "";
             if ((request.path != null) && request.path.Contains(".."))
                 path = ""; //prevents directory listing outside
@@ -57,7 +57,7 @@ namespace WP6Service2
             //TODO change access token to user specific
             try
             {
-                Console.WriteLine("Dropbox Init()");
+                //Console.WriteLine("Dropbox Init()");
                 if (accesstoken.Length == 0)
                 {
                     //try to read from Dropboxconnector service (it reads from file)
@@ -81,12 +81,12 @@ namespace WP6Service2
                 else dbx = new DropboxClient(accesstoken);
 
                 //setting dropboxclient
-                Console.WriteLine("Dropbox Init() dbx created:" + dbx.Dump());
+                //Console.WriteLine("Dropbox Init() dbx created:" + dbx.Dump());
 
                 //just get information of connected user - not needed;
                 var full = await dbx.Users.GetCurrentAccountAsync();
-                Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
-                Console.WriteLine("Dropbox initialized");
+                //Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
+                //Console.WriteLine("Dropbox initialized");
                 initialized = true;
             }
             catch (Exception e)
@@ -99,7 +99,7 @@ namespace WP6Service2
         public static object ListOfFiles(String path)
         {
 
-            Console.WriteLine("ListOfFiles( "+path+" )");
+            //Console.WriteLine("ListOfFiles( "+path+" )");
             var mytask = ListOfFilesAsync(path);
             mytask.Wait();
             return mytask.Result;
@@ -108,9 +108,9 @@ namespace WP6Service2
         public static async Task<object> ListOfFilesAsync(String path)
         {
             if (!initialized) Initialize();
-            Console.WriteLine("ListOfFilesAsync("+path+")");
+            //Console.WriteLine("ListOfFilesAsync("+path+")");
             var dropboxpath = path.Length > 0 ? "/" + path : String.Empty; //leading slash otherwise empty
-            Console.WriteLine("ListOfFilesAsync("+dropboxpath+")");
+            //Console.WriteLine("ListOfFilesAsync("+dropboxpath+")");
             try
             {
                 //root folder - list
@@ -169,12 +169,12 @@ namespace WP6Service2
             List<SBFile> listOfFiles = new List<SBFile>();
             do
             {
-                Console.WriteLine("ListOfFilesAsync(), result.Count: " + list.Entries.Count);
+                //Console.WriteLine("ListOfFilesAsync(), result.Count: " + list.Entries.Count);
 
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
                 {
-                    Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
+                    //Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
                     listOfFiles.Add(new SBFile()
                     {
                         path = path,
@@ -190,7 +190,7 @@ namespace WP6Service2
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
                 {
-                    Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
+                    //Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
                     listOfFiles.Add(new SBFile()
                     {
                         path = path,
@@ -213,20 +213,18 @@ namespace WP6Service2
                     hasmoreresults = false;
             } while (hasmoreresults);
 
-            Console.WriteLine("ListOfFilesAsync done");
+            //Console.WriteLine("ListOfFilesAsync done");
             return listOfFiles; //returns all
         }
 
 //returns WEBDAV URL if it exists locally
         private static string LocalOrRemote(string s)
         {
-            Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
+            //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
             if ((File.Exists(DROPBOXFOLDER + "/" + s)))
                 return WEBDAVURIROOT + "/" + s;
             else
                 return s;
-
-
         }
     }
 }
