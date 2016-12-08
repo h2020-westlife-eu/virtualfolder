@@ -139,8 +139,8 @@ namespace WP6Service2
 				DateTime.Now, listeningOn);
 
 			//Unix specific
-			UnixSignal [] signals = new UnixSignal[] {
-				new UnixSignal(Signum.SIGINT),
+		    //	new UnixSignal(Signum.SIGINT),
+		    UnixSignal [] signals = new UnixSignal[] {
 				new UnixSignal(Signum.SIGTERM),
 			};
 
@@ -152,6 +152,7 @@ namespace WP6Service2
 				if (id >= 0 && id < signals.Length)
 				{
 					if (signals[id].IsSet) exit = true;
+				    Console.WriteLine("Received unix signal:"+id);
 				}
 			}
 		}
