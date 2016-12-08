@@ -89,8 +89,13 @@ touch /home/vagrant/secrets_oc
 chown apache:apache /home/vagrant/secrets /home/vagrant/secrets_oc
 
 # set proxy for davfs - as it seems not taking the http_proxy environment variable
+
 if [ -z "$http_proxy" ]; then echo "proxy is not set"; else
   echo "proxy is set to '$http_proxy'"
+  # set proxy for redirecting the webdav traffic
+  # TODO interprets
+
+
   #strip http:// from the variable
   davs_http_proxy=${http_proxy:7}
   echo "proxy $davs_http_proxy" >> /etc/davfs2/davfs2.conf
@@ -98,6 +103,9 @@ if [ -z "$http_proxy" ]; then echo "proxy is not set"; else
   proxyhostport=${http_proxy#*http://}
   proxyport=${proxyhostport#*:}
   proxyhost=${proxyhostport%:*}
+
+  sed -i -e "s/\#ProxyRemoteMatch.*$/ProxyRemoteMatch https:\/\/b2drop.eudat.eu\* http:\/\/${proxyhostport}/g" 000-default.conf
+
   #echo "writing to configuration proxy setting, proxyhost: $proxyhost  proxyport: $proxyport"
   #echo "\$conf['proxy']['host'] = $proxyhost;" >> /var/www/html/dokuwiki/conf/local.php
   #echo "\$conf['proxy']['port'] = $proxyport;" >> /var/www/html/dokuwiki/conf/local.php
