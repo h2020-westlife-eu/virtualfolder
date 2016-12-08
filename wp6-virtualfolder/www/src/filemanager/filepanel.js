@@ -76,10 +76,12 @@ export const FilepanelCustomElement = decorators (
                     });
                 }
             }).catch(error => {
+
                 console.log('Error');
                 console.log(error);
                 this.status="unavailable";
                 this.showdialog=false;
+                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: /metadataservice/sbfiles');
             });
     }
 
@@ -129,6 +131,7 @@ export const FilepanelCustomElement = decorators (
                 }).catch(error => {
                 console.log('Error');
                 console.log(error);
+                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: /metadataservice/sbfiles'+this.path);
                 this.lock = false;
             });
         } //else doubleclick when the previous operation didn't finished

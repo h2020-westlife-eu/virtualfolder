@@ -55,37 +55,45 @@ namespace WP6Service2
 
         public static async void Initialize(){
             //TODO change access token to user specific
-            Console.WriteLine("Dropbox Init()");
-            if (accesstoken.Length == 0)
+            try
             {
-                //try to read from Dropboxconnector service (it reads from file)
-                accesstoken = DropboxConnectorService.ReadSecureToken();
+                Console.WriteLine("Dropbox Init()");
+                if (accesstoken.Length == 0)
+                {
+                    //try to read from Dropboxconnector service (it reads from file)
+                    accesstoken = DropboxConnectorService.ReadSecureToken();
+                }
+                //setting proxy if it is defined in environment
+                if (System.Environment.GetEnvironmentVariable("http_proxy").Length > 0)
+                {
+                    WebProxy proxy = new WebProxy(System.Environment.GetEnvironmentVariable("http_proxy"), false);
+                    var drconfig = new DropboxClientConfig()
+                    {
+                        HttpClient = null
+                    };
+                    HttpClientHandler httpClientHandler = new HttpClientHandler()
+                    {
+                        Proxy = proxy
+                    };
+                    drconfig.HttpClient = new HttpClient(httpClientHandler);
+                    dbx = new DropboxClient(accesstoken, drconfig);
+                }
+                else dbx = new DropboxClient(accesstoken);
+
+                //setting dropboxclient
+                Console.WriteLine("Dropbox Init() dbx created:" + dbx.Dump());
+
+                //just get information of connected user - not needed;
+                var full = await dbx.Users.GetCurrentAccountAsync();
+                Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
+                Console.WriteLine("Dropbox initialized");
+                initialized = true;
             }
-            //setting proxy if it is defined in environment
-            if (System.Environment.GetEnvironmentVariable("http_proxy").Length > 0)
+            catch (Exception e)
             {
-                WebProxy proxy = new WebProxy(System.Environment.GetEnvironmentVariable("http_proxy"), false);
-                var drconfig = new DropboxClientConfig()
-                {
-                    HttpClient = null
-                };
-                HttpClientHandler httpClientHandler = new HttpClientHandler()
-                {
-                    Proxy = proxy
-                };
-                drconfig.HttpClient = new HttpClient(httpClientHandler);
-                dbx = new DropboxClient(accesstoken, drconfig);
+                Console.WriteLine("Error:" + e.Message + " " + e.StackTrace);
+                throw e;
             }
-            else dbx = new DropboxClient(accesstoken);
-
-            //setting dropboxclient
-            Console.WriteLine("Dropbox Init() dbx created:"+dbx.Dump());
-
-            //just get information of connected user - not needed;
-            var full = await dbx.Users.GetCurrentAccountAsync();
-            Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
-            Console.WriteLine("Dropbox initialized");
-            initialized = true;
         }
 
         public static object ListOfFiles(String path)
