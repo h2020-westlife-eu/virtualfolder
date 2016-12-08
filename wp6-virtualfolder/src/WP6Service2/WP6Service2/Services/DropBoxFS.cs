@@ -50,7 +50,7 @@ namespace WP6Service2
         private static Boolean initialized = false;
         public static String accesstoken = "";
         private static String DROPBOXFOLDER = "/home/vagrant/work/"+CONTEXT;
-        private static String DROPBOXURIROOT = "/"+CONTEXT;
+        private static String DROPBOXURIROOT = "/metadataservice/sbfiles/"+CONTEXT;
         private static String WEBDAVURIROOT = "/webdav/"+CONTEXT;
 
         public static async void Initialize(){
