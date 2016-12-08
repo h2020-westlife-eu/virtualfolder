@@ -1,34 +1,41 @@
 /**
- * Created by vagrant on 9/6/16.
+ * Created by Tomas Kulhanek on 9/6/16.
  */
-import {HttpClient} from 'aurelia-http-client';
+
 import {AControl} from 'acontrol';
-let client = new HttpClient();
 
 export class Dropboxcontrol extends AControl {
-    contructor() {
-        this.dropBoxAuthUrl = "";
+
+    constructor() {
+       super();
+        this.heading="DROPBOX connector";
         this.CLIENTID = "x5tdu20lllmr0nv";
-        this.showdropboxbutton = false;
-        this.heading="ONEDRIVE connector";
+      this.showdropboxbutton = false;
+/*        this.dropBoxAuthUrl = "";
+        */
     }
 
     attached() {
-        //console.log('dropbox');
-        //console.log(Dropbox);
+        console.log('dropbox');
+        console.log(Dropbox);
         if (this.isAuthenticated()) {
-            this.shodropboxbutton = false;
+            this.showdropboxbutton = false;
             this.usertoken = this.getAccessTokenFromUrl();
             this.addservice('dropboxconnector');
         } else {
+          console.log("dropboxcontrol.attached()");
+          console.log(this.dialogstateentry);
+          console.log(this.dialogstate);
             console.log(this.CLIENTID);
+            this.showdropboxbutton = true;
+            console.log(this.showdropboxbutton);
+
             var dbx = new Dropbox({clientId: this.CLIENTID});
             console.log(dbx);
             var currentUrl = window.location.href;
             console.log('current url:' + currentUrl);
             this.dropBoxAuthUrl = dbx.getAuthenticationUrl(currentUrl);
             console.log(this.dropBoxAuthUrl);
-            this.showdropboxbutton = true;
         }
     }
 

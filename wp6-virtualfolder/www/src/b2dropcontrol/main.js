@@ -1,11 +1,17 @@
-/**
- * Created by vagrant on 9/6/16.
- */
+import environment from './environment';
+
 
 export function configure(aurelia) {
-    aurelia.use.basicConfiguration()
-        .developmentLogging();
-    aurelia.start().then(() => aurelia.setRoot());
+  aurelia.use
+    .basicConfiguration();
 
+  if (environment.debug) {
+    aurelia.use.developmentLogging();
+  }
+
+  if (environment.testing) {
+    aurelia.use.plugin('aurelia-testing');
+  }
+
+  aurelia.start().then(() => aurelia.setRoot());
 }
-

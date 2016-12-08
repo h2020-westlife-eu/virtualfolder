@@ -9,6 +9,7 @@ let client = new HttpClient();
 export class B2dropcontrol extends AControl{
 
     constructor (){
+        super();
         this.heading="B2DROP connector";
     }
     attached(){

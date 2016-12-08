@@ -1,11 +1,16 @@
-/**
- * Created by Tomas Kulhanek on 9/6/16.
- */
+import environment from './b2dropcontrol/environment';
 
 export function configure(aurelia) {
-    aurelia.use.basicConfiguration()
-        .developmentLogging();
+  aurelia.use
+    .standardConfiguration();
 
-    aurelia.start().then(() => aurelia.setRoot());
+  if (environment.debug) {
+    aurelia.use.developmentLogging();
+  }
+
+  if (environment.testing) {
+    aurelia.use.plugin('aurelia-testing');
+  }
+
+  aurelia.start().then(() => aurelia.setRoot());
 }
-

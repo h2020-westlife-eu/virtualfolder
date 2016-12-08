@@ -29,6 +29,8 @@ export class AControl {
     }
 
     attached() {
+      console.log("Acontrol.attached()");
+      console.log("dialogstate:"+this.dialogstate);
 
     }
 

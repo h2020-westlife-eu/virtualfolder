@@ -4,7 +4,7 @@
         <h3>${heading}</h3>
         <p>DROPBOX is a commercial data store and exchange service.
             West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->
-        <form show.bind="dialogentry">
+        <form show.bind="dialogstateentry">
             <p>You need to have existing DROPBOX account. </p>
             <a show.bind="showdropboxbutton" class="w3-btn w3-round-large" href="${dropBoxAuthUrl}" id="authlink">Connect to DROPBOX</a>
             <hr/>Status: <span>${status}</span>
@@ -16,7 +16,7 @@
         </form>
 
         <div show.bind="dialogstateconnecting">
-            <span>B2Drop connecting ...</span>
+            <span>DROPBOX connecting ...</span>
         </div>
     </div>
 </div>
