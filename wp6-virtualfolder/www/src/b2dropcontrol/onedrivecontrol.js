@@ -13,5 +13,6 @@ export class Onedrivecontrol extends AControl {
     super();
     this.heading = "ONEDRIVE connector";
     this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
+    this.servicecontext= "onedriveconnector";
   }
 }

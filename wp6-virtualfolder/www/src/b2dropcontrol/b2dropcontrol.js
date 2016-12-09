@@ -11,23 +11,7 @@ export class B2dropcontrol extends AControl{
     constructor (){
         super();
         this.heading="B2DROP connector";
-    }
-    attached(){
-    //gets the status of the b2drop connection
-    client.get("/metadataservice/b2dropconnector")
-        .then(data => {
-            this.status="disconnected";
-            this.updatestate(1);
-            //console.log("data response");
-            //console.log(data);
-            if (data.response) {
-                let myresponse = JSON.parse(data.response);
-                if (myresponse.connected) {
-                    this.status = "OK";
-                    this.updatestate(3);
-                }
-            }
-        });
+        this.servicecontext = "b2dropconnector";
     }
 
     failcallback(myresponse) {
