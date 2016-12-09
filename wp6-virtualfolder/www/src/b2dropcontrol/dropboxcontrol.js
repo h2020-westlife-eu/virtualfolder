@@ -10,10 +10,9 @@ export class Dropboxcontrol extends AControl {
        super();
         this.heading="DROPBOX connector";
         this.CLIENTID = "x5tdu20lllmr0nv";
-      this.showdropboxbutton = false;
+        this.showdropboxbutton = false;
         this.servicecontext = "dropboxconnector";
-/*        this.dropBoxAuthUrl = "";
-        */
+        this.dropBoxAuthUrl = "";
     }
 
     attached() {

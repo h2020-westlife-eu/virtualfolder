@@ -7,6 +7,10 @@
 # download depended nuget packages DLL
 #wget https://nuget.org/nuget.exe
 #/bin/sh
+#create .westlife dir to contain service specific configuration
+mkdir /home/vagrant/.westlife
+chmod ugo+rxw /home/vagrant/.westlife
+
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
 rm -rf /home/vagrant/build
 # fix http://stackoverflow.com/questions/15181888/

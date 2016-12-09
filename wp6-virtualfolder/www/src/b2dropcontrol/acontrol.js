@@ -6,6 +6,7 @@ import {HttpClient} from 'aurelia-http-client';
 let client = new HttpClient();
 
 export class AControl {
+
     constructor() {
         this.heading = "connector";
         this.username = "";
@@ -79,10 +80,12 @@ export class AControl {
     }
 
     failcallback() {
+        console.log('acontrol.okcallback() should be overridden')
         //empty, implemented by child
     }
 
     okcallback() {
+        console.log('acontrol.okcallback() should be overridden')
         //empty, implemented by child
     }
 

@@ -27,4 +27,5 @@ export class B2dropcontrol extends AControl{
         this.updatestate(3);
     }
 
+
 }
