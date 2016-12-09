@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+
 # 28.10.2016 mono from cvmfs
 # 17.10.2016 replaced postgresql by sqlite3
 # 10.10.2016 moved mono 4.5 build to cvmfs
@@ -7,10 +8,6 @@
 # download depended nuget packages DLL
 #wget https://nuget.org/nuget.exe
 #/bin/sh
-#create .westlife dir to contain service specific configuration
-mkdir /home/vagrant/.westlife
-chmod ugo+rxw /home/vagrant/.westlife
-
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
 rm -rf /home/vagrant/build
 # fix http://stackoverflow.com/questions/15181888/
@@ -24,7 +21,10 @@ for i in {1..3}; do
 	rm -rf /home/vagrant/src
 	# build metadataservice
 	cp -R $WP6SRC/src /home/vagrant
-	wget --quiet -O certdata.txt https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
+	if [ ! -f certdata]
+	then 
+	    wget --quiet -O certdata.txt https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
+	fi
 	mozroots --import --sync --file certdata.txt
 	#certmgr -ssl -m https://go.microsoft.com
 	#certmgr -ssl -m https://nugetgallery.blob.core.windows.net
