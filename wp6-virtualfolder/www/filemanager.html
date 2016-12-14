@@ -9,7 +9,12 @@
 <script type='text/javascript' src="scripts/Dropbox-sdk.min.js"></script>
 
 <div id="vffm" class="tab">
-    <div aurelia-app="src/filemanager/main">
+  <div aurelia-app="filemanager/main">
+    <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+    Loading ...
+  </div>
+
+<!--    <div aurelia-app="src/filemanager/main">
       <script src="scripts/system.js"></script>
       <script src="scripts/config-esnext.js"></script>
       <script src="scripts/aurelia-core.min.js"></script>
@@ -18,11 +23,9 @@
         System.import('aurelia-bootstrapper');
 
       </script>
-      <!--script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script-->
+
         Loading ....
-    </div>
-    <div id="viewer">
-    </div>
+    </div-->
 </div>
 
 <!--#include virtual="/footer.html" -->

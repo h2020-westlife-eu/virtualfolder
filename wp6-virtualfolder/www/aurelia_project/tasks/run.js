@@ -4,6 +4,9 @@ import historyApiFallback from 'connect-history-api-fallback/lib';
 import project from '../aurelia.json';
 import build from './build';
 import {CLIOptions} from 'aurelia-cli';
+//tomas add ssi
+
+
 
 function log(message) {
   console.log(message); //eslint-disable-line no-console
@@ -18,6 +21,10 @@ function reload(done) {
   done();
 }
 
+//tomas added ssi and proxy declaration
+var ssi = require('browsersync-ssi');
+var metadataserviceproxy = require('http-proxy-middleware');
+
 let serve = gulp.series(
   build,
   done => {
@@ -31,7 +38,14 @@ let serve = gulp.series(
         middleware: [historyApiFallback(), function(req, res, next) {
           res.setHeader('Access-Control-Allow-Origin', '*');
           next();
-        }]
+        }, //tomas added ssi and proxy
+          ssi({
+          baseDir: './',
+          ext: '.html',
+            version: '1.4.0'
+          }),
+          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/metadataservice', changeOrigin: true,logLevel:'debug'})
+        ]
       }
     }, function(err, bs) {
       let urls = bs.options.get('urls').toJS();

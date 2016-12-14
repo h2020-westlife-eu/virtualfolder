@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 9/6/16.
  */
 
-import {AControl} from 'acontrol';
+import {AControl} from './acontrol';
 
 export class Dropboxcontrol extends AControl {
 

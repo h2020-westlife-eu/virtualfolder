@@ -14,8 +14,15 @@
 <div class="w3-row-padding w3-center">
 <h3>Settings of available modules</h3>
 
-            <div aurelia-app="b2dropcontrol/main">
-              <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+            <div aurelia-app="src/b2dropcontrol/main">
+              <script src="scripts/system.js"></script>
+              <script src="scripts/config-esnext.js"></script>
+              <script src="scripts/aurelia-core.min.js"></script>
+
+              <script>
+                System.import('aurelia-bootstrapper');
+              </script>
+              <!--script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script-->
                 Loading ...
             </div>
 
