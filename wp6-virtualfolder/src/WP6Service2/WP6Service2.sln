@@ -3,12 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataService", "WP6Service2\MetadataService.csproj", "{8E5C5D26-0DDA-4529-B45F-1FBEB0906988}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataServiceTest", "MetadataServiceTest\MetadataServiceTest.csproj", "{3A4FA68B-3AD9-440F-B65F-0E1A66E61E5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A4FA68B-3AD9-440F-B65F-0E1A66E61E5E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A4FA68B-3AD9-440F-B65F-0E1A66E61E5E}.Debug|x86.Build.0 = Debug|Any CPU
+		{3A4FA68B-3AD9-440F-B65F-0E1A66E61E5E}.Release|x86.ActiveCfg = Release|Any CPU
+		{3A4FA68B-3AD9-440F-B65F-0E1A66E61E5E}.Release|x86.Build.0 = Release|Any CPU
 		{8E5C5D26-0DDA-4529-B45F-1FBEB0906988}.Debug|x86.ActiveCfg = Debug|x86
 		{8E5C5D26-0DDA-4529-B45F-1FBEB0906988}.Debug|x86.Build.0 = Debug|x86
 		{8E5C5D26-0DDA-4529-B45F-1FBEB0906988}.Release|x86.ActiveCfg = Release|x86

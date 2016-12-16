@@ -33,6 +33,7 @@ namespace WP6Service2
 			using (StreamWriter outputFile = new StreamWriter(DropBoxFile.DROPBOXSECRET)) {
 				outputFile.WriteLine(request.securetoken);
 			    DropBoxFS.accesstoken = request.securetoken;
+			    DropBoxFS.Initialize();
 			    request.connected = true;
 			}
 			return request;

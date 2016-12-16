@@ -13,7 +13,7 @@ using ServiceStack.WebHost.Endpoints;
 
 namespace WP6Service2
 {
-	class Program
+	public class Program
 	{
 		//Define the Web Services AppHost
 	    //Define the Web Services AppHost
@@ -64,36 +64,59 @@ namespace WP6Service2
 	    }
 
 		//Run it!
-		static void Main(string[] args)
+		public static void Main(string[] args)
 		{
-			var listeningOn = "http://*:8001/metadataservice/";
-		    //set account token
-		    if (args.Length>0) WP6Service2.DropBoxFS.accesstoken = args[0];
-			var appHost = new AppHost();
-			    appHost.Init();
+		    var listeningOn = "http://*:8001/metadataservice/";
+		    StartHost(listeningOn, args);
 
-				appHost.Start(listeningOn);
+		    WaitForUnixSignal();
 
-			Console.WriteLine("MetadataService4 ServiceStack 3 Created at {0}, listening on {1}",
-				DateTime.Now, listeningOn);
-
-			//Unix specific
-		    //	new UnixSignal(Signum.SIGINT),
-		    UnixSignal [] signals = new UnixSignal[] {
-				new UnixSignal(Signum.SIGTERM),
-			};
-
-			// Wait for a unix signal
-			for (bool exit = false; !exit; )
-			{
-				int id = UnixSignal.WaitAny(signals);
-
-				if (id >= 0 && id < signals.Length)
-				{
-					if (signals[id].IsSet) exit = true;
-				    Console.WriteLine("Received unix signal:"+id);
-				}
-			}
+		    StopHost();
 		}
-}
+
+	    private static void WaitForUnixSignal()
+	    {
+//	new UnixSignal(Signum.SIGINT),
+	        UnixSignal[] signals = new UnixSignal[]
+	        {
+	            new UnixSignal(Signum.SIGTERM),
+	            new UnixSignal(Signum.SIGUSR1)
+	        };
+
+	        // Wait for a unix signal
+	        for (bool exit = false; !exit;)
+	        {
+	            int id = UnixSignal.WaitAny(signals);
+
+	            if (id >= 0 && id < signals.Length)
+	            {
+	                if (signals[id].IsSet) exit = true;
+	                Console.WriteLine("Received unix signal:" + id);
+	            }
+	        }
+	    }
+
+	    private static AppHost _appHost;
+
+	    public static void StartHost(string listeningOn, string[] args)
+	    {
+
+	        //set account token
+	        if (args.Length > 0) WP6Service2.DropBoxFS.accesstoken = args[0];
+	        _appHost = new AppHost();
+	        _appHost.Init();
+
+	        _appHost.Start(listeningOn);
+
+	        Console.WriteLine("MetadataService4 ServiceStack 3 Created at {0}, listening on {1}",
+	            DateTime.Now, listeningOn);
+
+	        //Unix specific
+	    }
+
+	    public static void StopHost()
+	    {
+	        _appHost.Dispose();
+	    }
+	}
 }

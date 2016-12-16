@@ -20,7 +20,7 @@ namespace WP6Service2
 {
 
     [Route("/sbfiles/dropbox/{path*}")]
-    public class DropBoxSBFile
+    public class DropBoxSBFile : IReturn<List<SBFile>>
     {
         public string path { get; set; }
     }

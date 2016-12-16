@@ -23,7 +23,15 @@
 
 # prepare and restart apache, rewrite configuration
 cp -R $WP6SRC/apache2/sites-available/* /etc/httpd/conf.d
-cp -R $WP6SRC/www/* /var/www/html
+# copy web app pages
+cp $WP6SRC/www/* /var/www/html
+cp -R $WP6SRC/www/css /var/www/html
+cp -R $WP6SRC/www/img /var/www/html
+cp -R $WP6SRC/www/scripts /var/www/html
+cp -R $WP6SRC/www/services2 /var/www/html
+cp -R $WP6SRC/www/src /var/www/html
+cp -R $WP6SRC/www/tools /var/www/html
+
 
 #unzip $WP6SRC/thirdparty/ngl.zip -d /var/www
 #sudo cp $WP6SRC/index.html /var/www
