@@ -8,10 +8,10 @@ using ServiceStack.ServiceInterface;
 namespace WP6Service2
 {
     [Route("/onedriveconnector")]
-    public class OneDriveConnector :DropboxConnector
+    public class OneDriveConnector : DropboxConnector
     {
     }
-    public class OneDriveConnectorService : DropboxConnectorService
+    public class OneDriveConnectorService : Service//: DropboxConnectorService
     {
         /* Gets the status of the connection true or false
          */
@@ -44,7 +44,7 @@ namespace WP6Service2
             return accesstoken;
         }
 
-        public object Delete(DropboxConnector request)
+        public object Delete(OneDriveConnector request)
         {
             request.connected = false;
             File.Delete(DROPBOXSECRET);

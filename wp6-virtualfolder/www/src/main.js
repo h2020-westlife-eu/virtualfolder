@@ -1,4 +1,4 @@
-import environment from './b2dropcontrol/environment';
+import environment from './environment';
 
 //Configure Bluebird Promises.
 Promise.config({

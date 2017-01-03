@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Dropbox.Api;
+using Dropbox.Api.Files;
 using ServiceStack;
 using ServiceStack.Common.Extensions;
 using ServiceStack.Common.Web;
+using ServiceStack.Messaging.Rcon;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.Text;
@@ -17,7 +20,7 @@ namespace WP6Service2
 {
 
     [Route("/sbfiles/dropbox/{path*}")]
-    public class DropBoxSBFile
+    public class DropBoxSBFile : IReturn<List<SBFile>>
     {
         public string path { get; set; }
     }
@@ -61,11 +64,17 @@ namespace WP6Service2
                 if (accesstoken.Length == 0)
                 {
                     //try to read from Dropboxconnector service (it reads from file)
-                    accesstoken = DropboxConnectorService.ReadSecureToken();
+                    //DropboxConnectorService;
+
+                    accesstoken = DropBoxFile.ReadSecureToken();
                 }
+                if (accesstoken.Length==0) return;
                 //setting proxy if it is defined in environment
-                if (System.Environment.GetEnvironmentVariable("http_proxy").Length > 0)
+                var environmentVariable = System.Environment.GetEnvironmentVariable("http_proxy");
+                if (!string.IsNullOrEmpty(environmentVariable))
                 {
+                    Console.WriteLine("Setting proxy for dropboxclient:" +
+                                      System.Environment.GetEnvironmentVariable("http_proxy"));
                     WebProxy proxy = new WebProxy(System.Environment.GetEnvironmentVariable("http_proxy"), false);
                     var drconfig = new DropboxClientConfig()
                     {
@@ -78,21 +87,25 @@ namespace WP6Service2
                     drconfig.HttpClient = new HttpClient(httpClientHandler);
                     dbx = new DropboxClient(accesstoken, drconfig);
                 }
-                else dbx = new DropboxClient(accesstoken);
+                else
+                {
+                    Console.WriteLine("dropbox client with direct access");
+                    dbx = new DropboxClient(accesstoken);
+                }
 
                 //setting dropboxclient
-                //Console.WriteLine("Dropbox Init() dbx created:" + dbx.Dump());
+                Console.WriteLine("Dropbox Init() dbx created:" + dbx.Dump());
 
                 //just get information of connected user - not needed;
                 var full = await dbx.Users.GetCurrentAccountAsync();
-                //Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
-                //Console.WriteLine("Dropbox initialized");
+                Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
+                Console.WriteLine("Dropbox initialized");
                 initialized = true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error:" + e.Message + " " + e.StackTrace);
-                throw e;
+                //throw e;
             }
         }
 
@@ -108,6 +121,7 @@ namespace WP6Service2
         public static async Task<object> ListOfFilesAsync(String path)
         {
             if (!initialized) Initialize();
+            if (!initialized) throw new ApplicationException("Dropbox not initiailized.");
             //Console.WriteLine("ListOfFilesAsync("+path+")");
             var dropboxpath = path.Length > 0 ? "/" + path : String.Empty; //leading slash otherwise empty
             //Console.WriteLine("ListOfFilesAsync("+dropboxpath+")");

@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 9/6/16.
  */
 
-import {AControl} from 'acontrol';
+import {AControl} from './acontrol';
 
 export class Dropboxcontrol extends AControl {
 
@@ -10,9 +10,9 @@ export class Dropboxcontrol extends AControl {
        super();
         this.heading="DROPBOX connector";
         this.CLIENTID = "x5tdu20lllmr0nv";
-      this.showdropboxbutton = false;
-/*        this.dropBoxAuthUrl = "";
-        */
+        this.showdropboxbutton = false;
+        this.servicecontext = "dropboxconnector";
+        this.dropBoxAuthUrl = "";
     }
 
     attached() {
@@ -37,6 +37,7 @@ export class Dropboxcontrol extends AControl {
             this.dropBoxAuthUrl = dbx.getAuthenticationUrl(currentUrl);
             console.log(this.dropBoxAuthUrl);
         }
+        super.attached();
     }
 
     failcallback(myresponse) {

@@ -125,7 +125,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties" />
     <Folder Include="Services\" />
     <Folder Include="Client\" />
     <Folder Include="Client\js\" />

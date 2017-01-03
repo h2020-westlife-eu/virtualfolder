@@ -6,6 +6,7 @@ import {HttpClient} from 'aurelia-http-client';
 let client = new HttpClient();
 
 export class AControl {
+
     constructor() {
         this.heading = "connector";
         this.username = "";
@@ -14,6 +15,7 @@ export class AControl {
         this.dialogstate = 1;
         this.dialogstateconnected, this.dialogstateconnecting = false;
         this.dialogstateentry = true;
+        this.servicecontext="";
         this.showbutton = false;
         client.configure(config=> {
             config.withHeader('Accept', 'application/json');
@@ -31,7 +33,21 @@ export class AControl {
     attached() {
       console.log("Acontrol.attached()");
       console.log("dialogstate:"+this.dialogstate);
-
+        //gets the status of the b2drop connection
+        client.get("/metadataservice/"+this.servicecontext)
+            .then(data => {
+                this.status="disconnected";
+                this.updatestate(1);
+                //console.log("data response");
+                //console.log(data);
+                if (data.response) {
+                    let myresponse = JSON.parse(data.response);
+                    if (myresponse.connected) {
+                        this.status = "OK";
+                        this.updatestate(3);
+                    }
+                }
+            });
     }
 
     reconnect() {
@@ -64,10 +80,12 @@ export class AControl {
     }
 
     failcallback() {
+        console.log('acontrol.okcallback() should be overridden')
         //empty, implemented by child
     }
 
     okcallback() {
+        console.log('acontrol.okcallback() should be overridden')
         //empty, implemented by child
     }
 
