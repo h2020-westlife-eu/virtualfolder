@@ -1,0 +1,16 @@
+<template>
+  <require from="./genericcontrol"></require>
+  <require from="./aliastable"></require>
+
+  <h3>Virtual Folder Settings</h3>
+
+  <form submit.trigger="newProvider()">
+  <aliastable></aliastable>
+  </form>
+
+  <form submit.trigger="addProvider()">
+  <genericcontrol show.bind="showprovider"></genericcontrol>
+  </form>
+
+  <div class="w3-clear"></div>
+</template>

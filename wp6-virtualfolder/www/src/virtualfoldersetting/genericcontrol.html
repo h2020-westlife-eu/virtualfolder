@@ -1,0 +1,40 @@
+<template>
+  <div class="w3-half">
+    <div class="w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large">
+
+
+        <select class="w3-select" name="option" value.bind="selectedProvider">
+          <option value="" disabled selected>Choose provider</option>
+          <option repeat.for="provider of providers" value.bind="provider">${provider}</option>
+        </select>
+
+        <div show.bind="selectedProvider">
+          Alias:<input type="text" name="alias" size="15" maxlength="1024"/><br/>
+          <p class="w3-tiny">Alias is a unique name of the 'folder' under which the files will be accessible from virtual folder. </p>
+
+          <div show.bind="selectedB2Drop">
+            Username:<input type="text" name="username" size="15" maxlength="1024"/><br/>
+            Password:<input type="password" name="securetoken" size="30" maxlength="1024"/>
+          </div>
+
+          <div show.bind="selectedDropbox">
+          <span class="w3-tiny">I know secure token </span>
+          <input type="checkbox" ref="knownSecureToken"/>
+          <div show.bind="knownSecureToken.checked">Secure token:
+            <input type="text" name="securetoken" size="30" maxlength="1024"/>
+          </div>
+          </div>
+
+          <div show.bind="selectedFileSystem">
+              Internal path to be linked:
+              <input type="text" name="securetoken" size="30" maxlength="1024"/>
+          </div>
+          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+        </div>
+        <hr/>Status: <span>${status}</span>
+
+
+    </div>
+  </div>
+  <!--genericcontrol if.bind="newDialog.checked"></genericcontrol-->
+</template>

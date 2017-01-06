@@ -1,0 +1,25 @@
+<template>
+  <div class="w3-half">
+    <div class="w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large">
+      <table>
+        <thead>
+        <tr>
+          <th>Alias</th>
+          <th>Type</th>
+          <th valign="center">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="w3-hover-green" repeat.for="provider of providers">
+          <td>${provider.alias}</td><td>${provider.type}</td><td align="center"><i class="fa fa-check"></i></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+          <td colspan="2"></td><td><button  class="w3-btn w3-round-large" type="submit" class="w3-buttons">Add new file provider</button></td>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</template>

@@ -44,7 +44,7 @@ let serve = gulp.series(
           ext: '.html',
             version: '1.4.0'
           }),
-          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/metadataservice', changeOrigin: true,logLevel:'debug'})
+          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'})
         ]
       }
     }, function(err, bs) {

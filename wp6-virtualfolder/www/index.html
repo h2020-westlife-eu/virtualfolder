@@ -12,13 +12,13 @@
 
 
 <div class="w3-row-padding w3-center">
-<h3>Settings of available modules</h3>
 
-            <div aurelia-app="b2dropcontrol/main">
+            <div aurelia-app="virtualfoldersetting/main">
               <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
                 Loading ...
             </div>
 
+  <h3>Available modules</h3>
     <div class="w3-third">
         <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
         <h4>CCP4 suite</h4>
@@ -53,7 +53,7 @@
             <p>Virtuoso-opensource is Virtuoso is a scalable cross-platform server that combines Relational, Graph, and Document Data Management with Web Application Server and Web Services Platform functionality.
                 </p>
             <p>To enable and start local instance of Virtuoso, please click the Enable button.</p>
-            <button class="w3-btn w3-round-large" onclick="$.post('/sbservice/virtuoso'); this.disabled=true">Enable Virtuoso</button>
+            <button class="w3-btn w3-round-large" onclick="$.post('/metadataservice/sbservice/virtuoso'); this.disabled=true">Enable Virtuoso</button>
             <p>
                 Access Virtuoso Services:<a href="/virtuoso">local Virtuoso webtool</a>
             </p>

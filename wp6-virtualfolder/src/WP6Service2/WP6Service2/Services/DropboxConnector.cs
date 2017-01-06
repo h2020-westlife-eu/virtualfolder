@@ -14,6 +14,7 @@ namespace WP6Service2
 		public String securetoken {get;set;}
 		public String output { get; set; }
 	}
+/** deprecated */
 	public class DropboxConnectorService : Service
 	{
 		/* Gets the status of the connection true or false

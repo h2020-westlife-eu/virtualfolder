@@ -4,70 +4,64 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Dropbox.Api;
-using Dropbox.Api.Files;
-using ServiceStack;
-using ServiceStack.Common.Extensions;
+using ServiceStack.Common;
 using ServiceStack.Common.Web;
-using ServiceStack.Messaging.Rcon;
-using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface;
 using ServiceStack.Text;
 
 namespace WP6Service2
 {
 
-    [Route("/sbfiles/dropbox/{path*}")]
-    public class DropBoxSBFile : IReturn<List<SBFile>>
+    public class DropboxProviderCreator : IProviderCreator
     {
-        public string path { get; set; }
-    }
-/** deprecated */
-    public partial class SBFileService : Service
-    {
-        /** returns list of files and directories under specified path of the configured root
-         * directory.
-         */
-
-        public object Get(DropBoxSBFile request)
+        public AFileProvider CreateProvider(ProviderItem item)
         {
-            //Console.WriteLine("Get( " + request.path + " )");
-            String path = (request.path != null) ? request.path : "";
-            if ((request.path != null) && request.path.Contains(".."))
-                path = ""; //prevents directory listing outside
-            //MAIN splitter for strategies of listing files
-            return DropBoxFS.ListOfFiles(path);
+            return new DropboxProvider(item);//.securetoken,item.alias);
         }
     }
 
-    public class DropBoxFS:IProviderContext
+    public class DropboxProvider : AFileProvider
     {
-        private const string CONTEXT = "dropbox";
+
+        public DropboxProvider(){}
+
+        public DropboxProvider(ProviderItem item)
+        {
+            CONTEXT = item.alias;
+            accesstoken = item.securetoken;
+            DROPBOXFOLDER = "/home/vagrant/work/"+CONTEXT;
+            DROPBOXURIROOT = "/metadataservice/files/"+CONTEXT;
+            WEBDAVURIROOT = "/webdav/"+CONTEXT;
+        }
+
+        public override object GetFileList(string Path)
+        {
+            string path = (Path != null) ? Path : "";
+            if (path.Contains(".."))
+                path = ""; //prevents directory listing outside
+            //MAIN splitter for strategies of listing files
+            return ListOfFiles(path);
+        }
+
+
         public string GetContext()
         {
             return CONTEXT;
         }
-        private static DropboxClient dbx;
-        private static Boolean initialized = false;
-        public static String accesstoken = "";
-        private static String DROPBOXFOLDER = "/home/vagrant/work/"+CONTEXT;
-        private static String DROPBOXURIROOT = "/metadataservice/sbfiles/"+CONTEXT;
-        private static String WEBDAVURIROOT = "/webdav/"+CONTEXT;
 
-        public static async void Initialize(){
+        private String CONTEXT = "dropbox";
+        private DropboxClient dbx;
+        private Boolean initialized = false;
+        private String accesstoken = "";
+        private String DROPBOXFOLDER;// = "/home/vagrant/work/"+CONTEXT;
+        private String DROPBOXURIROOT;// = "/metadataservice/files/"+CONTEXT;
+        private String WEBDAVURIROOT;// = "/webdav/"+CONTEXT;
+
+        public async void Initialize(){
             //TODO change access token to user specific
             try
             {
-                //Console.WriteLine("Dropbox Init()");
-                if (accesstoken.Length == 0)
-                {
-                    //try to read from Dropboxconnector service (it reads from file)
-                    //DropboxConnectorService;
-
-                    accesstoken = DropBoxFile.ReadSecureToken();
-                }
                 if (accesstoken.Length==0) return;
                 //setting proxy if it is defined in environment
                 var environmentVariable = System.Environment.GetEnvironmentVariable("http_proxy");
@@ -109,7 +103,7 @@ namespace WP6Service2
             }
         }
 
-        public static object ListOfFiles(String path)
+        public object ListOfFiles(String path)
         {
 
             //Console.WriteLine("ListOfFiles( "+path+" )");
@@ -118,7 +112,7 @@ namespace WP6Service2
             return mytask.Result;
         }
 
-        public static async Task<object> ListOfFilesAsync(String path)
+        public async Task<object> ListOfFilesAsync(String path)
         {
             if (!initialized) Initialize();
             if (!initialized) throw new ApplicationException("Dropbox not initiailized.");
@@ -144,7 +138,7 @@ namespace WP6Service2
         /// <summary>
         /// Copies the contents of input to output. Doesn't close either stream.
         /// </summary>
-        public static void CopyStream(Stream input, Stream output)
+        public void CopyStream(Stream input, Stream output)
         {
             byte[] buffer = new byte[8 * 1024];
             int len;
@@ -154,7 +148,7 @@ namespace WP6Service2
             }
         }
 
-        private static async Task<object> DownloadFile(string dropboxpath)
+        private async Task<object> DownloadFile(string dropboxpath)
         {
 
 
@@ -172,11 +166,9 @@ namespace WP6Service2
             return HttpResult.Redirect(WEBDAVURIROOT+"/"+dropboxpath);
         }
 
-
-
-        private static async Task<object> ListFolder(string path, string dropboxpath)
+        private async Task<object> ListFolder(string path, string dropboxpath)
         {
-//if (metadata.IsFolder) 
+//if (metadata.IsFolder)
             //gets folder information
             var list = await dbx.Files.ListFolderAsync(dropboxpath);
             bool hasmoreresults = false;
@@ -232,7 +224,7 @@ namespace WP6Service2
         }
 
 //returns WEBDAV URL if it exists locally
-        private static string LocalOrRemote(string s)
+        private string LocalOrRemote(string s)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
             if ((File.Exists(DROPBOXFOLDER + "/" + s)))
@@ -241,4 +233,5 @@ namespace WP6Service2
                 return s;
         }
     }
+
 }

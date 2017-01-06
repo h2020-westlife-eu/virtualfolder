@@ -26,11 +26,11 @@ namespace WP6Service2
             if ((request.path != null) && request.path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
-            return FileSystemFS.ListOfFiles(path);
+            return SystemFs.ListOfFiles(path);
         }
     }
 
-    public class FileSystemFS : IFileProvider
+    public class SystemFs : IProviderContext
     {
         public static String root = "/home/vagrant/work/";
         public static String webdavroot = "/webdav/";
