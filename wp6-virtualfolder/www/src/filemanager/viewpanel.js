@@ -17,15 +17,15 @@ export class  Viewpanel {
       if (this.bindingContext.viewpanel2) {
         this.bindingContext.childview2 = this;
         this.viewerdom = $('.fileviewer')[0]; //was[1] if.bind removes from DOM
-          console.log(this.viewerdom);
+//        console.log(this.viewerdom);
       }
       if (this.bindingContext.viewpanel1) {
         this.bindingContext.childview = this;
         this.viewerdom = $(".fileviewer")[0];
-          console.log(this.viewerdom);
+//        console.log(this.viewerdom);
       }
       if (this.bindingContext.fileurl) this.fileurl = this.bindingContext.fileurl;
-        console.log(this.fileurl);
+//        console.log(this.fileurl);
       var options = {
         width: 'auto',
         height: 'auto',

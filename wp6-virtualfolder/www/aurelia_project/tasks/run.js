@@ -41,8 +41,7 @@ let serve = gulp.series(
         }, //tomas added ssi and proxy
           ssi({
           baseDir: './',
-          ext: '.html',
-            version: '1.4.0'
+          ext: '.html'
           }),
           metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'})
         ]

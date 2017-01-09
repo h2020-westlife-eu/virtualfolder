@@ -3,14 +3,19 @@
  */
 import {HttpClient} from 'aurelia-http-client';
 import {computedFrom} from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {SettingsSubmitted} from './messages';
 
 let client = new HttpClient();
 
 export class Genericcontrol {
 
-  constructor() {
+  static inject = [EventAggregator];
 
+
+  constructor(ea) {
     this.heading="File Provider";
+    this.ea= ea;
     this.CLIENTID = "x5tdu20lllmr0nv";
     this.showdropboxbutton = false;
     this.servicecontext = "providers";
@@ -26,24 +31,35 @@ export class Genericcontrol {
 
   @computedFrom('selectedProvider')
   get selectedDropbox() {
-
+    this.securetoken="";
+    this.username="";
+    this.password="";
     return this.selectedProvider=='Dropbox';
   }
 
   @computedFrom('selectedProvider')
   get selectedB2Drop() {
+    this.securetoken="";
+    this.username="";
+    this.password="";
     return this.selectedProvider=='B2Drop';
   }
 
   @computedFrom('selectedProvider')
   get selectedFileSystem() {
+    this.securetoken="";
+    this.username="";
+    this.password="";
     return this.selectedProvider=='FileSystem';
   }
 
   attached() {
     console.log('genericcontrol.attached()');
     console.log("dialogstate:"+this.dialogstate);
+    //attach parent with the instance
+    //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
+
     client.get("/metadataservice/"+this.servicecontext)
       .then(data => {
         console.log("data response");
@@ -76,5 +92,15 @@ export class Genericcontrol {
   // contain the access token.
   isAuthenticated() {
     return !!this.getAccessTokenFromUrl();
+  }
+
+  addProvider() {
+     var settings = {};
+     settings.type=this.selectedProvider;
+     settings.alias = this.alias;
+     if (this.selectedDropbox || this.selectedFileSystem) settings.securetoken = this.username;
+     else settings.username = this.username;
+     if (this.password) settings.securetoken = this.password;
+     this.ea.publish(new SettingsSubmitted(settings));
   }
 }

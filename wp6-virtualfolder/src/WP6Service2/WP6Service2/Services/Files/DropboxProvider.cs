@@ -58,7 +58,7 @@ namespace WP6Service2
         private String DROPBOXURIROOT;// = "/metadataservice/files/"+CONTEXT;
         private String WEBDAVURIROOT;// = "/webdav/"+CONTEXT;
 
-        public async void Initialize(){
+        public async Task Initialize(){
             //TODO change access token to user specific
             try
             {
@@ -114,8 +114,11 @@ namespace WP6Service2
 
         public async Task<object> ListOfFilesAsync(String path)
         {
-            if (!initialized) Initialize();
-            if (!initialized) throw new ApplicationException("Dropbox not initiailized.");
+            if (!initialized)
+            {
+                await Initialize();
+                if (!initialized) throw new ApplicationException("Dropbox not initiailized.");
+            }
             //Console.WriteLine("ListOfFilesAsync("+path+")");
             var dropboxpath = path.Length > 0 ? "/" + path : String.Empty; //leading slash otherwise empty
             //Console.WriteLine("ListOfFilesAsync("+dropboxpath+")");

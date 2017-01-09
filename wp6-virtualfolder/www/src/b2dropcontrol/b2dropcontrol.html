@@ -8,6 +8,7 @@
             <form show.bind="dialogstateentry" submit.trigger="addservice('b2dropconnector')">
                 <p>You need to create B2DROP account first at <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">b2drop.eudat.eu/pwm/public/NewUser?</a>
                     Then ,if you have an existing account, fill in the B2DROP username and password here:</p>
+
                 <input type="text" value.bind="username">
                 <input type="password" value.bind="usertoken">
                 <button class="w3-btn w3-round-large" type="submit">Connect to B2DROP</button>

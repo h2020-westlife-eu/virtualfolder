@@ -40,33 +40,36 @@ namespace WP6Service2
 
     public class ProviderService : Service
     {
-        private ProviderList _providers;
-        private Dictionary<string, AFileProvider> linkedimpl;
-        private Dictionary<string,IProviderCreator> AvailableProviders;
+        private static ProviderList _providers;
+        private static Dictionary<string, AFileProvider> linkedimpl;
+        private static Dictionary<string,IProviderCreator> AvailableProviders;
 
         /** register available provider to service - used by implementing classes
 */
         public ProviderService()
         {
-            _providers= new ProviderList();
-            AvailableProviders = ProviderFactory.AvailableProviders;
-            linkedimpl = new Dictionary<string, AFileProvider>();
-            var providerfiles = AFileProvider.GetAllConfigFiles();
-            IProviderCreator impl;
-            foreach (var pf in providerfiles)
+            if (_providers == null)
             {
-                try
+                _providers = new ProviderList();
+                linkedimpl = new Dictionary<string, AFileProvider>();
+                AvailableProviders = ProviderFactory.AvailableProviders;
+                var providerfiles = AFileProvider.GetAllConfigFiles();
+                IProviderCreator impl;
+                foreach (var pf in providerfiles)
                 {
-                    if (AvailableProviders.TryGetValue(pf.type, out impl))
+                    try
                     {
-                        _providers.Add(pf);
-                        linkedimpl.Add(pf.alias, impl.CreateProvider(pf));
+                        if (AvailableProviders.TryGetValue(pf.type, out impl))
+                        {
+                            _providers.Add(pf);
+                            linkedimpl.Add(pf.alias, impl.CreateProvider(pf));
+                        }
+                        else Console.WriteLine("the provider type has not registered creator:" + pf.type);
                     }
-                    else Console.WriteLine("the provider type has not registered creator:" + pf.type);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message+e.StackTrace);
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message+e.StackTrace);
+                    }
                 }
             }
             //TODO trigger ConfigStored() ???
@@ -77,6 +80,7 @@ namespace WP6Service2
 
         public ProviderList Get(ProviderItem request)
         {
+            var tmp = _providers;
             return _providers;
         }
 
@@ -91,7 +95,9 @@ namespace WP6Service2
             if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
             {
                 _providers.Add(request);
-                linkedimpl.Add(request.alias,impl.CreateProvider(request));
+                var aprovider = impl.CreateProvider(request);
+                linkedimpl.Add(request.alias,aprovider );
+                aprovider.StoreToFile(request);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
             return _providers;
         }

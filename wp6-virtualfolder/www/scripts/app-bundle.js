@@ -840,15 +840,13 @@ define('filemanager/viewpanel',['exports', 'aurelia-http-client'], function (exp
             if (this.bindingContext.viewpanel2) {
                 this.bindingContext.childview2 = this;
                 this.viewerdom = $('.fileviewer')[0];
-                console.log(this.viewerdom);
             }
             if (this.bindingContext.viewpanel1) {
                 this.bindingContext.childview = this;
                 this.viewerdom = $(".fileviewer")[0];
-                console.log(this.viewerdom);
             }
             if (this.bindingContext.fileurl) this.fileurl = this.bindingContext.fileurl;
-            console.log(this.fileurl);
+
             var options = {
                 width: 'auto',
                 height: 'auto',
@@ -917,122 +915,6 @@ define('filemanager/viewpanel',['exports', 'aurelia-http-client'], function (exp
         return Viewpanel;
     }();
 });
-define('fileprovider/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: true,
-    testing: false
-  };
-});
-define('fileprovider/genericcontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Genericcontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var client = new _aureliaHttpClient.HttpClient();
-
-  var Genericcontrol = exports.Genericcontrol = function () {
-    function Genericcontrol() {
-      _classCallCheck(this, Genericcontrol);
-
-      this.heading = "File Provider";
-      this.CLIENTID = "x5tdu20lllmr0nv";
-      this.showdropboxbutton = false;
-      this.servicecontext = "providers";
-      this.dropBoxAuthUrl = "";
-      this.providers = [];
-      this.selectedProvider = "";
-      console.log('genericcontrol()');
-      client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-    }
-
-    Genericcontrol.prototype.attached = function attached() {
-      var _this = this;
-
-      console.log('genericcontrol.attached()');
-      console.log("dialogstate:" + this.dialogstate);
-
-      client.get("/metadataservice/" + this.servicecontext).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this.providers = JSON.parse(data.response);
-        }
-      });
-    };
-
-    Genericcontrol.prototype.failcallback = function failcallback(myresponse) {
-      this.updatedropboxstate(1);
-      this.status = "fail:";
-      if (myresponse.output) {
-        this.status += myresponse.output;
-      }
-    };
-
-    Genericcontrol.prototype.okcallback = function okcallback() {
-      this.status = "OK";
-      this.updatestate(3);
-    };
-
-    Genericcontrol.prototype.getAccessTokenFromUrl = function getAccessTokenFromUrl() {
-      return this.parseQueryString(window.location.hash).access_token;
-    };
-
-    Genericcontrol.prototype.isAuthenticated = function isAuthenticated() {
-      return !!this.getAccessTokenFromUrl();
-    };
-
-    return Genericcontrol;
-  }();
-});
-define('fileprovider/main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  function configure(aurelia) {
-    aurelia.use.basicConfiguration();
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
 define('resources/index',["exports"], function (exports) {
   "use strict";
 
@@ -1042,12 +924,13 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('virtualfoldercontrol/app',['exports'], function (exports) {
+define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.Aliastable = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1055,141 +938,60 @@ define('virtualfoldercontrol/app',['exports'], function (exports) {
     }
   }
 
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-
-    this.message = 'Hello World!';
-  };
-});
-define('virtualfoldercontrol/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: true,
-    testing: true
-  };
-});
-define('virtualfoldercontrol/main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('virtualfoldercontrol/genericcontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Genericcontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  var _class, _temp;
 
   var client = new _aureliaHttpClient.HttpClient();
 
-  var Genericcontrol = exports.Genericcontrol = function () {
-    function Genericcontrol() {
-      _classCallCheck(this, Genericcontrol);
+  var Aliastable = exports.Aliastable = (_temp = _class = function () {
+    function Aliastable(ea) {
+      var _this = this;
 
-      this.heading = "File Provider";
-      this.CLIENTID = "x5tdu20lllmr0nv";
-      this.showdropboxbutton = false;
-      this.servicecontext = "providers";
-      this.dropBoxAuthUrl = "";
-      this.providers = [];
-      this.selectedProvider = "";
-      console.log('genericcontrol()');
+      _classCallCheck(this, Aliastable);
+
+      this.serviceurl = "/metadataservice/files";
+      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
+        return _this.submitSettings(msg.settings);
+      });
       client.configure(function (config) {
         config.withHeader('Accept', 'application/json');
         config.withHeader('Content-Type', 'application/json');
       });
     }
 
-    Genericcontrol.prototype.attached = function attached() {
-      var _this = this;
+    Aliastable.prototype.attached = function attached() {
+      var _this2 = this;
 
-      console.log('genericcontrol.attached()');
-      console.log("dialogstate:" + this.dialogstate);
-
-      client.get("/metadataservice/" + this.servicecontext).then(function (data) {
+      client.get(this.serviceurl).then(function (data) {
         console.log("data response");
         console.log(data);
         if (data.response) {
-          _this.providers = JSON.parse(data.response);
+          _this2.providers = JSON.parse(data.response);
         }
       });
     };
 
-    Genericcontrol.prototype.failcallback = function failcallback(myresponse) {
-      this.updatedropboxstate(1);
-      this.status = "fail:";
-      if (myresponse.output) {
-        this.status += myresponse.output;
-      }
+    Aliastable.prototype.submitSettings = function submitSettings(settings) {
+      var _this3 = this;
+
+      client.put(this.serviceurl, JSON.stringify(settings)).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this3.providers = JSON.parse(data.response);
+        }
+      });
     };
 
-    Genericcontrol.prototype.okcallback = function okcallback() {
-      this.status = "OK";
-      this.updatestate(3);
-    };
-
-    Genericcontrol.prototype.getAccessTokenFromUrl = function getAccessTokenFromUrl() {
-      return this.parseQueryString(window.location.hash).access_token;
-    };
-
-    Genericcontrol.prototype.isAuthenticated = function isAuthenticated() {
-      return !!this.getAccessTokenFromUrl();
-    };
-
-    return Genericcontrol;
-  }();
+    return Aliastable;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/app',['exports'], function (exports) {
+define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.App = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1197,24 +999,30 @@ define('virtualfoldersetting/app',['exports'], function (exports) {
     }
   }
 
-  var App = exports.App = function () {
-    function App() {
+  var _class, _temp;
+
+  var App = exports.App = (_temp = _class = function () {
+    function App(ea) {
+      var _this = this;
+
       _classCallCheck(this, App);
 
       this.showprovider = false;
+      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
+        return _this.submitSettings(msg.settings);
+      });
     }
 
     App.prototype.newProvider = function newProvider() {
       this.showprovider = true;
     };
 
-    App.prototype.addProvider = function addProvider() {
-      console.log('addProvider: not yet implemented');
+    App.prototype.submitSettings = function submitSettings(settings) {
       this.showprovider = false;
     };
 
     return App;
-  }();
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
 define('virtualfoldersetting/environment',["exports"], function (exports) {
   "use strict";
@@ -1227,7 +1035,7 @@ define('virtualfoldersetting/environment',["exports"], function (exports) {
     testing: true
   };
 });
-define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 'aurelia-framework'], function (exports, _aureliaHttpClient, _aureliaFramework) {
+define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1288,15 +1096,16 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
     return desc;
   }
 
-  var _dec, _dec2, _dec3, _desc, _value, _class;
+  var _dec, _dec2, _dec3, _desc, _value, _class, _class2, _temp;
 
   var client = new _aureliaHttpClient.HttpClient();
 
-  var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = function () {
-    function Genericcontrol() {
+  var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = (_temp = _class2 = function () {
+    function Genericcontrol(ea) {
       _classCallCheck(this, Genericcontrol);
 
       this.heading = "File Provider";
+      this.ea = ea;
       this.CLIENTID = "x5tdu20lllmr0nv";
       this.showdropboxbutton = false;
       this.servicecontext = "providers";
@@ -1315,6 +1124,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
 
       console.log('genericcontrol.attached()');
       console.log("dialogstate:" + this.dialogstate);
+
 
       client.get("/metadataservice/" + this.servicecontext).then(function (data) {
         console.log("data response");
@@ -1346,26 +1156,43 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
       return !!this.getAccessTokenFromUrl();
     };
 
+    Genericcontrol.prototype.addProvider = function addProvider() {
+      var settings = {};
+      settings.type = this.selectedProvider;
+      settings.alias = this.alias;
+      if (this.selectedDropbox || this.selectedFileSystem) settings.securetoken = this.username;else settings.username = this.username;
+      if (this.password) settings.securetoken = this.password;
+      this.ea.publish(new _messages.SettingsSubmitted(settings));
+    };
+
     _createClass(Genericcontrol, [{
       key: 'selectedDropbox',
       get: function get() {
-
+        this.securetoken = "";
+        this.username = "";
+        this.password = "";
         return this.selectedProvider == 'Dropbox';
       }
     }, {
       key: 'selectedB2Drop',
       get: function get() {
+        this.securetoken = "";
+        this.username = "";
+        this.password = "";
         return this.selectedProvider == 'B2Drop';
       }
     }, {
       key: 'selectedFileSystem',
       get: function get() {
+        this.securetoken = "";
+        this.username = "";
+        this.password = "";
         return this.selectedProvider == 'FileSystem';
       }
     }]);
 
     return Genericcontrol;
-  }(), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype)), _class));
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype)), _class));
 });
 define('virtualfoldersetting/main',['exports', './environment'], function (exports, _environment) {
   'use strict';
@@ -1406,13 +1233,12 @@ define('virtualfoldersetting/main',['exports', './environment'], function (expor
     });
   }
 });
-define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
-  'use strict';
+define('virtualfoldersetting/messages',["exports"], function (exports) {
+  "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.Aliastable = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1420,40 +1246,21 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client'], fun
     }
   }
 
-  var client = new _aureliaHttpClient.HttpClient();
+  var SettingsSubmitted = exports.SettingsSubmitted = function SettingsSubmitted(settings) {
+    _classCallCheck(this, SettingsSubmitted);
 
-  var Aliastable = exports.Aliastable = function () {
-    function Aliastable() {
-      _classCallCheck(this, Aliastable);
+    this.settings = settings;
+  };
 
-      this.servicecontext = "files";
-      console.log('genericcontrol()');
-      client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-    }
+  var SettingsSelected = exports.SettingsSelected = function SettingsSelected(settings) {
+    _classCallCheck(this, SettingsSelected);
 
-    Aliastable.prototype.attached = function attached() {
-      var _this = this;
-
-      console.log('genericcontrol.attached()');
-
-      client.get("/metadataservice/" + this.servicecontext).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this.providers = JSON.parse(data.response);
-        }
-      });
-    };
-
-    return Aliastable;
-  }();
+    this.settings = settings;
+  };
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${message}</h1>\n</template>\n"; });
 define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
-define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>"; });
+define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!filemanager/actions.html', ['module'], function(module) { module.exports = "<template>\n</template>"; });
@@ -1461,11 +1268,7 @@ define('text!filemanager/app.html', ['module'], function(module) { module.export
 define('text!filemanager/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n<div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n        </table>\n    </div>\n</div>\n</template>"; });
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!fileprovider/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <genericcontrol></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
-define('text!fileprovider/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n\n      <form>\n        <p>You need to have existing Provider account. </p>\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n        <hr/>Status: <span>${status}</span>\n        Add new dialog:<input type=\"checkbox\" ref=\"newDialog\"/>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>connecting ...</span>\n      </div>\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
-define('text!virtualfoldercontrol/app.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${message}</h1>\n</template>\n"; });
-define('text!virtualfoldercontrol/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n\n      <form>\n        <p>You need to have existing Provider account. </p>\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n        <hr/>Status: <span>${status}</span>\n        Add new dialog:<input type=\"checkbox\" ref=\"newDialog\"/>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>connecting ...</span>\n      </div>\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
-define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <form submit.trigger=\"addProvider()\">\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n  </form>\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
-define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n          Alias:<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\"/><br/>\n          <p class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the files will be accessible from virtual folder. </p>\n\n          <div show.bind=\"selectedB2Drop\">\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"/>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n          <span class=\"w3-tiny\">I know secure token </span>\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/>\n          <div show.bind=\"knownSecureToken.checked\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"/>\n          </div>\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"/>\n          </div>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n        <hr/>Status: <span>${status}</span>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
 define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hover-shadow w3-round-large\">\n      <table>\n        <thead>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th valign=\"center\">Status</th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i class=\"fa fa-check\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"2\"></td><td><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
+define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
+define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large\">\n      <form submit.trigger=\"addProvider()\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n          Alias:<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n\n          <div show.bind=\"selectedB2Drop\">\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n            <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n              Fill in the existing B2DROP username and password here:</p>\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n            <p>DROPBOX is a commercial data store and exchange service.\n              West-life portal can use your DROPBOX account to access and download your data files. </p>\n            <p>You need to have existing DROPBOX account. </p>\n            <span class=\"w3-tiny\">I know secure token </span>\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/>\n          <div show.bind=\"knownSecureToken.checked\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"username\"/>\n          </div>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" show.bind=\"knownSecureToken.checked\">Add</button>\n\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"  value.bind=\"username\"/>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n        </div>\n\n      </form>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

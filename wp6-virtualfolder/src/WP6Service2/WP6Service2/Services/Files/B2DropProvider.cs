@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -36,6 +37,8 @@ namespace WP6Service2
         {
             CONTEXT = item.alias;
             B2DROPDIR = "/home/vagrant/work/" + item.alias;
+            var task = Initialize(item);
+            //task.Start();
         }
 
         public override object GetFileList(string Path)
@@ -48,13 +51,13 @@ namespace WP6Service2
             return SystemFs.ListOfFiles(CONTEXT + "/" + Path);
         }
 
-        public override void ConfigStored(ProviderItem request)
+        private async Task Initialize(ProviderItem request)
         {
-            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets"))
+            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets"+CONTEXT))
             {
                 outputFile.WriteLine(B2DROPDIR + " " + request.username + " " + request.securetoken);
             }
-            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2"))
+            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2"+CONTEXT))
             {
                 outputFile.Write(request.username + ":" + request.securetoken);
             }
@@ -65,11 +68,12 @@ namespace WP6Service2
             psi.RedirectStandardError = true;
 
             psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh " + CONTEXT;
+            Console.WriteLine("B2Drop initializing...");
             Process p = Process.Start(psi);
             request.output = p.StandardOutput.ReadToEnd();
             request.output += p.StandardError.ReadToEnd();
             p.WaitForExit();
-            //Console.WriteLine(strOutput);
+            Console.WriteLine(request.output);
             request.securetoken = ""; //just remove secure token, as it is not needed anymore
             //request.connected = GetB2DropStatus();
             //return request;

@@ -11,21 +11,24 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 whoami 1>&2
 #create directory if not created
+umount /home/vagrant/work/b2drop
 mkdir -p /home/vagrant/work/b2drop
-chown -R apache /home/vagrant/work
 # allow browsing for apache user the work dir
+chown -R apache /home/vagrant/work
 chmod o+x /home/vagrant
 #mount work folder via webdav to b2drop
-umount /home/vagrant/work/b2drop
 #kill all previous b2dropsync and xiacont
 #killall /bin/sh
 
 #move secrets from temporary files and mount
-mv /home/vagrant/.westlife/secrets /etc/davfs2/secrets
+cp /home/vagrant/.westlife/secrets$1 /etc/davfs2/secrets
 chown root:root /etc/davfs2/secrets
 chmod 600 /etc/davfs2/secrets
 chmod ugo+rx /var/log/httpd
+echo http_proxy: $http_proxy
+echo https_proxy: $https_proxy
 #first mount
+status=0
 mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop || status=1
 #second attemp mount, sometimes having https_proxy seems not working with davfs
 if [ $status -ne 0 ]
@@ -36,9 +39,12 @@ then
 fi
 #configure reverse proxy for webdav in apache
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
-if [ -e /home/vagrant/.westlife/secrets2 ]
+SFILE2=/home/vagrant/.westlife/secrets2$1
+echo $SFILE
+if [ -e $SFILE2 ]
   then
-  AUTH="$(base64 /home/vagrant/.westlife/secrets2)"
+  AUTH="$(base64 $SFILE2)"
+  echo $AUTH
   sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf
   service httpd reload
   #rm /home/vagrant/.westlife/secrets2
