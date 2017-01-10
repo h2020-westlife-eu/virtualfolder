@@ -17,7 +17,7 @@ export class Genericcontrol {
     this.heading="File Provider";
     this.ea= ea;
     this.dropboxcontrol=dropboxcontrol;
-
+    this.editing=true;
     this.servicecontext = "providers";
     this.knowtoken=false;
     this.dropboxauthurl = "";
@@ -34,7 +34,7 @@ export class Genericcontrol {
 
   @computedFrom('selectedProvider')
   get selectedDropbox() {
-//    this.securetoken="";
+    //this.securetoken="";
     this.username="";
     this.password="";
     return this.selectedProvider==this.dropboxcontrol.id;
@@ -42,7 +42,7 @@ export class Genericcontrol {
 
   @computedFrom('selectedProvider')
   get selectedB2Drop() {
-//    this.securetoken="";
+    //this.securetoken="";
     this.username="";
     this.password="";
     return this.selectedProvider=='B2Drop';
@@ -50,9 +50,10 @@ export class Genericcontrol {
 
   @computedFrom('selectedProvider')
   get selectedFileSystem() {
-//    this.securetoken="";
+    //this.securetoken="";
     this.username="";
     this.password="";
+    this.filesystempath="";
     return this.selectedProvider=='FileSystem';
   }
 
@@ -82,7 +83,8 @@ export class Genericcontrol {
      var settings = {};
      settings.type=this.selectedProvider;
      settings.alias = this.alias;
-     if (this.selectedDropbox || this.selectedFileSystem) settings.securetoken = this.securetoken;
+     if (this.selectedDropbox) settings.securetoken = this.securetoken;
+    if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
      else settings.username = this.username;
      if (this.password) settings.securetoken = this.password;
      console.log("publishing");
@@ -93,7 +95,7 @@ export class Genericcontrol {
     this.selectedProvider=settings.type;
     this.alias=settings.alias;
     this.securetoken=settings.securetoken;
-    if (!!this.securetoken) { this.knownSecureToken.checked=true; }
+    if (!!this.securetoken) { this.editing=false; this.knownSecureToken.checked=true; }
   }
 
 }
