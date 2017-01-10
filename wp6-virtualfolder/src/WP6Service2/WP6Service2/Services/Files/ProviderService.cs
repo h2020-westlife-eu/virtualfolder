@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using ServiceStack.Common;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
@@ -96,10 +98,30 @@ namespace WP6Service2
             {
                 _providers.Add(request);
                 var aprovider = impl.CreateProvider(request);
+                if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
                 linkedimpl.Add(request.alias,aprovider );
                 aprovider.StoreToFile(request);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
             return _providers;
+        }
+
+        //returns first available alias e.g. dropbox or dropbox_2, dropbox_3
+        private string firstempty(string prefix)
+        {
+            if (!linkedimpl.Keys.Contains(prefix)) return prefix;
+            else return firstempty1(prefix,2);
+        }
+
+        private string firstempty1(string prefix, int index)
+        {
+
+            while(index++<1024)
+            {
+                var mykey = prefix + "_" + index;
+                if (!linkedimpl.Keys.Contains(mykey)) return mykey;
+
+            }
+            throw  new ApplicationException("Too many registered providers:"+prefix+" index:");
         }
 
         //deregister the alias and provider which serve it

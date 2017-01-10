@@ -10,8 +10,6 @@
         </select>
 
         <div show.bind="selectedProvider">
-          Alias:<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
-          <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
 
           <div show.bind="selectedB2Drop">
             <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.
@@ -20,6 +18,8 @@
               Fill in the existing B2DROP username and password here:</p>
             Username:<input type="text" name="username" size="15" maxlength="1024" value.bind="username"/><br/>
             Password:<input type="password" name="securetoken" size="30" maxlength="1024" value.bind="password"/>
+            Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+            <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
             <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
           </div>
 
@@ -27,20 +27,24 @@
             <p>DROPBOX is a commercial data store and exchange service.
               West-life portal can use your DROPBOX account to access and download your data files. </p>
             <p>You need to have existing DROPBOX account. </p>
-            <span class="w3-tiny">I know secure token </span>
-          <input type="checkbox" ref="knownSecureToken"/>
-          <div show.bind="knownSecureToken.checked">Secure token:
-            <input type="text" name="securetoken" size="30" maxlength="1024" value.bind="username"/>
+            <input type="checkbox" ref="knownSecureToken"/><span class="w3-tiny">I know secure token </span>
+            <a show.bind="!knowntoken" class="w3-btn w3-round-large" href="${dropboxauthurl}" id="authlink">Connect to DROPBOX</a>
+          <div show.bind="knowntoken">Secure token:
+            <input type="text" name="securetoken" size="30" maxlength="1024" value.bind="securetoken"/><br/>
+            Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+            <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
+            <button class="w3-btn w3-round-large" type="submit">Add</button>
+
           </div>
-            <button class="w3-btn w3-round-large w3-right" type="submit" show.bind="knownSecureToken.checked">Add</button>
 
           </div>
 
           <div show.bind="selectedFileSystem">
               Internal path to be linked:
-              <input type="text" name="securetoken" size="30" maxlength="1024"  value.bind="username"/>
+              <input type="text" name="securetoken" size="30" maxlength="1024"  value.bind="securetoken"/>
             <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
           </div>
+
         </div>
 
       </form>

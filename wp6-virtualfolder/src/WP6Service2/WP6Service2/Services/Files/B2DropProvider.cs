@@ -33,6 +33,7 @@ namespace WP6Service2
         private String CONTEXT = "b2drop";
         private String B2DROPDIR;
 
+
         public B2DropProvider(ProviderItem item)
         {
             CONTEXT = item.alias;
@@ -75,6 +76,7 @@ namespace WP6Service2
             p.WaitForExit();
             Console.WriteLine(request.output);
             request.securetoken = ""; //just remove secure token, as it is not needed anymore
+
             //request.connected = GetB2DropStatus();
             //return request;
         }

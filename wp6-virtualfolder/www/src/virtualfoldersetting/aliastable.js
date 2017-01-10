@@ -5,19 +5,21 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 
-let client = new HttpClient();
+//let client = new HttpClient();
 
 /**
  * Aliastable component gets the currently registered aliases for file providers
  *
  */
 export class Aliastable {
-  static inject = [EventAggregator];
+  static inject = [EventAggregator,HttpClient];
 
-  constructor(ea){
+  constructor(ea,httpclient){
     this.serviceurl = "/metadataservice/files";
     ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) )
-    client.configure(config=> {
+    this.client=httpclient;
+    this.providers=[{alias:"Loading available providers ...",temporary:true}];
+    this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
       config.withHeader('Content-Type', 'application/json');
     });
@@ -25,7 +27,7 @@ export class Aliastable {
 
   attached() {
     //gets the status of the b2drop connection
-    client.get(this.serviceurl)
+    this.client.get(this.serviceurl)
       .then(data => {
         console.log("data response");
         console.log(data);
@@ -36,7 +38,7 @@ export class Aliastable {
   }
 
   submitSettings(settings) {
-    client.put(this.serviceurl,JSON.stringify(settings))
+    this.client.put(this.serviceurl,JSON.stringify(settings))
       .then(data =>{
         console.log("data response");
         console.log(data);

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # This scripts mounts /home/vagrant/work/b2drop as davfs to b2drop.eudat.eu
 # and configures proxy of http://localhost/webdav/b2drop to use encoded auth
-# Input:
-# - the secrets file for davfs in /tmp/secrets
-# - the secrets file in format user:password in /tmp/secrets2
+# Usage:
+# - mountb2drop.sh [alias]
+# - where [alias] is name of subdirectroy under which the webdav is mounted
+# - the secrets file for davfs in format [directory] [username] [password] is at /home/vagrant/.westlife/secrets[alias]
+# - the secrets file in format user:password in /home/vagrant/.westlife/secrets2[alias]
 # Output:
 # - /home/vagrant/work/b2drop mounted using davfs2
 # - proxy configured to use user credentials passed to b2drop.eudat.eu
@@ -11,8 +13,8 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 whoami 1>&2
 #create directory if not created
-umount /home/vagrant/work/b2drop
-mkdir -p /home/vagrant/work/b2drop
+umount /home/vagrant/work/$1
+mkdir -p /home/vagrant/work/$1
 # allow browsing for apache user the work dir
 chown -R apache /home/vagrant/work
 chmod o+x /home/vagrant
@@ -29,13 +31,13 @@ echo http_proxy: $http_proxy
 echo https_proxy: $https_proxy
 #first mount
 status=0
-mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop || status=1
+mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/$1 || status=1
 #second attemp mount, sometimes having https_proxy seems not working with davfs
 if [ $status -ne 0 ]
 then
   echo "first mount failed, second attemp"
   unset https_proxy
-  mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/b2drop
+  mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/$1
 fi
 #configure reverse proxy for webdav in apache
 #encode base64 authentication string and pass it to header where "Basic ...." is already been placed
