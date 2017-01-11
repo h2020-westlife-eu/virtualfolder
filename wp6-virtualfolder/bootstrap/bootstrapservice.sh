@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # 28.10.2016 mono from cvmfs
 # 17.10.2016 replaced postgresql by sqlite3
@@ -21,8 +21,11 @@ for i in {1..3}; do
 	rm -rf /home/vagrant/src
 	# build metadataservice
 	cp -R $WP6SRC/src /home/vagrant
-	if [ ! -f certdata]
-	then 
+	if [ -f certdata.txt ]
+	then
+	    echo certdata.txt exists
+	else
+	    echo downloading certdata.txt
 	    wget --quiet -O certdata.txt https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 	fi
 	mozroots --import --sync --file certdata.txt
