@@ -48,7 +48,7 @@ namespace WP6Service2
 
         /** register available provider to service - used by implementing classes
 */
-        public ProviderService()
+        static ProviderService()
         {
             if (_providers == null)
             {

@@ -4,6 +4,7 @@ using System.IO;
 using ServiceStack;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using WP6Service2.Services;
 
 namespace WP6Service2
 {

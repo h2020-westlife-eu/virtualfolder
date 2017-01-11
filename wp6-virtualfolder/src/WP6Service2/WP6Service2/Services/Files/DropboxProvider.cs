@@ -9,6 +9,7 @@ using Dropbox.Api;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
 using ServiceStack.Text;
+using WP6Service2.Services;
 
 namespace WP6Service2
 {
@@ -155,7 +156,7 @@ namespace WP6Service2
         {
 
 
-            var filename = DROPBOXFOLDER + "/" + dropboxpath;
+            var filename = DROPBOXFOLDER + dropboxpath;
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
             using (var response = await dbx.Files.DownloadAsync(dropboxpath))
             {
@@ -166,7 +167,7 @@ namespace WP6Service2
                 }
 
             }
-            return HttpResult.Redirect(WEBDAVURIROOT+"/"+dropboxpath);
+            return HttpResult.Redirect(WEBDAVURIROOT+dropboxpath);
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
@@ -179,7 +180,9 @@ namespace WP6Service2
             do
             {
                 //Console.WriteLine("ListOfFilesAsync(), result.Count: " + list.Entries.Count);
-
+                //wrap path with slashes '/path/' if needed
+                var mypath = (path.StartsWith("/") ? path : ("/" + path));
+                if (!mypath.EndsWith("/")) mypath = "/";
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
                 {
@@ -193,7 +196,7 @@ namespace WP6Service2
                         date = DateTime.Now,
                         filetype = FileType.Directory & FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT+(path.StartsWith("/")?path:("/"+path)) + "/" + fi.Name
+                        webdavuri = DROPBOXURIROOT+mypath+fi.Name
                     });
                 }
 
@@ -209,7 +212,7 @@ namespace WP6Service2
                         date = fi.AsFile.ServerModified,
                         filetype = FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = LocalOrRemote(DROPBOXURIROOT+(path.StartsWith("/")?path:("/"+path)) + "/" + fi.Name)
+                        webdavuri = LocalOrRemote(DROPBOXURIROOT+ mypath+ fi.Name)
                     });
                 }
 

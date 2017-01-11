@@ -627,6 +627,7 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
             this.filescount = this.files.length;
             this.path = "";
             this.dynatable = {};
+            this.serviceurl = "/metadataservice/files";
 
             client.configure(function (config) {
                 config.withHeader('Accept', 'application/json');
@@ -641,7 +642,7 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
         _class.prototype.attached = function attached() {
             var _this = this;
 
-            client.get("/metadataservice/sbfiles").then(function (data) {
+            client.get(this.serviceurl).then(function (data) {
                 if (data.response) {
                     (function () {
                         _this.populateFiles(data.response);
@@ -683,7 +684,7 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
                 console.log(error);
                 _this.status = "unavailable";
                 _this.showdialog = false;
-                alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: /metadataservice/sbfiles');
+                alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this.serviceurl);
             });
         };
 
@@ -715,7 +716,8 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
                 if (folder) {
                     if (folder == '..') this.cdup();else this.cddown(folder);
                 }
-                client.get("/metadataservice/sbfiles/" + this.path).then(function (data) {
+
+                client.get(this.serviceurl + this.path).then(function (data) {
                     if (data.response) {
                         _this2.populateFiles(data.response);
 
@@ -728,7 +730,7 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
                 }).catch(function (error) {
                     console.log('Error');
                     console.log(error);
-                    alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: /metadataservice/sbfiles' + _this2.path);
+                    alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this2.serviceurl + _this2.path);
                     _this2.lock = false;
                 });
             }
@@ -745,14 +747,17 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
                 this.files.unshift({ name: "..", size: "UP DIR", date: "" });
             }
             this.files.forEach(function (item, index, arr) {
+                if (!arr[index].name && arr[index].alias) {
+                    arr[index].name = arr[index].alias;
+                    arr[index].attributes = 16;
+                    arr[index].date = "";
+                }
                 if (arr[index].attributes & 16) arr[index].size = "DIR";
             });
             console.log(this.files);
         };
 
         _class.prototype.doAction = function doAction(fileitem) {
-            console.log("filepane.doaction()");
-            console.log(fileitem.children);
             this.parent.doAction(fileitem);
         };
 

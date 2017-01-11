@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dropbox.Api.Sharing;
-using ServiceStack;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.Text;
 
-namespace WP6Service2
+namespace WP6Service2.Services
 {
 
 	[Flags] public enum FileType {

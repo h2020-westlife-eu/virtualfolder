@@ -19,6 +19,7 @@ export const FilepanelCustomElement = decorators (
         this.filescount = this.files.length;
         this.path= "";
         this.dynatable = {};
+        this.serviceurl = "/metadataservice/files";
         //not yet accessible here console.log("file panel constructed:" + this.tableid);
         //http to accept json
         client.configure(config=>{
@@ -38,7 +39,7 @@ export const FilepanelCustomElement = decorators (
         //console.log("file panel attached:" + this.tableid);
 
         //read the directory infos
-        client.get("/metadataservice/sbfiles")
+        client.get(this.serviceurl)
             .then(data => {
                 if (data.response) {
                     this.populateFiles(data.response);
@@ -81,7 +82,7 @@ export const FilepanelCustomElement = decorators (
                 console.log(error);
                 this.status="unavailable";
                 this.showdialog=false;
-                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: /metadataservice/sbfiles');
+                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl);
             });
     }
 
@@ -117,7 +118,8 @@ export const FilepanelCustomElement = decorators (
                 if (folder == '..') this.cdup();
                 else this.cddown(folder);
             }
-            client.get("/metadataservice/sbfiles/" + this.path)
+
+          client.get(this.serviceurl + this.path)
                 .then(data => {
                     if (data.response) {
                         this.populateFiles(data.response);
@@ -131,7 +133,7 @@ export const FilepanelCustomElement = decorators (
                 }).catch(error => {
                 console.log('Error');
                 console.log(error);
-                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: /metadataservice/sbfiles'+this.path);
+                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl+this.path);
                 this.lock = false;
             });
         } //else doubleclick when the previous operation didn't finished
@@ -149,13 +151,19 @@ export const FilepanelCustomElement = decorators (
         if (this.path.length>0) {//non root path
             this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
         }
-        this.files.forEach (function (item,index,arr){if (arr[index].attributes & 16) arr[index].size="DIR"})
+        this.files.forEach (function (item,index,arr){
+          if(!arr[index].name && arr[index].alias) {
+            arr[index].name=arr[index].alias;
+            arr[index].attributes = 16;
+            arr[index].date="";
+          }
+          if (arr[index].attributes & 16) arr[index].size="DIR"});
         console.log(this.files);
     }
 
     doAction(fileitem) {
-      console.log("filepane.doaction()");
-        console.log(fileitem.children);
+      //console.log("filepane.doaction()");
+        //console.log(fileitem.children);
         this.parent.doAction(fileitem);
     }
 

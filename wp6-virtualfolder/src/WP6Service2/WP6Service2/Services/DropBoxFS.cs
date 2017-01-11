@@ -15,6 +15,7 @@ using ServiceStack.Messaging.Rcon;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.Text;
+using WP6Service2.Services;
 
 namespace WP6Service2
 {

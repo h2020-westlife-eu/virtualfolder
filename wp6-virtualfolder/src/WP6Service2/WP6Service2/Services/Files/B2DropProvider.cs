@@ -49,7 +49,7 @@ namespace WP6Service2
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
-            return SystemFs.ListOfFiles(CONTEXT + "/" + Path);
+            return FileSystemProvider.ListOfFiles(B2DROPDIR + "/","/webdav/"+CONTEXT+"/",path);
         }
 
         private async Task Initialize(ProviderItem request)

@@ -110,30 +110,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="App.config" />
-    <None Include="Client\js\dhtmlx.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Client\js\dhtmlx.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Client\js\form.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Client\js\menu.xml" />
-    <None Include="Client\js\toolbar.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Client\index.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Client\js\jquery-2.2.3.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
-    <Folder Include="Client\" />
-    <Folder Include="Client\js\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sqlite3.dll" />
