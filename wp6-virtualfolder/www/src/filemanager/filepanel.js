@@ -7,6 +7,7 @@ import {bindable, bindingMode, decorators} from 'aurelia-framework';
 
 let client = new HttpClient();
 
+//TODO refactor to use Observer pattern and Dependency injection
 
 export const FilepanelCustomElement = decorators (
     bindable({ name: 'tableid', defaultBindingMode: bindingMode.oneTime }),
