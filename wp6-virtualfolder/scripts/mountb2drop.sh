@@ -13,7 +13,11 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 whoami 1>&2
 #create directory if not created
-umount /home/vagrant/work/$1
+#umount /home/vagrant/work/$1
+if mount | grep /home/vagrant/work/$1 ; then
+  echo b2drop already mounted at /home/vagrant/work/$1
+  exit;
+fi
 mkdir -p /home/vagrant/work/$1
 # allow browsing for apache user the work dir
 chown -R apache /home/vagrant/work
