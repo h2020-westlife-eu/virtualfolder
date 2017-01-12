@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using WP6Service2.Services;
 
@@ -17,11 +19,36 @@ namespace WP6Service2
     public class FileSystemProvider :AFileProvider
     {
         private string localpath;
-        private string alias;
-        public FileSystemProvider(ProviderItem item)
+        private string webdavfolder = "/home/vagrant/work/";
+
+        public FileSystemProvider(ProviderItem item) :base(item)
         {
             localpath = item.securetoken;
-            alias = item.alias;
+            if (!localpath.EndsWith("/")) localpath += '/';
+            MakeLinkToWebDav(localpath,webdavfolder+alias);
+        }
+
+        private static void MakeLinkToWebDav(string localpath,string link)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "/bin/ln";
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+
+            psi.Arguments = "-s "+localpath+" "+link;
+            Console.WriteLine("FileSystem initializing...");
+            Process p = Process.Start(psi);
+            var output = p.StandardOutput.ReadToEnd();
+            output += p.StandardError.ReadToEnd();
+            p.WaitForExit();
+            Console.WriteLine(output);
+        }
+
+        public override bool Destroy()
+        {
+            File.Delete(webdavfolder+alias);
+            return base.Destroy();
         }
 
         public override object GetFileList(string Path)
@@ -34,8 +61,6 @@ namespace WP6Service2
             //Console.WriteLine("ListOfFiles( "+path+" )");
             return ListOfFiles(localpath, webdavroot  + alias + "/",path);
             //return listOfFiles; //returns all
-
-
         }
 
         public static List<SBFile> ListOfFiles(string pathprefix,string webdavprefix,string path)

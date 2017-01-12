@@ -7,11 +7,21 @@ namespace WP6Service2
 {
     public abstract class AFileProvider
     {
-        public abstract object GetFileList(string Path); //List<SBFile>
-        public static string secretslocation = "/home/vagrant/.westlife/";
+
+        private static string secretslocation = "/home/vagrant/.westlife/";
         public static String webdavroot = "/webdav/";
 
         private static string secretsprefix = "provider.";
+
+        public string alias;
+
+//        public AFileProvider(){}
+
+        public AFileProvider(ProviderItem provider)
+        {
+            alias = provider.alias;
+        }
+        public abstract object GetFileList(string Path); //List<SBFile>
 
         /** Default store to file in json */
         public void StoreToFile(ProviderItem request)
@@ -29,9 +39,15 @@ namespace WP6Service2
 
         }
         /** Default restore from alias */
-        public ProviderItem RestoreAlias(String alias)
+        public ProviderItem RestoreAlias()
         {
             return RestoreFromFile(secretsprefix + alias);
+        }
+
+        public virtual bool Destroy()
+        {
+            File.Delete(secretslocation + secretsprefix + alias);
+            return true;
         }
 
         /** Default restore from file */

@@ -3,7 +3,9 @@
 The components uses aurelia framework to
 - handle http communication
 - bundle component into one vendor-bundle.js
-- maintain source code and use best practices/patterns to compose/configure
+- maintain source code and use best practices/patterns to compose/configure the parts together
+
+To use the components, no framework/library is needed. 
 
 ## Features
 

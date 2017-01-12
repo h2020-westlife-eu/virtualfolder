@@ -34,31 +34,29 @@ export class Genericcontrol {
 
   @computedFrom('selectedProvider')
   get selectedDropbox() {
-    //this.securetoken="";
-    this.username="";
-    this.password="";
     return this.selectedProvider==this.dropboxcontrol.id;
   }
 
   @computedFrom('selectedProvider')
   get selectedB2Drop() {
-    //this.securetoken="";
-    this.username="";
-    this.password="";
     return this.selectedProvider=='B2Drop';
   }
 
   @computedFrom('selectedProvider')
   get selectedFileSystem() {
-    //this.securetoken="";
-    this.username="";
-    this.password="";
-    this.filesystempath="";
     return this.selectedProvider=='FileSystem';
   }
 
   get knowntoken(){
     if (this.knownSecureToken) return this.knownSecureToken.checked;
+  }
+
+  clear(){
+    this.selectedProvider="";
+    this.username="";
+    this.securetoken="";
+    this.filesystempath="";
+    this.alias="";
   }
 
   attached() {
@@ -84,11 +82,14 @@ export class Genericcontrol {
      settings.type=this.selectedProvider;
      settings.alias = this.alias;
      if (this.selectedDropbox) settings.securetoken = this.securetoken;
-    if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
-     else settings.username = this.username;
-     if (this.password) settings.securetoken = this.password;
+     if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
+     if (this.selectedB2Drop) {
+       settings.securetoken = this.password;
+       settings.username = this.username;
+     }
      console.log("publishing");
      this.ea.publish(new SettingsSubmitted(settings));
+      this.clear();
   }
 
   selectSettings(settings){

@@ -25,18 +25,12 @@ namespace WP6Service2
 
     public class B2DropProvider : AFileProvider
     {
-        public B2DropProvider()
-        {
-        }
 
-
-        private String CONTEXT = "b2drop";
         private String B2DROPDIR;
 
 
-        public B2DropProvider(ProviderItem item)
+        public B2DropProvider(ProviderItem item) :base(item)
         {
-            CONTEXT = item.alias;
             B2DROPDIR = "/home/vagrant/work/" + item.alias;
             var task = Initialize(item);
             //task.Start();
@@ -49,16 +43,16 @@ namespace WP6Service2
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
-            return FileSystemProvider.ListOfFiles(B2DROPDIR + "/","/webdav/"+CONTEXT+"/",path);
+            return FileSystemProvider.ListOfFiles(B2DROPDIR + "/","/webdav/"+alias+"/",path);
         }
 
         private async Task Initialize(ProviderItem request)
         {
-            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets"+CONTEXT))
+            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets"+alias))
             {
                 outputFile.WriteLine(B2DROPDIR + " " + request.username + " " + request.securetoken);
             }
-            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2"+CONTEXT))
+            using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2"+alias))
             {
                 outputFile.Write(request.username + ":" + request.securetoken);
             }
@@ -68,7 +62,7 @@ namespace WP6Service2
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
 
-            psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh " + CONTEXT;
+            psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh " + alias;
             Console.WriteLine("B2Drop initializing...");
             Process p = Process.Start(psi);
             request.output = p.StandardOutput.ReadToEnd();

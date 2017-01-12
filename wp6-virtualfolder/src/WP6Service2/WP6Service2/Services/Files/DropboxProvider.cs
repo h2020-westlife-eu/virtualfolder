@@ -25,15 +25,13 @@ namespace WP6Service2
     public class DropboxProvider : AFileProvider
     {
 
-        public DropboxProvider(){}
-
-        public DropboxProvider(ProviderItem item)
+        public DropboxProvider(ProviderItem item) :base(item)
         {
-            CONTEXT = item.alias;
+            //alias = item.alias;
             accesstoken = item.securetoken;
-            DROPBOXFOLDER = "/home/vagrant/work/"+CONTEXT;
-            DROPBOXURIROOT = "/metadataservice/files/"+CONTEXT;
-            WEBDAVURIROOT = "/webdav/"+CONTEXT;
+            DROPBOXFOLDER = "/home/vagrant/work/"+alias;
+            DROPBOXURIROOT = "/metadataservice/files/"+alias;
+            WEBDAVURIROOT = "/webdav/"+alias;
         }
 
         public override object GetFileList(string Path)
@@ -48,16 +46,15 @@ namespace WP6Service2
 
         public string GetContext()
         {
-            return CONTEXT;
+            return alias;
         }
 
-        private String CONTEXT = "dropbox";
         private DropboxClient dbx;
         private Boolean initialized = false;
         private String accesstoken = "";
-        private String DROPBOXFOLDER;// = "/home/vagrant/work/"+CONTEXT;
-        private String DROPBOXURIROOT;// = "/metadataservice/files/"+CONTEXT;
-        private String WEBDAVURIROOT;// = "/webdav/"+CONTEXT;
+        private String DROPBOXFOLDER;// = "/home/vagrant/work/"+alias;
+        private String DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
+        private String WEBDAVURIROOT;// = "/webdav/"+alias;
 
         public async Task Initialize(){
             //TODO change access token to user specific

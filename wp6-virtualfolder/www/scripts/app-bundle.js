@@ -972,6 +972,10 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
         if (data.response) {
           _this2.providers = JSON.parse(data.response);
         }
+      }).catch(function (error) {
+        console.log(error);
+
+        alert('Sorry, error when connecting backend web service at ' + _this2.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
     };
 
@@ -983,6 +987,19 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
         console.log(data);
         if (data.response) {
           _this3.providers = JSON.parse(data.response);
+        }
+      });
+    };
+
+    Aliastable.prototype.removeProvider = function removeProvider(settings) {
+      var _this4 = this;
+
+      if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
+      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this4.providers = JSON.parse(data.response);
         }
       });
     };
@@ -1186,6 +1203,14 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
       });
     }
 
+    Genericcontrol.prototype.clear = function clear() {
+      this.selectedProvider = "";
+      this.username = "";
+      this.securetoken = "";
+      this.filesystempath = "";
+      this.alias = "";
+    };
+
     Genericcontrol.prototype.attached = function attached() {
       var _this2 = this;
 
@@ -1208,10 +1233,14 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
       settings.type = this.selectedProvider;
       settings.alias = this.alias;
       if (this.selectedDropbox) settings.securetoken = this.securetoken;
-      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;else settings.username = this.username;
-      if (this.password) settings.securetoken = this.password;
+      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
+      if (this.selectedB2Drop) {
+        settings.securetoken = this.password;
+        settings.username = this.username;
+      }
       console.log("publishing");
       this.ea.publish(new _messages.SettingsSubmitted(settings));
+      this.clear();
     };
 
     Genericcontrol.prototype.selectSettings = function selectSettings(settings) {
@@ -1226,23 +1255,16 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
     _createClass(Genericcontrol, [{
       key: 'selectedDropbox',
       get: function get() {
-        this.username = "";
-        this.password = "";
         return this.selectedProvider == this.dropboxcontrol.id;
       }
     }, {
       key: 'selectedB2Drop',
       get: function get() {
-        this.username = "";
-        this.password = "";
         return this.selectedProvider == 'B2Drop';
       }
     }, {
       key: 'selectedFileSystem',
       get: function get() {
-        this.username = "";
-        this.password = "";
-        this.filesystempath = "";
         return this.selectedProvider == 'FileSystem';
       }
     }, {
@@ -1318,6 +1340,12 @@ define('virtualfoldersetting/messages',["exports"], function (exports) {
 
     this.settings = settings;
   };
+
+  var SettingsRemoved = exports.SettingsRemoved = function SettingsRemoved(settings) {
+    _classCallCheck(this, SettingsRemoved);
+
+    this.settings = settings;
+  };
 });
 define('virtualfoldersetting/urlutils',['exports'], function (exports) {
   'use strict';
@@ -1385,7 +1413,7 @@ define('text!filemanager/app.html', ['module'], function(module) { module.export
 define('text!filemanager/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n<div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n        </table>\n    </div>\n</div>\n</template>"; });
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-dark-grey w3-round-large\">\n      <table>\n        <thead>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th valign=\"center\">Status</th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"2\"></td><td><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
+define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-grey w3-black\">\n      <table>\n        <thead>\n        <tr><th colspan=\"3\">List of registered file providers</th> </tr>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th valign=\"center\">Status & Action</th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i>&nbsp;<i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"2\"></td><td><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
 define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large\">\n      <form submit.trigger=\"addProvider()\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n\n          <div show.bind=\"selectedB2Drop\">\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n            <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n              Fill in the existing B2DROP username and password here:</p>\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n            <p>DROPBOX is a commercial data store and exchange service.\n              West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n            <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n            <div show.bind=\"!knowntoken\" >\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n            </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\" readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"  value.bind=\"filesystempath\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n        </div>\n\n      </form>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ServiceStack.Common;
+using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
@@ -16,8 +17,8 @@ namespace WP6Service2
     /files/dropbox/ -- sets dropbox configuration
     /files/dropbox/connection
   */
-    [Route("/files","GET")]
-    [Route("/files", "PUT,DELETE")]
+    [Route("/files","GET,PUT")]
+    [Route("/files/{alias}", "DELETE")]
     public class ProviderItem : IReturn<ProviderList>
     {
         public String alias { get; set; } //alias in url /files/{alias}/{path}
@@ -96,9 +97,9 @@ namespace WP6Service2
             IProviderCreator impl=null;
             if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
             {
+                if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
                 _providers.Add(request);
                 var aprovider = impl.CreateProvider(request);
-                if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
                 linkedimpl.Add(request.alias,aprovider );
                 aprovider.StoreToFile(request);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
@@ -109,7 +110,7 @@ namespace WP6Service2
         private string firstempty(string prefix)
         {
             if (!linkedimpl.Keys.Contains(prefix)) return prefix;
-            else return firstempty1(prefix,2);
+            else return firstempty1(prefix,1);
         }
 
         private string firstempty1(string prefix, int index)
@@ -127,9 +128,16 @@ namespace WP6Service2
         //deregister the alias and provider which serve it
         public ProviderList Delete(ProviderItem request)
         {
-            _providers.Remove(request);
-            linkedimpl.Remove(request.alias);
-            return _providers;
+            AFileProvider provider = null;
+            if (linkedimpl.TryGetValue(request.alias, out provider))
+            {
+                provider.Destroy();
+                _providers.RemoveAt(_providers.FindIndex(p => p.alias == request.alias));
+                //destroy provider
+                linkedimpl.Remove(request.alias);
+                return _providers;
+            } else
+                throw new ApplicationException("cannot delete alias '"+request.alias+"', not found.");
         }
 
 

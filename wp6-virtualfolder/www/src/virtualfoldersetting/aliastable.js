@@ -34,11 +34,30 @@ export class Aliastable {
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
+      })
+      .catch(error =>{
+        console.log(error);
+
+        alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
   }
 
   submitSettings(settings) {
     this.client.put(this.serviceurl,JSON.stringify(settings))
+      .then(data =>{
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          this.providers = JSON.parse(data.response);
+        }
+      });
+  }
+
+  removeProvider(settings){
+    //console.log("removeProvider() "+alias);
+    if (!confirm('Do you really want to delete the provider with alias "'+settings.alias+'" ?'))
+      return;
+    this.client.delete(this.serviceurl+"/"+settings.alias)
       .then(data =>{
         console.log("data response");
         console.log(data);

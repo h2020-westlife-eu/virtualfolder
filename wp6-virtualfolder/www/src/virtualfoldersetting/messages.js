@@ -14,3 +14,8 @@ export class SettingsSelected {
   }
 }
 
+export class SettingsRemoved {
+  constructor(settings){
+    this.settings = settings;
+  }
+}
