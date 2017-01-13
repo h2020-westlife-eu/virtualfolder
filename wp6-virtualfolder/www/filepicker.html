@@ -1,0 +1,43 @@
+<html>
+<head>
+  <!--#include virtual="/heads.html" -->
+</head>
+
+<body class="w3-container">
+<!--#include virtual="/header.html" -->
+
+<h1>File picker</h1>
+<a href="filepickercomponent.html"  onclick="openwindow(); return false;"> File Picker Componenr</a>
+
+<!-- content -->
+
+<!--#include virtual="/footer.html" -->
+<script>
+var popup;
+var i;
+  // When the popup has fully loaded, if not blocked by a popup blocker:
+
+  // This does nothing, assuming the window hasn't changed its location.
+function openwindow() {
+  popup=window.open('filepickercomponent.html', 'newwindow', 'width=640, height=480');
+
+}
+
+
+
+
+  function receiveMessage(event)
+  {
+    // Do we trust the sender of this message?  (might be
+    // different from what we originally opened, for example).
+    console.log("received message")
+    console.log(event);
+    console.log(event.data);
+
+    // event.source is popup
+    // event.data is "hi there yourself!  the secret response is: rheeeeet!"
+  }
+  window.addEventListener("message", receiveMessage, false);
+</script>
+</body>
+</html>

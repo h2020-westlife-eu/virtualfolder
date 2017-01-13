@@ -50,7 +50,13 @@ export class Aliastable {
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
-      });
+      })
+      .catch(error =>{
+      console.log(error);
+
+      alert('Sorry. Settings not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+    });
+
   }
 
   removeProvider(settings){

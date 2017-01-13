@@ -27,11 +27,14 @@ namespace WP6Service2
     {
 
         private String B2DROPDIR;
+        private static bool registeredalias = false;
 
 
         public B2DropProvider(ProviderItem item) :base(item)
         {
             B2DROPDIR = "/home/vagrant/work/" + item.alias;
+            if (!registeredalias) registeredalias = true;//item.alias;
+            else throw new ApplicationException("B2DROP already registered. Connecting to another B2DROP account not implemented.");
             var task = Initialize(item);
             //task.Start();
         }
@@ -44,6 +47,12 @@ namespace WP6Service2
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             return FileSystemProvider.ListOfFiles(B2DROPDIR + "/","/webdav/"+alias+"/",path);
+        }
+
+        public override bool Destroy()
+        {
+            registeredalias = false;
+            return base.Destroy();
         }
 
         private async Task Initialize(ProviderItem request)

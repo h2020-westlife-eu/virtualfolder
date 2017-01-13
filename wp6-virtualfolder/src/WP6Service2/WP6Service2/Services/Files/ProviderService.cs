@@ -98,8 +98,8 @@ namespace WP6Service2
             if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
             {
                 if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
-                _providers.Add(request);
                 var aprovider = impl.CreateProvider(request);
+                _providers.Add(request);
                 linkedimpl.Add(request.alias,aprovider );
                 aprovider.StoreToFile(request);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
