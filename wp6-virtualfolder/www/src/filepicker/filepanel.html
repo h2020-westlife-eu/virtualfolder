@@ -9,6 +9,11 @@
                 <th style="text-align:center">date</th>
             </tr>
             </thead>
+            <tbody>
+            <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
+              <td>${file.name}</td><td>${file.size}</td><td align="center">${file.date}</td>
+            </tr>
+            </tbody>
         </table>
     </div>
 </template>

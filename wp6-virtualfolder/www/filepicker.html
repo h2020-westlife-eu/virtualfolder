@@ -3,12 +3,14 @@
   <!--#include virtual="/heads.html" -->
 </head>
 
-<body class="w3-container">
+<body class="w3-container ">
 <!--#include virtual="/header.html" -->
-
+<div class="w3-sand w3-card w3-round-large w3-margin w3-padding">
 <h1>File picker</h1>
-<a href="filepickercomponent.html"  onclick="openwindow(); return false;"> File Picker Componenr</a>
-
+<a href="filepickercomponent.html"  onclick="openwindow(); return false;"> Open File Picker Component in a pop-up window.</a>
+  <br/>After choosing the file and receiving it's url the pop-up window will be closed.
+<p>File:<i id="file"></i></p>
+</div>
 <!-- content -->
 
 <!--#include virtual="/footer.html" -->
@@ -23,19 +25,13 @@ function openwindow() {
 
 }
 
-
-
-
   function receiveMessage(event)
   {
-    // Do we trust the sender of this message?  (might be
-    // different from what we originally opened, for example).
     console.log("received message")
     console.log(event);
     console.log(event.data);
-
-    // event.source is popup
-    // event.data is "hi there yourself!  the secret response is: rheeeeet!"
+    document.getElementById("file").innerHTML=event.data;
+    //popup.close(); //closed by child
   }
   window.addEventListener("message", receiveMessage, false);
 </script>

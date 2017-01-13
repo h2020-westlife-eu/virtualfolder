@@ -6,18 +6,23 @@
     <div show.bind="showhelp" class="w3-round-large w3-card w3-pale-blue">
         <p>This if VirtualFolder FileManager.</p>
         <p>Use mouse to navigate the files.</p>
-        <p>Click on directory will change to the directory. Click on ".." will change to parent directory</p>
+        <p>Click on directory will change to the diarectory. Click on ".." will change to parent directory</p>
         <p>Click on PDB file will visualize the PDB file in next panel.</p>
     </div>
     <div class="filepanel">
-        <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
+      <div class="w3-half">
+
+      <filepanel show.bind="!viewpanel1" tableid="filepanel1" ></filepanel>
         <button class="w3-button" show.bind="viewpanel1" click.trigger="close1()">X</button>
         <viewpanel if.bind="viewpanel1" viewid="view1" fileurl.two-way="fileurl"> </viewpanel>
         <!-- TODO investigate correct binding -->
+</div>
+      <div class="w3-half">
 
-        <filepanel show.bind="!viewpanel2" tableid="filepanel2" ></filepanel>
+      <filepanel show.bind="!viewpanel2" tableid="filepanel2" ></filepanel>
         <button class="w3-button" show.bind="viewpanel2" click.trigger="close2()">X</button>
         <viewpanel if.bind="viewpanel2" viewid="view2" fileurl.two-way="fileurl"> </viewpanel>
+        </div>
     </div>
     <div class="buttonline">
         <div class="w3-round-large w3-col">

@@ -920,7 +920,7 @@ define('filemanager/viewpanel',['exports', 'aurelia-http-client'], function (exp
         return Viewpanel;
     }();
 });
-define('filepicker/app',['exports', 'aurelia-event-aggregator'], function (exports, _aureliaEventAggregator) {
+define('filepicker/app',['exports', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -936,12 +936,27 @@ define('filepicker/app',['exports', 'aurelia-event-aggregator'], function (expor
 
   var _class, _temp;
 
-  var App = exports.App = (_temp = _class = function App(ea) {
-    _classCallCheck(this, App);
+  var App = exports.App = (_temp = _class = function () {
+    function App(ea) {
+      var _this = this;
 
-    this.showprovider = false;
-    this.ea = ea;
-  }, _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
+      _classCallCheck(this, App);
+
+      this.ea = ea;
+      this.ea.subscribe(_messages.SelectedFile, function (msg) {
+        return _this.selectFile(msg.file);
+      });
+    }
+
+    App.prototype.selectFile = function selectFile(file) {
+      console.log("selectFile()");
+      console.log(file);
+      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.webdavuri, "*");
+      window.close();
+    };
+
+    return App;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
 define('filepicker/environment',["exports"], function (exports) {
   "use strict";
@@ -951,8 +966,138 @@ define('filepicker/environment',["exports"], function (exports) {
   });
   exports.default = {
     debug: true,
-    testing: true
+    testing: false
   };
+});
+define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.Filepanel = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var _class, _temp;
+
+    var Filepanel = exports.Filepanel = (_temp = _class = function () {
+        function Filepanel(ea, httpclient) {
+            _classCallCheck(this, Filepanel);
+
+            this.ea = ea;
+            this.client = httpclient;
+            this.files = [];
+            this.filescount = this.files.length;
+            this.path = "";
+            this.dynatable = {};
+            this.serviceurl = "/metadataservice/files";
+
+            this.client.configure(function (config) {
+                config.withHeader('Accept', 'application/json');
+                config.withHeader('Content-Type', 'application/json');
+            });
+        }
+
+        Filepanel.prototype.attached = function attached() {
+            var _this = this;
+
+            console.log("attached()");
+
+            this.client.get(this.serviceurl).then(function (data) {
+                if (data.response) {
+                    _this.populateFiles(data.response);
+                }
+            }).catch(function (error) {
+
+                console.log('Error');
+                console.log(error);
+                alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this.serviceurl);
+            });
+        };
+
+        Filepanel.prototype.dateTimeReviver = function dateTimeReviver(key, value) {
+            var a;
+            if (typeof value === 'string') {
+                a = /\/Date\(([\d\+]*)\)\//.exec(value);
+                if (a) {
+                    return new Date(parseInt(a[1])).toLocaleDateString('en-GB');
+                }
+            }
+            return value;
+        };
+
+        Filepanel.prototype.cdup = function cdup() {
+            var sepIndex = this.path.lastIndexOf('/');
+            this.path = this.path.substring(0, sepIndex);
+        };
+
+        Filepanel.prototype.cddown = function cddown(subdir) {
+            this.path += '/' + subdir;
+        };
+
+        Filepanel.prototype.changefolder = function changefolder(folder) {
+            var _this2 = this;
+
+            if (!this.lock) {
+                this.lock = true;
+                if (folder) {
+                    if (folder == '..') this.cdup();else this.cddown(folder);
+                }
+
+                this.client.get(this.serviceurl + this.path).then(function (data) {
+                    if (data.response) {
+                        _this2.populateFiles(data.response);
+                    }
+                    _this2.lock = false;
+                }).catch(function (error) {
+                    console.log('Error');
+                    console.log(error);
+                    alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this2.serviceurl + _this2.path);
+                    _this2.lock = false;
+                });
+            }
+        };
+
+        Filepanel.prototype.refresh = function refresh() {
+            this.changefolder();
+        };
+
+        Filepanel.prototype.populateFiles = function populateFiles(dataresponse) {
+            console.log('doaction()');
+            this.files = JSON.parse(dataresponse, this.dateTimeReviver);
+            this.filescount = this.files.length;
+            if (this.path.length > 0) {
+                this.files.unshift({ name: "..", size: "UP DIR", date: "" });
+            }
+            this.files.forEach(function (item, index, arr) {
+                if (!arr[index].name && arr[index].alias) {
+                    arr[index].name = arr[index].alias;
+                    arr[index].attributes = 16;
+                    arr[index].date = "";
+                }
+                if (arr[index].attributes & 16) arr[index].size = "DIR";
+            });
+            console.log(this.files);
+        };
+
+        Filepanel.prototype.doAction = function doAction(fileitem) {
+            console.log('doaction()');
+            console.log(fileitem);
+        };
+
+        Filepanel.prototype.selectFile = function selectFile(file) {
+            console.log("selected file:");
+            console.log(file);
+            if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);else this.ea.publish(new _messages.SelectedFile(file));
+        };
+
+        return Filepanel;
+    }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
 });
 define('filepicker/main',['exports', './environment'], function (exports, _environment) {
   'use strict';
@@ -992,6 +1137,25 @@ define('filepicker/main',['exports', './environment'], function (exports, _envir
       return aurelia.setRoot();
     });
   }
+});
+define('filepicker/messages',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var SelectedFile = exports.SelectedFile = function SelectedFile(file) {
+    _classCallCheck(this, SelectedFile);
+
+    this.file = file;
+  };
 });
 define('resources/index',["exports"], function (exports) {
   "use strict";
@@ -1486,12 +1650,13 @@ define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { m
 define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!filemanager/actions.html', ['module'], function(module) { module.exports = "<template>\n</template>"; });
-define('text!filemanager/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./filepanel\"></require>\n    <require from=\"./viewpanel\"></require>\n\n    <h4>${heading}</h4>\n    <div show.bind=\"showhelp\" class=\"w3-round-large w3-card w3-pale-blue\">\n        <p>This if VirtualFolder FileManager.</p>\n        <p>Use mouse to navigate the files.</p>\n        <p>Click on directory will change to the directory. Click on \"..\" will change to parent directory</p>\n        <p>Click on PDB file will visualize the PDB file in next panel.</p>\n    </div>\n    <div class=\"filepanel\">\n        <filepanel show.bind=\"!viewpanel1\" tableid=\"filepanel1\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel1\" click.trigger=\"close1()\">X</button>\n        <viewpanel if.bind=\"viewpanel1\" viewid=\"view1\" fileurl.two-way=\"fileurl\"> </viewpanel>\n        <!-- TODO investigate correct binding -->\n\n        <filepanel show.bind=\"!viewpanel2\" tableid=\"filepanel2\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel2\" click.trigger=\"close2()\">X</button>\n        <viewpanel if.bind=\"viewpanel2\" viewid=\"view2\" fileurl.two-way=\"fileurl\"> </viewpanel>\n    </div>\n    <div class=\"buttonline\">\n        <div class=\"w3-round-large w3-col\">\n            <button class=\"w3-btn w3-round-large\" click.trigger=\"help()\">F1 Help</button>\n            <!--button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F2 Menu</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F3 View</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F4 Edit</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F5 Copy</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F6 Move</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F7 Mkdir</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F8 Delete</button-->\n        </div>\n    </div>\n</template>\n"; });
-define('text!filemanager/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n<div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n        </table>\n    </div>\n</div>\n</template>"; });
+define('text!filemanager/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./filepanel\"></require>\n    <require from=\"./viewpanel\"></require>\n\n    <h4>${heading}</h4>\n    <div show.bind=\"showhelp\" class=\"w3-round-large w3-card w3-pale-blue\">\n        <p>This if VirtualFolder FileManager.</p>\n        <p>Use mouse to navigate the files.</p>\n        <p>Click on directory will change to the diarectory. Click on \"..\" will change to parent directory</p>\n        <p>Click on PDB file will visualize the PDB file in next panel.</p>\n    </div>\n    <div class=\"filepanel\">\n      <div class=\"w3-half\">\n\n      <filepanel show.bind=\"!viewpanel1\" tableid=\"filepanel1\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel1\" click.trigger=\"close1()\">X</button>\n        <viewpanel if.bind=\"viewpanel1\" viewid=\"view1\" fileurl.two-way=\"fileurl\"> </viewpanel>\n        <!-- TODO investigate correct binding -->\n</div>\n      <div class=\"w3-half\">\n\n      <filepanel show.bind=\"!viewpanel2\" tableid=\"filepanel2\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel2\" click.trigger=\"close2()\">X</button>\n        <viewpanel if.bind=\"viewpanel2\" viewid=\"view2\" fileurl.two-way=\"fileurl\"> </viewpanel>\n        </div>\n    </div>\n    <div class=\"buttonline\">\n        <div class=\"w3-round-large w3-col\">\n            <button class=\"w3-btn w3-round-large\" click.trigger=\"help()\">F1 Help</button>\n            <!--button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F2 Menu</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F3 View</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F4 Edit</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F5 Copy</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F6 Move</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F7 Mkdir</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F8 Delete</button-->\n        </div>\n    </div>\n</template>\n"; });
+define('text!filemanager/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n        </table>\n    </div>\n</template>\n"; });
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  FilePicker\n</template>\n"; });
-define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-grey w3-black\">\n      <table>\n        <thead>\n        <tr><th colspan=\"3\">List of registered file providers</th> </tr>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i>&nbsp;<i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
+define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
+define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white\">\n      <table>\n        <thead>\n        <tr><th colspan=\"3\">List of registered file providers</th> </tr>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i>&nbsp;<i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
 define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large\">\n      <form submit.trigger=\"addProvider()\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n\n          <div show.bind=\"selectedB2Drop\">\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n            <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n              Fill in the existing B2DROP username and password here:</p>\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n            <p>DROPBOX is a commercial data store and exchange service.\n              West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n            <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n            <div show.bind=\"!knowntoken\" >\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n            </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\" readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"  value.bind=\"filesystempath\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n        </div>\n\n      </form>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
