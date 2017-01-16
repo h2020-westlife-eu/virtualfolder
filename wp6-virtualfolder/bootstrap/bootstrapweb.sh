@@ -44,7 +44,8 @@ find /var/www/html -type d -exec chmod ugo+rx {} \;
 #add +x permission on all html files which has include directive
 chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
 
-
+echo Adding EPEL repository
+echo Warning: This operation might be slown down by repeating requests to SL servers.
 yum -y install epel-release
 yum repolist
 yum -y install davfs2 mod_proxy_html
