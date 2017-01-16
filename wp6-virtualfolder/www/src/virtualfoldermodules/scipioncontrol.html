@@ -1,0 +1,15 @@
+<template>
+<div class="w3-third">
+  <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
+    <h4>Scipion</h4>
+    <p>Scipion is an image processing framework to obtain 3D models
+      of macromolecular complexes using Electron Microscopy.</p>
+    <p>West-life portal allows access to Scipion software tools without need to install them separatately. </p>
+    <p show.bind="!enabled">To enable and start local copy of Scipion Webtools, please click the Enable button.</p>
+    <button show.bind="!enabled" class="w3-btn w3-round-large" click.trigger="enable()">Enable Scipion</button>
+    <p show.bind="enabled">
+      Access Scipion Services:<a href="http://localhost:8001/">local Scipion webtool</a>
+    </p>
+  </div>
+</div>
+</template>
