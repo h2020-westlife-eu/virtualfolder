@@ -1,6 +1,6 @@
 <template>
   <div class="w3-half">
-    <div class="w3-card-2 w3-blue-grey">
+    <div class="w3-card-2 w3-sand">
       <table>
         <thead>
         <tr><th colspan="3">List of registered file providers</th> </tr>
@@ -12,7 +12,7 @@
         </thead>
         <tbody>
         <tr class="w3-hover-green" repeat.for="provider of providers">
-          <td>${provider.alias}</td><td>${provider.type}</td><td align="center"><i show.bind="!provider.temporary" class="fa fa-check"></i>&nbsp;<i show.bind="!provider.temporary" class="fa fa-remove" click.delegate="removeProvider(provider)"></i></td>
+          <td>${provider.alias}</td><td>${provider.type}</td><td><a href="filemanager.html"class="w3-button">Browse content</a></td><td align="center"><i show.bind="!provider.temporary" class="fa fa-remove" click.delegate="removeProvider(provider)"></i></td>
         </tr>
         </tbody>
         <tfoot>
