@@ -8,55 +8,9 @@
 
 <!--#include virtual="/header.html" -->
 
-
-<div class="w3-row-padding w3-center">
-<p>This is Virtual Folder. </p>
-            <div aurelia-app="virtualfoldersetting/main">
-              <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
-                Loading ...
-            </div>
-
-  <h3>Available modules</h3>
-    <div class="w3-third">
-        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
-        <h4>CCP4 suite</h4>
-            <p>The CCP4 (Collaborative Computational Project, Number 4)
-                software suite is a collection of programs and associated data
-                and software libraries which can be used for macromolecular
-                structure determination by X-ray crystallography.</p>
-            <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>
-        <p>To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href="http://www.ccp4.ac.uk/ccp4license.php">CCP4License</a>.</p>
-        <button class="w3-btn w3-round-large" onclick="$.post('/metadataservice/sbservice/ccp4suite'); this.disabled=true">Agree & Enable CCP4</button>
-        </div>
-</div>
-
-
-    <div class="w3-third">
-        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
-        <h4>Scipion</h4>
-        <p>Scipion is an image processing framework to obtain 3D models
-            of macromolecular complexes using Electron Microscopy.</p>
-        <p>West-life portal allows access to Scipion software tools without need to install them separatately. </p>
-        <p>To enable and start local copy of Scipion Webtools, please click the Enable button.</p>
-            <button class="w3-btn w3-round-large" onclick="$.post('/metadataservice/sbservice/scipion'); this.disabled=true">Enable Scipion</button>
-            <p>
-        Access Scipion Services:<a href="http://localhost:8001/">local Scipion webtool</a>
-            </p>
-        </div>
-    </div>
-
-    <div class="w3-third">
-        <div class="w3-card-2 w3-sand w3-hover-shadow w3-round-large">
-            <h4>Virtuoso</h4>
-            <p>Virtuoso-opensource is Virtuoso is a scalable cross-platform server that combines Relational, Graph, and Document Data Management with Web Application Server and Web Services Platform functionality.
-                </p>
-            <p>To enable and start local instance of Virtuoso, please click the Enable button.</p>
-            <button class="w3-btn w3-round-large" onclick="$.post('/metadataservice/sbservice/virtuoso'); this.disabled=true">Enable Virtuoso</button>
-            <p>
-                Access Virtuoso Services:<a href="/virtuoso">local Virtuoso webtool</a>
-            </p>
-        </div>
-    </div>
+<div aurelia-app="virtualfoldersetting/main">
+   <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+   Loading ...
 </div>
 
 <!--#include virtual="/footer.html" -->

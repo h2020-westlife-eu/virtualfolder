@@ -23,7 +23,7 @@ namespace WP6Service2
 
 	        public override void Configure(Funq.Container container) {
 	            container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
-	                ":memory:", SqliteDialect.Provider));
+	                "db.sqlite", SqliteDialect.Provider)); //added db.sqlite as a file name of DB - fixes sqlite errors on in memory db not populated
 
 	            //sets URL context to /metadataservice
 	            SetConfig(new EndpointHostConfig {
@@ -44,19 +44,19 @@ namespace WP6Service2
 	                    //Add seed data
 	                }
 
-	                //db.DropTable<SBService> ();
+	                db.DropTable<SBService> ();
 	                String [][] services = {new string[]
-	                        {"b2drop", "/home/vagrant/scripts/mountb2drop.sh"},
-	                    new string[]{"ccp4suite", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-	                    new string[]{"scipion", "/home/vagrant/bootstrap/startscipionWeb.sh"},
-	                    new string[]{"virtuoso", "/home/vagrant/scripts/startVirtuoso.sh"}
+	                        {"b2drop", "/bin/sudo","/home/vagrant/scripts/mountb2drop.sh"},
+	                    new string[]{"ccp4suite","/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
+	                    new string[]{"scipion", "/bin/sh","/home/vagrant/scripts/startScipionWeb.sh"},
+	                    new string[]{"virtuoso", "/bin/sh","/home/vagrant/scripts/startVirtuoso.sh"}
 	                };
 
 	                //create table
 	                db.CreateTableIfNotExists<SBService>();
 
 	                    foreach (var service in services) {
-	                        var p = new SBService { Name = service [0], TriggerScript = service [1] };
+	                        var p = new SBService { Name = service [0], Shell=service[1],TriggerScript = service [2] };
 	                        db.Insert (p);
 	                    }
 	            }

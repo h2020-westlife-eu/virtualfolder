@@ -5,6 +5,7 @@ using ServiceStack.DataAnnotations;
 using System.IO;
 using System.Diagnostics;
 using ServiceStack.Common;
+using ServiceStack.Common.Utils;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
@@ -15,11 +16,12 @@ namespace WP6Service2
 	*/
 	[Route("/sbservice")]
 	[Route("/sbservice/{Name}")]
-	public class SBService
+	public class SBService :IReturn<object>
 	{
 		[AutoIncrement]
 		public long Id { get; set; }		
 		public bool enabled { get; set;}
+	    public String Shell { get; set; }
 		public String Name { get; set; }
 		public String Username { get; set; }
 		public String Securetoken { get; set; } 
@@ -32,11 +34,11 @@ namespace WP6Service2
 	{
 		/** gets information
 		 */
+
 		public object Get(SBService request) 
 		{
-			if (request.Name != default(String))
+			if (!string.IsNullOrEmpty(request.Name))
 				return Db.First<SBService>(x => x.Name == request.Name);; //returns single resource
-
 			return Db.Select<SBService>(); //returns all
 		}
 
@@ -50,45 +52,25 @@ namespace WP6Service2
 			var service = Db.First<SBService>(x => x.Name == request.Name);; //returns single resource
 
 			ProcessStartInfo psi = new ProcessStartInfo();
-			psi.FileName = "/usr/bin/sudo";
+		    psi.FileName = service.Shell;//"/usr/bin/sudo";
 			psi.UseShellExecute = false;
 			psi.RedirectStandardOutput = true;
 			psi.RedirectStandardError = true;
 
 			psi.Arguments = service.TriggerScript;
 			Process p = Process.Start(psi);
-			request.TriggerOutput=p.StandardOutput.ReadToEnd();
-			request.TriggerOutput += p.StandardError.ReadToEnd ();
+			service.TriggerOutput=p.StandardOutput.ReadToEnd();
+			service.TriggerOutput += p.StandardError.ReadToEnd ();
 			p.WaitForExit();
 			//Console.WriteLine(strOutput);
-			request.enabled = p.ExitCode == 0;
-			return request;
-
+			//request.enabled = p.ExitCode == 0;
+		    service.enabled = p.ExitCode == 0;
+		    //service.TriggerOutput = request.TriggerOutput;
+		    Db.Update<SBService>(service);
+			return service;
 		}
 
-		/** Stores new service in DB, secure token is written in to filesystem and forgotten in DB
-		 */
-
-		public object Put(SBService request)
-		{			
-			//store secure token in tmp files
-			using (StreamWriter outputFile = new StreamWriter("/tmp/.westlife/"+request.Name+".secrets")) {
-				outputFile.WriteLine(request.Username+" "+request.Securetoken);
-			}
-			using (StreamWriter outputFile = new StreamWriter("/tmp/.westlife/"+request.Name+".secrets2")) {
-				outputFile.Write(request.Username+":"+request.Securetoken);
-			}
-			request.Securetoken = "/tmp/.westlife/"+request.Name+".secrets"; //do not store secure token in DB
-		    Db.Insert(request);
-		    var id = Db.GetLastInsertId();
-			var pathToResource =  base.Request.AbsoluteUri.CombineWith(request.Name);
-			return HttpResult.Status201Created (Db.First<SBService>(x=> x.Id == id), pathToResource);
-		}
-
-		public void Delete(SBService request)
-		{
-			Db.DeleteById<SBService> (request.Name);
-		}
+	    // PUT and DELETE removed - security risk
 
 	}
 

@@ -37,20 +37,25 @@ namespace MetadataServiceTest
 	    [Test()]
 	    public void DropboxTestCase()
 	    {
-
-
 	        Assert.AreEqual(DropBoxFS.accesstoken, _dk);
 	    }
 	    [Test ()]
 	    public void DropboxListFilesTestCase (){
 
 	    var client = new JsonServiceClient(BaseUri);
-
 		    //GET /customers
 		    var all = client.Get(new DropBoxSBFile(){path=""});
 		    Assert.That(all.Count > 0); //at least some files returned
-
 		}
+
+	    [Test()]
+	    public void SBServiceTestCase()
+	    {
+	        var client = new JsonServiceClient(BaseUri);
+	        var all = client.Get(new SBService() {Name = "scipion"});
+	        Assert.True(all.GetType() == typeof(SBService));
+	        Assert.True(((SBService) all).Name == "scipion");
+	    }
 	}
 }
 

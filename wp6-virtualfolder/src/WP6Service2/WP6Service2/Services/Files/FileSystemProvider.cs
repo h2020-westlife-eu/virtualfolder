@@ -30,25 +30,42 @@ namespace WP6Service2
 
         private static void MakeLinkToWebDav(string localpath,string link)
         {
+            Console.WriteLine("FileSystem initializing...");
+            string output = ExecuteShell("/bin/ln",new string[]{"-s",localpath, link});
+            Console.WriteLine(output);
+        }
+
+        private static string ExecuteShell(string shellcommand, string[] args)
+        {
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "/bin/ln";
+            psi.FileName = shellcommand;
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
-
-            psi.Arguments = "-s "+localpath+" "+link;
-            Console.WriteLine("FileSystem initializing...");
+            foreach (var arg in args)
+            {
+                psi.Arguments += arg + " ";
+            }
             Process p = Process.Start(psi);
-            var output = p.StandardOutput.ReadToEnd();
+            string output = p.StandardOutput.ReadToEnd();
             output += p.StandardError.ReadToEnd();
             p.WaitForExit();
-            Console.WriteLine(output);
+            return output;
         }
 
         public override bool Destroy()
         {
-            File.Delete(webdavfolder+alias);
-            return base.Destroy();
+            try
+            {
+                string output=ExecuteShell("/bin/rm",new string[]{webdavfolder + alias});
+                Console.WriteLine(output);
+                return base.Destroy();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message+e.StackTrace);
+                throw e;
+            }
         }
 
         public override object GetFileList(string Path)

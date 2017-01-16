@@ -1166,6 +1166,303 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
+define('virtualfoldermodules/app',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var App = exports.App = function App() {
+    _classCallCheck(this, App);
+  };
+});
+define('virtualfoldermodules/ccp4control',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Ccp4control = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Ccp4control = exports.Ccp4control = function (_Modulecontrol) {
+    _inherits(Ccp4control, _Modulecontrol);
+
+    function Ccp4control() {
+      _classCallCheck(this, Ccp4control);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.posturl = "/metadataservice/sbservice/ccp4suite";
+      _this.url = "/metadataservice/sbservice/ccp4suite";
+      return _this;
+    }
+
+    return Ccp4control;
+  }(_modulecontrol.Modulecontrol);
+});
+define('virtualfoldermodules/main',['exports', '../environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Modulecontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulecontrol = exports.Modulecontrol = function () {
+    function Modulecontrol() {
+      _classCallCheck(this, Modulecontrol);
+
+      this.httpclient = new _aureliaHttpClient.HttpClient();
+      this.url = window.location.href;
+      this.enabled = false;
+      this.httpclient.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+    }
+
+    Modulecontrol.prototype.attached = function attached() {
+      var _this = this;
+
+      console.log("attached() url:" + this.url);
+      this.httpclient.get(this.url).then(function (response) {
+        return _this.okcallback(response);
+      }).catch(function (error) {
+        return _this.failcallback(error);
+      });
+    };
+
+    Modulecontrol.prototype.okcallback = function okcallback(response) {
+      console.log("okcallback()");
+      var res = JSON.parse(response.response);
+      console.log(res.enabled);
+      this.enabled = res.enabled;
+    };
+
+    Modulecontrol.prototype.failcallback = function failcallback(error) {
+      this.enabled = false;
+      console.log('Sorry, error when connecting backend web service at ' + this.url + ' error:' + error.response + " status:" + error.statusText);
+    };
+
+    Modulecontrol.prototype.enable = function enable() {
+      var _this2 = this;
+
+      this.httpclient.post(this.url).then(function (response) {
+        return _this2.okcallback(response);
+      }).catch(function (error) {
+        return _this2.failcallback(error);
+      });
+    };
+
+    return Modulecontrol;
+  }();
+});
+define('virtualfoldermodules/modulesetting',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulesetting = exports.Modulesetting = function Modulesetting() {
+    _classCallCheck(this, Modulesetting);
+  };
+});
+define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Scipioncontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Scipioncontrol = exports.Scipioncontrol = function (_Modulecontrol) {
+    _inherits(Scipioncontrol, _Modulecontrol);
+
+    function Scipioncontrol() {
+      _classCallCheck(this, Scipioncontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.url = "/metadataservice/sbservice/scipion";
+      _this.posturl = "/metadataservice/sbservice/scipion";
+      return _this;
+    }
+
+    return Scipioncontrol;
+  }(_modulecontrol.Modulecontrol);
+});
+define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Virtuosocontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Virtuosocontrol = exports.Virtuosocontrol = function (_Modulecontrol) {
+    _inherits(Virtuosocontrol, _Modulecontrol);
+
+    function Virtuosocontrol() {
+      _classCallCheck(this, Virtuosocontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.url = "/metadataservice/sbservice/virtuoso";
+      return _this;
+    }
+
+    return Virtuosocontrol;
+  }(_modulecontrol.Modulecontrol);
+});
 define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
   'use strict';
 
@@ -1344,17 +1641,6 @@ define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-
     return DropboxControl;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _urlutils.UrlUtils], _temp);
 });
-define('virtualfoldersetting/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: true,
-    testing: true
-  };
-});
 define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol) {
   'use strict';
 
@@ -1518,7 +1804,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 
     return Genericcontrol;
   }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype)), _class));
 });
-define('virtualfoldersetting/main',['exports', './environment'], function (exports, _environment) {
+define('virtualfoldersetting/main',['exports', '../environment'], function (exports, _environment) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1656,7 +1942,12 @@ define('text!filemanager/filesettings.html', ['module'], function(module) { modu
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
-define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white\">\n      <table>\n        <thead>\n        <tr><th colspan=\"3\">List of registered file providers</th> </tr>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i>&nbsp;<i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
-define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <h3>Virtual Folder Settings</h3>\n\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
-define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-pale-blue w3-hover-shadow w3-round-large\">\n      <form submit.trigger=\"addProvider()\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n\n          <div show.bind=\"selectedB2Drop\">\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n            <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n              Fill in the existing B2DROP username and password here:</p>\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n            <p>DROPBOX is a commercial data store and exchange service.\n              West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n            <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n            <div show.bind=\"!knowntoken\" >\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n            </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\" readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"  value.bind=\"filesystempath\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n        </div>\n\n      </form>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
+define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
+define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n  <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n    <h4>CCP4 suite</h4>\n    <p>The CCP4 (Collaborative Computational Project, Number 4)\n      software suite is a collection of programs and associated data\n      and software libraries which can be used for macromolecular\n      structure determination by X-ray crystallography.</p>\n    <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href=\"http://www.ccp4.ac.uk/ccp4license.php\">CCP4License</a>.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Agree & Enable CCP4</button>\n  </div>\n</div>\n</template>\n"; });
+define('text!virtualfoldermodules/modulesetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./scipioncontrol\"></require>\n  <require from=\"./virtuosocontrol\"></require>\n  <require from=\"./ccp4control\"></require>\n  <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n    <h3>Virtual Folder Modules</h3>\n  </div>\n  <scipioncontrol></scipioncontrol>\n  <virtuosocontrol></virtuosocontrol>\n  <ccp4control></ccp4control>\n</template>\n"; });
+define('text!virtualfoldermodules/scipioncontrol.html', ['module'], function(module) { module.exports = "<template>\n<div class=\"w3-third\">\n  <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n    <h4>Scipion</h4>\n    <p>Scipion is an image processing framework to obtain 3D models\n      of macromolecular complexes using Electron Microscopy.</p>\n    <p>West-life portal allows access to Scipion software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable and start local copy of Scipion Webtools, please click the Enable button.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Enable Scipion</button>\n    <p show.bind=\"enabled\">\n      Access Scipion Services:<a href=\"http://localhost:8001/\">local Scipion webtool</a>\n    </p>\n  </div>\n</div>\n</template>\n"; });
+define('text!virtualfoldermodules/virtuosocontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n  <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n    <h4>Virtuoso</h4>\n    <p>Virtuoso-opensource is Virtuoso is a scalable cross-platform server that combines Relational, Graph, and Document Data Management with Web Application Server and Web Services Platform functionality.\n    </p>\n    <p>To enable and start local instance of Virtuoso, please click the Enable button.</p>\n    <button class=\"w3-btn w3-round-large\" onclick=\"$.post('/metadataservice/sbservice/virtuoso'); this.disabled=true\">Enable Virtuoso</button>\n    <p>\n      Access Virtuoso Services:<a href=\"/virtuoso\">local Virtuoso webtool</a>\n    </p>\n  </div>\n</div>\n</template>\n"; });
+define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-blue-grey\">\n      <table>\n        <thead>\n        <tr><th colspan=\"3\">List of registered file providers</th> </tr>\n        <tr>\n          <th>Alias</th>\n          <th>Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-check\"></i>&nbsp;<i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n    </div>\n  </div>\n</template>\n"; });
+define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n\n  <div class=\"w3-card-2 w3-blue-grey\">\n  <h3>Virtual Folder Settings</h3>\n</div>\n  <form submit.trigger=\"newProvider()\">\n  <aliastable></aliastable>\n  </form>\n\n  <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
+define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-left-align w3-blue-grey w3-hover-shadow \">\n      <form submit.trigger=\"addProvider()\">\n\n\n        <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n          <option value=\"\" disabled selected>Choose provider</option>\n          <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n        </select>\n\n        <div show.bind=\"selectedProvider\">\n\n          <div show.bind=\"selectedB2Drop\">\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n            <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n              Fill in the existing B2DROP username and password here:</p>\n            Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n            Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n          <div show.bind=\"selectedDropbox\">\n            <p>DROPBOX is a commercial data store and exchange service.\n              West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n            <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n            <div show.bind=\"!knowntoken\" >\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n            </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\" readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n          </div>\n\n          <div show.bind=\"selectedFileSystem\">\n              Internal path to be linked:\n              <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\"  value.bind=\"filesystempath\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n          </div>\n\n        </div>\n\n      </form>\n\n\n    </div>\n  </div>\n  <!--genericcontrol if.bind=\"newDialog.checked\"></genericcontrol-->\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
