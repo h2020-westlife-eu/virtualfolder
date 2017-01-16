@@ -4,14 +4,14 @@ West-Life is a H2020 Virtual Research Environment project that will provide the 
 Data management work package WP6 build on existing infrastructure for storing and accessing data. It provides application level service usable for structural biology use cases and follows structural biology data lifecycle (Report ...).
 The WP6 is distributed as a vagrant package. Configuration files and scripts which initiates self deployment, installation and configuration of prototype virtual machine.
 
-##Installation
+## Installation
 Prerequisites:
 
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
  2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
 
 Choose one of the following
- - download metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory] or clone the meta repository from https://github.com/h2020-westlife-eu/wp6-vm.git.
+ - (prefered) download metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory] or clone the meta repository from https://github.com/h2020-westlife-eu/wp6-vm.git.
  - or download (3MB) or clone (21MB) this repository - use "Clone or download" button above. This option is intended for development purposes.
 
 (Optionally), if you are behind proxy, download and install proxyconf plugin and set environment variables
@@ -25,71 +25,37 @@ Choose one of the following
 
     vagrant box update    
 
-Open command-line (e.g. cmd, cygwin or terminal)
+Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
      
     cd [wp6-vm directory]
     vagrant up    
 
-This will start CernVM customization and boots to Scientific Linux 7.2 and configures related West-Life WP. Depending on network speed it will take several to several tens of minutes - downloading 200 MB of data.
+This will start VM template CernVM, boots to Scientific Linux 7.2 and performs some bootstrap scripts. Depending on network speed it will take several to several tens of minutes - downloading 200 MB of data.
 
 ## Usage
-The new virtual machine can be accessed by SSH (by default the 2222 port is forwarded to VM)
+After (vagrant up) finished. The new virtual machine can be accessed by SSH (by default the 2222 port is forwarded to VM)
 
     vagrant ssh
 
 or via GUI in virtualbox (username/password: vagrant/vagrant)
 
-Or via web browser (port 8080 is by default forwarded to VM, check VagrantFile or vagrant log)
+Or via web browser (port 8080 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number)
 
     http://localhost:8080/
     
 Files of the current working directory of host are mounted into <code>/home/vagrant/work/local</code>
 Repositories allowing WEBDAV interface (B2DROP) are mounted into <code>/home/vagrant/work/b2drop</code>
+Other configured repositories creates a directory in <code>/home/vagrant/work/</code>
 
-##Current state of prototype implementation
-After self deployment and installation the virtual machine provides 3 basic services:
-
- 1. Web application at http://localhost:8080
-	 - Optional connection to b2drop repository, directory browsing
- 2. WebDAV protocol to the shared data at http://localhost:8080/webdav/
- 
-## Cleaning
-After testing you may, stop (halt) or delete/clean (destroy) all VM related files
+## Uninstallation - Cleaning
+After testing you may, stop (halt) the VM:
    
     vagrant halt
+    
+If you'll not use the VM anymore, you can delete (destroy) the VM:
+    
     vagrant destroy
-# Extending the code
-## Adding static content
-The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with [SSI (Server Side Include)](http://httpd.apache.org/docs/current/howto/ssi.html) module. The ```header.html``` and ```footer.html``` can  be included into other html. To add new HTML page:
-* add ```your.html``` and all relevant content (JS,CSS) into ```wp6-virtualfolder/www``` and it's subdirectories:
-* edit ```your.html``` and 
-include w3.css styles
-```
-<head>
-...
-<link rel="stylesheet" href="css/w3.css"/>
-...
-</head>
-```
-include head of the pages shared among all of them, add this line up to the html content of ```your.html```:
-```
-<body>
-<!--#include file="header.html" -->
-...
-
-```
-(Optionaly) include footer, add this line bottom to the html content of ```your.html```:
-```
-<!--#include file="footer.html" -->
-</body>
-...
-
-```
-* edit ```header.html``` to contain link into your new page.
-add e.g. following row into desirable place of the menu
-```
-<li><a href="your.html">Your Service</a></li>
-```
+    
 ##Release Notes
 
   * 25/11/2016 - Updated vagrant boxes to use uCernVM 2.7.7 bootloader, updated OVA images in https://appdb.egi.eu/store/vappliance/d6.1.virtualfoldervm/vaversion/latest and vagrant boxes, do "vagrant box update", bug fixes, consolidated initial web page and design, fixed/added background services
