@@ -33,19 +33,20 @@ Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-v
 This will start VM template CernVM, boots to Scientific Linux 7.2 and performs some bootstrap scripts. Depending on network speed it will take several to several tens of minutes - downloading 200 MB of data.
 
 ## Usage
-After (vagrant up) finished. The new virtual machine can be accessed by SSH (by default the 2222 port is forwarded to VM)
 
-    vagrant ssh
-
-or via GUI in virtualbox (username/password: vagrant/vagrant)
-
-Or via web browser (port 8080 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number)
+After 'vagrant up' finished, the new virtual machine can be accessed via web browser (port 8080 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number)
 
     http://localhost:8080/
     
 Files of the current working directory of host are mounted into <code>/home/vagrant/work/local</code>
 Repositories allowing WEBDAV interface (B2DROP) are mounted into <code>/home/vagrant/work/b2drop</code>
 Other configured repositories creates a directory in <code>/home/vagrant/work/</code>
+
+To directly work with VM, you can SSH (by default the 2222 port is forwarded to VM)
+
+    vagrant ssh
+
+or access GUI in virtualbox (username/password: vagrant/vagrant).
 
 ## Uninstallation - Cleaning
 After testing you may, stop (halt) the VM:
