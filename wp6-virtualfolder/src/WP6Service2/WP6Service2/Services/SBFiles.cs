@@ -38,47 +38,6 @@ namespace WP6Service2.Services
         String GetContext();
     }
 
-    public partial class SBFileService : Service
-    {
-        protected const String WEBDAVROOT ="/webdav";
-
-		public object Get(SBFile request)
-		{
-		    Console.WriteLine("SBFile().Get()");
-		    //gets all implementation of IProviderContext
-		    var type = typeof(IProviderContext);
-		    var types = AppDomain.CurrentDomain.GetAssemblies()
-		        .SelectMany(s => s.GetTypes())
-		        .Where(p => type.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
-		    //var listOfContext = new List<SBFile>();
-		    //gets files on root directory of working space
-		    var listOfContext = SystemFs.ListOfFiles("");
-		    //adds services which are not listed
-		    //construct list of providers by calling mandatory method of the
-		    foreach (var providerimplementation in types)
-		    {
-		        Console.WriteLine("implementation name:" +providerimplementation.FullName);
-
-		        var context = ((IProviderContext) providerimplementation.CreateInstance()).GetContext();
-		        if (!string.IsNullOrEmpty(context))
-		        {
-		            //add the context if it is notyet cached in file system
-		            if (listOfContext.FindAll(x => x.name==context).Count==0)
-		            listOfContext.Add(new SBFile()
-		            {
-		                name = context,
-		                attributes = FileAttributes.Directory,
-		                path = context,
-		                filetype = FileType.Directory,
-		                webdavuri = WEBDAVROOT + "/" + context
-		            });
-		        }
-		    }
-		    return listOfContext;
-		}
-	}
-	
-
 
 }
 

@@ -102,7 +102,7 @@ namespace WP6Service2
 	    {
 
 	        //set account token
-	        if (args.Length > 0) WP6Service2.DropBoxFS.accesstoken = args[0];
+	        //if (args.Length > 0) WP6Service2.DropBoxFS.accesstoken = args[0];
 	        _appHost = new AppHost();
 	        _appHost.Init();
 
