@@ -17,7 +17,6 @@ export class Filepanel{
         this.path= "";
         this.dynatable = {};
         this.serviceurl = "/metadataservice/files";
-        //not yet accessible here console.log("file panel constructed:" + this.tableid);
         //http to accept json
         this.client.configure(config=>{
             config.withHeader('Accept','application/json');
@@ -99,7 +98,7 @@ export class Filepanel{
 
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
-      console.log('doaction()');
+
         this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
         if (this.path.length>0) {//non root path
@@ -115,17 +114,11 @@ export class Filepanel{
         console.log(this.files);
     }
 
-    doAction(fileitem) {
-      console.log('doaction()');
-      console.log(fileitem);
-    }
-
     selectFile(file){
       console.log("selected file:");
       console.log(file);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
       else this.ea.publish(new SelectedFile(file));
-
     }
 
 }

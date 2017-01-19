@@ -9,6 +9,10 @@ sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion co
 mkdir -p /home/vagrant/.config/scipion/myfirstmap
 mkdir -p /home/vagrant/.config/scipion/mymovies
 mkdir -p /home/vagrant/.config/scipion/myresmap
+mkdir -p /home/vagrant/.config/scipion/firstmap
+mkdir -p /home/vagrant/.config/scipion/movies
+mkdir -p /home/vagrant/.config/scipion/resmap
+
 mkdir -p /home/vagrant/ScipionUserData/data/tests
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myfirstmap
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/mymovies
