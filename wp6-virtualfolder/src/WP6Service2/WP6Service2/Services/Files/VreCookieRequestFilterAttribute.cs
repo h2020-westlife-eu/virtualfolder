@@ -19,7 +19,7 @@ namespace WP6Service2
 
             //Console.WriteLine("Provider Service list"+loggeduser);
             //TODO get the providers associated to user
-            req.Items.Add("loggeduser",loggeduser);
+            req.Items.Add("userid",loggeduser);
             //throw new NotImplementedException();
         }
 
@@ -33,11 +33,12 @@ namespace WP6Service2
             {
                 var response = client.Get<DjangoUserInfo>("vfsession/" + sessionid);
                 sessionuser[sessionid] = response.username;
+                Console.WriteLine("sessionid "+sessionid+" belongs to "+response.username);
                 return response.username;
             }
             catch (Exception e)
             {
-                Console.WriteLine("error during getting user info of sessionid "+e.Message+e.StackTrace);
+                Console.WriteLine("error during getting user info of sessionid "+sessionid+" "+ e.Message+e.StackTrace);
                 return "";
             }
 

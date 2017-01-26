@@ -49,28 +49,26 @@ namespace WP6Service2
         public string email { get; set; }
     }
 
-    public class ProviderService : Service
+    public class UserProvider
     {
-        private static ProviderList _providers; //list of configured providers
-        private static Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
-        private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
+        public string userid;
+        public ProviderList _providers; //list of configured providers
+        public Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
 
-        /** register available provider to service - used by implementing classes
-*/
-        static ProviderService()
+        public UserProvider(string _userid)
         {
+            userid = _userid;
             if (_providers == null)
             {
                 _providers = new ProviderList();
                 linkedimpl = new Dictionary<string, AFileProvider>();
-                AvailableProviders = ProviderFactory.AvailableProviders;
-                var providerfiles = AFileProvider.GetAllConfigFiles();
+                var providerfiles = AFileProvider.GetAllConfigFiles(userid);
                 IProviderCreator impl;
                 foreach (var pf in providerfiles)
                 {
                     try
                     {
-                        if (AvailableProviders.TryGetValue(pf.type, out impl))
+                        if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                         {
                             _providers.Add(pf);
                             linkedimpl.Add(pf.alias, impl.CreateProvider(pf));
@@ -83,14 +81,40 @@ namespace WP6Service2
                     }
                 }
             }
-            //TODO trigger ConfigStored() ???
+
         }
+    }
+
+    [VreCookieRequestFilter]
+    public class ProviderService : Service
+    {
+        //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
+        private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
+
+        /*gets providers associated to the user, initialize object when needed */
+        private UserProvider getUserProviders()
+        {
+            var userid = (string) base.Request.Items["userid"];
+            if (userid.Length == 0) throw new UnauthorizedAccessException();
+            if (!UserProviders.ContainsKey(userid))
+                UserProviders[userid] = new UserProvider(userid);
+            return UserProviders[userid];
+        }
+        /* adds user provider */
+        private void addUserProviders(ProviderItem provideritem,AFileProvider aprovider)
+        {
+            var prov = getUserProviders();
+            prov._providers.Add(provideritem);
+            prov.linkedimpl.Add(provideritem.alias,aprovider);
+        }
+
+
 
         /** returns list of configured file providers */
         public ProviderList Get(ProviderItem request)
         {
-            var tmp = _providers;
-            return _providers;
+            var tmp = getUserProviders();
+            return tmp._providers;
         }
 
         /** returns list of available providers, which can be configured by the user */
@@ -100,25 +124,25 @@ namespace WP6Service2
         }
 
         //registers new alias and provider which serve it
+
         public ProviderList Put(ProviderItem request)
         {
-
+            var userid = (string) base.Request.Items["userid"];
             IProviderCreator impl=null;
             if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
             {
                 if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
                 var aprovider = impl.CreateProvider(request);
-                _providers.Add(request);
-                linkedimpl.Add(request.alias,aprovider );
-                aprovider.StoreToFile(request);
+                addUserProviders(request,aprovider);
+                aprovider.StoreToFile(request,(string)base.Request.Items["userid"]);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
-            return _providers;
+            return getUserProviders()._providers;
         }
 
         //returns first available alias e.g. dropbox or dropbox_2, dropbox_3
         private string firstempty(string prefix)
         {
-            if (!linkedimpl.Keys.Contains(prefix)) return prefix;
+            if (!getUserProviders().linkedimpl.Keys.Contains(prefix)) return prefix;
             else return firstempty1(prefix,1);
         }
 
@@ -128,7 +152,7 @@ namespace WP6Service2
             while(index++<1024)
             {
                 var mykey = prefix + "_" + index;
-                if (!linkedimpl.Keys.Contains(mykey)) return mykey;
+                if (!getUserProviders().linkedimpl.Keys.Contains(mykey)) return mykey;
 
             }
             throw  new ApplicationException("Too many registered providers:"+prefix+" index:");
@@ -138,13 +162,13 @@ namespace WP6Service2
         public ProviderList Delete(ProviderItem request)
         {
             AFileProvider provider = null;
-            if (linkedimpl.TryGetValue(request.alias, out provider))
+            if (getUserProviders().linkedimpl.TryGetValue(request.alias, out provider))
             {
                 provider.Destroy();
-                _providers.RemoveAt(_providers.FindIndex(p => p.alias == request.alias));
+                getUserProviders()._providers.RemoveAt(getUserProviders()._providers.FindIndex(p => p.alias == request.alias));
                 //destroy provider
-                linkedimpl.Remove(request.alias);
-                return _providers;
+                getUserProviders().linkedimpl.Remove(request.alias);
+                return getUserProviders()._providers;
             } else
                 throw new ApplicationException("cannot delete alias '"+request.alias+"', not found.");
         }
@@ -154,7 +178,7 @@ namespace WP6Service2
         {
             //delegate to provider
             AFileProvider provider = null;
-            if (linkedimpl.TryGetValue(request.Providerpath, out provider))
+            if (getUserProviders().linkedimpl.TryGetValue(request.Providerpath, out provider))
                 return provider.GetFileList(request.Path);
             else
             {

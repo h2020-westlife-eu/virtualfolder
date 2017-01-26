@@ -24,9 +24,9 @@ namespace WP6Service2
         public abstract object GetFileList(string Path); //List<SBFile>
 
         /** Default store to file in json */
-        public void StoreToFile(ProviderItem request)
+        public void StoreToFile(ProviderItem request,string userid)
         {
-            using (StreamWriter outputFile = new StreamWriter(secretslocation+secretsprefix+request.alias))
+            using (StreamWriter outputFile = new StreamWriter(secretslocation+secretsprefix+userid+"."+request.alias))
             {
                 outputFile.WriteLine(request.ToJson());
             }
@@ -61,14 +61,14 @@ namespace WP6Service2
         }
 
         /** Restore all from files */
-        public static List<ProviderItem> GetAllConfigFiles()
+        public static List<ProviderItem> GetAllConfigFiles(string userid)
         {
             var di = new DirectoryInfo(secretslocation);
             var fis = di.GetFileSystemInfos();
             var lp = new List<ProviderItem>();
             foreach (var fi in fis)
             {
-                if (fi.Name.StartsWith(secretsprefix)) lp.Add(RestoreFromFile(fi.Name));
+                if (fi.Name.StartsWith(secretsprefix+userid+".")) lp.Add(RestoreFromFile(fi.Name));
             }
             return lp;
         }

@@ -7,7 +7,6 @@
 from django.conf import settings
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
-from vfsessionuser import userinfo2
 
 from . import views
 
