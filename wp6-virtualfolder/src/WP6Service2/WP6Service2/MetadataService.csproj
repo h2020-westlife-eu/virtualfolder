@@ -97,6 +97,7 @@
     <Compile Include="Services\Files\ProviderFactory.cs" />
     <Compile Include="Services\Files\ProviderService.cs" />
     <Compile Include="Services\Files\AFileProvider.cs" />
+    <Compile Include="Services\Files\VreCookieRequestFilterAttribute.cs" />
     <Compile Include="Services\SBArtifact.cs" />
     <Compile Include="Services\SBFiles.cs" />
     <Compile Include="Services\SBService.cs" />

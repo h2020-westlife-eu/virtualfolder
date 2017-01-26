@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
@@ -21,31 +22,38 @@ namespace WP6Service2
     [Route("/files/{alias}", "DELETE")]
     public class ProviderItem : IReturn<ProviderList>
     {
-        public String alias { get; set; } //alias in url /files/{alias}/{path}
-        public String type{ get; set; } //type of provider to distinguish available implementation
-        public String securetoken {get;set;} //used to transfer tokens to store
-        public String username { get; set; } //e.g. used by b2drop, not used by o2auth services
-        public String output { get; set; } //debug output from scripts
+        public string alias { get; set; } //alias in url /files/{alias}/{path}
+        public string type{ get; set; } //type of provider to distinguish available implementation
+        public string securetoken {get;set;} //used to transfer tokens to store
+        public string username { get; set; } //e.g. used by b2drop, not used by o2auth services
+        public string output { get; set; } //debug output from scripts
     }
 
     [Route("/files/{Providerpath}/{Path*}", "GET")]
     public class ProviderFileList //: IReturn<List<SBFile>>
     {
-        public String Providerpath { get; set; }
-        public String Path { get; set; }
+        public string Providerpath { get; set; }
+        public string Path { get; set; }
     }
 
     [Route("/providers", "GET")]
     public class Providers
     {
-        public String name { get; set; }
+        public string name { get; set; }
+        public string username { get; set; }
+    }
+
+    public class DjangoUserInfo
+    {
+        public string username { get; set; }
+        public string email { get; set; }
     }
 
     public class ProviderService : Service
     {
-        private static ProviderList _providers;
-        private static Dictionary<string, AFileProvider> linkedimpl;
-        private static Dictionary<string,IProviderCreator> AvailableProviders;
+        private static ProviderList _providers; //list of configured providers
+        private static Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
+        private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
 
         /** register available provider to service - used by implementing classes
 */
@@ -77,23 +85,24 @@ namespace WP6Service2
             }
             //TODO trigger ConfigStored() ???
         }
-        /* Gets the status of the connection true or false
-         *
-         */
 
+        /** returns list of configured file providers */
         public ProviderList Get(ProviderItem request)
         {
             var tmp = _providers;
             return _providers;
         }
 
+        /** returns list of available providers, which can be configured by the user */
         public object Get(Providers request)
         {
             return ProviderFactory.AvailableProviders.Keys;
         }
+
         //registers new alias and provider which serve it
         public ProviderList Put(ProviderItem request)
         {
+
             IProviderCreator impl=null;
             if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
             {
