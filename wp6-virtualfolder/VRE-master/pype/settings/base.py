@@ -45,8 +45,7 @@ class SettingsBase(CelerySettings, BaseSettings):
             self.root('bower_components'),
         )
 
-    #TODO redirect to Virtual Folder
-    LOGIN_REDIRECT_URL = 'http://localhost:9000/filemanager2.html'
+    LOGIN_REDIRECT_URL = '../../../virtualfolder/'
     LOGIN_URL = '/login/'
 
     MIDDLEWARE_CLASSES = (
@@ -149,9 +148,3 @@ class SettingsBase(CelerySettings, BaseSettings):
         'PASSWORD_RESET_CONFIRM_URL': 'home/#/password/reset/{token}/{uid}/',
         'PASSWORD_RESET_CONFIRM_RETYPE': True,
     }
-    if not (User.objects.filter(username='vagrant').exists()):
-    try:
-        user = User.objects.create_user('vagrant', 'vagrant@vagrant', 'vagrant')
-    except:
-        print "user created, warning some error", sys.exc_info()[0]
-
