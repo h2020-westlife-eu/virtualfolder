@@ -19,13 +19,14 @@ namespace WP6Service2
     public class FileSystemProvider :AFileProvider
     {
         private string localpath;
-        private string webdavfolder = "/home/vagrant/work/";
+//        private string webdavfolder;// = "/home/vagrant/work/";
 
         public FileSystemProvider(ProviderItem item) :base(item)
         {
+            //webdavfolder = "/home/" + item.username + "/virtualfolder/"+ item.alias;
             localpath = item.securetoken;
             if (!localpath.EndsWith("/")) localpath += '/';
-            MakeLinkToWebDav(localpath,webdavfolder+alias);
+            MakeLinkToWebDav(localpath,FILESYSTEMFOLDER);
         }
 
         private static void MakeLinkToWebDav(string localpath,string link)
@@ -57,7 +58,7 @@ namespace WP6Service2
         {
             try
             {
-                string output=ExecuteShell("/bin/rm",new string[]{webdavfolder + alias});
+                string output=ExecuteShell("/bin/rm",new string[]{FILESYSTEMFOLDER});
                 Console.WriteLine(output);
                 return base.Destroy();
             }
@@ -68,7 +69,7 @@ namespace WP6Service2
             }
         }
 
-        public override object GetFileList(string Path)
+        public override object GetFileOrList(string Path)
         {
             string path = (Path != null) ? Path : "";
             if (path.Contains(".."))

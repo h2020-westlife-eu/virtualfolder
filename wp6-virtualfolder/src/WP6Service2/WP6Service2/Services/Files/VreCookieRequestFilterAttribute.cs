@@ -20,6 +20,8 @@ namespace WP6Service2
             //Console.WriteLine("Provider Service list"+loggeduser);
             //TODO get the providers associated to user
             req.Items.Add("userid",loggeduser);
+            if (requestDto.GetType() == typeof(ProviderItem))
+                ((ProviderItem) requestDto).loggeduser = loggeduser;
             //throw new NotImplementedException();
         }
 

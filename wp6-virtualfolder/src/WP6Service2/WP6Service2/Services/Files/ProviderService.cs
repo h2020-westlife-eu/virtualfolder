@@ -27,6 +27,7 @@ namespace WP6Service2
         public string securetoken {get;set;} //used to transfer tokens to store
         public string username { get; set; } //e.g. used by b2drop, not used by o2auth services
         public string output { get; set; } //debug output from scripts
+        public string loggeduser { get; set; } //to fill with information which use is logged
     }
 
     [Route("/files/{Providerpath}/{Path*}", "GET")]
@@ -49,45 +50,10 @@ namespace WP6Service2
         public string email { get; set; }
     }
 
-    public class UserProvider
-    {
-        public string userid;
-        public ProviderList _providers; //list of configured providers
-        public Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
-
-        public UserProvider(string _userid)
-        {
-            userid = _userid;
-            if (_providers == null)
-            {
-                _providers = new ProviderList();
-                linkedimpl = new Dictionary<string, AFileProvider>();
-                var providerfiles = AFileProvider.GetAllConfigFiles(userid);
-                IProviderCreator impl;
-                foreach (var pf in providerfiles)
-                {
-                    try
-                    {
-                        if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
-                        {
-                            _providers.Add(pf);
-                            linkedimpl.Add(pf.alias, impl.CreateProvider(pf));
-                        }
-                        else Console.WriteLine("the provider type has not registered creator:" + pf.type);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message+e.StackTrace);
-                    }
-                }
-            }
-
-        }
-    }
-
     [VreCookieRequestFilter]
     public class ProviderService : Service
     {
+
         //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
         private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
 
@@ -134,7 +100,7 @@ namespace WP6Service2
                 if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
                 var aprovider = impl.CreateProvider(request);
                 addUserProviders(request,aprovider);
-                aprovider.StoreToFile(request,(string)base.Request.Items["userid"]);
+                aprovider.StoreToFile(request);
             } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
             return getUserProviders()._providers;
         }
@@ -179,7 +145,7 @@ namespace WP6Service2
             //delegate to provider
             AFileProvider provider = null;
             if (getUserProviders().linkedimpl.TryGetValue(request.Providerpath, out provider))
-                return provider.GetFileList(request.Path);
+                return provider.GetFileOrList(request.Path);
             else
             {
               throw new ApplicationException("provider implementation not found for path:"+request.Providerpath);

@@ -10,23 +10,28 @@ namespace WP6Service2
 
         private static string secretslocation = "/home/vagrant/.westlife/";
         public static String webdavroot = "/webdav/";
-
         private static string secretsprefix = "provider.";
 
         public string alias;
+        protected string FILESYSTEMFOLDER;
+        protected string WEBDAVFOLDER;
+
 
 //        public AFileProvider(){}
 
         public AFileProvider(ProviderItem provider)
         {
             alias = provider.alias;
+            FILESYSTEMFOLDER = "/home/vagrant/work/"+provider.loggeduser+"/"+provider.alias+"/";
+            WEBDAVFOLDER = "/webdav/"+provider.loggeduser+"/"+provider.alias+"/";
         }
-        public abstract object GetFileList(string Path); //List<SBFile>
+
+        public abstract object GetFileOrList(string Path); //List<SBFile>
 
         /** Default store to file in json */
-        public void StoreToFile(ProviderItem request,string userid)
+        public void StoreToFile(ProviderItem request)
         {
-            using (StreamWriter outputFile = new StreamWriter(secretslocation+secretsprefix+userid+"."+request.alias))
+            using (StreamWriter outputFile = new StreamWriter(secretslocation+secretsprefix+request.username+"."+request.alias))
             {
                 outputFile.WriteLine(request.ToJson());
             }

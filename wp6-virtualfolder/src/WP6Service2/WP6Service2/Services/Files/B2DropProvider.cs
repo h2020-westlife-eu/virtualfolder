@@ -26,27 +26,28 @@ namespace WP6Service2
     public class B2DropProvider : AFileProvider
     {
 
-        private String B2DROPDIR;
+
         private static bool registeredalias = false;
+        //private string _webdavprefix;
 
 
         public B2DropProvider(ProviderItem item) :base(item)
         {
-            B2DROPDIR = "/home/vagrant/work/" + item.alias;
             if (!registeredalias) registeredalias = true;//item.alias;
-            else throw new ApplicationException("B2DROP already registered. Connecting to another B2DROP account not implemented.");
+            else throw new ApplicationException("B2DROP already registered. Connecting to another B2DROP account not yet implemented.");
             var task = Initialize(item);
             //task.Start();
         }
 
-        public override object GetFileList(string Path)
+        public override object GetFileOrList(string Path)
         {
             string path = (Path != null) ? Path : "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
-            return FileSystemProvider.ListOfFiles(B2DROPDIR + "/","/webdav/"+alias+"/",path);
+
+            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVFOLDER,path);
         }
 
         public override bool Destroy()
@@ -59,7 +60,7 @@ namespace WP6Service2
         {
             using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets"+alias))
             {
-                outputFile.WriteLine(B2DROPDIR + " " + request.username + " " + request.securetoken);
+                outputFile.WriteLine(FILESYSTEMFOLDER + " " + request.username + " " + request.securetoken);
             }
             using (StreamWriter outputFile = new StreamWriter("/home/vagrant/.westlife/secrets2"+alias))
             {
@@ -71,7 +72,7 @@ namespace WP6Service2
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
 
-            psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh " + alias;
+            psi.Arguments = "/home/vagrant/scripts/mountb2drop.sh " + FILESYSTEMFOLDER;
             Console.WriteLine("B2Drop initializing...");
             Process p = Process.Start(psi);
             request.output = p.StandardOutput.ReadToEnd();

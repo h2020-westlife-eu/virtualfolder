@@ -25,16 +25,19 @@ namespace WP6Service2
     public class DropboxProvider : AFileProvider
     {
 
+        private DropboxClient dbx;
+        private bool initialized = false;
+        private string accesstoken = "";
+        private string DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
         public DropboxProvider(ProviderItem item) :base(item)
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
-            DROPBOXFOLDER = "/home/vagrant/work/"+alias;
+
             DROPBOXURIROOT = "/metadataservice/files/"+alias;
-            WEBDAVURIROOT = "/webdav/"+alias;
         }
 
-        public override object GetFileList(string Path)
+        public override object GetFileOrList(string Path)
         {
             string path = (Path != null) ? Path : "";
             if (path.Contains(".."))
@@ -49,12 +52,6 @@ namespace WP6Service2
             return alias;
         }
 
-        private DropboxClient dbx;
-        private Boolean initialized = false;
-        private String accesstoken = "";
-        private String DROPBOXFOLDER;// = "/home/vagrant/work/"+alias;
-        private String DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
-        private String WEBDAVURIROOT;// = "/webdav/"+alias;
 
         public async Task Initialize(){
             //TODO change access token to user specific
@@ -152,8 +149,7 @@ namespace WP6Service2
         private async Task<object> DownloadFile(string dropboxpath)
         {
 
-
-            var filename = DROPBOXFOLDER + dropboxpath;
+            var filename = FILESYSTEMFOLDER + dropboxpath;
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
             using (var response = await dbx.Files.DownloadAsync(dropboxpath))
             {
@@ -162,9 +158,8 @@ namespace WP6Service2
                 {
                     CopyStream(stream, file);
                 }
-
             }
-            return HttpResult.Redirect(WEBDAVURIROOT+dropboxpath);
+            return HttpResult.Redirect(WEBDAVFOLDER+dropboxpath);
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
@@ -230,8 +225,8 @@ namespace WP6Service2
         private string LocalOrRemote(string s)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
-            if ((File.Exists(DROPBOXFOLDER + "/" + s)))
-                return WEBDAVURIROOT + "/" + s;
+            if ((File.Exists(FILESYSTEMFOLDER + s)))
+                return WEBDAVFOLDER + s;
             else
                 return s;
         }
