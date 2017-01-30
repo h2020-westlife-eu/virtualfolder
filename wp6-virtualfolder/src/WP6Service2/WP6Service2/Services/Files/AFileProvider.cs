@@ -1,82 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using ServiceStack.Text;
+using System.Runtime.Remoting.Channels;
+using WP6Service2.Services.Settings;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
+
     public abstract class AFileProvider
     {
 
-        private static string secretslocation = "/home/vagrant/.westlife/";
         public static String webdavroot = "/webdav/";
-        private static string secretsprefix = "provider.";
 
-        public string alias;
+        protected string alias;
+        protected string username;
         protected string FILESYSTEMFOLDER;
         protected string WEBDAVFOLDER;
+        private ISettingsStorage SettingsStorage;
 
 
-//        public AFileProvider(){}
-
-        public AFileProvider(ProviderItem provider)
+        public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage)
         {
+            SettingsStorage = settingsStorage;
             alias = provider.alias;
-            FILESYSTEMFOLDER = "/home/vagrant/work/"+provider.loggeduser+"/"+provider.alias+"/";
+            username = provider.loggeduser;
+            var rootdir = "/home/vagrant/work/";
+            if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
+                rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
+            FILESYSTEMFOLDER = rootdir+provider.loggeduser+"/"+provider.alias+"/";
             WEBDAVFOLDER = "/webdav/"+provider.loggeduser+"/"+provider.alias+"/";
         }
 
+        /** default settings storage is in file */
+        public AFileProvider(ProviderItem provider) : this(provider, SettingsStorageInFile.GetInstance()) {}
+
         public abstract object GetFileOrList(string Path); //List<SBFile>
 
+        //TODO move filesystem setting storage as strategy behaviour pattern to new class
         /** Default store to file in json */
-        public void StoreToFile(ProviderItem request)
+        public virtual void StoreSettings(ProviderItem request)
         {
-            using (StreamWriter outputFile = new StreamWriter(secretslocation+secretsprefix+request.username+"."+request.alias))
-            {
-                outputFile.WriteLine(request.ToJson());
-            }
-            ConfigStored(request);
+            SettingsStorage.StoreSettings(request);
         }
 
-        /** Trigger action after storetofile, can be overriden by subclass */
-        public virtual void ConfigStored(ProviderItem request)
+        public virtual bool DeleteSettings()
         {
-
-        }
-        /** Default restore from alias */
-        public ProviderItem RestoreAlias()
-        {
-            return RestoreFromFile(secretsprefix + alias);
+            return SettingsStorage.DeleteSettings(username, alias);
         }
 
-        public virtual bool Destroy()
-        {
-            File.Delete(secretslocation + secretsprefix + alias);
-            return true;
-        }
 
-        /** Default restore from file */
-        public static ProviderItem RestoreFromFile(String filename)
-        {
-            using (StreamReader outputFile = new StreamReader(secretslocation+filename))
-            {
-                var item = outputFile.ReadToEnd().FromJson<ProviderItem>();
-                return item;
-            }
-        }
-
-        /** Restore all from files */
-        public static List<ProviderItem> GetAllConfigFiles(string userid)
-        {
-            var di = new DirectoryInfo(secretslocation);
-            var fis = di.GetFileSystemInfos();
-            var lp = new List<ProviderItem>();
-            foreach (var fi in fis)
-            {
-                if (fi.Name.StartsWith(secretsprefix+userid+".")) lp.Add(RestoreFromFile(fi.Name));
-            }
-            return lp;
-        }
 
     }
 }

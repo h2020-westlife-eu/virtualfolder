@@ -9,9 +9,8 @@ using Dropbox.Api;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
 using ServiceStack.Text;
-using WP6Service2.Services;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
 
     public class DropboxProviderCreator : IProviderCreator

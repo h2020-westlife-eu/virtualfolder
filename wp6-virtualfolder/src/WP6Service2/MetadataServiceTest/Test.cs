@@ -8,6 +8,7 @@ using ServiceStack.Common.Web;
 using ServiceStack.ServiceClient.Web;
 using ServiceStack.Text;
 using WP6Service2;
+using WP6Service2.Services.Files;
 
 namespace MetadataServiceTest
 {
@@ -89,35 +90,15 @@ namespace MetadataServiceTest
 	        }
 	        catch (Exception e)
 	        {
-	            Assert.Pass("correct exception thrown:"+e.Message);
+	            Assert.Pass("expected exception thrown:"+e.Message);
 	        }
 	    }
 
-	    [Test()]
-	    public void DjangoTestCase()
-	    {
-	        var client = new JsonServiceClient("http://localhost:8004/api/");
-	        var sessionid = "ssxwh4ehcwkj3e2nmaa4owxqjptlfug1";
-	        var response = client.Get<string>("");
-	        Assert.True(response.Length>0);
-	    }
-
-	    [Test()]
-	    public void VRETestCase()
-	    {
-	        var client = new JsonServiceClient("http://localhost:8004/");
-	        IWebProxy webProxy = new WebProxy("http://localhost:8080");
-	        client.Proxy = webProxy;
-	        var sessionid = "ssxwh4ehcwkj3e2nmaa4owxqjptlfug1";
-	        var response = client.Get<string>("");
-	        Assert.True(response.Length>0);
-	    }
 
 	    [Test()]
 	    public void RawMetadataServiceTestCase()
 	    {
 	        var client = new JsonServiceClient("http://localhost:8001/metadataservice/");
-	        var sessionid = "ssxwh4ehcwkj3e2nmaa4owxqjptlfug1";
 	        var response = client.Get<string>("");
 	        Assert.True(response.Length>0);
 	    }
@@ -128,7 +109,6 @@ namespace MetadataServiceTest
 	        var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
 	        IWebProxy webProxy = new WebProxy("http://localhost:8080");
 	        client.Proxy = webProxy;
-	        var sessionid = "ssxwh4ehcwkj3e2nmaa4owxqjptlfug1";
 	        var response = client.Get<string>("");
 	        Assert.True(response.Length>0);
 	    }

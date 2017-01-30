@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Dropbox.Api;
-using ServiceStack.Common;
-using ServiceStack.Common.Web;
-using ServiceStack.Text;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
 
     public class B2DropProviderCreator : IProviderCreator
@@ -50,10 +41,10 @@ namespace WP6Service2
             return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVFOLDER,path);
         }
 
-        public override bool Destroy()
+        public override bool DeleteSettings()
         {
             registeredalias = false;
-            return base.Destroy();
+            return base.DeleteSettings();
         }
 
         private async Task Initialize(ProviderItem request)

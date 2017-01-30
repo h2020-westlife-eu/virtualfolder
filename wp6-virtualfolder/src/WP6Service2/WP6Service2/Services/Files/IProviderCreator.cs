@@ -1,4 +1,4 @@
-﻿namespace WP6Service2
+﻿namespace WP6Service2.Services.Files
 {
     public interface IProviderCreator
     {

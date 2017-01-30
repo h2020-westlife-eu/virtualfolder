@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using WP6Service2.Services;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
 
     public class FileSystemProviderCreator : IProviderCreator
@@ -54,13 +52,13 @@ namespace WP6Service2
             return output;
         }
 
-        public override bool Destroy()
+        public override bool DeleteSettings()
         {
             try
             {
                 string output=ExecuteShell("/bin/rm",new string[]{FILESYSTEMFOLDER});
                 Console.WriteLine(output);
-                return base.Destroy();
+                return base.DeleteSettings();
             }
             catch (Exception e)
             {

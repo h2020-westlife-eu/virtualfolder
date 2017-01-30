@@ -4,7 +4,7 @@ using ServiceStack.ServiceClient.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
     public class VreCookieRequestFilterAttribute : RequestFilterAttribute
     {
@@ -43,8 +43,6 @@ namespace WP6Service2
                 Console.WriteLine("error during getting user info of sessionid "+sessionid+" "+ e.Message+e.StackTrace);
                 return "";
             }
-
         }
-
     }
 }

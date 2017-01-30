@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using ServiceStack.Common;
-using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using WP6Service2.Services.Settings;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
     using ProviderList = List<ProviderItem>;
 
@@ -53,34 +51,40 @@ namespace WP6Service2
     [VreCookieRequestFilter]
     public class ProviderService : Service
     {
+        private ISettingsStorage storage;
+        //configures the storage
+        public ProviderService()
+        {
+            var dbstorage = SettingsStorageInDB.GetInstance();
+            dbstorage.SetDB(Db);
+            storage = dbstorage;
+        }
 
         //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
         private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
 
         /*gets providers associated to the user, initialize object when needed */
+        private List<ProviderItem> getUserProviderItems()
+        {
+           return getUserProviders().getProviderItems();
+        }
+
+        /** determining which configured provider belongs to the user logged within this request */
         private UserProvider getUserProviders()
         {
             var userid = (string) base.Request.Items["userid"];
             if (userid.Length == 0) throw new UnauthorizedAccessException();
             if (!UserProviders.ContainsKey(userid))
-                UserProviders[userid] = new UserProvider(userid);
+                //TODO distinguish DB and File settings conf
+                UserProviders[userid] = new UserProvider(userid,storage);
             return UserProviders[userid];
         }
-        /* adds user provider */
-        private void addUserProviders(ProviderItem provideritem,AFileProvider aprovider)
-        {
-            var prov = getUserProviders();
-            prov._providers.Add(provideritem);
-            prov.linkedimpl.Add(provideritem.alias,aprovider);
-        }
-
-
 
         /** returns list of configured file providers */
         public ProviderList Get(ProviderItem request)
         {
-            var tmp = getUserProviders();
-            return tmp._providers;
+            return getUserProviderItems();
+
         }
 
         /** returns list of available providers, which can be configured by the user */
@@ -93,63 +97,22 @@ namespace WP6Service2
 
         public ProviderList Put(ProviderItem request)
         {
-            var userid = (string) base.Request.Items["userid"];
-            IProviderCreator impl=null;
-            if (ProviderFactory.AvailableProviders.TryGetValue(request.type, out impl))
-            {
-                if (string.IsNullOrEmpty(request.alias)) request.alias = firstempty(request.type.ToLower());
-                var aprovider = impl.CreateProvider(request);
-                addUserProviders(request,aprovider);
-                aprovider.StoreToFile(request);
-            } else throw new ApplicationException("the provider type has not registered creator:"+request.type);
-            return getUserProviders()._providers;
+            getUserProviders().Add(request);
+            return getUserProviderItems();
         }
 
-        //returns first available alias e.g. dropbox or dropbox_2, dropbox_3
-        private string firstempty(string prefix)
-        {
-            if (!getUserProviders().linkedimpl.Keys.Contains(prefix)) return prefix;
-            else return firstempty1(prefix,1);
-        }
-
-        private string firstempty1(string prefix, int index)
-        {
-
-            while(index++<1024)
-            {
-                var mykey = prefix + "_" + index;
-                if (!getUserProviders().linkedimpl.Keys.Contains(mykey)) return mykey;
-
-            }
-            throw  new ApplicationException("Too many registered providers:"+prefix+" index:");
-        }
 
         //deregister the alias and provider which serve it
         public ProviderList Delete(ProviderItem request)
         {
-            AFileProvider provider = null;
-            if (getUserProviders().linkedimpl.TryGetValue(request.alias, out provider))
-            {
-                provider.Destroy();
-                getUserProviders()._providers.RemoveAt(getUserProviders()._providers.FindIndex(p => p.alias == request.alias));
-                //destroy provider
-                getUserProviders().linkedimpl.Remove(request.alias);
-                return getUserProviders()._providers;
-            } else
-                throw new ApplicationException("cannot delete alias '"+request.alias+"', not found.");
+            return getUserProviders().Delete(request);
         }
 
 
         public object Get(ProviderFileList request)
         {
             //delegate to provider
-            AFileProvider provider = null;
-            if (getUserProviders().linkedimpl.TryGetValue(request.Providerpath, out provider))
-                return provider.GetFileOrList(request.Path);
-            else
-            {
-              throw new ApplicationException("provider implementation not found for path:"+request.Providerpath);
-            }
+            return getUserProviders().GetFileList(request);
         }
 
     }

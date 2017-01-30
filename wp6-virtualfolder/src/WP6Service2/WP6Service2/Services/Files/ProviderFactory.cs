@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WP6Service2
+namespace WP6Service2.Services.Files
 {
     public static class ProviderFactory
     {
