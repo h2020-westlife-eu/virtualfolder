@@ -2,7 +2,7 @@
 # This scripts mounts /home/vagrant/work/b2drop as davfs to b2drop.eudat.eu
 # and configures proxy of http://localhost/webdav/b2drop to use encoded auth
 # Usage:
-# - mountb2drop.sh [alias]
+# - mountb2drop.sh [add|remove] [url] [localpath] [username] [password]
 # - where [alias] is name of subdirectroy under which the webdav is mounted
 # - the secrets file for davfs in format [directory] [username] [password] is at /home/vagrant/.westlife/secrets[alias]
 # - the secrets file in format user:password in /home/vagrant/.westlife/secrets2[alias]
@@ -11,47 +11,135 @@
 # - proxy configured to use user credentials passed to b2drop.eudat.eu
 #
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
-whoami 1>&2
-#create directory if not created
-#umount /home/vagrant/work/$1
-if mount | grep /home/vagrant/work/$1 ; then
-  echo b2drop already mounted at /home/vagrant/work/$1
-  exit;
-fi
-mkdir -p /home/vagrant/work/$1
-# allow browsing for apache user the work dir
-chown -R apache /home/vagrant/work
-chmod o+x /home/vagrant
-#mount work folder via webdav to b2drop
-#kill all previous b2dropsync and xiacont
-#killall /bin/sh
+# 31.01.2016 tomas - refactor, support multiuser, multiple webdav etc.
 
-#move secrets from temporary files and mount
-cp /home/vagrant/.westlife/secrets$1 /etc/davfs2/secrets
-chown root:root /etc/davfs2/secrets
-chmod 600 /etc/davfs2/secrets
-chmod ugo+rx /var/log/httpd
-echo http_proxy: $http_proxy
-echo https_proxy: $https_proxy
-#first mount
-status=0
-mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/$1 || status=1
-#second attemp mount, sometimes having https_proxy seems not working with davfs
-if [ $status -ne 0 ]
-then
-  echo "first mount failed, second attemp"
-  unset https_proxy
-  mount.davfs https://b2drop.eudat.eu/remote.php/webdav /home/vagrant/work/$1
+function checkproxy {
+  echo Checking Davfs2 proxy
+  if [ $http_proxy ]; then
+    if grep -q "^proxy" /etc/davfs2/davfs2.conf ; then
+       echo "proxy already set"
+    else
+       echo "proxy $http_proxy" | sudo tee -a /etc/davfs2/davfs2.conf
+    fi
+  fi
+}
+
+function checkargs {
+echo -$1:$2:$3:$4:$5-
+  if [[ $1 == http* ]]; then
+     echo url ok
+  else
+     echo url needs to be in form http:// or https://
+     exit
+  fi
+  if [ -z $2 ]; then
+     echo missing localpath needs to be set
+     exit
+  fi
+  if [ -z $3 ]; then
+     echo missing username needs to be set
+     exit
+  fi
+  if [ -z $4 ]; then
+     echo missing password/webdavuri needs to be set
+     exit
+  fi
+  if [ -z $5 ]; then
+     echo NOTE: ADD: missing webdavuri. REMOVE: OK
+  fi
+}
+function addfstab {
+  echo adding item to fstab [url] [localpath] $1 $2
+  if grep -q "$1 $2" /etc/fstab; then
+    echo "already set"
+  else
+    echo "$1 $2 davfs noauto,user 0 0" | sudo tee -a /etc/fstab
+  fi
+}
+
+function removefstab {
+  echo removing [url] [localpath]
+  grep -v "$1 $2" /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
+}
+
+function addsecrets {
+  echo adding to secrets file
+  if grep -q "$1 $2" ~/.davfs2/secrets; then
+    echo "already set"
+  else
+    echo $1 $2 $3 | tee -a ~/.davfs2/secrets
+  fi
+  chmod go-rwx ~/.davfs2/secrets
+}
+
+function removesecrets {
+  echo removing secrets
+  grep -v "$1 $2" ~/.davfs2/secrets > /tmp/secrets && sudo mv /tmp/secrets ~/.davfs2/secrets
+  chmod go-rwx ~/.davfs2/secrets
+}
+
+function addapacheproxy {
+  removeapacheproxy $2
+  SFILE2=/tmp/secrets2
+  echo $3:$4 > $SFILE2
+  if [ -e $SFILE2 ]; then
+    AUTH="$(base64 $SFILE2)"
+    #echo $AUTH
+    echo "<Location $2 >" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    echo "  ProxyPass \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    echo "  ProxyPassReverse \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    echo "</Location>" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    sudo service httpd reload
+  fi
+  rm $SFILE2
+}
+
+function removeapacheproxy {
+ echo removing apache proxy
+ L1=`grep -n -m 1 "\<Location $1" /etc/httpd/conf.d/000-default.conf | cut -f1 -d:`
+ echo from row $L1
+ if [ $L1 > 0 ]; then
+   let L2=$L1+5
+   echo to row $L2
+   sudo sed -i "$L1,$L2 d" /etc/httpd/conf.d/000-default.conf
+ fi
+}
+
+function help {
+echo Usage:
+echo - mountb2drop.sh [add|remove] [url] [localpath] [username] [password] [webdavuri]
+echo - add - will add configuration and mount webdav,
+echo - remove - will unmount and remove configuration
+echo - [localpath] is name of directroy under which the webdav is mounted
+echo - [url] is the url of remote webdav server
+echo - [username] [password] are credentials needed to access the webdav service
+echo - [password] not needed when remove
+echo - [webdavuri] url to proxy directly to the webdavprovider
+}
+
+checkargs $2 $3 $4 $5 $6
+
+if [ $1 == 'add' ]; then
+  checkproxy
+  addfstab $2 $3
+  addsecrets $3 $4 $5
+  addapacheproxy $2 $6 $4 $5
+  mkdir -p $3
+  mount $3
+  echo "mounted $3"
+  exit
 fi
-#configure reverse proxy for webdav in apache
-#encode base64 authentication string and pass it to header where "Basic ...." is already been placed
-SFILE2=/home/vagrant/.westlife/secrets2$1
-echo $SFILE
-if [ -e $SFILE2 ]
-  then
-  AUTH="$(base64 $SFILE2)"
-  echo $AUTH
-  sed -i -e "s/\"Basic [^\"]*/\"Basic ${AUTH}/g" /etc/httpd/conf.d/000-default.conf
-  service httpd reload
-  #rm /home/vagrant/.westlife/secrets2
+
+if [ $1 == 'remove' ]; then
+  #workaround, without sudo doesn work
+  sudo umount $3
+  rm -d $3
+  removeapacheproxy $5
+  removefstab $2 $3
+  removesecrets $3 $4
+  echo "unmounted $3"
+  exit
 fi
+
+help

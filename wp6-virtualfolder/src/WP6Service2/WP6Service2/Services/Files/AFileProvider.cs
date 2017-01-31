@@ -20,7 +20,6 @@ namespace WP6Service2.Services.Files
         private ISettingsStorage SettingsStorage;
         private IDbConnection Db;
 
-
         public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection)
         {
             SettingsStorage = settingsStorage;
