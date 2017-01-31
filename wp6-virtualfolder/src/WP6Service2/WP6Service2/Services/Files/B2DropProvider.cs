@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using WP6Service2.Services.Settings;
 
 namespace WP6Service2.Services.Files
 {
 
     public class B2DropProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item)
+
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new B2DropProvider(item);
+            return new B2DropProvider(item,storage,connection);
         }
     }
 
@@ -22,7 +25,7 @@ namespace WP6Service2.Services.Files
         //private string _webdavprefix;
 
 
-        public B2DropProvider(ProviderItem item) :base(item)
+        public B2DropProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
         {
             if (!registeredalias) registeredalias = true;//item.alias;
             else throw new ApplicationException("B2DROP already registered. Connecting to another B2DROP account not yet implemented.");

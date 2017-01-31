@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
+using WP6Service2.Services.Settings;
 
 namespace WP6Service2.Services.Files
 {
 
     public class FileSystemProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new FileSystemProvider(item);//.securetoken,item.alias);
+            return new FileSystemProvider(item,storage,connection);//.securetoken,item.alias);
         }
     }
 
@@ -19,7 +21,7 @@ namespace WP6Service2.Services.Files
         private string localpath;
 //        private string webdavfolder;// = "/home/vagrant/work/";
 
-        public FileSystemProvider(ProviderItem item) :base(item)
+        public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
         {
             //webdavfolder = "/home/" + item.username + "/virtualfolder/"+ item.alias;
             localpath = item.securetoken;
@@ -27,9 +29,14 @@ namespace WP6Service2.Services.Files
             MakeLinkToWebDav(localpath,FILESYSTEMFOLDER);
         }
 
-        private static void MakeLinkToWebDav(string localpath,string link)
+        private void MakeLinkToWebDav(string localpath,string link)
         {
+            if (File.Exists(link)) return; //link already exists
             Console.WriteLine("FileSystem initializing...");
+            //create subsequent directory if not exist
+            var subdir = Path.GetDirectoryName(link);
+            Directory.CreateDirectory(subdir);
+
             string output = ExecuteShell("/bin/ln",new string[]{"-s",localpath, link});
             Console.WriteLine(output);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using WP6Service2.Services.Settings;
 
@@ -11,7 +12,15 @@ namespace WP6Service2.Services.Files
         private readonly List<ProviderItem> _providers; //list of configured providers
         private Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
 
-        public UserProvider(string _userid, ISettingsStorage settingsStorage)
+        private static Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
+
+        public static UserProvider GetInstance(string _userid, ISettingsStorage storage, IDbConnection db)
+        {
+            if (!_instances.ContainsKey(_userid)) _instances[_userid]= new UserProvider(_userid,storage,db);
+                return _instances[_userid];
+        }
+
+        private UserProvider(string _userid, ISettingsStorage storage,IDbConnection db)
         {
             userid = _userid;
             if (_providers == null)
@@ -19,7 +28,7 @@ namespace WP6Service2.Services.Files
                 _providers = new List<ProviderItem>();
                 linkedimpl = new Dictionary<string, AFileProvider>();
                 //retrieve config from db or persistent storage
-                var providers = settingsStorage.GetAllConfigs(userid);
+                var providers = storage.GetAllConfigs(userid,db);
 
                 IProviderCreator impl;
                 foreach (var pf in providers)
@@ -29,7 +38,7 @@ namespace WP6Service2.Services.Files
                         if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                         {
                             _providers.Add(pf);
-                            linkedimpl.Add(pf.alias, impl.CreateProvider(pf));
+                            linkedimpl.Add(pf.alias, impl.CreateProvider(pf,storage,db));
                         }
                         else Console.WriteLine("the provider type has not registered creator:" + pf.type);
                     }
@@ -60,13 +69,13 @@ namespace WP6Service2.Services.Files
         }
 
 
-        public void Add(ProviderItem provideritem)//, AFileProvider aprovider)
+        public void Add(ProviderItem provideritem, ISettingsStorage storage, IDbConnection connection)//, AFileProvider aprovider)
         {
             IProviderCreator impl=null;
             if (ProviderFactory.AvailableProviders.TryGetValue(provideritem.type, out impl))
             {
                 if (string.IsNullOrEmpty(provideritem.alias)) provideritem.alias = firstempty(provideritem.type.ToLower());
-                var aprovider = impl.CreateProvider(provideritem);
+                var aprovider = impl.CreateProvider(provideritem,storage,connection);
 
                 _providers.Add(provideritem);
                 linkedimpl.Add(provideritem.alias,aprovider);

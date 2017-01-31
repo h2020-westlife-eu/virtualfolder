@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,15 +10,16 @@ using Dropbox.Api;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
 using ServiceStack.Text;
+using WP6Service2.Services.Settings;
 
 namespace WP6Service2.Services.Files
 {
 
     public class DropboxProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new DropboxProvider(item);//.securetoken,item.alias);
+            return new DropboxProvider(item,storage,connection);//.securetoken,item.alias);
         }
     }
 
@@ -28,7 +30,7 @@ namespace WP6Service2.Services.Files
         private bool initialized = false;
         private string accesstoken = "";
         private string DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
-        public DropboxProvider(ProviderItem item) :base(item)
+        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
         {
             //alias = item.alias;
             accesstoken = item.securetoken;

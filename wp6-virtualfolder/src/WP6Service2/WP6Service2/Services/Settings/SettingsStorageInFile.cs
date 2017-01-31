@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using ServiceStack.Text;
@@ -60,5 +61,19 @@ namespace WP6Service2.Services.Settings
             return true;
         }
 
+        public void StoreSettings(ProviderItem request, IDbConnection Db)
+        {
+            StoreSettings(request);
+        }
+
+        public bool DeleteSettings(string username, string alias, IDbConnection Db)
+        {
+            return DeleteSettings(username, alias);
+        }
+
+        public List<ProviderItem> GetAllConfigs(string userid, IDbConnection Db)
+        {
+            return GetAllConfigs(userid);
+        }
     }
 }

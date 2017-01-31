@@ -10,6 +10,7 @@ using Mono.Unix.Native;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Sqlite;
 using ServiceStack.WebHost.Endpoints;
+using WP6Service2.Services.Files;
 
 namespace WP6Service2
 {
@@ -59,6 +60,8 @@ namespace WP6Service2
 	                        var p = new SBService { Name = service [0], Shell=service[1],TriggerScript = service [2] };
 	                        db.Insert (p);
 	                    }
+//	                db.DropTable<ProviderItem>();
+	                db.CreateTableIfNotExists<ProviderItem>();
 	            }
 	        }
 	    }

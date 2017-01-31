@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using ServiceStack.DataAnnotations;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using WP6Service2.Services.Settings;
@@ -20,6 +22,8 @@ namespace WP6Service2.Services.Files
     [Route("/files/{alias}", "DELETE")]
     public class ProviderItem : IReturn<ProviderList>
     {
+        [AutoIncrement]
+        public int Id { get; set; }
         public string alias { get; set; } //alias in url /files/{alias}/{path}
         public string type{ get; set; } //type of provider to distinguish available implementation
         public string securetoken {get;set;} //used to transfer tokens to store
@@ -52,16 +56,18 @@ namespace WP6Service2.Services.Files
     public class ProviderService : Service
     {
         private ISettingsStorage storage;
+
+
         //configures the storage
         public ProviderService()
         {
-            var dbstorage = SettingsStorageInDB.GetInstance();
-            dbstorage.SetDB(Db);
-            storage = dbstorage;
+            storage = SettingsStorageInDB.GetInstance();
+            //storage = SettingsStorageInFile.GetInstance();
+
         }
 
         //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
-        private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
+     //   private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
 
         /*gets providers associated to the user, initialize object when needed */
         private List<ProviderItem> getUserProviderItems()
@@ -74,10 +80,7 @@ namespace WP6Service2.Services.Files
         {
             var userid = (string) base.Request.Items["userid"];
             if (userid.Length == 0) throw new UnauthorizedAccessException();
-            if (!UserProviders.ContainsKey(userid))
-                //TODO distinguish DB and File settings conf
-                UserProviders[userid] = new UserProvider(userid,storage);
-            return UserProviders[userid];
+            return UserProvider.GetInstance(userid,storage,Db);
         }
 
         /** returns list of configured file providers */
@@ -97,7 +100,7 @@ namespace WP6Service2.Services.Files
 
         public ProviderList Put(ProviderItem request)
         {
-            getUserProviders().Add(request);
+            getUserProviders().Add(request,storage,Db);
             return getUserProviderItems();
         }
 
