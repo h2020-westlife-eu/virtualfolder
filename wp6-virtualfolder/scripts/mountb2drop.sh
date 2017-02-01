@@ -11,7 +11,7 @@
 # - proxy configured to use user credentials passed to b2drop.eudat.eu
 #
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
-# 31.01.2016 tomas - refactor, support multiuser, multiple webdav etc.
+# 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
 
 function checkproxy {
   echo Checking Davfs2 proxy
