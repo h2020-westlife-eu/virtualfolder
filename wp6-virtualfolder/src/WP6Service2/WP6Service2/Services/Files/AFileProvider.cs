@@ -16,7 +16,7 @@ namespace WP6Service2.Services.Files
         protected string alias;
         protected string username;
         protected string FILESYSTEMFOLDER;
-        protected string WEBDAVFOLDER;
+        protected string WEBDAVURL;
         private ISettingsStorage SettingsStorage;
         private IDbConnection Db;
 
@@ -30,7 +30,7 @@ namespace WP6Service2.Services.Files
             if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
                 rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
             FILESYSTEMFOLDER = Path.Combine(rootdir,provider.loggeduser,provider.alias);
-            WEBDAVFOLDER = "/webdav/"+provider.loggeduser+"/"+provider.alias+"/";
+            WEBDAVURL = "/webdav/"+provider.loggeduser+"/"+provider.alias+"/";
         }
 
         /** default settings storage is in file */

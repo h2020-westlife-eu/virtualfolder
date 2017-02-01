@@ -26,44 +26,24 @@ namespace WP6Service2.Services.Files
             //webdavfolder = "/home/" + item.username + "/virtualfolder/"+ item.alias;
             localpath = item.securetoken;
             if (!localpath.EndsWith("/")) localpath += '/';
-            MakeLinkToWebDav(localpath,FILESYSTEMFOLDER);
+            MakeLinkToFolder(localpath,FILESYSTEMFOLDER);
         }
 
-        private void MakeLinkToWebDav(string localpath,string link)
+        private void MakeLinkToFolder(string localpath,string link)
         {
             if (File.Exists(link)) return; //link already exists
             Console.WriteLine("FileSystem initializing...");
             //create subsequent directory if not exist
-            var subdir = Path.GetDirectoryName(link);
-            Directory.CreateDirectory(subdir);
-
-            string output = ExecuteShell("/bin/ln",new string[]{"-s",localpath, link});
+            Utils.CreateSystemSubFolder(FILESYSTEMFOLDER);
+            string output = Utils.ExecuteShell("/bin/ln",new string[]{"-s",localpath, link});
             Console.WriteLine(output);
-        }
-
-        private static string ExecuteShell(string shellcommand, string[] args)
-        {
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = shellcommand;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
-            foreach (var arg in args)
-            {
-                psi.Arguments += arg + " ";
-            }
-            Process p = Process.Start(psi);
-            string output = p.StandardOutput.ReadToEnd();
-            output += p.StandardError.ReadToEnd();
-            p.WaitForExit();
-            return output;
         }
 
         public override bool DeleteSettings()
         {
             try
             {
-                string output=ExecuteShell("/bin/rm",new string[]{FILESYSTEMFOLDER});
+                string output= Utils.ExecuteShell("/bin/rm",new string[]{FILESYSTEMFOLDER});
                 Console.WriteLine(output);
                 return base.DeleteSettings();
             }
@@ -88,7 +68,7 @@ namespace WP6Service2.Services.Files
 
         public static List<SBFile> ListOfFiles(string pathprefix,string webdavprefix,string path)
         {
-            var di = new DirectoryInfo(pathprefix+path);
+            var di = new DirectoryInfo(Path.Combine(pathprefix,path));
             var fis = di.GetFileSystemInfos();
             List<SBFile> listOfFiles = new List<SBFile>();
             //mapping FileSystemInfos into list structure returned to client

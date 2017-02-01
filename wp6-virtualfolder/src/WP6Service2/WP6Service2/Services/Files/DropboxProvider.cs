@@ -48,12 +48,6 @@ namespace WP6Service2.Services.Files
         }
 
 
-        public string GetContext()
-        {
-            return alias;
-        }
-
-
         public async Task Initialize(){
             //TODO change access token to user specific
             try
@@ -108,7 +102,7 @@ namespace WP6Service2.Services.Files
             return mytask.Result;
         }
 
-        public async Task<object> ListOfFilesAsync(String path)
+        private async Task<object> ListOfFilesAsync(String path)
         {
             if (!initialized)
             {
@@ -134,18 +128,7 @@ namespace WP6Service2.Services.Files
             }
         }
 
-        /// <summary>
-        /// Copies the contents of input to output. Doesn't close either stream.
-        /// </summary>
-        public void CopyStream(Stream input, Stream output)
-        {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ( (len = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, len);
-            }
-        }
+
 
         private async Task<object> DownloadFile(string dropboxpath)
         {
@@ -157,10 +140,10 @@ namespace WP6Service2.Services.Files
                 var stream = await response.GetContentAsStreamAsync();
                 using (Stream file = File.Create(filename))
                 {
-                    CopyStream(stream, file);
+                    Utils.CopyStream(stream, file);
                 }
             }
-            return HttpResult.Redirect(WEBDAVFOLDER+dropboxpath);
+            return HttpResult.Redirect(WEBDAVURL+dropboxpath);
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
@@ -227,7 +210,7 @@ namespace WP6Service2.Services.Files
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
             if ((File.Exists(FILESYSTEMFOLDER + s)))
-                return WEBDAVFOLDER + s;
+                return WEBDAVURL + s;
             else
                 return s;
         }

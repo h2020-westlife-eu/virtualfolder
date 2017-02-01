@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
-# This scripts mounts /home/vagrant/work/b2drop as davfs to b2drop.eudat.eu
-# and configures proxy of http://localhost/webdav/b2drop to use encoded auth
+# This scripts mounts {localpath} to {url} of webdav service.
+# and configures proxy of http://localhost/{webdavuri} to use encoded auth
 # Usage:
-# - mountb2drop.sh [add|remove] [url] [localpath] [username] [password]
+# - mountb2drop.sh [add|remove] [url] [localpath] [username] [password] [webdavuri]
 # - where [alias] is name of subdirectroy under which the webdav is mounted
-# - the secrets file for davfs in format [directory] [username] [password] is at /home/vagrant/.westlife/secrets[alias]
-# - the secrets file in format user:password in /home/vagrant/.westlife/secrets2[alias]
 # Output:
-# - /home/vagrant/work/b2drop mounted using davfs2
-# - proxy configured to use user credentials passed to b2drop.eudat.eu
+# - {localpath} b2drop or other webdav is mounted using davfs2
+# - {webdavuri} proxy configured to use user credentials passed to webdav server
 #
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
@@ -25,27 +23,34 @@ function checkproxy {
 }
 
 function checkargs {
-echo -$1:$2:$3:$4:$5-
   if [[ $1 == http* ]]; then
      echo url ok
   else
      echo url needs to be in form http:// or https://
+     echo -$1:$2:$3:***:$5-
+     help
      exit
   fi
   if [ -z $2 ]; then
      echo missing localpath needs to be set
+     echo -$1:$2:$3:***:$5-
+     help
      exit
   fi
   if [ -z $3 ]; then
      echo missing username needs to be set
+     echo -$1:$2:$3:***:$5-
+     help
      exit
   fi
   if [ -z $4 ]; then
      echo missing password/webdavuri needs to be set
+     echo -$1:$2:$3:***:$5-
+     help
      exit
   fi
   if [ -z $5 ]; then
-     echo NOTE: ADD: missing webdavuri. REMOVE: OK
+     echo NOTIFY: ADD: missing webdavuri. REMOVE: OK
   fi
 }
 function addfstab {
@@ -132,7 +137,7 @@ if [ $1 == 'add' ]; then
 fi
 
 if [ $1 == 'remove' ]; then
-  #workaround, without sudo doesn work
+  #workaround, without sudo doesnt work
   sudo umount $3
   rm -d $3
   removeapacheproxy $5

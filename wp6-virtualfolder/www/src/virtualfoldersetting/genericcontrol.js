@@ -46,6 +46,10 @@ export class Genericcontrol {
   get selectedFileSystem() {
     return this.selectedProvider=='FileSystem';
   }
+  @computedFrom('selectedProvider')
+  get selectedWebDav() {
+    return this.selectedProvider=='WebDav';
+  }
 
   get knowntoken(){
     if (this.knownSecureToken) return this.knownSecureToken.checked;
@@ -57,6 +61,7 @@ export class Genericcontrol {
     this.securetoken="";
     this.filesystempath="";
     this.alias="";
+    this.accessurl="";
   }
 
   attached() {
@@ -84,6 +89,11 @@ export class Genericcontrol {
      if (this.selectedDropbox) settings.securetoken = this.securetoken;
      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
      if (this.selectedB2Drop) {
+       settings.securetoken = this.password;
+       settings.username = this.username;
+     }
+     if (this.selectedWebDav){
+       settings.accessurl=this.accessurl;
        settings.securetoken = this.password;
        settings.username = this.username;
      }

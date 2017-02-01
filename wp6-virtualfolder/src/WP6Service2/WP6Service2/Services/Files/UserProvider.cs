@@ -101,7 +101,9 @@ namespace WP6Service2.Services.Files
 
         public List<ProviderItem> getProviderItems()
         {
-            return _providers;
+            //returns list only with non-sensitive information
+            return _providers.Select(x => new ProviderItem
+            {alias=x.alias,Id=x.Id,output=x.output,type=x.type,username=x.username}).ToList();
         }
 
         public Dictionary<string, AFileProvider>.KeyCollection getAliases()

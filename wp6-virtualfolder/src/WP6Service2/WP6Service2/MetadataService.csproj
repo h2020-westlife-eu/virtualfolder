@@ -98,11 +98,12 @@
     <Compile Include="Services\Files\ProviderService.cs" />
     <Compile Include="Services\Files\AFileProvider.cs" />
     <Compile Include="Services\Files\UserProvider.cs" />
+    <Compile Include="Services\Files\Utils.cs" />
     <Compile Include="Services\Files\VreCookieRequestFilterAttribute.cs" />
+    <Compile Include="Services\Files\WebDavProvider.cs" />
     <Compile Include="Services\SBArtifact.cs" />
     <Compile Include="Services\SBFiles.cs" />
     <Compile Include="Services\SBService.cs" />
-    <Compile Include="Services\Settings\Context.cs" />
     <Compile Include="Services\Settings\ISettingsStorage.cs" />
     <Compile Include="Services\Settings\SettingsStorageInDB.cs" />
     <Compile Include="Services\Settings\SettingsStorageInFile.cs" />

@@ -20,14 +20,16 @@ namespace WP6Service2.Services.Settings
 
         public void StoreSettings(ProviderItem request, IDbConnection Db)
         {
+            Db.Open();
             Db.Insert(request);
 
         }
 
         public bool DeleteSettings(string username, string alias, IDbConnection Db)
         {
-            return Db.Delete<ProviderItem>(x => x.loggeduser == username && x.alias == alias)>0;
-
+            Db.Open();
+            var i = Db.Delete<ProviderItem>(x => x.loggeduser == username && x.alias == alias);
+            return i != 0;
         }
 
         public List<ProviderItem> GetAllConfigs(string userid, IDbConnection Db)

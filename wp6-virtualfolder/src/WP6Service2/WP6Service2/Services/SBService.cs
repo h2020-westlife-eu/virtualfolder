@@ -9,6 +9,7 @@ using ServiceStack.Common.Utils;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using WP6Service2.Services.Files;
 
 namespace WP6Service2
 {
@@ -50,21 +51,9 @@ namespace WP6Service2
 				throw new ArgumentNullException("Name");
 			
 			var service = Db.First<SBService>(x => x.Name == request.Name);; //returns single resource
-
-			ProcessStartInfo psi = new ProcessStartInfo();
-		    psi.FileName = service.Shell;//"/usr/bin/sudo";
-			psi.UseShellExecute = false;
-			psi.RedirectStandardOutput = true;
-			psi.RedirectStandardError = true;
-
-			psi.Arguments = service.TriggerScript;
-			Process p = Process.Start(psi);
-			service.TriggerOutput=p.StandardOutput.ReadToEnd();
-			service.TriggerOutput += p.StandardError.ReadToEnd ();
-			p.WaitForExit();
-			//Console.WriteLine(strOutput);
-			//request.enabled = p.ExitCode == 0;
-		    service.enabled = p.ExitCode == 0;
+		    int exitcode;
+		    service.TriggerOutput = Utils.ExecuteShell(service.Shell, new string[]{service.TriggerScript}, out exitcode);
+			service.enabled = exitcode == 0;
 		    //service.TriggerOutput = request.TriggerOutput;
 		    Db.Update<SBService>(service);
 			return service;

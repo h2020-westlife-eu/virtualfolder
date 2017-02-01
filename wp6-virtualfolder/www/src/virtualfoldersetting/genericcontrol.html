@@ -50,6 +50,17 @@
             <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
           </div>
 
+          <div show.bind="selectedWebDav">
+            <p>WEBDAV is standard protocol to access content via web technologies. If you have address (WebDAV url) of a
+              service, you can add it to West-life virtual folder directly.</p>
+            WebDAV URL:<input type="text" name="accessurl" size="15" maxlength="1024" value.bind="accessurl"/><br/>
+            Username:<input type="text" name="username" size="15" maxlength="1024" value.bind="username"/><br/>
+            Password:<input type="password" name="securetoken" size="30" maxlength="1024" value.bind="password"/><br/>
+            Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+            <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
+            <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+          </div>
+
         </div>
 
       </form>

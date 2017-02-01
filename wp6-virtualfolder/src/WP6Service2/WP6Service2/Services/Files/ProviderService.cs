@@ -24,12 +24,13 @@ namespace WP6Service2.Services.Files
     {
         [AutoIncrement]
         public int Id { get; set; }
-        public string alias { get; set; } //alias in url /files/{alias}/{path}
-        public string type{ get; set; } //type of provider to distinguish available implementation
-        public string securetoken {get;set;} //used to transfer tokens to store
-        public string username { get; set; } //e.g. used by b2drop, not used by o2auth services
-        public string output { get; set; } //debug output from scripts
-        public string loggeduser { get; set; } //to fill with information which use is logged
+        public string alias { get; set; } //(optional - will be generated) alias used to distinguish between multiple providers per user /files/{alias}/{path}
+        public string type{ get; set; } //(mandatory) type of provider to distinguish available implementation
+        public string securetoken { get;set;} //(mandatory), accesstoken or password used to transfer tokens to store
+        public string username { get; set; } //(mandatory for some types e.g. webdav,b2drop)
+        public string output { get; set; } //output property debug output from scripts
+        public string loggeduser { get; set; } //internal field, filled by service
+        public string accessurl { get; set; } //(mandatory for type webdav), not used by other providers
     }
 
     [Route("/files/{Providerpath}/{Path*}", "GET")]
