@@ -104,6 +104,7 @@
     <Compile Include="Services\SBArtifact.cs" />
     <Compile Include="Services\SBFiles.cs" />
     <Compile Include="Services\SBService.cs" />
+    <Compile Include="Services\Settings\AESThenHMAC.cs" />
     <Compile Include="Services\Settings\ISettingsStorage.cs" />
     <Compile Include="Services\Settings\SettingsStorageInDB.cs" />
     <Compile Include="Services\Settings\SettingsStorageInFile.cs" />
