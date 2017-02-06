@@ -47,11 +47,14 @@ namespace WP6Service2.Services.Files
             return base.DeleteSettings();
         }
 
+
+        //TODO sudo as 'vagrant' here or sudo whole 'metadataservice'?
         private async Task Initialize(ProviderItem request)
         {
             int exitcode;
-            request.output = Utils.ExecuteShell("/bin/bash", new string[]
+            request.output = Utils.ExecuteShell("/bin/sudo", new string[]
             {
+                "-H -u vagrant",
                 "/home/vagrant/scripts/mountb2drop.sh",
                 "add",
                 _providerurl,
