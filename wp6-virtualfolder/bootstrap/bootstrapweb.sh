@@ -57,6 +57,7 @@ systemctl enable httpd
 
 # share work directory via webdav - may be used to directly pass and process data
 mkdir /home/vagrant/work
+chmod ugo+rwx /home/vagrant/work
 # workaround issue #6 store some config 
 mkdir /home/vagrant/.westlife
 
@@ -70,6 +71,8 @@ chown apache:apache /home/vagrant/work
 #adding vagrant and apache into davfs2 group
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
+# set the default group of user vagrant to davfs2, to be able to mount
+usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
 # TODO will be done by dokuwiki plugin
