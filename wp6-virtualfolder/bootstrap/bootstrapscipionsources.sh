@@ -4,6 +4,9 @@
 #apt-get install -y python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 #yum -y install python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 yum -y install openmpi openmpi-devel
+# fix issue with mpic++ not found
+export PATH=$PATH;/usr/lib64/openmpi/bin
+
 #install java-8, silently
 
 #apt-add-repository -y ppa:webupd8team/java
