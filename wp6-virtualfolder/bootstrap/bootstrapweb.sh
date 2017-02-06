@@ -46,6 +46,8 @@ chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
 
 echo Adding EPEL repository
 echo Warning: This operation might be slown down by repeating requests to SL servers.
+echo minrate=10 >> /etc/yum.conf
+echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
 yum repolist
 yum -y install davfs2 mod_proxy_html
