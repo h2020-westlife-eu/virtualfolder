@@ -26,7 +26,6 @@ export class Filepanel{
 
     //triggered after this object is placed to DOM
     attached() {
-        console.log("attached()");
 
         //read the directory infos
         this.client.get(this.serviceurl)
@@ -111,12 +110,9 @@ export class Filepanel{
             arr[index].date="";
           }
           if (arr[index].attributes & 16) arr[index].size="DIR"});
-        console.log(this.files);
     }
 
     selectFile(file){
-      console.log("selected file:");
-      console.log(file);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
       else this.ea.publish(new SelectedFile(file));
     }

@@ -9,14 +9,14 @@ import {SettingsSubmitted} from './messages';
 
 /**
  * Aliastable component gets the currently registered aliases for file providers
- *
+ * and shows them in a table
  */
 export class Aliastable {
   static inject = [EventAggregator,HttpClient];
 
   constructor(ea,httpclient){
     this.serviceurl = "/metadataservice/files";
-    ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) )
+    ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
     this.client=httpclient;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
     this.client.configure(config=> {

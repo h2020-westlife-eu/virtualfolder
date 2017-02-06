@@ -1,8 +1,8 @@
 <template>
   <require from="../filepicker/filepanel"></require>
   <require from="./viewpanel"></require>
-  <div class="w3-card w3-sand w3-margin w3-center">
-    <h6>Virtual Folder - File manager</h6>
+  <div class="w3-card-2 w3-sand w3-center">
+    <h3>Virtual Folder - File manager</h3>
   </div>
   <div show.bind="showpanels" class="w3-half">
     <filepanel></filepanel>
@@ -14,5 +14,6 @@
     <button click.trigger="closeviewer()">X</button>
     <viewpanel></viewpanel>
   </div>
+  <div class="w3-clear w3-margin w3-padding"></div>
 
 </template>
