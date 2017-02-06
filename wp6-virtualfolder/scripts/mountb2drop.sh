@@ -12,8 +12,8 @@
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
 
 function checkproxy {
-  echo Checking Davfs2 proxy
   if [ $http_proxy ]; then
+    echo Checking Davfs2 proxy
     if grep -q "^proxy" /etc/davfs2/davfs2.conf ; then
        echo "proxy already set"
     else
@@ -50,7 +50,11 @@ function checkargs {
      exit
   fi
   if [ -z $5 ]; then
-     echo NOTIFY: ADD: missing webdavuri. REMOVE: OK
+     if [ $1 == "add" ];then
+       echo missing webdavuri
+       help
+       exit
+     fi
   fi
 }
 function addfstab {
@@ -69,6 +73,8 @@ function removefstab {
 
 function addsecrets {
   echo adding to secrets file
+  mkdir -p ~/.davfs2
+  touch ~/.davfs2/secrets
   if grep -q "$1 $2" ~/.davfs2/secrets; then
     echo "already set"
   else
