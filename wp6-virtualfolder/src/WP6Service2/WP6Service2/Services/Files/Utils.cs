@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Security.AccessControl;
 
 namespace WP6Service2.Services.Files
 {
@@ -51,7 +52,11 @@ namespace WP6Service2.Services.Files
         public static void CreateSystemSubFolder(string folder)
         {
             var subdir = Path.GetDirectoryName(folder);
+            //TODO vagrant user has control over created directory ??
+            DirectorySecurity securityRules = new DirectorySecurity();
+            securityRules.AddAccessRule(new FileSystemAccessRule("vagrant", FileSystemRights.FullControl, AccessControlType.Allow));
             Directory.CreateDirectory(subdir);
+
         }
     }
 }
