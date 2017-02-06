@@ -38,6 +38,4 @@ for i in {1..3}; do
 	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
     fi
 done
-# add and set the default group of user vagrant to davfs2, to be able to mount
-usermod -a -G davfs2 vagrant
-usermod -g davfs2 vagrant
+

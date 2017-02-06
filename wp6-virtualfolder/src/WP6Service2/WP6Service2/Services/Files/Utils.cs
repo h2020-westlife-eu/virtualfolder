@@ -53,8 +53,8 @@ namespace WP6Service2.Services.Files
         {
             var subdir = Path.GetDirectoryName(folder);
             //TODO vagrant user has control over created directory ??
-            DirectorySecurity securityRules = new DirectorySecurity();
-            securityRules.AddAccessRule(new FileSystemAccessRule("vagrant", FileSystemRights.FullControl, AccessControlType.Allow));
+            //DirectorySecurity securityRules = new DirectorySecurity();
+            //securityRules.AddAccessRule(new FileSystemAccessRule("vagrant", FileSystemRights.FullControl, AccessControlType.Allow));
             Directory.CreateDirectory(subdir);
 
         }

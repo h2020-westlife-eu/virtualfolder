@@ -16,3 +16,8 @@ cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 yum -y install python-virtualenv python-pip python-redis nodejs-supervisor python-devel libffi-devel
 #not needed when cloning from dev branch
 #cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
+# Prepares development version of VRE
+cd /home/vagrant/VRE-master
+bash make_venv.sh
+source rc.sh
+python manage.py migrate

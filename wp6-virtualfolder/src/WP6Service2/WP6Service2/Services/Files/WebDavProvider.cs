@@ -52,9 +52,9 @@ namespace WP6Service2.Services.Files
         private async Task Initialize(ProviderItem request)
         {
             int exitcode;
-            request.output = Utils.ExecuteShell("/bin/sudo", new string[]
+            request.output = Utils.ExecuteShell("/bin/bash", new string[]
             {
-                "-H -u vagrant",
+                //"-H -u vagrant",
                 "/home/vagrant/scripts/mountb2drop.sh",
                 "add",
                 _providerurl,
