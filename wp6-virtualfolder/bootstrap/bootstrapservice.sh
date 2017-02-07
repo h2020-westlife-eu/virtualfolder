@@ -38,4 +38,6 @@ for i in {1..3}; do
 	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
     fi
 done
+mkdir -p /home/vagrant/logs
+chmod -R ugo+rwx /home/vagrant/logs
 

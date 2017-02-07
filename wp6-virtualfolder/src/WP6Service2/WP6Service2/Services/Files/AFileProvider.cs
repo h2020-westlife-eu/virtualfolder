@@ -11,7 +11,7 @@ namespace WP6Service2.Services.Files
     public abstract class AFileProvider
     {
 
-        public static String webdavroot = "/webdav/";
+        public const string Webdavroot = "/webdav/";
 
         protected string alias;
         protected string username;
@@ -19,6 +19,14 @@ namespace WP6Service2.Services.Files
         protected string WEBDAVURL;
         private ISettingsStorage SettingsStorage;
         private IDbConnection Db;
+        private const string Vfstoragevariable = "VF_STORAGE_DIR";
+
+        private readonly string _rootdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
+            ? Environment.GetEnvironmentVariable(Vfstoragevariable)
+            : "/home/vagrant/work/";
+        //= "/home/vagrant/work/";
+            //if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
+        //rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
 
         public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection)
         {
@@ -26,11 +34,9 @@ namespace WP6Service2.Services.Files
             alias = provider.alias;
             username = provider.loggeduser;
             this.Db = connection;
-            var rootdir = "/home/vagrant/work/";
-            if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
-                rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
-            FILESYSTEMFOLDER = Path.Combine(rootdir,provider.loggeduser,provider.alias);
-            WEBDAVURL = "/webdav/"+provider.loggeduser+"/"+provider.alias+"/";
+
+            FILESYSTEMFOLDER = Path.Combine(_rootdir,provider.loggeduser,provider.alias);
+            WEBDAVURL = Webdavroot+provider.loggeduser+"/"+provider.alias+"/";
         }
 
         /** default settings storage is in file */
