@@ -17,7 +17,7 @@ function checkproxy {
     if grep -q "^proxy" /etc/davfs2/davfs2.conf ; then
        echo "proxy already set"
     else
-       echo "proxy $http_proxy" | sudo tee -a /etc/davfs2/davfs2.conf
+       echo "proxy $http_proxy" | sudo tee -a /etc/davfs2/davfs2.conf > /dev/null
     fi
   fi
 }
@@ -62,7 +62,7 @@ function addfstab {
   if grep -q "$1 $2" /etc/fstab; then
     echo "already set"
   else
-    echo "$1 $2 davfs noauto,user 0 0" | sudo tee -a /etc/fstab
+    echo "$1 $2 davfs noauto,user 0 0" | sudo tee -a /etc/fstab > /dev/null
   fi
 }
 
@@ -78,7 +78,7 @@ function addsecrets {
   if grep -q "$1 $2" ~/.davfs2/secrets; then
     echo "already set"
   else
-    echo $1 $2 $3 | tee -a ~/.davfs2/secrets
+    echo $1 $2 $3 | tee -a ~/.davfs2/secrets > /dev/null
   fi
   chmod go-rwx ~/.davfs2/secrets
 }
@@ -97,7 +97,7 @@ function addapacheproxy {
     AUTH="$(base64 $SFILE2)"
     #echo $AUTH
     echo "<Location $2 >" | sudo tee -a /etc/httpd/conf.d/000-default.conf
-    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
+    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf >/dev/null
     echo "  ProxyPass \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
     echo "  ProxyPassReverse \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
     echo "</Location>" | sudo tee -a /etc/httpd/conf.d/000-default.conf
