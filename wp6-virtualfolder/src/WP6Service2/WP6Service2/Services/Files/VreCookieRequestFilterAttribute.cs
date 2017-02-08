@@ -4,7 +4,7 @@ using ServiceStack.ServiceClient.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
     public class VreCookieRequestFilterAttribute : RequestFilterAttribute
     {

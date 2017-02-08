@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using MetadataService.Services.Files;
 using ServiceStack.OrmLite;
-using WP6Service2.Services.Files;
 
-namespace WP6Service2.Services.Settings
+namespace MetadataService.Services.Settings
 {
     public class SettingsStorageInDB : ISettingsStorage
     {

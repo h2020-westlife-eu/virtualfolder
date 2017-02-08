@@ -4,14 +4,14 @@ using ServiceStack.OrmLite;
 using ServiceStack.DataAnnotations;
 using System.IO;
 using System.Diagnostics;
+using MetadataService.Services.Files;
 using ServiceStack.Common;
 using ServiceStack.Common.Utils;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
-using WP6Service2.Services.Files;
 
-namespace WP6Service2
+namespace MetadataService
 {
 	/** Abstract API for setting services in West-life instance
 	*/

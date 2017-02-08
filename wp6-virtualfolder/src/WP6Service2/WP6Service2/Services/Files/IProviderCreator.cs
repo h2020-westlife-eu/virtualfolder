@@ -1,7 +1,7 @@
 ﻿using System.Data;
-using WP6Service2.Services.Settings;
+using MetadataService.Services.Settings;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
     public interface IProviderCreator
     {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using WP6Service2.Services.Files;
+using MetadataService.Services.Files;
 
-namespace WP6Service2.Services.Settings
+namespace MetadataService.Services.Settings
 {
     public interface ISettingsStorage
     {

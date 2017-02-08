@@ -5,7 +5,7 @@ using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.Text;
 
-namespace WP6Service2.Services
+namespace MetadataService.Services
 {
 
 	[Flags] public enum FileType {

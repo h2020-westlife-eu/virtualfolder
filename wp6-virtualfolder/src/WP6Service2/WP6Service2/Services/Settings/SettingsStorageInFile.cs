@@ -2,10 +2,10 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using MetadataService.Services.Files;
 using ServiceStack.Text;
-using WP6Service2.Services.Files;
 
-namespace WP6Service2.Services.Settings
+namespace MetadataService.Services.Settings
 {
     public class SettingsStorageInFile :ISettingsStorage
     {

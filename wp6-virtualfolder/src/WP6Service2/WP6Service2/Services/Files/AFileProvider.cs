@@ -2,10 +2,10 @@
 using System.Data;
 using System.IO;
 using System.Runtime.Remoting.Channels;
+using MetadataService.Services.Settings;
 using ServiceStack.Common;
-using WP6Service2.Services.Settings;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
 
     public abstract class AFileProvider

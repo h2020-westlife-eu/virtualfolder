@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Reflection;
+using MetadataService.Services.Files;
 using ServiceStack;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -10,9 +11,8 @@ using Mono.Unix.Native;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Sqlite;
 using ServiceStack.WebHost.Endpoints;
-using WP6Service2.Services.Files;
 
-namespace WP6Service2
+namespace MetadataService
 {
 	public class Program
 	{

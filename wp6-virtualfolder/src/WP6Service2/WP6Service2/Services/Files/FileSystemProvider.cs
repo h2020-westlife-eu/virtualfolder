@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using WP6Service2.Services.Settings;
+using MetadataService.Services.Settings;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
 
     public class FileSystemProviderCreator : IProviderCreator

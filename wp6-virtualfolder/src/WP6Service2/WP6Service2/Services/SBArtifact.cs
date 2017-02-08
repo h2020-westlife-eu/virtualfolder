@@ -7,7 +7,7 @@ using ServiceStack.DataAnnotations;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
-namespace WP6Service2
+namespace MetadataService
 {
 	[Route("/pdbentry")]
 	[Route("/pdbentry/{PDBId}")]

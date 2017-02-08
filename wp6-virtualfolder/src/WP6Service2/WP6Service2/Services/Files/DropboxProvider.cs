@@ -7,12 +7,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Dropbox.Api;
+using MetadataService.Services.Settings;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
 using ServiceStack.Text;
-using WP6Service2.Services.Settings;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
 
     public class DropboxProviderCreator : IProviderCreator

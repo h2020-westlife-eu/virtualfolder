@@ -10,7 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WP6Service2.Services.Settings
+namespace MetadataService.Services.Settings
 {
     public static class AESThenHMAC
     {

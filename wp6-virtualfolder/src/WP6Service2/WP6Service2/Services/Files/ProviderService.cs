@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using MetadataService.Services.Settings;
 using ServiceStack.DataAnnotations;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
-using WP6Service2.Services.Settings;
 
-namespace WP6Service2.Services.Files
+namespace MetadataService.Services.Files
 {
     using ProviderList = List<ProviderItem>;
 
