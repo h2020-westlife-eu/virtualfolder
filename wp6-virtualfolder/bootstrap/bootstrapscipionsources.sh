@@ -34,6 +34,7 @@ cd scipion
 sed -i -e 's/MPI_LIBDIR.*$/MPI_LIBDIR=\/usr\/lib64\/openmpi\/lib/g' /home/vagrant/scipion/config/scipion.conf
 sed -i -e 's/MPI_INCLUDE.*$/MPI_INCLUDE=\/usr\/include\/openmpi-x86_64/g' /home/vagrant/scipion/config/scipion.conf
 sed -i -e 's/MPI_BINDIR.*$/MPI_BINDIR=\/usr\/lib64\/openmpi\/bin/g' /home/vagrant/scipion/config/scipion.conf
+sed -i -e 's/JAVA_HOME.*$/JAVA_HOME=\/usr\/lib\/jvm\/java-1.8.0/g' /home/vagrant/scipion/config/scipion.conf
 sed -i -e 's/SCIPION_TESTS.*$/SCIPION_TESTS=~\/ScipionUserData\/data/\tests/g' /home/vagrant/scipion/config/scipion.conf
 sed -i -e 's/WEB_LOG_FILE.*$/WEB_LOG_FILE'', ''\/tmp\/scipion_web_tools.log'')/g' /home/vagrant/scipion/pyworkflows/config.py
 # copy hosts.conf to .config
