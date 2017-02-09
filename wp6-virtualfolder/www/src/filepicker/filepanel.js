@@ -5,9 +5,11 @@
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
+import {bindable} from 'aurelia-framework';
 
 export class Filepanel{
   static inject = [EventAggregator,HttpClient];
+  @bindable panelid;
 
   constructor(ea,httpclient) {
         this.ea = ea;
@@ -22,6 +24,7 @@ export class Filepanel{
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
+        console.log("filepanel tableid:"+this.panelid);
     }
 
     //triggered after this object is placed to DOM
@@ -39,6 +42,7 @@ export class Filepanel{
                 console.log(error);
                 alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl);
             });
+      console.log("filepanel tableid:"+this.panelid);
     }
 
     //parse .NET encoded Date in JSON
@@ -113,8 +117,9 @@ export class Filepanel{
     }
 
     selectFile(file){
+      console.log("filepanel tableid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
-      else this.ea.publish(new SelectedFile(file));
+      else this.ea.publish(new SelectedFile(file,this.panelid));
     }
 
 }

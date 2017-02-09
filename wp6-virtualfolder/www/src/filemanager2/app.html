@@ -5,10 +5,10 @@
     <h3>Virtual Folder - File manager</h3>
   </div>
   <div show.bind="showpanels" class="w3-half">
-    <filepanel></filepanel>
+    <filepanel panelid="left"></filepanel>
   </div>
   <div show.bind="showpanels" class="w3-half">
-    <filepanel></filepanel>
+    <filepanel panelid="right"></filepanel>
   </div>
   <div show.bind="!showpanels">
     <button click.trigger="closeviewer()">X</button>

@@ -1,7 +1,7 @@
-<template bindable="tableid">
+<template bindable="panelid">
     <div class="w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right">
-        <span>${path} contains ${filescount} items.<button click.delegate="refresh()">refresh</button></span>
-        <table id="${tableid}">
+        <span>Panel ${panelid}, ${path} contains ${filescount} items.<button click.delegate="refresh()">refresh</button></span>
+        <table id="${panelid}">
             <thead>
             <tr>
                 <th style="text-align:left">name</th>

@@ -44,7 +44,7 @@ namespace MetadataServiceTest
 	        Assert.That(all.ToString(), Is.StringStarting("{Id"));
 	    }
 
-	    [Test()]
+	    /*[Test()]
 	    public void SessionIdTestCase()
 	    {
 	        var sessionid = "nfy6putttqh3vsa3tfxyc6qhmghur896";
@@ -67,7 +67,7 @@ namespace MetadataServiceTest
 	        {
 	            Assert.Pass("expected exception thrown:"+e.Message);
 	        }
-	    }
+	    }*/
 
 
 	    [Test()]

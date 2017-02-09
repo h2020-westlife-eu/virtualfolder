@@ -3,7 +3,8 @@
  */
 
 export class SelectedFile {
-  constructor(file){
+  constructor(file,senderid){
     this.file = file;
+    this.senderid = senderid;
   }
 }
