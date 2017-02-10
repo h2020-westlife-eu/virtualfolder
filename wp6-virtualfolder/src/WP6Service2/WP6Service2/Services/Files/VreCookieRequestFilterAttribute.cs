@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using ServiceStack.ServiceClient.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using System.Net.Security;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MetadataService.Services.Files
 {
@@ -38,6 +41,8 @@ namespace MetadataService.Services.Files
         private string GetAssociatedUser(String sessionid)
         {
             if (sessionuser.ContainsKey(sessionid)) return sessionuser[sessionid];
+            //fix check server certificate - certificates probably not installed for MONO environment
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
             var client = new JsonServiceClient(_vreapiurl);
             try
             {
@@ -51,6 +56,12 @@ namespace MetadataService.Services.Files
                 Console.WriteLine("error during getting user info of sessionid "+sessionid+" "+ e.Message+e.StackTrace);
                 return "";
             }
+        }
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            //check subject for portal.west-life.eu 
+            return false || cert.Subject.ToUpper().Contains("portal.west-life.eu");
         }
     }
 }

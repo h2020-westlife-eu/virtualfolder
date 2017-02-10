@@ -8,6 +8,8 @@ namespace MetadataService.Services.Files
     {
         public static Dictionary<string, IProviderCreator> AvailableProviders;
 
+        const string ALLOW_FILESYSTEM_VAR = "VF_ALLOW_FILESYSTEM";
+
         static ProviderFactory()
         {
             //get all implementation of IProviderCreator
@@ -23,9 +25,14 @@ namespace MetadataService.Services.Files
                 if (creatortype.IsClass)
                 {
                     //e.g. gets the type name from class name, e.g. 'Dropbox' from name 'DropboxProviderCreator'
-                    var typename = creatortype.Name.Substring(0, creatortype.Name.IndexOf("Provider"));
-                    var obj = (IProviderCreator) Activator.CreateInstance(creatortype);
-                    AvailableProviders.Add(typename, obj);
+                    //disable filesystem provider until it is explicitly allowed
+                    Console.WriteLine("vf_allow_filesystem:"+Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR));
+                    if ((creatortype != typeof (FileSystemProviderCreator))|| Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR)=="true"){
+
+                        var typename = creatortype.Name.Substring(0, creatortype.Name.IndexOf("Provider"));
+                        var obj = (IProviderCreator) Activator.CreateInstance(creatortype);
+                        AvailableProviders.Add(typename, obj);
+                    }
                 }
             }
         }
