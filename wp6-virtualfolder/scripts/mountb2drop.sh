@@ -111,7 +111,7 @@ function removeapacheproxy {
  L1=`grep -n -m 1 "\<Location $1" /etc/httpd/conf.d/000-default.conf | cut -f1 -d:`
  echo from row $L1
  if [ $L1 > 0 ]; then
-   let L2=$L1+5
+   let L2=$L1+4
    echo to row $L2
    sudo sed -i "$L1,$L2 d" /etc/httpd/conf.d/000-default.conf
  fi
