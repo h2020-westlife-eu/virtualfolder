@@ -92,7 +92,7 @@ function removesecrets {
 function addapacheproxy {
   removeapacheproxy $2
   SFILE2=/tmp/secrets2
-  echo $3:$4 > $SFILE2
+  echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 $SFILE2)"
     #echo $AUTH
