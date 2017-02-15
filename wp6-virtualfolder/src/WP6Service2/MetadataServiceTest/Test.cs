@@ -79,7 +79,7 @@ namespace MetadataServiceTest
 	    }
 
 	    [Test()]
-	    public void ApachIntegrationServiceTestCase()
+	    public void ApacheIntegrationServiceTestCase()
 	    {
 	        var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
 	        var response = client.Get<string>("");

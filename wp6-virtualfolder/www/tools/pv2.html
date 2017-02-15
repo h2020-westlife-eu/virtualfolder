@@ -1,6 +1,7 @@
 <html>
 <head>
-<!--#include virtual="/heads.html" -->
+    <base href=".."/>
+<!--#include virtual="../heads.html" -->
 
 <!-- Complied & minified library css -->
 <link rel="stylesheet" href="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/css/pdb.component.library.min-1.0.0.css" />
@@ -16,7 +17,7 @@
 <!-- background ; background:url('westlife-background2.jpg')-->
 </head>
 <body class="w3-container">
-<!--#include virtual="/header.html" -->
+<!--#include virtual="../header.html" -->
 
 <div>
 
@@ -30,7 +31,7 @@
 </div>
     </div>
 </div>
-<!--#include virtual="/footer.html" -->
+<!--#include virtual="../footer.html" -->
 <script>
     (function () {
         'use strict';
@@ -50,9 +51,7 @@
 
         angular.bootstrap(document.getElementById('pdbviewer'), ['pdb.component.library']);
         $('#pdbid').empty().text(pdbentry);
-
         //$route.reload();
-
     }
 </script>
 </body>

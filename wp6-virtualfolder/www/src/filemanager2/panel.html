@@ -1,0 +1,21 @@
+<template>
+    <require from="../filepicker/filepanel"></require>
+    <require from="./viewpanel"></require>
+    <require from="../tabs/tabs"></require>
+
+    <tabs tabs.bind="paneltabs"></tabs>
+
+    <div show.bind="selectedList">
+        <filepanel panelid="left"></filepanel>
+
+    </div>
+
+    <div show.bind="selectedView">
+        View file not implemented
+    </div>
+
+    <div if.bind="selectedVisual">
+        <viewpanel></viewpanel>
+    </div>
+
+</template>

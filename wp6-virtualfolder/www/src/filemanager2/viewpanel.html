@@ -1,26 +1,13 @@
 <template>
-  <div class="w3-card w3-white ">
-    <span>${fileurl}</span>
-    <form fileurl.call="viewfile">
-      Load another entry from:
-      <ul>
-        <li>
-          <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
-                 maxlength="4" size="4" value.bind="pdbentry"
-                 change.trigger="loadpdbfile()"
-          />
-          PDB database
-        </li>
-        <li>
-          <input id="pdbid2" title="type PDB id and press enter" placeholder="1r6a"
-                 maxlength="4" size="4" value.bind="pdbentry2"
-                 change.trigger="loadfromredo()"
-          />
-          PDB-REDO database
-        </li>
-      </ul>
-    </form>
-    <div class="fileviewer" style="height: 100%; width: 100%">
+
+    <p><b>EMBL EBI PDB Viewer: </b><span id="pdbid"></span></p>
+    <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
+           maxlength="4" size="4"
+           onchange='loadPdb(this.value)'/>from PDB database</input>
+    <div id="pdbwrapper">
+        <div style="position:relative;height:600px;width:800px;" id="pdbviewer">
+            <pdb-lite-mol pdb-id="'2hhd'" load-ed-maps="true"></pdb-lite-mol>
+        </div>
     </div>
-  </div>
+
 </template>

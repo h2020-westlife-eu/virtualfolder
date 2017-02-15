@@ -1,19 +1,29 @@
 <template>
-  <require from="../filepicker/filepanel"></require>
-  <require from="./viewpanel"></require>
-  <div class="w3-card-2 w3-sand w3-center">
-    <h3>Virtual Folder - File manager</h3>
-  </div>
-  <div show.bind="showpanels" class="w3-half">
-    <filepanel panelid="left"></filepanel>
-  </div>
-  <div show.bind="showpanels" class="w3-half">
-    <filepanel panelid="right"></filepanel>
-  </div>
-  <div show.bind="!showpanels">
-    <button click.trigger="closeviewer()">X</button>
-    <viewpanel></viewpanel>
-  </div>
-  <div class="w3-clear w3-margin w3-padding"></div>
+    <require from="./panel"></require>
+    <div class="w3-card-2 w3-sand w3-center">
+        <h3>Virtual Folder - File manager</h3>
+    </div>
 
+    <div class="w3-half">
+        <panel></panel>
+    </div>
+
+    <div class="w3-half">
+        <panel></panel>
+    </div>
+    <!--div class="w3-half">
+        <tabs tabs.bind="paneltabs2"></tabs>
+
+        <div show.one-way="paneltabslist2">
+            <filepanel panelid="right"></filepanel>
+        </div>
+        <div show.one-way="paneltabsview2">
+            View file not implemented
+        </div>
+        <div show.one-way="paneltabsvisual2">
+            Visualize file not implemented
+        </div>
+    </div-->
+
+  <div class="w3-clear w3-margin w3-padding"></div>
 </template>
