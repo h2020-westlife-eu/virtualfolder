@@ -17,6 +17,7 @@ export class Filepanel{
         this.files = [];
         this.filescount = this.files.length;
         this.path= "";
+        this.lastpath="";
         this.dynatable = {};
         this.serviceurl = "/metadataservice/files";
         //http to accept json
@@ -59,12 +60,14 @@ export class Filepanel{
 
     //removes last subdirectory
     cdup(){
+        this.lastpath= this.path;
         let sepIndex= this.path.lastIndexOf('/');
         this.path = this.path.substring(0,sepIndex);
     }
 
     //adds subdirectory to the path
     cddown(subdir) {
+      this.lastpath=this.path;
         this.path+='/'+subdir;
     }
 
@@ -90,6 +93,7 @@ export class Filepanel{
                 console.log(error);
                 alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl+this.path);
                 this.lock = false;
+                this.path=this.lastpath;
             });
         } //else doubleclick when the previous operation didn't finished
     }

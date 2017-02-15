@@ -1,12 +1,12 @@
-<template>
+<template bindable="panelid">
 
     <p><b>EMBL EBI PDB Viewer: </b><span id="pdbid"></span></p>
     <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
-           maxlength="4" size="4"
-           onchange='loadPdb(this.value)'/>from PDB database</input>
+           maxlength="4" size="4" value.bind="pdbentry"
+           change.delegate='loadpdb()'/>from PDB database</input>
     <div id="pdbwrapper">
         <div style="position:relative;height:600px;width:800px;" id="pdbviewer">
-            <pdb-lite-mol pdb-id="'2hhd'" load-ed-maps="true"></pdb-lite-mol>
+            <pdb-lite-mol pdb-id="'4ika'" load-ed-maps="true"></pdb-lite-mol>
         </div>
     </div>
 

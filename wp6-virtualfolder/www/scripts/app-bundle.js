@@ -1057,50 +1057,125 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
             }
         };
 
-        Panel.prototype.selectFile = function selectFile(file, senderid) {};
+        Panel.prototype.selectFile = function selectFile(file, senderid) {
+            if (senderid == this.uid) this.selectTab(this.ids[2]);
+        };
 
         return Panel;
     }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('filemanager2/viewpanel',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-http-client'], function (exports, _aureliaEventAggregator, _messages, _aureliaHttpClient) {
-    'use strict';
+define('filemanager2/viewpanel',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-http-client', 'aurelia-framework'], function (exports, _aureliaEventAggregator, _messages, _aureliaHttpClient, _aureliaFramework) {
+  'use strict';
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Viewpanel = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
     });
-    exports.Viewpanel = undefined;
+  }
 
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
     }
 
-    var _class, _temp;
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
 
-    var Viewpanel = exports.Viewpanel = (_temp = _class = function () {
-        function Viewpanel(el, ea, httpclient) {
-            var _this = this;
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
 
-            _classCallCheck(this, Viewpanel);
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
 
-            this.element = el;
-            this.ea = ea;
-            this.httpclient = httpclient;
-            this.ea.subscribe(_messages.SelectedFile, function (msg) {
-                return _this.viewfile(msg.file);
-            });
+    return desc;
+  }
 
-            this.sourceurl = "";
-            this.sourceformat = "pdb";
-        }
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
 
-        Viewpanel.prototype.attached = function attached() {
-            angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
-        };
+  var _desc, _value, _class, _descriptor, _class2, _temp;
 
-        return Viewpanel;
-    }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  var Viewpanel = exports.Viewpanel = (_class = (_temp = _class2 = function () {
+    function Viewpanel(el, ea, httpclient) {
+      var _this = this;
+
+      _classCallCheck(this, Viewpanel);
+
+      _initDefineProp(this, 'panelid', _descriptor, this);
+
+      this.element = el;
+      this.ea = ea;
+      this.httpclient = httpclient;
+      this.ea.subscribe(_messages.SelectedFile, function (msg) {
+        return _this.viewfile(msg.file, msg.senderid);
+      });
+
+      this.sourceurl = "";
+      this.sourceformat = "pdb";
+      this.pdbentry = "1r6a";
+    }
+
+    Viewpanel.prototype.attached = function attached() {
+      angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
+    };
+
+    Viewpanel.prototype.viewfile = function viewfile(file, senderid) {
+      if (this.panelid == senderid && file.name.endsWith("pdb")) {
+        console.log("viewfile " + file.webdavuri);
+        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" source-format="pdb"></pdb-lite-mol>';
+        this.replacepdblitemol(pdblitemol);
+      }
+    };
+
+    Viewpanel.prototype.loadpdb = function loadpdb() {
+      console.log("loadpdb " + this.pdbentry);
+      var pdblitemol = '<pdb-lite-mol load-ed-maps="true" pdb-id="\'' + this.pdbentry + '\'"></pdb-lite-mol>';
+      this.replacepdblitemol(pdblitemol);
+    };
+
+    Viewpanel.prototype.replacepdblitemol = function replacepdblitemol(pdblitemol) {
+      var pdbviewer = this.element.querySelector('#pdbviewer');
+      var parentnode = this.element.querySelector('#pdbwrapper');
+      parentnode.removeChild(pdbviewer);
+
+      parentnode.insertAdjacentHTML('afterbegin', '<div style="position:relative;height:400px;width:800px;" id="pdbviewer">' + pdblitemol + '</div>');
+
+      angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
+    };
+
+    return Viewpanel;
+  }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
 });
 define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-http-client'], function (exports, _aureliaEventAggregator, _messages, _aureliaHttpClient) {
   'use strict';
@@ -1310,6 +1385,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
             this.files = [];
             this.filescount = this.files.length;
             this.path = "";
+            this.lastpath = "";
             this.dynatable = {};
             this.serviceurl = "/metadataservice/files";
 
@@ -1348,11 +1424,13 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         };
 
         Filepanel.prototype.cdup = function cdup() {
+            this.lastpath = this.path;
             var sepIndex = this.path.lastIndexOf('/');
             this.path = this.path.substring(0, sepIndex);
         };
 
         Filepanel.prototype.cddown = function cddown(subdir) {
+            this.lastpath = this.path;
             this.path += '/' + subdir;
         };
 
@@ -1375,6 +1453,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
                     console.log(error);
                     alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this2.serviceurl + _this2.path);
                     _this2.lock = false;
+                    _this2.path = _this2.lastpath;
                 });
             }
         };
@@ -2382,9 +2461,9 @@ define('text!filemanager/filepanel.html', ['module'], function(module) { module.
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>Panel ${panelid}, ${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"./viewpanel\"></require>\n    <require from=\"../tabs/tabs\"></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid=\"left\"></filepanel>\n\n    </div>\n\n    <div show.bind=\"selectedView\">\n        View file not implemented\n    </div>\n\n    <div if.bind=\"selectedVisual\">\n        <viewpanel></viewpanel>\n    </div>\n\n</template>"; });
-define('text!filemanager2/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\"\n           onchange='loadPdb(this.value)'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'2hhd'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"./viewpanel\"></require>\n    <require from=\"../tabs/tabs\"></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n\n    </div>\n\n    <div show.bind=\"selectedView\">\n        View file not implemented\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n</template>\n"; });
+define('text!filemanager2/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

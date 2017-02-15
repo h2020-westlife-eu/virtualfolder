@@ -6,7 +6,7 @@
     <tabs tabs.bind="paneltabs"></tabs>
 
     <div show.bind="selectedList">
-        <filepanel panelid="left"></filepanel>
+        <filepanel panelid.bind="uid"></filepanel>
 
     </div>
 
@@ -14,8 +14,8 @@
         View file not implemented
     </div>
 
-    <div if.bind="selectedVisual">
-        <viewpanel></viewpanel>
+    <div show.bind="selectedVisual">
+        <viewpanel panelid.bind="uid"></viewpanel>
     </div>
 
 </template>

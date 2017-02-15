@@ -54,7 +54,9 @@ export class Panel {
     }
 
     selectFile(file,senderid) {
-      //default action, visualize pdb,
+      //default action, visualize pdb, change tab
+      if (senderid==this.uid)
+      this.selectTab(this.ids[2]);
 
     }
 }
