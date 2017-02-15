@@ -94,7 +94,7 @@ function addapacheproxy {
   SFILE2=/tmp/secrets2
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
-    AUTH="$(base64 $SFILE2)"
+    AUTH="$(base64 -w 0 $SFILE2)"
     #echo $AUTH
     echo "<Location $2 >" | sudo tee -a /etc/httpd/conf.d/000-default.conf
     echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf >/dev/null
