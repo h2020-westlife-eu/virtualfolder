@@ -99,11 +99,16 @@ function addapacheproxy {
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 -w 0 $SFILE2)"
+    # hostname from the url in argument $1 is ${HOST[2]}, fix bug #24
+    IFS="/";
+    HOST=( $1 )
     #echo $AUTH
     echo "<Location $2 >" | sudo tee -a ${HTTPD_CONF}
     echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a ${HTTPD_CONF} >/dev/null
-    echo "  ProxyPass \"$1\"" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPassReverse \"$1\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  RequestHeader set Host \"${HOST[2]}\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPreserveHost On" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPass \"$1\\\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPassReverse \"$1\\\"" | sudo tee -a ${HTTPD_CONF}
     echo "</Location>" | sudo tee -a ${HTTPD_CONF}
     sudo service ${HTTP_SERVICE} reload
   fi
@@ -115,7 +120,7 @@ function removeapacheproxy {
  L1=`grep -n -m 1 "\<Location $1" ${HTTPD_CONF} | cut -f1 -d:`
  echo from row $L1
  if [ $L1 > 0 ]; then
-   let L2=$L1+4
+   let L2=$L1+6
    echo to row $L2
    sudo sed -i "$L1,$L2 d" ${HTTPD_CONF}
  fi
