@@ -33,9 +33,9 @@ for i in {1..3}; do
 	#certmgr -ssl -m https://nugetgallery.blob.core.windows.net
 	#certmgr -ssl -m https://nuget.org
 	# restore nuget packages 
-	nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
+	#nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 	# build project EXEcutable, workaround on xbuild bug - hangs after compilation
-	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
+	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/Build.proj
     fi
 done
 mkdir -p /home/vagrant/logs

@@ -25,7 +25,7 @@
 
     <Target Name="Build">
         <Message Text="Build $(Configuration)" />
-        <MSBuild Projects="$(ProjectName)/$(ProjectName).csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
+        <MSBuild Projects="WP6Service2/MetadataService.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
         <MSBuild Projects="MetadataServiceTest/MetadataServiceTest.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
     </Target>
 

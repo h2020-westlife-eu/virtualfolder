@@ -35,7 +35,6 @@ namespace MetadataServiceTest
 	        Program.StopHost();
 	    }
 
-
 	    [Test()]
 	    public void SBServiceTestCase()
 	    {
@@ -44,30 +43,6 @@ namespace MetadataServiceTest
 	        Assert.That(all.ToString(), Is.StringStarting("{Id"));
 	    }
 
-	    /*[Test()]
-	    public void SessionIdTestCase()
-	    {
-	        var sessionid = "nfy6putttqh3vsa3tfxyc6qhmghur896";
-	        var client = new JsonServiceClient("http://localhost:8004/api/vfsession/" + sessionid);
-            var response = client.Get<DjangoUserInfo>("");
-	        Assert.True(response.username.Equals("vagrant"));
-	    }
-
-	    [Test()]
-	    public void SessionBadIdTestCase()
-	    {
-	        var sessionid = "nonsense";
-	        var client = new JsonServiceClient("http://localhost:8004/api/");
-	        try
-	        {
-	            var response = client.Get<DjangoUserInfo>("vfsession/" + sessionid);
-	            Assert.Fail("no exception thrown");
-	        }
-	        catch (Exception e)
-	        {
-	            Assert.Pass("expected exception thrown:"+e.Message);
-	        }
-	    }*/
 
 
 	    [Test()]
