@@ -56,6 +56,4 @@ export class  Viewpanel {
       angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
     }
 
-
-
 }

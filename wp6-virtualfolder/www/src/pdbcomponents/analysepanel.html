@@ -1,0 +1,13 @@
+<template>
+  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>
+  <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
+         maxlength="4" size="4" value.bind="pdbentry"
+         change.delegate='loadpdb()'/>from PDB database</input>
+<!--
+  <pdb-prints pdb-ids.bind="pdbids" settings='{"size": 48 }'></pdb-prints>
+
+  <span repeat.for="pdbid of pdbids">
+  <pdb-topology-viewer entry-id.bind="pdbid" entity-id="1"></pdb-topology-viewer>
+  </span>
+-->
+</template>

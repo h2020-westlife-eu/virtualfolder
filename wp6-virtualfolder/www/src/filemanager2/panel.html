@@ -1,6 +1,7 @@
 <template>
     <require from="../filepicker/filepanel"></require>
-    <require from="./viewpanel"></require>
+    <require from="../pdbcomponents/viewpanel"></require>
+    <require from="../pdbcomponents/analysepanel"></require>
     <require from="../tabs/tabs"></require>
 
     <tabs tabs.bind="paneltabs"></tabs>
@@ -17,5 +18,10 @@
     <div show.bind="selectedVisual">
         <viewpanel panelid.bind="uid"></viewpanel>
     </div>
+
+  <div show.bind="selectedAnalyse">
+    <analysepanel></analysepanel>
+  </div>
+
 
 </template>

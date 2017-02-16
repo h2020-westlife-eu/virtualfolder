@@ -16,15 +16,16 @@ export class Panel {
         this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
         //generate unique id from time
         this.uid = new Date().valueOf();
-        this.ids=[this.uid+'.list',this.uid+'.view',this.uid+'.visual']; //prefix uid to tab ids
+        this.ids=[this.uid+'.list',this.uid+'.view',this.uid+'.visual',this.uid+'.analyse']; //prefix uid to tab ids
 
         this.selectedTab= this.ids[0];
         this.paneltabs = [
             { id: this.ids[0], label: 'File List'},
             { id: this.ids[1], label: 'RAW File View' },
-            { id: this.ids[2], label: 'Visualize' }
+            { id: this.ids[2], label: 'Visualize' },
+          { id: this.ids[3], label: 'PDB Analyse' }
         ];
-        this.selectedView=this.selectedVisual=false;
+        this.selectedAnalyse=this.selectedView=this.selectedVisual=false;
         this.selectedList=true;
     }
 
@@ -50,6 +51,7 @@ export class Panel {
             this.selectedList = this.selectedTab == this.ids[0];
             this.selectedView = this.selectedTab == this.ids[1];
             this.selectedVisual = this.selectedTab == this.ids[2];
+          this.selectedAnalyse=  this.selectedTab == this.ids[3];
         }
     }
 
