@@ -11,8 +11,8 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
 
-export HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
-export HTTPD_SERVICE="httpd"
+HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
+HTTPD_SERVICE="httpd"
 
 
 function checkproxy {
@@ -96,21 +96,23 @@ function removesecrets {
 function addapacheproxy {
   removeapacheproxy $2
   SFILE2=/tmp/secrets2
-  sudo rm $SFILE2 
+  sudo rm $SFILE2
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 -w 0 $SFILE2)"
     # hostname from the url in argument $1 is ${HOST[2]}, fix bug #24
     IFS="/";
-    HOST=( $1 )
-    #echo $AUTH
-    echo "<Location $2 >" | sudo tee -a ${HTTPD_CONF}
-    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a ${HTTPD_CONF} >/dev/null
-    echo "  RequestHeader set Host \"${HOST[2]}\"" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPreserveHost On" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPass \"$1/\"" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPassReverse \"$1/\"" | sudo tee -a ${HTTPD_CONF}
-    echo "</Location>" | sudo tee -a ${HTTPD_CONF}
+    HOSTURL=( $1 )
+    HOST=${HOSTURL[2]}
+    echo $HOST
+    IFS=" ";
+    echo "<Location $2 >" | sudo -E tee -a $HTTPD_CONF
+    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo -E tee -a $HTTPD_CONF >/dev/null
+    echo "  RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
+    echo "  ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
+    echo "  ProxyPass \"$1/\"" | sudo -E tee -a $HTTPD_CONF
+    echo "  ProxyPassReverse \"$1/\"" | sudo -E tee -a $HTTPD_CONF
+    echo "</Location>" | sudo -E tee -a $HTTPD_CONF
     sudo service ${HTTP_SERVICE} reload
   fi
   rm $SFILE2
@@ -118,12 +120,12 @@ function addapacheproxy {
 
 function removeapacheproxy {
  echo removing apache proxy
- L1=`grep -n -m 1 "\<Location $1" ${HTTPD_CONF} | cut -f1 -d:`
+ L1=`grep -n -m 1 "\<Location $1" $HTTPD_CONF | cut -f1 -d:`
  echo from row $L1
  if [ $L1 > 0 ]; then
    let L2=$L1+6
    echo to row $L2
-   sudo sed -i "$L1,$L2 d" ${HTTPD_CONF}
+   sudo sed -i "$L1,$L2 d" $HTTPD_CONF
  fi
 }
 
@@ -147,6 +149,7 @@ if [ $1 == 'add' ]; then
   addsecrets $3 $4 $5
   addapacheproxy $2 $6 $4 $5
   mkdir -p $3
+  #user needs to be member of group davfs2
   mount $3
   echo "mounted $3"
   exit
