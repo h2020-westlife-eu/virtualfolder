@@ -11,6 +11,10 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
 
+HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
+HTTPD_SERVICE="httpd"
+
+
 function checkproxy {
   if [ $http_proxy ]; then
     echo Checking Davfs2 proxy
@@ -96,24 +100,24 @@ function addapacheproxy {
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 -w 0 $SFILE2)"
     #echo $AUTH
-    echo "<Location $2 >" | sudo tee -a /etc/httpd/conf.d/000-default.conf
-    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf >/dev/null
-    echo "  ProxyPass \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
-    echo "  ProxyPassReverse \"$1\"" | sudo tee -a /etc/httpd/conf.d/000-default.conf
-    echo "</Location>" | sudo tee -a /etc/httpd/conf.d/000-default.conf
-    sudo service httpd reload
+    echo "<Location $2 >" | sudo tee -a ${HTTPD_CONF}
+    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a ${HTTPD_CONF} >/dev/null
+    echo "  ProxyPass \"$1\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPassReverse \"$1\"" | sudo tee -a ${HTTPD_CONF}
+    echo "</Location>" | sudo tee -a ${HTTPD_CONF}
+    sudo service ${HTTP_SERVICE} reload
   fi
   rm $SFILE2
 }
 
 function removeapacheproxy {
  echo removing apache proxy
- L1=`grep -n -m 1 "\<Location $1" /etc/httpd/conf.d/000-default.conf | cut -f1 -d:`
+ L1=`grep -n -m 1 "\<Location $1" ${HTTPD_CONF} | cut -f1 -d:`
  echo from row $L1
  if [ $L1 > 0 ]; then
    let L2=$L1+4
    echo to row $L2
-   sudo sed -i "$L1,$L2 d" /etc/httpd/conf.d/000-default.conf
+   sudo sed -i "$L1,$L2 d" ${HTTPD_CONF}
  fi
 }
 
