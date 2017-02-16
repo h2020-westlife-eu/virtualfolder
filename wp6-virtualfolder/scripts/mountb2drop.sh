@@ -11,8 +11,8 @@
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
 
-HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
-HTTPD_SERVICE="httpd"
+export HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
+export HTTPD_SERVICE="httpd"
 
 
 function checkproxy {
@@ -96,6 +96,7 @@ function removesecrets {
 function addapacheproxy {
   removeapacheproxy $2
   SFILE2=/tmp/secrets2
+  sudo rm $SFILE2 
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 -w 0 $SFILE2)"
@@ -107,8 +108,8 @@ function addapacheproxy {
     echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo tee -a ${HTTPD_CONF} >/dev/null
     echo "  RequestHeader set Host \"${HOST[2]}\"" | sudo tee -a ${HTTPD_CONF}
     echo "  ProxyPreserveHost On" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPass \"$1\\\"" | sudo tee -a ${HTTPD_CONF}
-    echo "  ProxyPassReverse \"$1\\\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPass \"$1/\"" | sudo tee -a ${HTTPD_CONF}
+    echo "  ProxyPassReverse \"$1/\"" | sudo tee -a ${HTTPD_CONF}
     echo "</Location>" | sudo tee -a ${HTTPD_CONF}
     sudo service ${HTTP_SERVICE} reload
   fi

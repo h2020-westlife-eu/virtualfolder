@@ -26,7 +26,7 @@ for i in {1..3}; do
 	    echo certdata.txt exists
 	else
 	    echo downloading certdata.txt
-	    wget --quiet -O certdata.txt https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
+	    wget --quiet -O certdata.txt http://mxr.mozilla.org/seamonkey/source/security/nss/lib/ckfw/builtins/certdata.txt?raw=1
 	fi
 	mozroots --import --sync --file certdata.txt
 	#certmgr -ssl -m https://go.microsoft.com

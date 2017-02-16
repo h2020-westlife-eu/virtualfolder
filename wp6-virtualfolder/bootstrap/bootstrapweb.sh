@@ -50,7 +50,7 @@ echo minrate=10 >> /etc/yum.conf
 echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
 yum repolist
-yum -y install davfs2 mod_proxy_html
+yum -y install davfs2 mod_proxy_html --skip-broken
 
 systemctl start httpd
 systemctl enable httpd
@@ -96,11 +96,6 @@ else
   cat /home/vagrant/scripts/sudoers >>/etc/sudoers
   #chmod 0440 /etc/sudoers
 fi
-
-#PHP plugin will make a secrets file and execute the mountb2drop.sh script
-touch /home/vagrant/secrets
-touch /home/vagrant/secrets_oc
-chown apache:apache /home/vagrant/secrets /home/vagrant/secrets_oc
 
 # set proxy for davfs - as it seems not taking the http_proxy environment variable
 

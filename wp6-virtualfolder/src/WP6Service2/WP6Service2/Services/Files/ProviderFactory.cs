@@ -26,7 +26,7 @@ namespace MetadataService.Services.Files
                 {
                     //e.g. gets the type name from class name, e.g. 'Dropbox' from name 'DropboxProviderCreator'
                     //disable filesystem provider until it is explicitly allowed
-                    Console.WriteLine("vf_allow_filesystem:"+Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR));
+                    //Console.WriteLine("vf_allow_filesystem:"+Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR));
                     if ((creatortype != typeof (FileSystemProviderCreator))|| Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR)=="true"){
 
                         var typename = creatortype.Name.Substring(0, creatortype.Name.IndexOf("Provider"));
