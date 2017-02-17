@@ -1510,7 +1510,7 @@ define('pdbcomponents/analysepanel',['exports', 'aurelia-framework'], function (
     Analysepanel.prototype.attached = function attached() {
       var el = this.element;
       this.pdbids.forEach(function (pdbid) {
-        el.insertAdjacentHTML('beforeend', "<a class='pdb-links' pdb-id='" + pdbid + "' href='javascript:void(0);'>" + pdbid + "</a>");
+        el.insertAdjacentHTML('beforeend', "<a class='pdb-links' pdb-id='" + pdbid + "' href='javascript:void(0);'>" + pdbid + "</a><hr/>");
       });
 
       angular.bootstrap(this.element, ['pdb.component.library']);

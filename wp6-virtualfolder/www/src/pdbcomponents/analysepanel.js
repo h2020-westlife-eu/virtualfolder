@@ -18,7 +18,7 @@ export class  Analysepanel {
     var el = this.element;
     this.pdbids.forEach(function(pdbid){
       el.insertAdjacentHTML('beforeend',
-        "<a class='pdb-links' pdb-id='"+pdbid+"' href='javascript:void(0);'>"+pdbid+"</a>");
+        "<a class='pdb-links' pdb-id='"+pdbid+"' href='javascript:void(0);'>"+pdbid+"</a><hr/>");
 
     });
 
