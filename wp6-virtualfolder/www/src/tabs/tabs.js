@@ -17,17 +17,14 @@ export class Tabs {
     }
 
     attached() {
-        console.log("tabs.atached() tabs: "+this.tabs);
-        //active is first
-        //this.activeid = this.tabs[0].id;
-        //$(`#${this.id}`).tabs();
+        //console.log("tabs.atached() tabs: "+this.tabs);
+;
 
     }
 
     opentab(tabid){
         this.activeid=tabid.id;
-        console.log("Tabs selected:"+this.activeid);
-        //this.ea.
+        //console.log("Tabs selected:"+this.activeid);
         this.ea.publish(new SelectedTab(this.activeid));
     }
 

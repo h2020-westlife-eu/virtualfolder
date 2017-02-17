@@ -13,7 +13,8 @@
     "aurelia-plugins-tabs": "^1.2.0",
     "bluebird": "^3.4.1",
     "requirejs": "^2.3.2",
-    "text": "github:requirejs/text#latest"
+    "text": "github:requirejs/text#latest",
+    "codemirror": "^5.23.0"
   },
   "peerDependencies": {},
   "devDependencies": {

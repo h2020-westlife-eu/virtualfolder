@@ -113,6 +113,15 @@
           "aurelia-http-client",
           "text",
           {
+            "name": "codemirror",
+            "path": "../node_modules/codemirror",
+            "main": "lib/codemirror",
+            "resources": [
+              "theme/cobalt.css",
+              "lib/codemirror.css"
+            ]
+          },
+          {
             "name": "aurelia-templating-resources",
             "path": "../node_modules/aurelia-templating-resources/dist/amd",
             "main": "aurelia-templating-resources"

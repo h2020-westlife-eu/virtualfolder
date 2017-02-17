@@ -3,6 +3,7 @@
     <require from="../pdbcomponents/viewpanel"></require>
     <require from="../pdbcomponents/analysepanel"></require>
     <require from="../tabs/tabs"></require>
+    <require from='../editor/fileeditor'></require>
 
     <tabs tabs.bind="paneltabs"></tabs>
 
@@ -11,8 +12,8 @@
 
     </div>
 
-    <div show.bind="selectedView">
-        View file not implemented
+    <div if.bind="selectedView">
+        <fileeditor></fileeditor>
     </div>
 
     <div show.bind="selectedVisual">
