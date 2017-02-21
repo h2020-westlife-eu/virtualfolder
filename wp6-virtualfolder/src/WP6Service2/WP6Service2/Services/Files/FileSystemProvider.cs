@@ -62,7 +62,7 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             //Console.WriteLine("ListOfFiles( "+path+" )");
-            return ListOfFiles(localpath, Webdavroot  + alias + "/",path);
+            return ListOfFiles(localpath, Webdavroot  +username+"/"+ alias + "/",path);
             //return listOfFiles; //returns all
         }
 

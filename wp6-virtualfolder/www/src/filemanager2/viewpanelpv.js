@@ -11,7 +11,7 @@ export class  Viewpanelpv {
     constructor(ea,httpclient) {
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(SelectedFile, msg => this.viewfile(msg.file));
+      this.ea.subscribe(VisualizeFile, msg => this.viewfile(msg.file));
     }
 
     attached(){
@@ -32,15 +32,11 @@ export class  Viewpanelpv {
         }
 
     viewfile(file) {
-      if (file.webdavuri.endsWith('pdb')) {
+      //if (file.webdavuri.endsWith('pdb')) {
         this.fileurl = file.webdavuri;
         console.log("viewfile()");
         console.log(file.webdavuri);
         this.loadfromurl(file.webdavuri);
-
-      } else
-        console.log("viewfile() not pdb file");
-
     }
 
     // given the contents of a PDB file, show the structure

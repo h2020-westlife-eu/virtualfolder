@@ -485,7 +485,7 @@ define('b2dropcontrol/onedrivecontrol',['exports', 'aurelia-http-client', './aco
     return Onedrivecontrol;
   }(_acontrol.AControl);
 });
-define('editor/fileeditor',["exports", "codemirror", "codemirror/mode/clike/clike", "codemirror/mode/htmlmixed/htmlmixed", "codemirror/mode/javascript/javascript"], function (exports, _codemirror) {
+define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator", "aurelia-http-client", "../filepicker/messages", "codemirror/mode/clike/clike", "codemirror/mode/htmlmixed/htmlmixed", "codemirror/mode/javascript/javascript"], function (exports, _codemirror, _aureliaEventAggregator, _aureliaHttpClient, _messages) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -521,23 +521,43 @@ define('editor/fileeditor',["exports", "codemirror", "codemirror/mode/clike/clik
   var _class, _temp;
 
   var Fileeditor = exports.Fileeditor = (_temp = _class = function () {
-    function Fileeditor(el) {
+    function Fileeditor(el, ea, httpclient) {
+      var _this = this;
+
       _classCallCheck(this, Fileeditor);
 
       this.el = el;
+      this.ea = ea;
+      this.httpclient = httpclient;
+      this.ea.subscribe(_messages.EditFile, function (msg) {
+        return _this.selectFile(msg.file, msg.senderid);
+      });
     }
 
     Fileeditor.prototype.attached = function attached() {
       var editor = this.el.querySelector(".Codemirror");
-      if (editor == null) CodeMirror.fromTextArea(this.cmTextarea, {
+
+      if (editor == null) this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
         lineNumbers: true,
         mode: "text/x-less",
         theme: "cobalt"
       });
     };
 
+    Fileeditor.prototype.selectFile = function selectFile(file, senderid) {
+      var _this2 = this;
+
+      this.httpclient.get(file.webdavuri).then(function (data) {
+        console.log("obtained data:");
+        console.log(data);
+        _this2.codemirror.setValue(data.response);
+      }).catch(function (error) {
+        alert('Error retrieving content from ' + file.webdavuri);
+      });
+    };
+
     return Fileeditor;
-  }(), _class.inject = [Element], _temp);
+  }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
 });
 define('filemanager/actions',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
     'use strict';
@@ -698,39 +718,37 @@ define('filemanager/filepanel',['exports', 'aurelia-http-client', 'aurelia-frame
 
             client.get(this.serviceurl).then(function (data) {
                 if (data.response) {
-                    (function () {
-                        _this.populateFiles(data.response);
+                    _this.populateFiles(data.response);
 
-                        _this.dynatable = $('#' + _this.tableid).dynatable({
-                            dataset: {
-                                records: _this.files
-                            },
-                            features: {
-                                paginate: false,
-                                search: false,
-                                recordCount: false,
-                                perPageSelect: false,
-                                pushState: false
+                    _this.dynatable = $('#' + _this.tableid).dynatable({
+                        dataset: {
+                            records: _this.files
+                        },
+                        features: {
+                            paginate: false,
+                            search: false,
+                            recordCount: false,
+                            perPageSelect: false,
+                            pushState: false
 
-                            }
-                        });
+                        }
+                    });
 
-                        var a = _this;
-                        var b = _this.parent.controller.viewModel;
+                    var a = _this;
+                    var b = _this.parent.controller.viewModel;
 
-                        _this.dynatable.on('click', 'tr', function () {
-                            if (this.children[1].innerText.endsWith('DIR')) a.changefolder(this.firstChild.innerText);else {
-                                var fileitem = this.firstChild.innerText;
-                                var fileindex = a.files.map(function (e) {
-                                    return e.name;
-                                }).indexOf(fileitem);
-                                console.log('fileitem');
-                                console.log(fileitem);
-                                console.log(fileindex);
-                                b.doAction(a.files[fileindex], a.tableid);
-                            }
-                        });
-                    })();
+                    _this.dynatable.on('click', 'tr', function () {
+                        if (this.children[1].innerText.endsWith('DIR')) a.changefolder(this.firstChild.innerText);else {
+                            var fileitem = this.firstChild.innerText;
+                            var fileindex = a.files.map(function (e) {
+                                return e.name;
+                            }).indexOf(fileitem);
+                            console.log('fileitem');
+                            console.log(fileitem);
+                            console.log(fileindex);
+                            b.doAction(a.files[fileindex], a.tableid);
+                        }
+                    });
                 }
             }).catch(function (error) {
 
@@ -1097,7 +1115,7 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
             this.ids = [this.uid + '.list', this.uid + '.view', this.uid + '.visual', this.uid + '.analyse'];
 
             this.selectedTab = this.ids[0];
-            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'RAW File View' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'PDB Analyse' }];
+            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'View/Edit' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'Analyse' }];
             this.selectedAnalyse = this.selectedView = this.selectedVisual = false;
             this.selectedList = true;
         }
@@ -1113,7 +1131,15 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
         };
 
         Panel.prototype.selectFile = function selectFile(file, senderid) {
-            if (senderid == this.uid) this.selectTab(this.ids[2]);
+            if (senderid == this.uid) {
+                if (file.webdavuri.endsWith('pdb')) {
+                    this.selectTab(this.ids[2]);
+                    this.ea.publish(new _messages.VisualizeFile(file, senderid));
+                } else {
+                    this.selectTab(this.ids[1]);
+                    this.ea.publish(new _messages.EditFile(file, senderid));
+                }
+            }
         };
 
         return Panel;
@@ -1143,7 +1169,7 @@ define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../fi
 
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(_messages.SelectedFile, function (msg) {
+      this.ea.subscribe(VisualizeFile, function (msg) {
         return _this.viewfile(msg.file);
       });
     }
@@ -1165,12 +1191,10 @@ define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../fi
     };
 
     Viewpanelpv.prototype.viewfile = function viewfile(file) {
-      if (file.webdavuri.endsWith('pdb')) {
-        this.fileurl = file.webdavuri;
-        console.log("viewfile()");
-        console.log(file.webdavuri);
-        this.loadfromurl(file.webdavuri);
-      } else console.log("viewfile() not pdb file");
+      this.fileurl = file.webdavuri;
+      console.log("viewfile()");
+      console.log(file.webdavuri);
+      this.loadfromurl(file.webdavuri);
     };
 
     Viewpanelpv.prototype.process = function process(pdb) {
@@ -1490,6 +1514,20 @@ define('filepicker/messages',["exports"], function (exports) {
     this.file = file;
     this.senderid = senderid;
   };
+
+  var VisualizeFile = exports.VisualizeFile = function VisualizeFile(file, senderid) {
+    _classCallCheck(this, VisualizeFile);
+
+    this.file = file;
+    this.senderid = senderid;
+  };
+
+  var EditFile = exports.EditFile = function EditFile(file, senderid) {
+    _classCallCheck(this, EditFile);
+
+    this.file = file;
+    this.senderid = senderid;
+  };
 });
 define('pdbcomponents/analysepanel',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
   'use strict';
@@ -1654,7 +1692,7 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
       this.element = el;
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(_messages.SelectedFile, function (msg) {
+      this.ea.subscribe(_messages.VisualizeFile, function (msg) {
         return _this.viewfile(msg.file, msg.senderid);
       });
 
@@ -1668,11 +1706,9 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     };
 
     Viewpanel.prototype.viewfile = function viewfile(file, senderid) {
-      if (this.panelid == senderid && file.name.endsWith("pdb")) {
-        console.log("viewfile " + file.webdavuri);
-        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" source-format="pdb"></pdb-lite-mol>';
-        this.replacepdblitemol(pdblitemol);
-      }
+      console.log("viewfile " + file.webdavuri);
+      var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+      this.replacepdblitemol(pdblitemol);
     };
 
     Viewpanel.prototype.loadpdb = function loadpdb() {
@@ -5547,25 +5583,23 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 });
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${message}</h1>\n</template>\n"; });
-define('text!cobalt.css', ['module'], function(module) { module.exports = ".cm-s-cobalt.CodeMirror { background: #002240; color: white; }\n.cm-s-cobalt div.CodeMirror-selected { background: #b36539; }\n.cm-s-cobalt .CodeMirror-line::selection, .cm-s-cobalt .CodeMirror-line > span::selection, .cm-s-cobalt .CodeMirror-line > span > span::selection { background: rgba(179, 101, 57, .99); }\n.cm-s-cobalt .CodeMirror-line::-moz-selection, .cm-s-cobalt .CodeMirror-line > span::-moz-selection, .cm-s-cobalt .CodeMirror-line > span > span::-moz-selection { background: rgba(179, 101, 57, .99); }\n.cm-s-cobalt .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }\n.cm-s-cobalt .CodeMirror-guttermarker { color: #ffee80; }\n.cm-s-cobalt .CodeMirror-guttermarker-subtle { color: #d0d0d0; }\n.cm-s-cobalt .CodeMirror-linenumber { color: #d0d0d0; }\n.cm-s-cobalt .CodeMirror-cursor { border-left: 1px solid white; }\n\n.cm-s-cobalt span.cm-comment { color: #08f; }\n.cm-s-cobalt span.cm-atom { color: #845dc4; }\n.cm-s-cobalt span.cm-number, .cm-s-cobalt span.cm-attribute { color: #ff80e1; }\n.cm-s-cobalt span.cm-keyword { color: #ffee80; }\n.cm-s-cobalt span.cm-string { color: #3ad900; }\n.cm-s-cobalt span.cm-meta { color: #ff9d00; }\n.cm-s-cobalt span.cm-variable-2, .cm-s-cobalt span.cm-tag { color: #9effff; }\n.cm-s-cobalt span.cm-variable-3, .cm-s-cobalt span.cm-def { color: white; }\n.cm-s-cobalt span.cm-bracket { color: #d8d8d8; }\n.cm-s-cobalt span.cm-builtin, .cm-s-cobalt span.cm-special { color: #ff9e59; }\n.cm-s-cobalt span.cm-link { color: #845dc4; }\n.cm-s-cobalt span.cm-error { color: #9d1e15; }\n\n.cm-s-cobalt .CodeMirror-activeline-background { background: #002D57; }\n.cm-s-cobalt .CodeMirror-matchingbracket { outline:1px solid grey;color:white !important; }\n"; });
+define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/cobalt.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
-define('text!codemirror.css', ['module'], function(module) { module.exports = "/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: monospace;\n  height: 300px;\n  color: black;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n  white-space: nowrap;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n  white-space: nowrap;\n}\n\n.CodeMirror-guttermarker { color: black; }\n.CodeMirror-guttermarker-subtle { color: #999; }\n\n/* CURSOR */\n\n.CodeMirror-cursor {\n  border-left: 1px solid black;\n  border-right: none;\n  width: 0;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.cm-fat-cursor .CodeMirror-cursor {\n  width: auto;\n  border: 0 !important;\n  background: #7e7;\n}\n.cm-fat-cursor div.CodeMirror-cursors {\n  z-index: 1;\n}\n\n.cm-animate-fat-cursor {\n  width: auto;\n  border: 0;\n  -webkit-animation: blink 1.06s steps(1) infinite;\n  -moz-animation: blink 1.06s steps(1) infinite;\n  animation: blink 1.06s steps(1) infinite;\n  background-color: #7e7;\n}\n@-moz-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@-webkit-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror-overwrite .CodeMirror-cursor {}\n\n.cm-tab { display: inline-block; text-decoration: inherit; }\n\n.CodeMirror-rulers {\n  position: absolute;\n  left: 0; right: 0; top: -50px; bottom: -20px;\n  overflow: hidden;\n}\n.CodeMirror-ruler {\n  border-left: 1px solid #ccc;\n  top: 0; bottom: 0;\n  position: absolute;\n}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n.cm-strikethrough {text-decoration: line-through;}\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable,\n.cm-s-default .cm-punctuation,\n.cm-s-default .cm-property,\n.cm-s-default .cm-operator {}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3 {color: #085;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-s-default .cm-error {color: #f00;}\n.cm-invalidchar {color: #f00;}\n\n.CodeMirror-composing { border-bottom: 2px solid; }\n\n/* Default styles for common addons */\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }\n.CodeMirror-activeline-background {background: #e8f2ff;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  position: relative;\n  overflow: hidden;\n  background: white;\n}\n\n.CodeMirror-scroll {\n  overflow: scroll !important; /* Things will break if this is overridden */\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n  border-right: 30px solid transparent;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actual scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n}\n.CodeMirror-gutter-filler {\n  left: 0; bottom: 0;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  min-height: 100%;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  white-space: normal;\n  height: 100%;\n  display: inline-block;\n  vertical-align: top;\n  margin-bottom: -30px;\n}\n.CodeMirror-gutter-wrapper {\n  position: absolute;\n  z-index: 4;\n  background: none !important;\n  border: none !important;\n}\n.CodeMirror-gutter-background {\n  position: absolute;\n  top: 0; bottom: 0;\n  z-index: 4;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n.CodeMirror-gutter-wrapper {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  user-select: none;\n}\n\n.CodeMirror-lines {\n  cursor: text;\n  min-height: 1px; /* prevents collapsing before first draw */\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-font-variant-ligatures: contextual;\n  font-variant-ligatures: contextual;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {}\n\n.CodeMirror-code {\n  outline: none;\n}\n\n/* Force content-box sizing for the elements where we expect it */\n.CodeMirror-scroll,\n.CodeMirror-sizer,\n.CodeMirror-gutter,\n.CodeMirror-gutters,\n.CodeMirror-linenumber {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%;\n  height: 0;\n  overflow: hidden;\n  visibility: hidden;\n}\n\n.CodeMirror-cursor {\n  position: absolute;\n  pointer-events: none;\n}\n.CodeMirror-measure pre { position: static; }\n\ndiv.CodeMirror-cursors {\n  visibility: hidden;\n  position: relative;\n  z-index: 3;\n}\ndiv.CodeMirror-dragcursors {\n  visibility: visible;\n}\n\n.CodeMirror-focused div.CodeMirror-cursors {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n.CodeMirror-crosshair { cursor: crosshair; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* Used to force a border model for a node */\n.cm-force-border { padding-right: .1px; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursors {\n    visibility: hidden;\n  }\n}\n\n/* See issue #2901 */\n.cm-tab-wrap-hack:after { content: ''; }\n\n/* Help users use markselection to safely style text background */\nspan.CodeMirror-selectedtext { background: none; }\n"; });
 define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"cobalt.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
+define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n\n</template>\n"; });
+define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filemanager/actions.html', ['module'], function(module) { module.exports = "<template>\n</template>"; });
 define('text!filemanager/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./filepanel\"></require>\n    <require from=\"./viewpanel\"></require>\n\n    <h4>${heading}</h4>\n    <div show.bind=\"showhelp\" class=\"w3-round-large w3-card w3-pale-blue\">\n        <p>This if VirtualFolder FileManager.</p>\n        <p>Use mouse to navigate the files.</p>\n        <p>Click on directory will change to the diarectory. Click on \"..\" will change to parent directory</p>\n        <p>Click on PDB file will visualize the PDB file in next panel.</p>\n    </div>\n    <div class=\"filepanel\">\n      <div class=\"w3-half\">\n\n      <filepanel show.bind=\"!viewpanel1\" tableid=\"filepanel1\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel1\" click.trigger=\"close1()\">X</button>\n        <viewpanel if.bind=\"viewpanel1\" viewid=\"view1\" fileurl.two-way=\"fileurl\"> </viewpanel>\n        <!-- TODO investigate correct binding -->\n</div>\n      <div class=\"w3-half\">\n\n      <filepanel show.bind=\"!viewpanel2\" tableid=\"filepanel2\" ></filepanel>\n        <button class=\"w3-button\" show.bind=\"viewpanel2\" click.trigger=\"close2()\">X</button>\n        <viewpanel if.bind=\"viewpanel2\" viewid=\"view2\" fileurl.two-way=\"fileurl\"> </viewpanel>\n        </div>\n    </div>\n    <div class=\"buttonline\">\n        <div class=\"w3-round-large w3-col\">\n            <button class=\"w3-btn w3-round-large\" click.trigger=\"help()\">F1 Help</button>\n            <!--button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F2 Menu</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F3 View</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F4 Edit</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F5 Copy</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F6 Move</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F7 Mkdir</button>\n            <button class=\"w3-btn w3-ripple  w3-light-blue w3-hover-blue w3-border w3-border-green w3-round-large\">F8 Delete</button-->\n        </div>\n    </div>\n</template>\n"; });
 define('text!filemanager/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"tableid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${tableid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n        </table>\n    </div>\n</template>\n"; });
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n\n</template>\n"; });
-define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
-define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
 define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n</template>\n"; });
 define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
+define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
 define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third w3-card-4 w3-sand w3-padding\">\n\n    <h4>CCP4 suite</h4>\n    <p>The CCP4 (Collaborative Computational Project, Number 4)\n      software suite is a collection of programs and associated data\n      and software libraries which can be used for macromolecular\n      structure determination by X-ray crystallography.</p>\n    <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href=\"http://www.ccp4.ac.uk/ccp4license.php\">CCP4License</a>.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Agree & Enable CCP4</button>\n\n</div>\n</template>\n"; });

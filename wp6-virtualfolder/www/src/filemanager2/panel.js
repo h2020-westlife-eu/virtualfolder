@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 2/10/17.
  */
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from '../filepicker/messages';
+import {SelectedFile,VisualizeFile,EditFile} from '../filepicker/messages';
 import {SelectedTab} from '../tabs/messages';
 import {computedFrom} from 'aurelia-framework';
 
@@ -21,9 +21,9 @@ export class Panel {
         this.selectedTab= this.ids[0];
         this.paneltabs = [
             { id: this.ids[0], label: 'File List'},
-            { id: this.ids[1], label: 'RAW File View' },
+            { id: this.ids[1], label: 'View/Edit' },
             { id: this.ids[2], label: 'Visualize' },
-          { id: this.ids[3], label: 'PDB Analyse' }
+          { id: this.ids[3], label: 'Analyse' }
         ];
         this.selectedAnalyse=this.selectedView=this.selectedVisual=false;
         this.selectedList=true;
@@ -57,8 +57,16 @@ export class Panel {
 
     selectFile(file,senderid) {
       //default action, visualize pdb, change tab
-      if (senderid==this.uid)
-      this.selectTab(this.ids[2]);
-
+      if (senderid==this.uid) {
+        if (file.webdavuri.endsWith('pdb')) {
+          //visualize
+          this.selectTab(this.ids[2]);
+          this.ea.publish(new VisualizeFile(file,senderid));
+        } else {
+          //edit/raw view
+          this.selectTab(this.ids[1]);
+          this.ea.publish(new EditFile(file,senderid));
+        }
+      }
     }
 }

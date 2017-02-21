@@ -8,3 +8,17 @@ export class SelectedFile {
     this.senderid = senderid;
   }
 }
+
+export class VisualizeFile {
+  constructor(file,senderid){
+    this.file = file;
+    this.senderid = senderid;
+  }
+}
+
+export class EditFile {
+  constructor(file,senderid){
+    this.file = file;
+    this.senderid = senderid;
+  }
+}

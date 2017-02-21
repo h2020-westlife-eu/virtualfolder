@@ -4,7 +4,7 @@
  */
 
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from '../filepicker/messages';
+import {VisualizeFile} from '../filepicker/messages';
 import {HttpClient} from 'aurelia-http-client';
 import {bindable} from 'aurelia-framework';
 
@@ -16,7 +16,7 @@ export class  Viewpanel {
         this.element = el;
         this.ea = ea;
         this.httpclient = httpclient;
-        this.ea.subscribe(SelectedFile, msg => this.viewfile(msg.file,msg.senderid));
+      this.ea.subscribe(VisualizeFile, msg => this.viewfile(msg.file,msg.senderid));
         //this.uid = new Date().valueOf().toString();
         this.sourceurl="";
         this.sourceformat="pdb";
@@ -29,13 +29,9 @@ export class  Viewpanel {
 
     viewfile(file,senderid) {
       //view files only in my panel, ignore other panels
-      if (this.panelid == senderid && file.name.endsWith("pdb")) {
         console.log("viewfile "+file.webdavuri);
-        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="'+ file.webdavuri+'" source-format="pdb"></pdb-lite-mol>';
+        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="'+ file.webdavuri+'" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
         this.replacepdblitemol(pdblitemol);
-
-
-      }
     }
 
   loadpdb() {

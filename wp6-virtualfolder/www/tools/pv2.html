@@ -21,7 +21,7 @@
 
 <div>
 
-<p><b>EMBL EBI PDB Viewer: </b><span id="pdbid"></span></p>
+<p><b>EMBL EBI PDB Viewer3: </b><span id="pdbid"></span></p>
         <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
                maxlength="4" size="4"
                onchange='loadPdb(this.value)'/>from PDB database</input>
@@ -61,9 +61,9 @@
       var pdbviewer = $('<div style="position:relative;height:400px;width:800px;" id="pdbviewer">');
       $('#pdbwrapper').append(pdbviewer);
       //var pdbviewer = document.createElement('div');
-      var pdblitemol =  $('<pdb-lite-mol load-ed-maps="true"></pdb-lite-mol>')
+      var pdblitemol =  $('<pdb-lite-mol load-ed-maps="true" pdb-id="\'\'"></pdb-lite-mol>')
       $('#pdbviewer').append(pdblitemol)
-      $('pdb-lite-mol').attr('source-url',"'"+pdbentry+"'");
+      $('pdb-lite-mol').attr('source-url',pdbentry);
       $('pdb-lite-mol').attr('source-format',"pdb");
 
       angular.bootstrap(document.getElementById('pdbviewer'), ['pdb.component.library']);
