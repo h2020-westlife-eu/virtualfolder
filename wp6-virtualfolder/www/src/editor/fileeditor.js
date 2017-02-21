@@ -30,7 +30,7 @@ export class Fileeditor {
     if (editor==null) this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
       lineNumbers: true,
       mode: "text/x-less",
-      theme: "cobalt"
+      theme: "eclipse"
     });
   }
 

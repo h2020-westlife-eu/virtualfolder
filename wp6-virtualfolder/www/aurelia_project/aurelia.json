@@ -117,7 +117,7 @@
             "path": "../node_modules/codemirror",
             "main": "lib/codemirror",
             "resources": [
-              "theme/cobalt.css",
+              "theme/eclipse.css",
               "lib/codemirror.css"
             ]
           },
