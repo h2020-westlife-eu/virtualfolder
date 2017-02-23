@@ -6,26 +6,27 @@ import {SelectedFile,VisualizeFile,EditFile} from '../filepicker/messages';
 import {SelectedTab} from '../tabs/messages';
 import {computedFrom} from 'aurelia-framework';
 
-
 export class Panel {
     static inject = [EventAggregator];
 
     constructor(ea) {
         this.ea = ea;
+
         this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
         this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
         //generate unique id from time
         this.uid = new Date().valueOf();
-        this.ids=[this.uid+'.list',this.uid+'.view',this.uid+'.visual',this.uid+'.analyse']; //prefix uid to tab ids
+        this.ids=[this.uid+'.list',this.uid+'.view',this.uid+'.visual',this.uid+'.analyse',this.uid+'.dataset']; //prefix uid to tab ids
 
         this.selectedTab= this.ids[0];
         this.paneltabs = [
             { id: this.ids[0], label: 'File List'},
             { id: this.ids[1], label: 'View/Edit' },
             { id: this.ids[2], label: 'Visualize' },
-          { id: this.ids[3], label: 'Analyse' }
+          { id: this.ids[3], label: 'Analyse' },
+          { id: this.ids[4], label: 'Dataset' }
         ];
-        this.selectedAnalyse=this.selectedView=this.selectedVisual=false;
+        this.selectedAnalyse=this.selectedView=this.selectedVisual=this.selectedDataset=false;
         this.selectedList=true;
     }
 
@@ -52,6 +53,7 @@ export class Panel {
             this.selectedView = this.selectedTab == this.ids[1];
             this.selectedVisual = this.selectedTab == this.ids[2];
           this.selectedAnalyse=  this.selectedTab == this.ids[3];
+          this.selectedDataset = this.selectedTab == this.ids[4];
         }
     }
 

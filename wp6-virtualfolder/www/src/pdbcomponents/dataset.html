@@ -1,0 +1,14 @@
+<template>
+<div class="w3-card w3-pale-blue">
+
+  <h1>Dataset demo</h1>
+  <form>
+    <input value.bind="pdbdataitem" change.trigger="additem()"/>
+  </form>
+  <pdb-autocomplete-search></pdb-autocomplete-search>
+  <ul>
+    <li repeat.for="item of pdbdataset">${item} <pdb-link pdb-id="${item}"/><a href="${item}"></a></li>
+  </ul>
+
+</div>
+</template>
