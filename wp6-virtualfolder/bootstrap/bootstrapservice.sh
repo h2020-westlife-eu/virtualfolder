@@ -41,3 +41,4 @@ done
 mkdir -p /home/vagrant/logs
 chmod -R ugo+rwx /home/vagrant/logs
 
+

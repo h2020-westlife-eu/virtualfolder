@@ -58,6 +58,8 @@ systemctl enable httpd
 # share work directory via webdav - may be used to directly pass and process data
 mkdir /home/vagrant/work
 chmod ugo+rwx /home/vagrant/work
+#add permission to allow browse webdav content in /home/vagrant/work
+chmod go+rx /home/vagrant
 # workaround issue #6 store some config 
 mkdir /home/vagrant/.westlife
 
