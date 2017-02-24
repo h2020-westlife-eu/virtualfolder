@@ -23,9 +23,12 @@ export class DropboxControl {
     this.accesstoken=this.urlutils.parseQueryString(window.location.hash).access_token;
     this.isAuthenticated = !!this.accesstoken;
     console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
+
     //instantiate dropboxclient - needed for getting URL to redirect
-    this.CLIENTID = "x5tdu20lllmr0nv";
-    var dbx = new Dropbox({clientId: this.CLIENTID});
+    this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
+    var dbx = new Dropbox({clientId: this.CLIENTIDENC.split('').map( function(c) {
+      return String.fromCharCode( 23 ^ c.charCodeAt() );
+    }).join("")});
 
     var currentUrl = window.location.href;
     console.log('dropboxcontrol() current url:' + currentUrl);

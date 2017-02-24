@@ -53,13 +53,13 @@ namespace MetadataServiceTest
 	        Assert.True(response.Length>0);
 	    }
 
-	    [Test()]
+	    /*[Test()]
 	    public void ApacheIntegrationServiceTestCase()
 	    {
 	        var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
 	        var response = client.Get<string>("");
 	        Assert.True(response.Length>0);
-	    }
+	    }*/
 	}
 }
 
