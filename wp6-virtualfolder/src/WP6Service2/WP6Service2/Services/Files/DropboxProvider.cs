@@ -166,7 +166,7 @@ namespace MetadataService.Services.Files
                     Utils.CopyStream(stream, file);
                 }
             }
-            return HttpResult.Redirect(Path.Combine(WEBDAVURL,dropboxpath));
+            return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
