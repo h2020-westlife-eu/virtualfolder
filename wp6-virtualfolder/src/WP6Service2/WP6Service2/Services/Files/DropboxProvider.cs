@@ -166,7 +166,7 @@ namespace MetadataService.Services.Files
                     Utils.CopyStream(stream, file);
                 }
             }
-            return HttpResult.Redirect(WEBDAVURL+dropboxpath);
+            return HttpResult.Redirect(Path.Combine(WEBDAVURL,dropboxpath));
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
@@ -180,8 +180,8 @@ namespace MetadataService.Services.Files
             {
                 //Console.WriteLine("ListOfFilesAsync(), result.Count: " + list.Entries.Count);
                 //wrap path with slashes '/path/' if needed
-                var mypath = (path.StartsWith("/") ? path : ("/" + path));
-                if (!mypath.EndsWith("/")) mypath = "/";
+                var mypath = path.StartsWith("/") ? path : ("/" + path);
+                if (!mypath.EndsWith("/")) mypath += "/";
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
                 {
@@ -232,8 +232,8 @@ namespace MetadataService.Services.Files
         private string LocalOrRemote(string s)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
-            if ((File.Exists(FILESYSTEMFOLDER + s)))
-                return WEBDAVURL + s;
+            if (File.Exists(s.Replace(DROPBOXURIROOT,FILESYSTEMFOLDER)))
+                return s.Replace(DROPBOXURIROOT+"/",WEBDAVURL);
             else
                 return s;
         }

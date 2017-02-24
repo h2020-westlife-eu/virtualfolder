@@ -24,6 +24,7 @@ function reload(done) {
 //tomas added ssi and proxy declaration
 var ssi = require('browsersync-ssi');
 var metadataserviceproxy = require('http-proxy-middleware');
+var webdavproxy = require('http-proxy-middleware');
 
 let serve = gulp.series(
   build,
@@ -43,7 +44,8 @@ let serve = gulp.series(
           baseDir: './',
           ext: '.html'
           }),
-          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'})
+          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'}),
+          webdavproxy('/webdav',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'})
         ]
       }
     }, function(err, bs) {

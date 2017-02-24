@@ -111,7 +111,7 @@ namespace MetadataService
 
 	        _appHost.Start(listeningOn);
 
-	        Console.WriteLine("MetadataService4 ServiceStack 3 Created at {0}, listening on {1}",
+	        Console.WriteLine("MetadataService17.02 ServiceStack 3 Created at {0}, listening on {1}",
 	            DateTime.Now, listeningOn);
 
 	        //Unix specific
