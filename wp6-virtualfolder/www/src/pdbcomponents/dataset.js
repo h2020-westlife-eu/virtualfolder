@@ -7,7 +7,7 @@
   <script type="text/javascript" src="/scripts/autocomplete/build/main.bundle.js"></script>
 */
 
-import "autocomplete";
+//import "autocomplete";
 
 
 //Model view controller
