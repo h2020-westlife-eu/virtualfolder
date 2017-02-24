@@ -86,7 +86,8 @@
         "name": "vendor-bundle.js",
         "prepend": [
           "node_modules/bluebird/js/browser/bluebird.core.js",
-          "node_modules/requirejs/require.js"
+          "node_modules/requirejs/require.js",
+          "node_modules/autocomplete/build/autocomplete.js"
         ],
         "dependencies": [
           "aurelia-binding",
@@ -112,6 +113,11 @@
           "aurelia-templating-binding",
           "aurelia-http-client",
           "text",
+          {
+            "name":"autocomplete",
+            "path":"../node_modules/autocomplete",
+            "main":"build/autocomplete"
+          },
           {
             "name": "codemirror",
             "path": "../node_modules/codemirror",

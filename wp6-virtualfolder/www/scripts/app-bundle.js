@@ -1104,6 +1104,7 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
             _classCallCheck(this, Panel);
 
             this.ea = ea;
+
             this.ea.subscribe(_messages.SelectedFile, function (msg) {
                 return _this.selectFile(msg.file, msg.senderid);
             });
@@ -1112,11 +1113,11 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
             });
 
             this.uid = new Date().valueOf();
-            this.ids = [this.uid + '.list', this.uid + '.view', this.uid + '.visual', this.uid + '.analyse'];
+            this.ids = [this.uid + '.list', this.uid + '.view', this.uid + '.visual', this.uid + '.analyse', this.uid + '.dataset'];
 
             this.selectedTab = this.ids[0];
-            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'View/Edit' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'Analyse' }];
-            this.selectedAnalyse = this.selectedView = this.selectedVisual = false;
+            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'View/Edit' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'Analyse' }, { id: this.ids[4], label: 'Dataset' }];
+            this.selectedAnalyse = this.selectedView = this.selectedVisual = this.selectedDataset = false;
             this.selectedList = true;
         }
 
@@ -1127,6 +1128,7 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
                 this.selectedView = this.selectedTab == this.ids[1];
                 this.selectedVisual = this.selectedTab == this.ids[2];
                 this.selectedAnalyse = this.selectedTab == this.ids[3];
+                this.selectedDataset = this.selectedTab == this.ids[4];
             }
         };
 
@@ -1621,6 +1623,65 @@ define('pdbcomponents/analysepanel',['exports', 'aurelia-framework'], function (
     enumerable: true,
     initializer: null
   })), _class);
+});
+define('pdbcomponents/dataset',["exports", "autocomplete"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Dataset = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Dataset = exports.Dataset = function () {
+    function Dataset() {
+      _classCallCheck(this, Dataset);
+
+      this.pdbdataset = [];
+      this.pdbdataitem = "2hhd";
+    }
+
+    Dataset.prototype.bootstrapPdbeAutocomplete = function bootstrapPdbeAutocomplete() {
+      var event;
+      if (typeof MouseEvent == 'function') {
+        event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
+      } else if (typeof document.createEvent == 'function') {
+        event = document.createEvent('MouseEvents');
+        event.initEvent('PDBeWebComponentsReady', true, true);
+      }
+
+      document.dispatchEvent(event);
+    };
+
+    Dataset.prototype.attached = function attached() {
+      var PdbeAutocompleteSearchConfig = {
+        resultBoxAlign: 'left',
+        redirectOnClick: false,
+        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
+        fields: 'value,num_pdb_entries,var_name',
+        group: 'group=true&group.field=category',
+        groupLimit: '25',
+        sort: 'category+asc,num_pdb_entries+desc',
+        searchParams: 'rows=20000&json.nl=map&wt=json'
+      };
+      document.addEventListener('PDBe.autocomplete.click', function (e) {
+        console.log(e.eventData);
+      });
+
+      this.bootstrapPdbeAutocomplete();
+    };
+
+    Dataset.prototype.additem = function additem() {
+      this.pdbdataset.push(this.pdbdataitem);
+    };
+
+    return Dataset;
+  }();
 });
 define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-http-client', 'aurelia-framework'], function (exports, _aureliaEventAggregator, _messages, _aureliaHttpClient, _aureliaFramework) {
   'use strict';
@@ -5594,11 +5655,12 @@ define('text!filemanager/filepanel.html', ['module'], function(module) { module.
 define('text!filemanager/filesettings.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./actions\"></require>\n    <require from=\"./filepanel\"></require>\n\n    <h4>${heading}</h4>\n    <div class=\"filepanel\">\n    <settings></settings>\n    <filepanel tableid=\"filepanel2\"></filepanel>\n    </div>\n</template>"; });
 define('text!filemanager/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-half\">\n        <div class=\"w3-card w3-white \">\n          <span>${fileurl}</span>\n            <form fileurl.call=\"viewfile\">\n              Load another entry from:\n                <ul>\n                  <li>\n                    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                       maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                       change.trigger=\"loadpdbfile()\"\n                />\n                    PDB database\n                  </li>\n                  <li>\n                    <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                           change.trigger=\"loadfromredo()\"\n                    />\n                    PDB-REDO database\n                  </li>\n                  </ul>\n                </form>\n            <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n\n</template>\n"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n  <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n  <div show.bind=\"selectedDataset\">\n    <dataset></dataset>\n  </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
-define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n</template>\n"; });
+define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n  </div>\n</template>\n"; });
+define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    <input value.bind=\"pdbdataitem\" change.trigger=\"additem()\"/>\n  </form>\n  <pdb-autocomplete-search></pdb-autocomplete-search>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\">${item} <pdb-link pdb-id=\"${item}\"/><a href=\"${item}\"></a></li>\n  </ul>\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });

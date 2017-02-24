@@ -2,6 +2,8 @@
 <head>
   <!--#include virtual="heads.html" -->
   <link rel="stylesheet" href="//www.ebi.ac.uk/pdbe/pdb-component-library/v1.0/css/pdb.component.library.min-1.0.0.css" />
+  <link href="/scripts/autocomplete/build/styles.bundle.css" rel="stylesheet">
+
   <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/d3.min.js"></script>
   <script src="//www.ebi.ac.uk/pdbe/pdb-component-library/libs/angular.1.4.7.min.js"></script>
   <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.32/angular.js"></script-->
@@ -13,7 +15,18 @@
 <body class="w3-container">
 <!--#include virtual="header.html" -->
 <script type='text/javascript' src='https://cdn.rawgit.com/biasmv/pv/master/bio-pv.min.js'></script>
-
+<script type='text/javascript' >
+  var PdbeAutocompleteSearchConfig = {
+    resultBoxAlign: 'left',
+    redirectOnClick: false,
+    searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
+    fields: 'value,num_pdb_entries,var_name',
+    group: 'group=true&group.field=category',
+    groupLimit: '25',
+    sort: 'category+asc,num_pdb_entries+desc',
+    searchParams: 'rows=20000&json.nl=map&wt=json'
+  }
+</script>
 <div id="vffm" class="tab">
   <div aurelia-app="filemanager2/main">
     <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
