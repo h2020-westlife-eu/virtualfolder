@@ -7,15 +7,18 @@
   <script type="text/javascript" src="/scripts/autocomplete/build/main.bundle.js"></script>
 */
 
-import "autocomplete";
+//import "autocomplete";
 
 
 //Model view controller
 //Model view viewmodel
 
 export class Dataset {
-  constructor () {
+  static inject = [Element];
+  constructor (element) {
+    this.element = element;
     this.pdbdataset = [];
+    this.pdblinkset = [];
     this.pdbdataitem = "2hhd";
   }
 
@@ -44,10 +47,11 @@ export class Dataset {
     }
     document.addEventListener('PDBe.autocomplete.click', function(e){ console.log(e.eventData) })
 
-    this.bootstrapPdbeAutocomplete();
+    //this.bootstrapPdbeAutocomplete();
   }
 
   additem(){
+    console.log("additem()");
     this.pdbdataset.push(this.pdbdataitem);
   }
 }

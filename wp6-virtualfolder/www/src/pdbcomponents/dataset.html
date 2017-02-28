@@ -1,4 +1,7 @@
 <template>
+  <require from="./renderpdbs"></require>
+  <require from="./pdb-id"></require>
+  <require from="./pdb-ids"></require>
 <div class="w3-card w3-pale-blue">
 
   <h1>Dataset demo</h1>
@@ -7,8 +10,17 @@
   </form>
   <pdb-autocomplete-search></pdb-autocomplete-search>
   <ul>
-    <li repeat.for="item of pdbdataset">${item} <pdb-link pdb-id="${item}"/><a href="${item}"></a></li>
+    <li repeat.for="item of pdbdataset">${item}
+      <div id="pdblinks-${item}">
+        PDB link:<a href="" class='pdb-links' pdb-id.bind="${item}">${item}</a>
+        PDB link:<a href="" class='pdb-links' pdb-id.bind="item">${item}</a>
+        PDB Redo:<pdb-redo pdb-id="value.bind: item"></pdb-redo>
+        PDB Residue interaction: <pdb-residue-interactions pdb-id="value.bind: item"></pdb-residue-interactions>
+        PDB 3D complex: <pdb-3d-complex pdb-id="value.bind: item" assembly-id="1"></pdb-3d-complex>
+      </div>
+      <div renderpdbs></div>
+    </li>
   </ul>
-
+  <pdb-prints pdb-ids="${pdbdataset}" settings='{"size": 48 }'></pdb-prints>
 </div>
 </template>

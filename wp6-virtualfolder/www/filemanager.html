@@ -14,19 +14,6 @@
 
 <body class="w3-container">
 <!--#include virtual="header.html" -->
-<script type='text/javascript' src='https://cdn.rawgit.com/biasmv/pv/master/bio-pv.min.js'></script>
-<script type='text/javascript' >
-  var PdbeAutocompleteSearchConfig = {
-    resultBoxAlign: 'left',
-    redirectOnClick: false,
-    searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
-    fields: 'value,num_pdb_entries,var_name',
-    group: 'group=true&group.field=category',
-    groupLimit: '25',
-    sort: 'category+asc,num_pdb_entries+desc',
-    searchParams: 'rows=20000&json.nl=map&wt=json'
-  }
-</script>
 <div id="vffm" class="tab">
   <div aurelia-app="filemanager2/main">
     <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
