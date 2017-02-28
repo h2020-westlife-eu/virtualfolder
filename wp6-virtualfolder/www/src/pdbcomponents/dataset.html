@@ -2,6 +2,7 @@
 
   <require from="./pdb-id"></require>
   <require from="./pdb-ids"></require>
+
 <div class="w3-card w3-pale-blue">
 
   <h1>Dataset demo</h1>
@@ -19,13 +20,13 @@
   <pdb-autocomplete-search></pdb-autocomplete-search>
 
   <ul>
-    <li repeat.for="item2 of pdbdataset">${item2}
-      <i class="fa fa-remove" click.delegate="removeitem(item2)"></i>
+    <li repeat.for="item of pdbdataset">${item}
+      <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
       <div id="pdblinks-${item}">
-        PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item2}">${item2}</a>
-        PDB Redo:<pdb-redo pdb-id="${item2}"></pdb-redo>
-        PDB Residue interaction: <pdb-residue-interactions pdb-id="${item2}"></pdb-residue-interactions>
-        PDB 3D complex: <pdb-3d-complex pdb-id="${item2}" assembly-id="1"></pdb-3d-complex>
+        PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a>
+        PDB Redo:<pdb-redo pdb-id="${item}"></pdb-redo>
+        PDB Residue interaction: <pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions>
+        PDB 3D complex: <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
       </div>
     </li>
   </ul>
