@@ -8,18 +8,40 @@
 */
 
 //import "autocomplete";
-
+import {HttpClient} from "aurelia-http-client";
+import {computedFrom} from 'aurelia-framework';
 
 //Model view controller
 //Model view viewmodel
 
 export class Dataset {
-  static inject = [Element];
-  constructor (element) {
+  static inject = [Element,HttpClient];
+
+  constructor (element,httpclient) {
     this.element = element;
     this.pdbdataset = [];
     this.pdblinkset = [];
     this.pdbdataitem = "";
+    this.submitdisabled2 = true;
+    let date = new Date();
+    this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
+    this.client = httpclient;
+    this.client.configure(config=> {
+      config.withHeader('Accept', 'application/json');
+      config.withHeader('Content-Type', 'application/json');
+    });
+
+  }
+
+  //@computedFrom('submitdisabled2')
+  //TODO check,test to trigger only when pdbdataset is changed
+  get canSubmit() {
+    //console.log("disabled? "+this.pdbdataset.length);
+    if (this.pdbdataset.length>0)
+      return true;
+    else
+      return false;
+
   }
 
   bootstrapPdbeAutocomplete(){
@@ -53,5 +75,23 @@ export class Dataset {
   additem(){
     console.log("additem()");
     this.pdbdataset.push(this.pdbdataitem);
+
+    //this.canSubmit = this.pdbdataset.length>0?true:false;
+  }
+
+  removeitem(itemtodelete){
+    this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
+  }
+
+  submit(){
+    this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
+      .then(data =>{
+        console.log("data response");
+        console.log(data);
+      })
+      .catch(error =>{
+        console.log(error);
+        alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+      });
   }
 }
