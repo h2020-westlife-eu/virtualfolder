@@ -1,11 +1,11 @@
 /**
- * Created by vagrant on 2/21/17.
+ * Created by Tomas Kulhanek on 2/21/17.
  */
 /*
-<script type="text/javascript" src="/scripts/autocomplete/build/inline.bundle.js"></script>
-  <script type="text/javascript" src="/scripts/autocomplete/build/vendor.bundle.js"></script>
-  <script type="text/javascript" src="/scripts/autocomplete/build/main.bundle.js"></script>
-*/
+ <script type="text/javascript" src="/scripts/autocomplete/build/inline.bundle.js"></script>
+ <script type="text/javascript" src="/scripts/autocomplete/build/vendor.bundle.js"></script>
+ <script type="text/javascript" src="/scripts/autocomplete/build/main.bundle.js"></script>
+ */
 
 //import "autocomplete";
 
@@ -16,22 +16,24 @@
 export class Dataset {
   constructor () {
     this.pdbdataset = [];
-    this.pdbdataitem = "2hhd";
+    this.pdbdataitem = "";
   }
 
-  bootstrapPdbeAutocomplete(){
-  var event;
-  if (typeof MouseEvent == 'function') {
-    event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
-  } else if (typeof document.createEvent == 'function') {
-    event = document.createEvent('MouseEvents');
-    event.initEvent('PDBeWebComponentsReady', true /*bubbles*/, true /*cancelable*/);
+  /*bootstrapPdbeAutocomplete(){
+    console.log("pdb-autocomplete bootstrap()");
+    var event;
+    if (typeof MouseEvent == 'function') {
+      event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
+    } else if (typeof document.createEvent == 'function') {
+      event = document.createEvent('MouseEvents');
+      event.initEvent('PDBeWebComponentsReady', true, true );
+    }
+    //Dispatch
+    document.dispatchEvent(event);
   }
-  //Dispatch
-  document.dispatchEvent(event);
-}
 
   attached() {
+    console.log("Dataset attached(), calling bootstrap.")
     var PdbeAutocompleteSearchConfig = {
       resultBoxAlign: 'left',
       redirectOnClick: false,
@@ -46,7 +48,7 @@ export class Dataset {
 
     this.bootstrapPdbeAutocomplete();
   }
-
+*/
   additem(){
     this.pdbdataset.push(this.pdbdataitem);
   }

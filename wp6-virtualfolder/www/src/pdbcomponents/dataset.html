@@ -1,14 +1,26 @@
 <template>
-<div class="w3-card w3-pale-blue">
+  <require from="./pdbautocompletesearch"></require>
 
-  <h1>Dataset demo</h1>
-  <form>
-    <input value.bind="pdbdataitem" change.trigger="additem()"/>
-  </form>
-  <pdb-autocomplete-search></pdb-autocomplete-search>
-  <ul>
-    <li repeat.for="item of pdbdataset">${item} <pdb-link pdb-id="${item}"/><a href="${item}"></a></li>
-  </ul>
+  <div class="w3-card w3-pale-blue">
 
-</div>
+    <h1>Dataset demo</h1>
+    <br/>
+    Autocomplete input pdb entry:
+    <br/>
+    Angular2:
+    <pdb-autocomplete-search></pdb-autocomplete-search>
+    <br/>
+    Aurelia:
+    <pdbautocompletesearch></pdbautocompletesearch>
+    <br/>
+    Raw input pdb entry:
+    <form>
+      <input placeholder="2hhd" value.bind="pdbdataitem" change.trigger="additem()"/>
+    </form>
+
+    <ul>
+      <li repeat.for="item of pdbdataset">${item} <pdb-link pdb-id="${item}"/><a href="${item}"></a></li>
+    </ul>
+
+  </div>
 </template>

@@ -38,6 +38,7 @@ let serve = gulp.series(
         baseDir: ['.'],
         middleware: [historyApiFallback(), function(req, res, next) {
           res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
           next();
         }, //tomas added ssi and proxy
           ssi({
