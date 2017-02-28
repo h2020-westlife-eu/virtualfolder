@@ -30,14 +30,16 @@ include header of the pages shared among all of them, add this line up to the ht
 <body>
 <!--#include file="header.html" -->
 ...
-
+</body>
 ```
+
 (Optionaly) include footer, add this line bottom to the html content of ```your.html```:
+
+
 ```
 <!--#include file="footer.html" -->
-</body>
-...
 
+</body>
 ```
 * edit ```header.html``` to contain link into your new page.
 add e.g. following row into desirable place of the menu
