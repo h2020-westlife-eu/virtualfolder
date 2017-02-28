@@ -1,27 +1,26 @@
 /**
  * Created by Tomas Kulhanek on 2/27/17.
  */
-import {bindable} from 'aurelia-framework';
 
 export class PdbIdCustomAttribute {
   static inject = [Element]
-  @bindable value;
+
   constructor (element) {
     this.element = element;
   }
 
-  valueChanged(newvalue,oldvalue) {
-    console.log('valuechanged()');
-    console.log(newvalue);
-    console.log(this.value);
-    angular.bootstrap(this.element, ['pdb.component.library']);
+  /* set's DOM atribute to the binded value.
+   valueChanged() is triggered by Aurelia,
+   when the value is bind - before attached()
+   */
+  valueChanged(newValue,oldValue){
+   //console.log('valueChanged() element:'+this.element.tagName+" newvalue:"+newValue+' this.value:'+this.value+' current.attribute.pdb-id:'+ this.element.getAttribute('pdb-id'));
+   this.element.setAttribute('pdb-id',this.value);
+   //console.log(this.element.getAttribute('pdb-id'));
   }
 
-  bind(o1,o2){
-   console.log('bind()');
-   console.log(o1);
-   this.value = o1.item;
-   console.log(o2);
-
+  /* bootstrap the pdb component library just from the element */
+  attached(){
+    angular.bootstrap(this.element, ['pdb.component.library']);
   }
 }

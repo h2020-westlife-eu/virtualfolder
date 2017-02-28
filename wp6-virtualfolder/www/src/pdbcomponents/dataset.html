@@ -6,21 +6,22 @@
 
   <h1>Dataset demo</h1>
   <form>
-    <input value.bind="pdbdataitem" change.trigger="additem()"/>
+    <input value.bind="pdbdataitem" change.trigger="additem()" placeholder="4yg0"/>
   </form>
+
   <pdb-autocomplete-search></pdb-autocomplete-search>
+
   <ul>
-    <li repeat.for="item of pdbdataset">${item}
+    <li repeat.for="item2 of pdbdataset">${item}
       <div id="pdblinks-${item}">
-        PDB link:<a href="" class='pdb-links' pdb-id.bind="${item}">${item}</a>
-        PDB link:<a href="" class='pdb-links' pdb-id.bind="item">${item}</a>
-        PDB Redo:<pdb-redo pdb-id="value.bind: item"></pdb-redo>
-        PDB Residue interaction: <pdb-residue-interactions pdb-id="value.bind: item"></pdb-residue-interactions>
-        PDB 3D complex: <pdb-3d-complex pdb-id="value.bind: item" assembly-id="1"></pdb-3d-complex>
+        PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item2}">${item2}</a>
+        PDB Redo:<pdb-redo pdb-id="${item2}"></pdb-redo>
+        PDB Residue interaction: <pdb-residue-interactions pdb-id="${item2}"></pdb-residue-interactions>
+        PDB 3D complex: <pdb-3d-complex pdb-id="${item2}" assembly-id="1"></pdb-3d-complex>
       </div>
-      <div renderpdbs></div>
     </li>
   </ul>
-  <pdb-prints pdb-ids="${pdbdataset}" settings='{"size": 48 }'></pdb-prints>
+
+  <pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 48 }'></pdb-prints>
 </div>
 </template>

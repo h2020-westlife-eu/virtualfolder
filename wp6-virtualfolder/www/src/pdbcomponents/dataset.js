@@ -19,7 +19,7 @@ export class Dataset {
     this.element = element;
     this.pdbdataset = [];
     this.pdblinkset = [];
-    this.pdbdataitem = "2hhd";
+    this.pdbdataitem = "";
   }
 
   bootstrapPdbeAutocomplete(){
