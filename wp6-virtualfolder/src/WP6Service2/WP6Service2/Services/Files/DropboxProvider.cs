@@ -74,7 +74,7 @@ namespace MetadataService.Services.Files
             //TODO change access token to user specific
             try
             {
-                if (accesstoken.Length==0) return;
+                if ((accesstoken==null) || (accesstoken.Length==0)) return;
                 //setting proxy if it is defined in environment
                 var environmentVariable = System.Environment.GetEnvironmentVariable("http_proxy");
                 ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;

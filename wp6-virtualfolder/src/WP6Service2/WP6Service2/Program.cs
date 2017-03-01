@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using MetadataService.Services.Files;
+using MetadataService.Services.Settings;
+using Microsoft.OneDrive.Sdk;
 using ServiceStack;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -16,7 +19,6 @@ namespace MetadataService
 {
 	public class Program
 	{
-		//Define the Web Services AppHost
 	    //Define the Web Services AppHost
 	    public class AppHost : AppHostHttpListenerBase {
 	        public AppHost()
@@ -34,34 +36,52 @@ namespace MetadataService
 	            // initialize some basic data in db
 	            using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {
 	                //drops table
-	                db.DropTable<PDBArtifact> ();
-	                //create table
-	                db.CreateTableIfNotExists<PDBArtifact>();
+	                //db.DropTable<DBSettings> ();
+	                db.CreateTableIfNotExists<DBSettings>();
+	                try
 	                {
-	                    var p = new PDBArtifact { Id = 1, Description = "The cryo-EM structure of Zika Virus", PDBId = "5ire", UriOfArtifact="http://www.ebi.ac.uk/pdbe/entry/pdb/5ire" };
-	                    db.Insert (p);
-	                    p = new PDBArtifact { Id = 2, Description = "Dendrotoxin", PDBId = "1dtu", UriOfArtifact="http://www.ebi.ac.uk/pdbe/entry/pdb/1dtu" };
-	                    db.Insert (p);
-	                    //Add seed data
+	                    var dbsettingslist = db.Select<DBSettings>();
+	                    var dbsettings = dbsettingslist.First();
+	                    var version = new Version(dbsettings.VirtualFolderVersion);
+                        Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
 	                }
+	                catch (InvalidOperationException e)
+	                {
+	                    //not version stored - version <= 17.02 or new database
+	                    Console.WriteLine("Database not versioned. Applying patch.");
+                        var dbsettings = new DBSettings(){VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString()};
+	                    db.Insert<DBSettings>(dbsettings);
 
-	                db.DropTable<SBService> ();
-	                String [][] services = {new string[]
-	                        {"b2drop", "/bin/sudo","/home/vagrant/scripts/mountb2drop.sh"},
-	                    new string[]{"ccp4suite","/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-	                    new string[]{"scipion", "/bin/sh","/home/vagrant/scripts/startScipionWeb.sh"},
-	                    new string[]{"virtuoso", "/bin/sh","/home/vagrant/scripts/startVirtuoso.sh"}
-	                };
+	                    //create table
+	                    db.CreateTableIfNotExists<PDBArtifact>();
 
-	                //create table
-	                db.CreateTableIfNotExists<SBService>();
+                        //db.DropTable<SBService> ();
+	                    String [][] services = {new string[]
+	                            {"b2drop", "/bin/sudo","/home/vagrant/scripts/mountb2drop.sh"},
+	                        new string[]{"ccp4suite","/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
+	                        new string[]{"scipion", "/bin/sh","/home/vagrant/scripts/startScipionWeb.sh"},
+	                        new string[]{"virtuoso", "/bin/sh","/home/vagrant/scripts/startVirtuoso.sh"}
+	                    };
+
+	                    //create table
+	                    db.CreateTableIfNotExists<SBService>();
 
 	                    foreach (var service in services) {
 	                        var p = new SBService { Name = service [0], Shell=service[1],TriggerScript = service [2] };
 	                        db.Insert (p);
 	                    }
-//	                db.DropTable<ProviderItem>();
-	                db.CreateTableIfNotExists<ProviderItem>();
+
+	                    db.CreateTableIfNotExists<ProviderItem>();
+	                    //encrypt secure keys in DB
+	                    var items = db.Select<ProviderItem>();
+	                    foreach (var item in items)
+	                    {
+	                        var b = item;
+	                        SettingsStorageInDB.encrypt(ref b);
+	                        db.Update<ProviderItem>(b);
+	                    }
+	                }
+
 	            }
 	        }
 	    }
@@ -111,7 +131,7 @@ namespace MetadataService
 
 	        _appHost.Start(listeningOn);
 
-	        Console.WriteLine("MetadataService4 ServiceStack 3 Created at {0}, listening on {1}",
+	        Console.WriteLine("MetadataService " + Assembly.GetExecutingAssembly().GetName().Version.ToString()+" ServiceStack 3 Created at {0}, listening on {1}",
 	            DateTime.Now, listeningOn);
 
 	        //Unix specific
