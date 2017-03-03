@@ -28,6 +28,7 @@ namespace MetadataService.Services.Files
             var mysession = req.Cookies["sessionid"];
 
             //get user info related to session id fromVRE
+            if (mysession == null) return; //no cookie set - return
             var loggeduser = GetAssociatedUser(mysession.Value);
 
             //Console.WriteLine("Provider Service list"+loggeduser);
@@ -61,7 +62,7 @@ namespace MetadataService.Services.Files
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
             //check subject for portal.west-life.eu 
-            return false || cert.Subject.ToUpper().Contains("portal.west-life.eu");
+            return false || cert.Subject.ToLower().Contains("portal.west-life.eu");
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using MetadataService.Services.Files;
 using ServiceStack.OrmLite;
@@ -12,6 +12,7 @@ namespace MetadataService.Services.Settings
     public class DBSettings
     {
         public string VirtualFolderVersion { get; set; }
+        public string KeyHash { get; set; }
     }
 
     public class SettingsStorageInDB : ISettingsStorage
@@ -77,6 +78,32 @@ namespace MetadataService.Services.Settings
         public static void encrypt(ref ProviderItem item)
         {
             item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, pkey, Encoding.UTF8.GetBytes(item.loggeduser));
+        }
+
+        public static bool compareHash(string keyHash)
+        {
+            return SimpleHash.VerifyHash(pkey, keyHash);
+        }
+
+        public static string getHash()
+        {
+            return SimpleHash.ComputeHash(pkey);
+        }
+
+        public static void storeSetting( IDbConnection db)
+        {
+            var dbsettings = new DBSettings()
+            {
+                VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
+                KeyHash = getHash()
+            };
+            db.Insert<DBSettings>(dbsettings);
+        }
+
+        public static DBSettings getDBSettings(IDbConnection db)
+        {
+            var dbsettingslist = db.Select<DBSettings>();
+            return dbsettingslist.First();
         }
     }
 }

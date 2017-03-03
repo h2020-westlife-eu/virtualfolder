@@ -8,7 +8,7 @@ namespace MetadataService.Services.Files
     {
         public static Dictionary<string, IProviderCreator> AvailableProviders;
 
-        const string ALLOW_FILESYSTEM_VAR = "VF_ALLOW_FILESYSTEM";
+        public const string ALLOW_FILESYSTEM_VAR = "VF_ALLOW_FILESYSTEM";
 
         static ProviderFactory()
         {

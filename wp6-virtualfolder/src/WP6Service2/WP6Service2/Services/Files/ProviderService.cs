@@ -41,7 +41,7 @@ namespace MetadataService.Services.Files
     }
 
     [Route("/providers", "GET")]
-    public class Providers
+    public class Providers : IReturn<List<string>>
     {
         public string name { get; set; }
         public string username { get; set; }
@@ -92,9 +92,9 @@ namespace MetadataService.Services.Files
         }
 
         /** returns list of available providers, which can be configured by the user */
-        public object Get(Providers request)
+        public List<string> Get(Providers request)
         {
-            return ProviderFactory.AvailableProviders.Keys;
+            return ProviderFactory.AvailableProviders.Keys.ToList();
         }
 
         //registers new alias and provider which serve it

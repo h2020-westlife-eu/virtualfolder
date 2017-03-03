@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using Microsoft.OneDrive.Sdk;
@@ -40,17 +41,37 @@ namespace MetadataService
 	                db.CreateTableIfNotExists<DBSettings>();
 	                try
 	                {
-	                    var dbsettingslist = db.Select<DBSettings>();
-	                    var dbsettings = dbsettingslist.First();
+	                    var dbsettings = SettingsStorageInDB.getDBSettings(db);
 	                    var version = new Version(dbsettings.VirtualFolderVersion);
                         Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
+	                    var keyHash = dbsettings.KeyHash;
+	                    try
+	                    {
+	                        if (SettingsStorageInDB.compareHash(dbsettings.KeyHash))
+	                        {
+	                            //hash are same, OK
+	                        }
+	                        else
+	                        {
+	                            Console.WriteLine("Warning: database is encrypted with different key. Replacing...");
+	                            SettingsStorageInDB.storeSetting(db);
+	                            //throw new SecurityException("database is encrypted with different key");
+	                        }
+	                    }
+	                    catch (FormatException e)
+	                    {
+	                        //hash not stored
+	                        Console.WriteLine("Warning: Missing hash. Cannot validate encryption.");
+
+
+	                    }
+
 	                }
 	                catch (InvalidOperationException e)
 	                {
 	                    //not version stored - version <= 17.02 or new database
-	                    Console.WriteLine("Database not versioned. Applying patch.");
-                        var dbsettings = new DBSettings(){VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString()};
-	                    db.Insert<DBSettings>(dbsettings);
+	                    Console.WriteLine("Database not versioned. Applying patch. Encrypting selected items.");
+	                    SettingsStorageInDB.storeSetting(db);
 
 	                    //create table
 	                    db.CreateTableIfNotExists<PDBArtifact>();
