@@ -93,4 +93,4 @@ To use the components, no framework/library is needed. To develop the components
 Deprecated - use virtualfoldersettings.
 
 ## Further doc
-http://internal-wiki.west-life.eu/w/index.php?title=D6.1
+http://internal-wiki.west-life.eu/w/index.php?title=D6.2

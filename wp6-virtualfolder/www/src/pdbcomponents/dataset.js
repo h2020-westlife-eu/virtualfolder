@@ -8,6 +8,8 @@
 */
 
 //import "autocomplete";
+
+//import "autocomplete";
 import {HttpClient} from "aurelia-http-client";
 import {computedFrom} from 'aurelia-framework';
 
@@ -20,6 +22,7 @@ export class Dataset {
   constructor (element,httpclient) {
     this.element = element;
     this.pdbdataset = [];
+    this.pdbdataitem = "";
     this.pdblinkset = [];
     this.pdbdataitem = "";
     this.submitdisabled2 = true;
@@ -44,19 +47,21 @@ export class Dataset {
 
   }
 
-  bootstrapPdbeAutocomplete(){
-  var event;
-  if (typeof MouseEvent == 'function') {
-    event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
-  } else if (typeof document.createEvent == 'function') {
-    event = document.createEvent('MouseEvents');
-    event.initEvent('PDBeWebComponentsReady', true /*bubbles*/, true /*cancelable*/);
+  /*bootstrapPdbeAutocomplete(){
+    console.log("pdb-autocomplete bootstrap()");
+    var event;
+    if (typeof MouseEvent == 'function') {
+      event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
+    } else if (typeof document.createEvent == 'function') {
+      event = document.createEvent('MouseEvents');
+      event.initEvent('PDBeWebComponentsReady', true, true );
+    }
+    //Dispatch
+    document.dispatchEvent(event);
   }
-  //Dispatch
-  document.dispatchEvent(event);
-}
 
   attached() {
+    console.log("Dataset attached(), calling bootstrap.")
     var PdbeAutocompleteSearchConfig = {
       resultBoxAlign: 'left',
       redirectOnClick: false,
@@ -71,7 +76,7 @@ export class Dataset {
 
     //this.bootstrapPdbeAutocomplete();
   }
-
+*/
   additem(){
     console.log("additem()");
     this.pdbdataset.push(this.pdbdataitem);

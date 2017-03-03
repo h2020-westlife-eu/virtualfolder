@@ -26,16 +26,16 @@ for i in {1..3}; do
 	    echo certdata.txt exists
 	else
 	    echo downloading certdata.txt
-	    wget --quiet -O certdata.txt https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
+	    wget --quiet -O certdata.txt http://mxr.mozilla.org/seamonkey/source/security/nss/lib/ckfw/builtins/certdata.txt?raw=1
 	fi
 	mozroots --import --sync --file certdata.txt
 	#certmgr -ssl -m https://go.microsoft.com
 	#certmgr -ssl -m https://nugetgallery.blob.core.windows.net
 	#certmgr -ssl -m https://nuget.org
 	# restore nuget packages 
-	nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
+	#nuget restore /home/vagrant/src/WP6Service2/WP6Service2.sln
 	# build project EXEcutable, workaround on xbuild bug - hangs after compilation
-	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/WP6Service2.sln 
+	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/Build.proj
     fi
 done
 mkdir -p /home/vagrant/logs
