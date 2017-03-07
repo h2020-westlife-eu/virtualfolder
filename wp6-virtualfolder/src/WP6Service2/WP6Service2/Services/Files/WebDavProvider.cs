@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using MetadataService.Services.Settings;
@@ -17,6 +18,9 @@ namespace MetadataService.Services.Files
     public class WebDavProvider : AFileProvider
     {
         private readonly string _providerurl = "";//"https://b2drop.eudat.eu/remote.php/webdav"
+        private static HashSet<string> initializedproviders = new HashSet<string>();
+        private static object initlock = new object();
+
 
         /** default constructor */
         public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection):this( item, storage, connection,item.accessurl)
@@ -51,38 +55,54 @@ namespace MetadataService.Services.Files
         //TODO sudo as 'vagrant' here or sudo whole 'metadataservice'?
         private async Task Initialize(ProviderItem request)
         {
-            int exitcode;
-            request.output = Utils.ExecuteShell("/bin/bash", new string[]
+            lock (initlock)
             {
-                //"-H -u vagrant",
-                "/home/vagrant/scripts/mountb2drop.sh",
-                "add",
-                _providerurl,
-                FILESYSTEMFOLDER,
-                request.username,
-                request.securetoken,
-                WEBDAVURL
-            },out exitcode);
-            Console.WriteLine(request.output);
-            //request.securetoken = ""; //just remove secure token, as it is not needed anymore
-
-            //request.connected = GetB2DropStatus();
-            //return request;
+                if (initializedproviders.Contains(FILESYSTEMFOLDER))
+                {
+                    Console.WriteLine("provider at "+FILESYSTEMFOLDER+"already initialized for " + username);
+                    return;
+                }
+                //else
+                initializedproviders.Add(FILESYSTEMFOLDER);
+                int exitcode;
+                request.output = Utils.ExecuteShell("/bin/bash", new string[]
+                {
+                    //"-H -u vagrant",
+                    "/home/vagrant/scripts/mountb2drop.sh",
+                    "add",
+                    _providerurl,
+                    FILESYSTEMFOLDER,
+                    request.username,
+                    request.securetoken,
+                    WEBDAVURL
+                }, out exitcode);
+                Console.WriteLine(request.output);
+            }
         }
 
         private async Task DeInitialize()
         {
-            int exitcode;
-            var output = Utils.ExecuteShell("/bin/bash", new string[]
+            lock (initlock)
             {
-                "/home/vagrant/scripts/mountb2drop.sh",
-                "remove",
-                _providerurl,
-                FILESYSTEMFOLDER,
-                username,
-                WEBDAVURL
-            },out exitcode);
-            Console.WriteLine(output);
+                if (!initializedproviders.Contains(FILESYSTEMFOLDER))
+                {
+                    Console.WriteLine("provider " + FILESYSTEMFOLDER + " already deinitialized for " + username);
+                    return;
+                }
+                //else
+                initializedproviders.Remove(FILESYSTEMFOLDER);
+                int exitcode;
+                var output = Utils.ExecuteShell("/bin/bash", new string[]
+                {
+                    "/home/vagrant/scripts/mountb2drop.sh",
+                    "remove",
+                    _providerurl,
+                    FILESYSTEMFOLDER,
+                    username,
+                    WEBDAVURL
+                }, out exitcode);
+                Console.WriteLine(output);
+            }
             //request.securetoken = ""; //just remove secure token, as it is not needed anymore
 
             //request.connected = GetB2DropStatus();
