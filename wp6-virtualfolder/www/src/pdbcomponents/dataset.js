@@ -79,7 +79,7 @@ export class Dataset {
 */
   additem(){
     console.log("additem()");
-    this.pdbdataset.push(this.pdbdataitem);
+    this.pdbdataset.unshift(this.pdbdataitem);
 
     //this.canSubmit = this.pdbdataset.length>0?true:false;
   }
@@ -92,7 +92,7 @@ export class Dataset {
     this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
       .then(data =>{
         console.log("data response");
-        console.log(data);
+        console.log(data);9
       })
       .catch(error =>{
         console.log(error);
