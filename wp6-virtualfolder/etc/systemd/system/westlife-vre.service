@@ -1,0 +1,12 @@
+[Unit]
+Description=West-Life VRE Service
+
+[Service]
+Type=simple
+PIDFile=/var/run/westlife-vre.pid
+User=vagrant
+ExecStart="/cvmfs/west-life.egi.eu/software/vre/latest/rundevvre.sh"
+WorkingDirectory=/cvmfs/west-life.egi.eu/software/vre/latest/
+
+[Install]
+WantedBy=multi-user.target

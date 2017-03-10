@@ -53,8 +53,17 @@ namespace MetadataService
 	                        }
 	                        else
 	                        {
-	                            Console.WriteLine("Warning: database is encrypted with different key. Replacing...");
-	                            SettingsStorageInDB.storeSetting(db);
+	                            if (SettingsStorageInDB.compareDefaultHash(dbsettings.KeyHash))
+	                            {
+	                                Console.WriteLine("Warning: database is encrypted with default key. Currently using new key. Replacing...");
+	                                SettingsStorageInDB.storeSetting(db);
+	                                SettingsStorageInDB.swapfromdefaultkey(db);
+	                            }
+	                            else
+	                            {
+	                                Console.WriteLine("Warning: database is encrypted with different key. Replacing...");
+	                                SettingsStorageInDB.storeSetting(db);
+	                            }
 	                            //throw new SecurityException("database is encrypted with different key");
 	                        }
 	                    }
@@ -62,8 +71,6 @@ namespace MetadataService
 	                    {
 	                        //hash not stored
 	                        Console.WriteLine("Warning: Missing hash. Cannot validate encryption.");
-
-
 	                    }
 
 	                }
@@ -124,7 +131,10 @@ namespace MetadataService
 	        UnixSignal[] signals = new UnixSignal[]
 	        {
 	            new UnixSignal(Signum.SIGTERM),
-	            new UnixSignal(Signum.SIGUSR1)
+	            new UnixSignal(Signum.SIGUSR1),
+	            new UnixSignal(Signum.SIGABRT),
+	            new UnixSignal(Signum.SIGHUP),
+	            new UnixSignal(Signum.SIGINT)
 	        };
 
 	        // Wait for a unix signal
@@ -160,6 +170,7 @@ namespace MetadataService
 
 	    public static void StopHost()
 	    {
+	        Console.WriteLine("MetadataService Shutdown");
 	        _appHost.Dispose();
 	    }
 	}

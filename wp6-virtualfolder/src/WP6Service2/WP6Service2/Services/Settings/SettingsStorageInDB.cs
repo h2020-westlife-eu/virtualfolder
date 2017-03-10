@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using MetadataService.Services.Files;
 using ServiceStack.OrmLite;
@@ -48,41 +49,90 @@ namespace MetadataService.Services.Settings
         {
 //            return Db.Select<ProviderItem>(x => x.username == userid);
             var selected = Db.Select<ProviderItem>(x => x.loggeduser == userid);
-            decrypt(ref selected, userid);
+            decrypt(ref selected);
             //var selected = all.FindAll();
             return selected;
-
         }
 
-        private static string pkey = Environment.GetEnvironmentVariable("VF_STORAGE_PKEY") != null
+        private static readonly string nonsecurepkey = "sMhM8zRVjY0v";
+        private static readonly string pkey = Environment.GetEnvironmentVariable("VF_STORAGE_PKEY") != null
             ? Environment.GetEnvironmentVariable("VF_STORAGE_PKEY")
-            : "sMhM8zRVjY0v";
+            : nonsecurepkey;
 
-        private static void decrypt( ref List<ProviderItem> enclist, string userid)
+        //TODO test
+        public static void decrypt( ref List<ProviderItem> enclist)
         {
+            var newlist = new List<ProviderItem>();
             foreach (var item in enclist)
             {
                 try
                 {
-                    var dectoken  = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, pkey,
-                        Encoding.UTF8.GetBytes(item.loggeduser).Length);
-                    item.securetoken = dectoken;
+                    var providerItem = item;
+                    decrypt(ref providerItem);
+                    newlist.Add(providerItem);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Exception during decryption for item:"+item.alias+" error:"+e.Message+e.StackTrace);
                 }
             }
+            enclist = newlist;
         }
+
+        public static void decrypt(ref ProviderItem item)
+        {
+            decrypt(ref item,pkey);
+            //var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, pkey,
+//                Encoding.UTF8.GetBytes(item.loggeduser).Length);
+  //          item.securetoken = dectoken;
+        }
+
+        public static void decrypt(ref ProviderItem item,string key)
+        {
+            var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, key,
+                Encoding.UTF8.GetBytes(item.loggeduser).Length);
+            item.securetoken = dectoken;
+        }
+
 
         public static void encrypt(ref ProviderItem item)
         {
-            item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, pkey, Encoding.UTF8.GetBytes(item.loggeduser));
+            encrypt(ref item, pkey);
+            //item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, pkey, Encoding.UTF8.GetBytes(item.loggeduser));
+        }
+        public static void encrypt(ref ProviderItem item, string key)
+        {
+            item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, key, Encoding.UTF8.GetBytes(item.loggeduser));
+        }
+
+        public static void swapkeys(IDbConnection Db,string key1, string key2)
+        {
+            var items = Db.Select<ProviderItem>();
+            List<ProviderItem> newitems=new List<ProviderItem>();
+            foreach (var item in items)
+            {
+
+                var providerItem = item;
+                decrypt(ref providerItem,key1);
+                encrypt(ref providerItem,key2);
+                newitems.Add(providerItem);
+            }
+            Db.UpdateAll(items);
+        }
+
+        public static void swapfromdefaultkey(IDbConnection Db)
+        {
+            swapkeys(Db,nonsecurepkey,pkey);
         }
 
         public static bool compareHash(string keyHash)
         {
             return SimpleHash.VerifyHash(pkey, keyHash);
+        }
+
+        public static bool compareDefaultHash(string keyHash)
+        {
+            return SimpleHash.VerifyHash(nonsecurepkey, keyHash); //compare default
         }
 
         public static string getHash()
