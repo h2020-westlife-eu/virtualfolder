@@ -60,7 +60,7 @@ namespace MetadataService.Services.Settings
             : nonsecurepkey;
 
         //TODO test
-        public static void decrypt( ref List<ProviderItem> enclist)
+        public static void decrypt( ref List<ProviderItem> enclist, string key)
         {
             var newlist = new List<ProviderItem>();
             foreach (var item in enclist)
@@ -68,7 +68,7 @@ namespace MetadataService.Services.Settings
                 try
                 {
                     var providerItem = item;
-                    decrypt(ref providerItem);
+                    decrypt(ref providerItem,key);
                     newlist.Add(providerItem);
                 }
                 catch (Exception e)
@@ -77,6 +77,11 @@ namespace MetadataService.Services.Settings
                 }
             }
             enclist = newlist;
+        }
+
+        public static void decrypt( ref List<ProviderItem> enclist)
+        {
+            decrypt(ref enclist,pkey);
         }
 
         public static void decrypt(ref ProviderItem item)

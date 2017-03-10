@@ -98,7 +98,7 @@ namespace MetadataServiceTest
 	        items.Add(item2);
 	        Assert.False(items[0].securetoken.Equals(testmessage)); //item2 is encrypted not same as plaintext
 	        Assert.False(items[1].securetoken.Equals(testmessage)); //item2 is encrypted not same as plaintext
-	        SettingsStorageInDB.decrypt(ref items);
+	        SettingsStorageInDB.decrypt(ref items,testpassword);
 	        Assert.True(items[0].securetoken.Equals(testmessage));
 	        Assert.True(items[1].securetoken.Equals(testmessage));
 

@@ -55,13 +55,13 @@ namespace MetadataService
 	                        {
 	                            if (SettingsStorageInDB.compareDefaultHash(dbsettings.KeyHash))
 	                            {
-	                                Console.WriteLine("Warning: database is encrypted with default key. Currently using new key. Replacing...");
+	                                Console.WriteLine("Warning: database is encrypted with default key. Currently using new key. Replacing.");
 	                                SettingsStorageInDB.storeSetting(db);
 	                                SettingsStorageInDB.swapfromdefaultkey(db);
 	                            }
 	                            else
 	                            {
-	                                Console.WriteLine("Warning: database is encrypted with different key. Replacing...");
+	                                Console.WriteLine("Warning: database is encrypted with different key. Encrypted items will not be accessible.");
 	                                SettingsStorageInDB.storeSetting(db);
 	                            }
 	                            //throw new SecurityException("database is encrypted with different key");
