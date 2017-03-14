@@ -1,0 +1,12 @@
+[sl-fastbugs]
+name=Scientific Linux $slreleasever - $basearch - bugfix updates
+baseurl=http://www.mirrorservice.org/sites/ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/fastbugs/
+        http://anorien.csc.warwick.ac.uk/mirrors/scientific/$slreleasever/$basearch/updates/fastbugs/
+        http://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/fastbugs/
+        http://ftp1.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/fastbugs/
+        http://ftp2.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/fastbugs/
+        ftp://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/fastbugs/
+#mirrorlist=http://ftp.scientificlinux.org/linux/scientific/mirrorlist/sl-fastbugs-7.txt
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl7
