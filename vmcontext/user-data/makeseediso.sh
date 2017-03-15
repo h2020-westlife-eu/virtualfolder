@@ -3,6 +3,8 @@
 rm -rf iso
 mkdir -p iso
 # encode script
+fromdos src/*.sh
+fromdos iso/*.sh
 base64 -w 0 src/user-data.sh > src/user-data.sh.encoded
 cp src/context.sh.prefix iso/context.sh
 # echo without new line
