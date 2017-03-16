@@ -24,11 +24,10 @@
   <ul>
     <li repeat.for="item of pdbdataset">${item}
       <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
-      <i class="fa fa-window-minimize" click.delegate="hideitem(item)"></i>
       <dataitem item="${item}"></dataitem>
     </li>
   </ul>
 
-  <pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 48 }'></pdb-prints>
+  <!--pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 48 }'></pdb-prints-->
 </div>
 </template>

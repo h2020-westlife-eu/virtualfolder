@@ -5,7 +5,11 @@ import {bindable} from 'aurelia-framework';
 export class Dataitem {
     @bindable item;
     constructor() {
+      this.showitem=true;
+    }
 
+    hideitem() {
+      this.showitem = ! this.showitem;
     }
 
 }

@@ -2,7 +2,7 @@
   <require from="./pdb-id"></require>
   <require from="./pdb-ids"></require>
   <require from="./entry-id"></require>
-
+  <i class="fa fa-window-minimize" click.delegate="hideitem(item)"></i>
   <div id="pdblinks-${item}" show.bind="showitem">
   PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a>
   PDB Redo:<pdb-redo pdb-id="${item}"></pdb-redo>
