@@ -1,0 +1,6 @@
+<template>
+    <button click.delegate="changeshowit()">${title}</button>
+    <span show.bind="showit">
+      <slot></slot>
+    </span>
+</template>

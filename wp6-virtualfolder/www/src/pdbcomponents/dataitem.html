@@ -2,13 +2,14 @@
   <require from="./pdb-id"></require>
   <require from="./pdb-ids"></require>
   <require from="./entry-id"></require>
+  <require from="./hideable"></require>
   <i class="fa fa-window-minimize" click.delegate="hideitem(item)"></i>
   <div id="pdblinks-${item}" show.bind="showitem">
-  PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a>
-  PDB Redo:<pdb-redo pdb-id="${item}"></pdb-redo>
-  PDB Residue interaction: <pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions>
-  PDB 3D complex: <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
-  PDB Topology Viewer: <pdb-topology-viewer entry-id="${item}" entity-id="1"></pdb-topology-viewer>
-  PDB Sequence Viewer: <pdb-seq-viewer entry-id="${item}" entity-id="1" height="370"></pdb-seq-viewer>
+    <br/><hideable title="PDB link"><a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a></hideable>
+    <br/><hideable title="PDB Redo"><pdb-redo pdb-id="${item}"></pdb-redo></hideable>
+    <br/><hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
+    <br/><hideable title="PDB 3D complex"><pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex></hideable>
+    <br/><hideable title="PDB Topology Viewer"><pdb-topology-viewer entry-id="${item}" entity-id="1"></pdb-topology-viewer></hideable>
+    <br/><hideable title="PDB Sequence Viewer"><pdb-seq-viewer entry-id="${item}" entity-id="1" height="370"></pdb-seq-viewer></hideable>
 </div>
 </template>
