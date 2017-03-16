@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 2/27/17.
+ * created by Tomas Kulhanek on 2/27/17.
  */
 
 export class Sasclient {

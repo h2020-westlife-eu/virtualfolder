@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 2/16/17.
+ * created by Tomas Kulhanek on 2/16/17.
  */
 import {bindable, inject} from 'aurelia-framework';
 

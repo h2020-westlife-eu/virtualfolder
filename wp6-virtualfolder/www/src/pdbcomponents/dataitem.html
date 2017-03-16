@@ -1,0 +1,14 @@
+<template>
+  <require from="./pdb-id"></require>
+  <require from="./pdb-ids"></require>
+  <require from="./entry-id"></require>
+
+  <div id="pdblinks-${item}" show.bind="showitem">
+  PDB link:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a>
+  PDB Redo:<pdb-redo pdb-id="${item}"></pdb-redo>
+  PDB Residue interaction: <pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions>
+  PDB 3D complex: <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
+  PDB Topology Viewer: <pdb-topology-viewer entry-id="${item}" entity-id="1"></pdb-topology-viewer>
+  PDB Sequence Viewer: <pdb-seq-viewer entry-id="${item}" entity-id="1" height="370"></pdb-seq-viewer>
+</div>
+</template>

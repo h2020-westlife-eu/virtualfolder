@@ -29,6 +29,8 @@ export class PdbIdCustomAttribute {
 
   /* bootstrap the pdb component library just from the element */
   attached(){
+    console.log('attached element with custom attribute pdb-id:')
+    console.log(this.element.getAttribute('pdb-id'));
     angular.bootstrap(this.element, ['pdb.component.library']);
   }
 }

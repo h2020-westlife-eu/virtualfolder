@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 9/6/16.
+ * created by Tomas Kulhanek on 9/6/16.
  */
 
 export class App {

@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 9/6/16.
+ * created by Tomas Kulhanek on 9/6/16.
  */
 import {HttpClient} from 'aurelia-http-client';
 import {AControl} from './acontrol';

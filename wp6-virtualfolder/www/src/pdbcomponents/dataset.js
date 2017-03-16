@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 2/21/17.
+ * created by Tomas Kulhanek on 2/21/17.
  */
 /*
 <script type="text/javascript" src="/scripts/autocomplete/build/inline.bundle.js"></script>
@@ -33,7 +33,7 @@ export class Dataset {
       config.withHeader('Accept', 'application/json');
       config.withHeader('Content-Type', 'application/json');
     });
-
+    this.showitem=true;
   }
 
   //@computedFrom('submitdisabled2')
@@ -87,6 +87,13 @@ export class Dataset {
   removeitem(itemtodelete){
     this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
   }
+
+
+  //model-view -viewmodel
+  hideitem() {
+    this.showitem = ! this.showitem;
+  }
+
 
   submit(){
     this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))

@@ -1,5 +1,5 @@
 /**
- * Created by vagrant on 9/28/16.
+ * created by Tomas Kulhanek on 9/28/16.
  */
 
 import {HttpClient} from 'aurelia-http-client';
