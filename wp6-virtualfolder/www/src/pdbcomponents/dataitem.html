@@ -3,13 +3,21 @@
   <require from="./pdb-ids"></require>
   <require from="./entry-id"></require>
   <require from="./hideable"></require>
-  <i class="fa fa-window-minimize" click.delegate="hideitem(item)"></i>
-  <div id="pdblinks-${item}" show.bind="showitem">
-    <hideable title="PDB link"><a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a></hideable>
+  <i class="fa fa-window-minimize" click.delegate="hideitem()"></i>
+
+  <span class="w3-right" show.bind="itemPDBEntry">recognized as PDB entry</span><span class="w3-right" show.bind="! itemPDBEntry">recognized as UniProt entry</span>
+  <br/><span if.bind="itemPDBEntry">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a></span>
+  <span if.bind="! itemPDBEntry">UniProt Link <a href="http://www.uniprot.org/uniprot/${item}">${item}</a></span>
+  <div id="pdblinks-${item}" if.bind="showitem">
+    <hideable defaulthide=true title="PDB Litemol Viewer"><div style="position:relative;height:400px;width:600px;"><pdb-lite-mol pdb-id="'${item}'" hide-controls="true" load-ed-maps="true"></pdb-lite-mol></div></hideable>
     <hideable title="PDB Redo"><pdb-redo pdb-id="${item}"></pdb-redo></hideable>
     <hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
     <hideable title="PDB 3D complex"><pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex></hideable>
     <hideable title="PDB Topology Viewer"><pdb-topology-viewer entry-id="${item}" entity-id="1"></pdb-topology-viewer></hideable>
     <hideable title="PDB Sequence Viewer"><pdb-seq-viewer entry-id="${item}" entity-id="1" height="370"></pdb-seq-viewer></hideable>
-</div>
+  </div>
+  <div id="uniprot-${item}" if.bind="showuniprotitem">
+    <hideable title="PDB UniProt Viewer"><pdb-uniprot-viewer entry-id="${item}" height="320"></pdb-uniprot-viewer></hideable>
+  </div>
+
 </template>

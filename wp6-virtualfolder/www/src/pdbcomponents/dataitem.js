@@ -3,13 +3,30 @@
  */
 import {bindable} from 'aurelia-framework';
 export class Dataitem {
-    @bindable item;
+    @bindable item = "";
     constructor() {
-      this.showitem=true;
+      console.log('dataitem()')
+      console.log(this.item);
+    }
+
+    bind() {
+      this.itemPDBEntry= this.isPDBEntry(this.item);
+      this.showitem=this.itemPDBEntry;
+      this.showuniprotitem=! this.itemPDBEntry;
+      console.log(this.item);
     }
 
     hideitem() {
-      this.showitem = ! this.showitem;
+      if (this.itemPDBEntry) {
+        this.showitem = !this.showitem;
+      } else {
+        this.showuniprotitem = !this.showuniprotitem;
+      }
+    }
+
+    isPDBEntry (entry) {
+      return /^[0-9][A-Za-z0-9]{3}$/.test(entry);
+
     }
 
 }
