@@ -5,6 +5,7 @@
   <require from="./entry-id"></require>
   <require from="./dataitem"></require>
   <require from="./hideable"></require>
+  <require from="./pdb-autocomplete-search"></require>
 
 <div class="w3-card w3-pale-blue">
 
@@ -15,11 +16,12 @@
     <br/>
     pdb or uniprot item to add:
     <input value.bind="pdbdataitem" change.delegate="additem()" placeholder="4yg0"/><br/>
+
   </form>
 
   <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
 
-  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->
+  <pdb-autocomplete-search></pdb-autocomplete-search>
 <hr/>
   <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
 <br/>
