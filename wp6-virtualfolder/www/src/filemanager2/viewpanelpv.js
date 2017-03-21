@@ -3,8 +3,9 @@
  */
 
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from '../filepicker/messages';
+import {SelectedFile,VisualizeFile} from '../filepicker/messages';
 import {HttpClient} from 'aurelia-http-client';
+
 
 export class  Viewpanelpv {
   static inject = [EventAggregator,HttpClient];

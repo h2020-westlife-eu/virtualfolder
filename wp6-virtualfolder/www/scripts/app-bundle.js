@@ -805,7 +805,7 @@ define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../fi
 
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(VisualizeFile, function (msg) {
+      this.ea.subscribe(_messages.VisualizeFile, function (msg) {
         return _this.viewfile(msg.file);
       });
     }
