@@ -1,7 +1,4 @@
 export default {
-  debug: true,
-  testing: true
+  debug: false,
+  testing: false
 };
-/**
- * Created by root on 3/10/17.
- */

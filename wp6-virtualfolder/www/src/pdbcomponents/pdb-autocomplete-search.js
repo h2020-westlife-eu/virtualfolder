@@ -15,8 +15,8 @@ export class PdbAutocompleteSearch {
 
   //triggered when the element is attached to DOM
   attached(){
-/*
-    angular.bootstrap(this.element);
+  console.log("pdb autocomplete");
+    console.log(this.element);
     //Autocomplete Config Object
     this.PdbeAutocompleteSearchConfig = {
       resultBoxAlign: 'left',
@@ -26,7 +26,8 @@ export class PdbAutocompleteSearch {
       group: 'group=true&group.field=category',
       groupLimit: '25',
       sort: 'category+asc,num_pdb_entries+desc',
-      searchParams: 'rows=20000&json.nl=map&wt=json'
+      searchParams: 'rows=20000&json.nl=map&wt=json',
+      longStackTraces: true
     }
 
     //
@@ -42,6 +43,7 @@ export class PdbAutocompleteSearch {
       }
       //Dispatch
       document.dispatchEvent(event);
-*/
+    angular.bootstrap(this.element);
+
     }
 }
