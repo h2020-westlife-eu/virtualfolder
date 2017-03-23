@@ -11,7 +11,7 @@ echo Warning: This operation might be slown down by repeating requests to SL ser
 echo minrate=10 >> /etc/yum.conf
 echo timeout=120 >> /etc/yum.conf
 # copy additional sl7 mirrors in UK
-cp sl7*.repo /etc/yum.repos.d
+cp /cvmfs/west-life.egi.eu/software/virtualfolder/conf/sl7*.repo /etc/yum.repos.d
 echo Added mirrors to sl7 repo
 yum -y install epel-release
 yum repolist
@@ -59,7 +59,7 @@ cert-sync /etc/pki/tls/certs/ca-bundle.crt
 #generate random key
 if [ -f /home/vagrant/.westlife/metadata.key ]
 then
-   `cat /home/vagrant/.westlife/metadata.key`
+   source /home/vagrant/.westlife/metadata.key`
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
