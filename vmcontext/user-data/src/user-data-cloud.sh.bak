@@ -26,9 +26,13 @@ else
   chown -R vagrant:vagrant .ssh
   echo added non-secure public key 
 fi
-#workaround for autologin
-killall lxdm-binary
+# bootstrap from cloud
+/cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapcloud.sh
+# or bootstrap from sources
+#/cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapsources.sh
+
 exit
+
 [amiconfig]
 plugins=cernvm cernvm_appliance rapadminpassword
 
