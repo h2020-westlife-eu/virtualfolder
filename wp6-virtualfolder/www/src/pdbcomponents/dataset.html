@@ -14,7 +14,7 @@
     <input value.bind="name" change.trigger="changename()"/>
     <br/>
     pdb or uniprot item to add:
-    <input value.bind="pdbdataitem" change.delegate="additem()" placeholder="4yg0"/><br/>
+    <input value.bind="pdbdataitem" change.delegate="additem()"  placeholder="4yg0"/><br/>
   </form>
 
   <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
