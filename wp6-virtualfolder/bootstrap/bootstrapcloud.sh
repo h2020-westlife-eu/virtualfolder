@@ -53,16 +53,17 @@ fi
 #######################
 # transcript of bootstrapservice.sh
 
-mozroots --import --sync
+cert-sync /etc/pki/tls/certs/ca-bundle.crt
 #mkdir -p /home/vagrant/logs
 #chmod -R ugo+rwx /home/vagrant/logs
 #generate random key
 if [ -f /home/vagrant/.westlife/metadata.key ]
 then
-   export VF_STORAGE_PKEY=`cat /home/vagrant/.westlife/metadata.key`
+   `cat /home/vagrant/.westlife/metadata.key`
+   export VF_STORAGE_PKEY
 else
-   export VF_STORAGE_PKEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-   echo $VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
+   export VF_STORAGE_PKEY=`openssl rand -base64 32`
+   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
 fi
 
 ##########################
