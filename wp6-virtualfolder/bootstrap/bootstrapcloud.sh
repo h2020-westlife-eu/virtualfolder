@@ -59,7 +59,7 @@ cert-sync /etc/pki/tls/certs/ca-bundle.crt
 #generate random key
 if [ -f /home/vagrant/.westlife/metadata.key ]
 then
-   source /home/vagrant/.westlife/metadata.key`
+   source /home/vagrant/.westlife/metadata.key
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
