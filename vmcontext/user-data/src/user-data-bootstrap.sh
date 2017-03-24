@@ -1,19 +1,10 @@
 #!/bin/sh.after
 . /etc/cernvm/site.conf
-echo Provisioning CernVM...
 usermod -G wheel,docker,users,vagrant vagrant
-#passwd -d vagrant
 /etc/cernvm/config -x
 date > /etc/vagrant_provisioned_at
-
-echo vagrant context: setting vagrant user
-# user added in cervm context
-# useradd -p '$6$aSrbQftI$Q/Yk7xI0E4eNV58cRuvjqOHGXS.99BLU19QuJ5M.4X2.tTNSke2J9Cu6kf8fjegq0f1hk/MU8x/RR.TFy3nW50' vagrant
-echo vagrant context: user created
 echo "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 echo "Defaults:vagrant !requiretty"   >> /etc/sudoers
-echo vagrant context: user sudo set
-
 cd /home/vagrant
 if [ -f "/home/vagrant/.ssh/authorized_keys" ]
 then
@@ -24,13 +15,8 @@ else
   chmod 0600               .ssh/authorized_keys
   chmod 0700               .ssh
   chown -R vagrant:vagrant .ssh
-  echo added non-secure public key 
 fi
-# bootstrap from cloud
-/cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapcloud.sh
-# or bootstrap from sources
-#/cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapsources.sh
-
+/cern
 exit
 
 [amiconfig]
