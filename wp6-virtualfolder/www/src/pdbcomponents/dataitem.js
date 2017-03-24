@@ -31,7 +31,7 @@ export class Dataitem {
     constructor(httpclient) {
       console.log('dataitem()')
       console.log(this.item);
-      this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1cbs"
+      this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
       this.client = httpclient;
 
       this.client.configure(config => {
@@ -43,7 +43,7 @@ export class Dataitem {
 
       attached() {
 
-        this.client.get(this.serviceurl)
+        this.client.get(this.serviceurl+this.item)
           .then(data => {
             if (data.response) {
               console.log("there is response");
