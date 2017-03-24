@@ -67,6 +67,191 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
+define('accordion/accordion-section',['exports', 'aurelia-framework', './accordion'], function (exports, _aureliaFramework, _accordion) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.AccordionSection = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _dec, _class, _desc, _value, _class2, _descriptor;
+
+  var AccordionSection = exports.AccordionSection = (_dec = (0, _aureliaFramework.inject)(_accordion.Accordion), _dec(_class = (_class2 = function () {
+    function AccordionSection(accordion) {
+      _classCallCheck(this, AccordionSection);
+
+      _initDefineProp(this, 'title', _descriptor, this);
+
+      this.accordion = accordion;
+    }
+
+    AccordionSection.prototype.attached = function attached() {
+      this.accordion.sections.push(this);
+      this.accordion.sections[0].isVisible = true;
+    };
+
+    AccordionSection.prototype.showContent = function showContent() {
+      for (var _iterator = this.accordion.sections, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var section = _ref;
+
+        section.isVisible = false;
+      }
+      this.isVisible = true;
+    };
+
+    return AccordionSection;
+  }(), (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'title', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class2)) || _class);
+});
+define('accordion/accordion',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Accordion = exports.Accordion = function Accordion() {
+    _classCallCheck(this, Accordion);
+
+    this.sections = [];
+  };
+});
+define('accordion/app',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var App = exports.App = function App() {
+    _classCallCheck(this, App);
+  };
+});
+define('accordion/environment',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    debug: true,
+    testing: true
+  };
+});
+define('accordion/main',['exports', './environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
 define('b2dropcontrol/acontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
     "use strict";
 
@@ -509,8 +694,8 @@ define('dataset/environment',["exports"], function (exports) {
     value: true
   });
   exports.default = {
-    debug: false,
-    testing: false
+    debug: true,
+    testing: true
   };
 });
 define('dataset/main',['exports', './environment'], function (exports, _environment) {
@@ -805,7 +990,7 @@ define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../fi
 
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(_messages.VisualizeFile, function (msg) {
+      this.ea.subscribe(VisualizeFile, function (msg) {
         return _this.viewfile(msg.file);
       });
     }
@@ -1258,7 +1443,7 @@ define('pdbcomponents/analysepanel',['exports', 'aurelia-framework'], function (
     initializer: null
   })), _class);
 });
-define('pdbcomponents/dataitem',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
+define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-http-client'], function (exports, _aureliaFramework, _aureliaHttpClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1315,17 +1500,46 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework'], function (expo
     throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
   }
 
-  var _desc, _value, _class, _descriptor;
+  var _desc, _value, _class, _descriptor, _class2, _temp;
 
-  var Dataitem = exports.Dataitem = (_class = function () {
-    function Dataitem() {
+  var Dataitem = exports.Dataitem = (_class = (_temp = _class2 = function () {
+    function Dataitem(httpclient) {
       _classCallCheck(this, Dataitem);
 
       _initDefineProp(this, 'item', _descriptor, this);
 
       console.log('dataitem()');
       console.log(this.item);
+      this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1cbs";
+      this.client = httpclient;
+
+      this.client.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
     }
+
+    Dataitem.prototype.attached = function attached() {
+      var _this = this;
+
+      this.client.get(this.serviceurl).then(function (data) {
+        if (data.response) {
+          console.log("there is response");
+        }
+      }).catch(function (error) {
+
+        console.log('Error');
+        console.log(error);
+        alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this.serviceurl);
+      });
+    };
+
+    Dataitem.prototype.populateFiles = function populateFiles(dataresponse) {
+
+      this.files = JSON.parse(dataresponse);
+
+      console.log("kotoba");
+    };
 
     Dataitem.prototype.bind = function bind() {
       this.itemPDBEntry = this.isPDBEntry(this.item);
@@ -1347,8 +1561,13 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework'], function (expo
       );
     };
 
+    Dataitem.prototype.getIdentityID = function getIdentityID() {
+
+      console.log("This try is " + this.serviceurl);
+    };
+
     return Dataitem;
-  }(), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'item', [_aureliaFramework.bindable], {
+  }(), _class2.inject = [_aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'item', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: function initializer() {
       return "";
@@ -1748,97 +1967,6 @@ define('pdbcomponents/pdbautocompletesearch',['exports', 'aurelia-framework', 'a
     enumerable: true,
     initializer: function initializer() {
       return "";
-    }
-  })), _class);
-});
-define('pdbcomponents/renderable',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Renderable = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor, _descriptor2;
-
-  var Renderable = exports.Renderable = (_class = function () {
-    function Renderable() {
-      _classCallCheck(this, Renderable);
-
-      _initDefineProp(this, 'title', _descriptor, this);
-
-      _initDefineProp(this, 'defaulthide', _descriptor2, this);
-
-      this.showit = true;
-    }
-
-    Renderable.prototype.bind = function bind() {
-      if (this.defaulthide) {
-        this.showit = false;
-      }
-    };
-
-    Renderable.prototype.refresh = function refresh() {
-      this.showit = true;
-    };
-
-    return Renderable;
-  }(), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'title', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'defaulthide', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return true;
     }
   })), _class);
 });
@@ -3323,16 +3451,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "do else enum extends final finally float for goto if implements import " +
                     "instanceof interface native new package private protected public " +
                     "return static strictfp super switch synchronized this throw throws transient " +
-                    "try volatile while"),
+                    "try volatile while @interface"),
     types: words("byte short int long float double boolean char void Boolean Byte Character Double Float " +
                  "Integer Long Number Object Short String StringBuffer StringBuilder Void"),
     blockKeywords: words("catch class do else finally for if switch try while"),
-    defKeywords: words("class interface package enum"),
+    defKeywords: words("class interface package enum @interface"),
     typeFirstDefinitions: true,
     atoms: words("true false null"),
     number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+\.?\d*|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
     hooks: {
       "@": function(stream) {
+        // Don't match the @interface keyword.
+        if (stream.match('interface', false)) return false;
+
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
@@ -3388,14 +3519,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       /* scala */
       "abstract case catch class def do else extends final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
-      "sealed super this throw trait try type val var while with yield _ : = => <- <: " +
-      "<% >: # @ " +
+      "sealed super this throw trait try type val var while with yield _ " +
 
       /* package scala */
       "assert assume require print println printf readLine readBoolean readByte readShort " +
-      "readChar readInt readLong readFloat readDouble " +
-
-      ":: #:: "
+      "readChar readInt readLong readFloat readDouble"
     ),
     types: words(
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
@@ -3416,6 +3544,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("true false null"),
     indentStatements: false,
     indentSwitch: false,
+    isOperatorChar: /[+\-*&%=<>!?|\/#:@]/,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
@@ -3698,7 +3827,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   var defaultTags = {
     script: [
       ["lang", /(javascript|babel)/i, "javascript"],
-      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i, "javascript"],
+      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^module$|^$/i, "javascript"],
       ["type", /./, "text/plain"],
       [null, null, "javascript"]
     ],
@@ -4866,12 +4995,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
   function classNameAfter(type, value) {
-    if (value == "extends" || value == "implements") return cont(isTS ? typeexpr : expression, classNameAfter);
+    if (value == "extends" || value == "implements" || (isTS && type == ","))
+      return cont(isTS ? typeexpr : expression, classNameAfter);
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
     if (type == "variable" || cx.style == "keyword") {
-      if ((value == "static" || value == "get" || value == "set" ||
+      if ((value == "async" || value == "static" || value == "get" || value == "set" ||
            (isTS && (value == "public" || value == "private" || value == "protected" || value == "readonly" || value == "abstract"))) &&
           cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
         cx.marked = "keyword";
@@ -4880,6 +5010,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "property";
       return cont(isTS ? classfield : functiondef, classBody);
     }
+    if (type == "[")
+      return cont(expression, expect("]"), isTS ? classfield : functiondef, classBody)
     if (value == "*") {
       cx.marked = "keyword";
       return cont(classBody);
@@ -5058,6 +5190,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
       allowNested = parserConfig.allowNested,
+      lineComment = parserConfig.lineComment,
       supportsAtComponent = parserConfig.supportsAtComponent === true;
 
   var type, override;
@@ -5283,6 +5416,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.pseudo = function(type, stream, state) {
+    if (type == "meta") return "pseudo";
+
     if (type == "word") {
       override = "variable-3";
       return state.context.type;
@@ -5437,6 +5572,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     electricChars: "}",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
+    lineComment: lineComment,
     fold: "brace"
   };
 });
@@ -5760,6 +5896,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
@@ -5802,6 +5939,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
@@ -5854,83 +5992,29 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
 });
 
-define('pdbcomponents/pdb-autocomplete-search',['exports', 'aurelia-framework', 'aurelia-http-client', './sasclient'], function (exports, _aureliaFramework, _aureliaHttpClient, _sasclient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.PdbAutocompleteSearch = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _class, _temp;
-
-  var PdbAutocompleteSearch = exports.PdbAutocompleteSearch = (_temp = _class = function () {
-    function PdbAutocompleteSearch(element) {
-      _classCallCheck(this, PdbAutocompleteSearch);
-
-      this.element = element;
-    }
-
-    PdbAutocompleteSearch.prototype.attached = function attached() {
-      console.log("pdb autocomplete");
-      console.log(this.element);
-
-      this.PdbeAutocompleteSearchConfig = {
-        resultBoxAlign: 'left',
-        redirectOnClick: false,
-        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
-        fields: 'value,num_pdb_entries,var_name',
-        group: 'group=true&group.field=category',
-        groupLimit: '25',
-        sort: 'category+asc,num_pdb_entries+desc',
-        searchParams: 'rows=20000&json.nl=map&wt=json',
-        longStackTraces: true
-      };
-
-      document.addEventListener('PDBe.autocomplete.click', function (e) {
-        console.log(e.eventData);
-      });
-
-      var event;
-      if (typeof MouseEvent == 'function') {
-        event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
-      } else if (typeof document.createEvent == 'function') {
-        event = document.createEvent('MouseEvents');
-        event.initEvent('PDBeWebComponentsReady', true, true);
-      }
-
-      document.dispatchEvent(event);
-      angular.bootstrap(this.element);
-    };
-
-    return PdbAutocompleteSearch;
-  }(), _class.inject = [Element], _temp);
-});
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${message}</h1>\n</template>\n"; });
+define('text!accordion/styles.css', ['module'], function(module) { module.exports = "/* Styles go here */\n\n.accordion {\n  border: 1px solid red;\n}\n\n.accordion h3 {\n  background: gray;\n  color: white;\n}\n\n.hidden {\n  display: none;\n}\n"; });
+define('text!accordion/accordion-section.html', ['module'], function(module) { module.exports = "<template>\n  <h3 click.trigger=\"showContent()\">${title}</h3>\n  <div show.bind=\"isVisible\">\n    <p>\n      <content></content>\n    </p>\n  </div>\n</template>\n"; });
+define('text!accordion/accordion.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"accordion\">\n    <content></content>\n  </div>\n</template>\n"; });
+define('text!accordion/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./accordion\"></require>\n  <require from=\"./accordion-section\"></require>\n\n\n  <accordion>\n    <accordion-section title=\"Section 1\">\n      Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer\n      ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit\n      amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut\n      odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.\n    </accordion-section>\n    <accordion-section title=\"Section 2\">\n      Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer\n      ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit\n      amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut\n      odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.\n    </accordion-section>\n    <accordion-section title=\"Section 3\">\n      Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer\n      ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit\n      amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut\n      odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.\n    </accordion-section>\n    <accordion-section title=\"Section 4\">\n      Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer\n      ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit\n      amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut\n      odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.\n    </accordion-section>\n  </accordion>\n\n</template>\n"; });
+define('text!accordion/index-accordion.html', ['module'], function(module) { module.exports = "<!doctype html>\n<html>\n<head>\n  <title>Aurelia</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n</head>\n\n\n<script src=\"../../scripts/jquery-1.7.2.min.js\"></script>\n<script src=\"../../scripts/system.js\"></script>\n\n\n<div aurelia-app=\"main\">\n  <script src=\"../../scripts/vendor-bundle.js\" data-main=\"aurelia-bootstrapper\"></script>\n  Loading ...\n</div>\n\n</body>\n</html>\n"; });
+define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
 define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
 define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
+define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n  </div>\n</template>\n"; });
+define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
+define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
+define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
+define('text!pdbcomponents/pdbautocompletesearch.html', ['module'], function(module) { module.exports = "<template>\n  <input class=\"pdbAutoCompleteSearchBox\" value.bind=\"searchbox & debounce:500\" placeholder=\"2hhd\"/>\n</template>\n"; });
+define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n  <div show.bind=\"selectedDataset\">\n    <dataset></dataset>\n  </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
-define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n  </div>\n</template>\n"; });
-define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span><span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\"><pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex></hideable>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
-define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./pdb-autocomplete-search\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\" placeholder=\"4yg0\"/><br/>\n\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <pdb-autocomplete-search></pdb-autocomplete-search>\n\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
-define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
-define('text!pdbcomponents/pdbautocompletesearch.html', ['module'], function(module) { module.exports = "<template>\n  <input class=\"pdbAutoCompleteSearchBox\" value.bind=\"searchbox & debounce:500\" placeholder=\"2hhd\"/>\n</template>\n"; });
-define('text!pdbcomponents/renderable.html', ['module'], function(module) { module.exports = "<template>\n  <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"refresh()\">${title} <i class=\"fa fa-refresh\"></i></button>\n  <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
-define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
 define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third w3-card-4 w3-sand w3-padding\">\n\n    <h4>CCP4 suite</h4>\n    <p>The CCP4 (Collaborative Computational Project, Number 4)\n      software suite is a collection of programs and associated data\n      and software libraries which can be used for macromolecular\n      structure determination by X-ray crystallography.</p>\n    <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href=\"http://www.ccp4.ac.uk/ccp4license.php\">CCP4License</a>.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Agree & Enable CCP4</button>\n\n</div>\n</template>\n"; });
@@ -5940,5 +6024,4 @@ define('text!virtualfoldermodules/virtuosocontrol.html', ['module'], function(mo
 define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half w3-sand w3-padding\">\n\n\n      <table class=\"w3-sand \">\n        <thead>\n        <tr><th colspan=\"3\">List of connected providers</th> </tr>\n        <tr>\n          <th align=\"left\">Alias</th>\n          <th align=\"left\">Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td><a href=\"filemanager.html\"class=\"w3-button\">Browse content</a></td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large w3-blue\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - Settings</h3>\n  </div>\n\n\n     <form submit.trigger=\"newProvider()\">\n    <aliastable></aliastable>\n    </form>\n\n    <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n\n</template>\n"; });
 define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half w3-sand w3-padding\">\n\n    <form submit.trigger=\"addProvider()\">\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n          <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n            Fill in the existing B2DROP username and password here:</p>\n          Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WEBDAV is standard protocol to access content via web technologies. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input type=\"text\" name=\"accessurl\" size=\"15\" maxlength=\"1024\" value.bind=\"accessurl\"/><br/>\n          Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n      </div>\n\n    </form>\n\n\n  </div>\n\n</template>\n"; });
-define('text!pdbcomponents/pdb-autocomplete-search.html', ['module'], function(module) { module.exports = "<template>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map
