@@ -3738,7 +3738,7 @@ module.exports = ret;
 },{"./es5":10}]},{},[3])(3)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.2 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -3750,7 +3750,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.3',
+        version = '2.3.2',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -4179,9 +4179,7 @@ var requirejs, require, define;
             //Account for relative paths if there is a base name.
             if (name) {
                 if (prefix) {
-                    if (isNormalized) {
-                        normalizedName = name;
-                    } else if (pluginModule && pluginModule.normalize) {
+                    if (pluginModule && pluginModule.normalize) {
                         //Plugin is loaded, use its normalize method.
                         normalizedName = pluginModule.normalize(name, function (name) {
                             return normalize(name, parentName, applyMap);
@@ -4713,8 +4711,7 @@ var requirejs, require, define;
                         //prefix and name should already be normalized, no need
                         //for applying map config again either.
                         normalizedMap = makeModuleMap(map.prefix + '!' + name,
-                                                      this.map.parentMap,
-                                                      true);
+                                                      this.map.parentMap);
                         on(normalizedMap,
                             'defined', bind(this, function (value) {
                                 this.map.normalizedMap = normalizedMap;
@@ -12668,6 +12665,215 @@ define('aurelia-framework',['exports', 'aurelia-dependency-injection', 'aurelia-
   exports.FrameworkConfiguration = FrameworkConfiguration;
   var LogManager = exports.LogManager = TheLogManager;
 });
+define('aurelia-history',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  
+
+  function mi(name) {
+    throw new Error('History must implement ' + name + '().');
+  }
+
+  var History = exports.History = function () {
+    function History() {
+      
+    }
+
+    History.prototype.activate = function activate(options) {
+      mi('activate');
+    };
+
+    History.prototype.deactivate = function deactivate() {
+      mi('deactivate');
+    };
+
+    History.prototype.getAbsoluteRoot = function getAbsoluteRoot() {
+      mi('getAbsoluteRoot');
+    };
+
+    History.prototype.navigate = function navigate(fragment, options) {
+      mi('navigate');
+    };
+
+    History.prototype.navigateBack = function navigateBack() {
+      mi('navigateBack');
+    };
+
+    History.prototype.setTitle = function setTitle(title) {
+      mi('setTitle');
+    };
+
+    return History;
+  }();
+});
+define('aurelia-event-aggregator',['exports', 'aurelia-logging'], function (exports, _aureliaLogging) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.EventAggregator = undefined;
+  exports.includeEventsIn = includeEventsIn;
+  exports.configure = configure;
+
+  var LogManager = _interopRequireWildcard(_aureliaLogging);
+
+  function _interopRequireWildcard(obj) {
+    if (obj && obj.__esModule) {
+      return obj;
+    } else {
+      var newObj = {};
+
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+
+      newObj.default = obj;
+      return newObj;
+    }
+  }
+
+  
+
+  var logger = LogManager.getLogger('event-aggregator');
+
+  var Handler = function () {
+    function Handler(messageType, callback) {
+      
+
+      this.messageType = messageType;
+      this.callback = callback;
+    }
+
+    Handler.prototype.handle = function handle(message) {
+      if (message instanceof this.messageType) {
+        this.callback.call(null, message);
+      }
+    };
+
+    return Handler;
+  }();
+
+  function invokeCallback(callback, data, event) {
+    try {
+      callback(data, event);
+    } catch (e) {
+      logger.error(e);
+    }
+  }
+
+  function invokeHandler(handler, data) {
+    try {
+      handler.handle(data);
+    } catch (e) {
+      logger.error(e);
+    }
+  }
+
+  var EventAggregator = exports.EventAggregator = function () {
+    function EventAggregator() {
+      
+
+      this.eventLookup = {};
+      this.messageHandlers = [];
+    }
+
+    EventAggregator.prototype.publish = function publish(event, data) {
+      var subscribers = void 0;
+      var i = void 0;
+
+      if (!event) {
+        throw new Error('Event was invalid.');
+      }
+
+      if (typeof event === 'string') {
+        subscribers = this.eventLookup[event];
+        if (subscribers) {
+          subscribers = subscribers.slice();
+          i = subscribers.length;
+
+          while (i--) {
+            invokeCallback(subscribers[i], data, event);
+          }
+        }
+      } else {
+        subscribers = this.messageHandlers.slice();
+        i = subscribers.length;
+
+        while (i--) {
+          invokeHandler(subscribers[i], event);
+        }
+      }
+    };
+
+    EventAggregator.prototype.subscribe = function subscribe(event, callback) {
+      var handler = void 0;
+      var subscribers = void 0;
+
+      if (!event) {
+        throw new Error('Event channel/type was invalid.');
+      }
+
+      if (typeof event === 'string') {
+        handler = callback;
+        subscribers = this.eventLookup[event] || (this.eventLookup[event] = []);
+      } else {
+        handler = new Handler(event, callback);
+        subscribers = this.messageHandlers;
+      }
+
+      subscribers.push(handler);
+
+      return {
+        dispose: function dispose() {
+          var idx = subscribers.indexOf(handler);
+          if (idx !== -1) {
+            subscribers.splice(idx, 1);
+          }
+        }
+      };
+    };
+
+    EventAggregator.prototype.subscribeOnce = function subscribeOnce(event, callback) {
+      var sub = this.subscribe(event, function (a, b) {
+        sub.dispose();
+        return callback(a, b);
+      });
+
+      return sub;
+    };
+
+    return EventAggregator;
+  }();
+
+  function includeEventsIn(obj) {
+    var ea = new EventAggregator();
+
+    obj.subscribeOnce = function (event, callback) {
+      return ea.subscribeOnce(event, callback);
+    };
+
+    obj.subscribe = function (event, callback) {
+      return ea.subscribe(event, callback);
+    };
+
+    obj.publish = function (event, data) {
+      ea.publish(event, data);
+    };
+
+    return ea;
+  }
+
+  function configure(config) {
+    config.instance(EventAggregator, includeEventsIn(config.aurelia));
+  }
+});
 define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureliaPal, _aureliaHistory) {
   'use strict';
 
@@ -12994,159 +13200,6 @@ define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-history'], 
     return protocol + '//' + hostname + (port ? ':' + port : '');
   }
 });
-define('aurelia-loader',['exports', 'aurelia-path', 'aurelia-metadata'], function (exports, _aureliaPath, _aureliaMetadata) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Loader = exports.TemplateRegistryEntry = exports.TemplateDependency = undefined;
-
-  var _createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  
-
-  var TemplateDependency = exports.TemplateDependency = function TemplateDependency(src, name) {
-    
-
-    this.src = src;
-    this.name = name;
-  };
-
-  var TemplateRegistryEntry = exports.TemplateRegistryEntry = function () {
-    function TemplateRegistryEntry(address) {
-      
-
-      this.templateIsLoaded = false;
-      this.factoryIsReady = false;
-      this.resources = null;
-      this.dependencies = null;
-
-      this.address = address;
-      this.onReady = null;
-      this._template = null;
-      this._factory = null;
-    }
-
-    TemplateRegistryEntry.prototype.addDependency = function addDependency(src, name) {
-      var finalSrc = typeof src === 'string' ? (0, _aureliaPath.relativeToFile)(src, this.address) : _aureliaMetadata.Origin.get(src).moduleId;
-
-      this.dependencies.push(new TemplateDependency(finalSrc, name));
-    };
-
-    _createClass(TemplateRegistryEntry, [{
-      key: 'template',
-      get: function get() {
-        return this._template;
-      },
-      set: function set(value) {
-        var address = this.address;
-        var requires = void 0;
-        var current = void 0;
-        var src = void 0;
-        var dependencies = void 0;
-
-        this._template = value;
-        this.templateIsLoaded = true;
-
-        requires = value.content.querySelectorAll('require');
-        dependencies = this.dependencies = new Array(requires.length);
-
-        for (var i = 0, ii = requires.length; i < ii; ++i) {
-          current = requires[i];
-          src = current.getAttribute('from');
-
-          if (!src) {
-            throw new Error('<require> element in ' + address + ' has no "from" attribute.');
-          }
-
-          dependencies[i] = new TemplateDependency((0, _aureliaPath.relativeToFile)(src, address), current.getAttribute('as'));
-
-          if (current.parentNode) {
-            current.parentNode.removeChild(current);
-          }
-        }
-      }
-    }, {
-      key: 'factory',
-      get: function get() {
-        return this._factory;
-      },
-      set: function set(value) {
-        this._factory = value;
-        this.factoryIsReady = true;
-      }
-    }]);
-
-    return TemplateRegistryEntry;
-  }();
-
-  var Loader = exports.Loader = function () {
-    function Loader() {
-      
-
-      this.templateRegistry = {};
-    }
-
-    Loader.prototype.map = function map(id, source) {
-      throw new Error('Loaders must implement map(id, source).');
-    };
-
-    Loader.prototype.normalizeSync = function normalizeSync(moduleId, relativeTo) {
-      throw new Error('Loaders must implement normalizeSync(moduleId, relativeTo).');
-    };
-
-    Loader.prototype.normalize = function normalize(moduleId, relativeTo) {
-      throw new Error('Loaders must implement normalize(moduleId: string, relativeTo: string): Promise<string>.');
-    };
-
-    Loader.prototype.loadModule = function loadModule(id) {
-      throw new Error('Loaders must implement loadModule(id).');
-    };
-
-    Loader.prototype.loadAllModules = function loadAllModules(ids) {
-      throw new Error('Loader must implement loadAllModules(ids).');
-    };
-
-    Loader.prototype.loadTemplate = function loadTemplate(url) {
-      throw new Error('Loader must implement loadTemplate(url).');
-    };
-
-    Loader.prototype.loadText = function loadText(url) {
-      throw new Error('Loader must implement loadText(url).');
-    };
-
-    Loader.prototype.applyPluginToUrl = function applyPluginToUrl(url, pluginName) {
-      throw new Error('Loader must implement applyPluginToUrl(url, pluginName).');
-    };
-
-    Loader.prototype.addPlugin = function addPlugin(pluginName, implementation) {
-      throw new Error('Loader must implement addPlugin(pluginName, implementation).');
-    };
-
-    Loader.prototype.getOrCreateTemplateRegistryEntry = function getOrCreateTemplateRegistryEntry(address) {
-      return this.templateRegistry[address] || (this.templateRegistry[address] = new TemplateRegistryEntry(address));
-    };
-
-    return Loader;
-  }();
-});
 define('aurelia-metadata',['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
   'use strict';
 
@@ -13431,108 +13484,6 @@ define('aurelia-metadata',['exports', 'aurelia-pal'], function (exports, _aureli
     return result;
   };
 });
-define('aurelia-pal',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.AggregateError = AggregateError;
-  exports.initializePAL = initializePAL;
-  exports.reset = reset;
-  function AggregateError(message, innerError, skipIfAlreadyAggregate) {
-    if (innerError) {
-      if (innerError.innerError && skipIfAlreadyAggregate) {
-        return innerError;
-      }
-
-      var separator = '\n------------------------------------------------\n';
-
-      message += separator + 'Inner Error:\n';
-
-      if (typeof innerError === 'string') {
-        message += 'Message: ' + innerError;
-      } else {
-        if (innerError.message) {
-          message += 'Message: ' + innerError.message;
-        } else {
-          message += 'Unknown Inner Error Type. Displaying Inner Error as JSON:\n ' + JSON.stringify(innerError, null, '  ');
-        }
-
-        if (innerError.stack) {
-          message += '\nInner Error Stack:\n' + innerError.stack;
-          message += '\nEnd Inner Error Stack';
-        }
-      }
-
-      message += separator;
-    }
-
-    var e = new Error(message);
-    if (innerError) {
-      e.innerError = innerError;
-    }
-
-    return e;
-  }
-
-  var FEATURE = exports.FEATURE = {};
-
-  var PLATFORM = exports.PLATFORM = {
-    noop: function noop() {},
-    eachModule: function eachModule() {},
-    moduleName: function (_moduleName) {
-      function moduleName(_x) {
-        return _moduleName.apply(this, arguments);
-      }
-
-      moduleName.toString = function () {
-        return _moduleName.toString();
-      };
-
-      return moduleName;
-    }(function (moduleName) {
-      return moduleName;
-    })
-  };
-
-  PLATFORM.global = function () {
-    if (typeof self !== 'undefined') {
-      return self;
-    }
-
-    if (typeof global !== 'undefined') {
-      return global;
-    }
-
-    return new Function('return this')();
-  }();
-
-  var DOM = exports.DOM = {};
-  var isInitialized = exports.isInitialized = false;
-  function initializePAL(callback) {
-    if (isInitialized) {
-      return;
-    }
-    exports.isInitialized = isInitialized = true;
-    if (typeof Object.getPropertyDescriptor !== 'function') {
-      Object.getPropertyDescriptor = function (subject, name) {
-        var pd = Object.getOwnPropertyDescriptor(subject, name);
-        var proto = Object.getPrototypeOf(subject);
-        while (typeof pd === 'undefined' && proto !== null) {
-          pd = Object.getOwnPropertyDescriptor(proto, name);
-          proto = Object.getPrototypeOf(proto);
-        }
-        return pd;
-      };
-    }
-
-    callback(PLATFORM, FEATURE, DOM);
-  }
-  function reset() {
-    exports.isInitialized = isInitialized = false;
-  }
-});
 define('aurelia-loader-default',['exports', 'aurelia-loader', 'aurelia-pal', 'aurelia-metadata'], function (exports, _aureliaLoader, _aureliaPal, _aureliaMetadata) {
   'use strict';
 
@@ -13760,9 +13711,7 @@ define('aurelia-loader-default',['exports', 'aurelia-loader', 'aurelia-pal', 'au
     };
 
     DefaultLoader.prototype.map = function (id, source) {
-      var _map;
-
-      System.config({ map: (_map = {}, _map[id] = source, _map) });
+      System.map[id] = source;
     };
 
     DefaultLoader.prototype.normalizeSync = function (moduleId, relativeTo) {
@@ -13793,117 +13742,475 @@ define('aurelia-loader-default',['exports', 'aurelia-loader', 'aurelia-pal', 'au
     };
   }
 });
-define('aurelia-logging',['exports'], function (exports) {
+define('aurelia-pal',['exports'], function (exports) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.getLogger = getLogger;
-  exports.addAppender = addAppender;
-  exports.removeAppender = removeAppender;
-  exports.setLevel = setLevel;
-  exports.getLevel = getLevel;
+  exports.AggregateError = AggregateError;
+  exports.initializePAL = initializePAL;
+  exports.reset = reset;
+  function AggregateError(message, innerError, skipIfAlreadyAggregate) {
+    if (innerError) {
+      if (innerError.innerError && skipIfAlreadyAggregate) {
+        return innerError;
+      }
+
+      var separator = '\n------------------------------------------------\n';
+
+      message += separator + 'Inner Error:\n';
+
+      if (typeof innerError === 'string') {
+        message += 'Message: ' + innerError;
+      } else {
+        if (innerError.message) {
+          message += 'Message: ' + innerError.message;
+        } else {
+          message += 'Unknown Inner Error Type. Displaying Inner Error as JSON:\n ' + JSON.stringify(innerError, null, '  ');
+        }
+
+        if (innerError.stack) {
+          message += '\nInner Error Stack:\n' + innerError.stack;
+          message += '\nEnd Inner Error Stack';
+        }
+      }
+
+      message += separator;
+    }
+
+    var e = new Error(message);
+    if (innerError) {
+      e.innerError = innerError;
+    }
+
+    return e;
+  }
+
+  var FEATURE = exports.FEATURE = {};
+
+  var PLATFORM = exports.PLATFORM = {
+    noop: function noop() {},
+    eachModule: function eachModule() {},
+    moduleName: function (_moduleName) {
+      function moduleName(_x) {
+        return _moduleName.apply(this, arguments);
+      }
+
+      moduleName.toString = function () {
+        return _moduleName.toString();
+      };
+
+      return moduleName;
+    }(function (moduleName) {
+      return moduleName;
+    })
+  };
+
+  PLATFORM.global = function () {
+    if (typeof self !== 'undefined') {
+      return self;
+    }
+
+    if (typeof global !== 'undefined') {
+      return global;
+    }
+
+    return new Function('return this')();
+  }();
+
+  var DOM = exports.DOM = {};
+  var isInitialized = exports.isInitialized = false;
+  function initializePAL(callback) {
+    if (isInitialized) {
+      return;
+    }
+    exports.isInitialized = isInitialized = true;
+    if (typeof Object.getPropertyDescriptor !== 'function') {
+      Object.getPropertyDescriptor = function (subject, name) {
+        var pd = Object.getOwnPropertyDescriptor(subject, name);
+        var proto = Object.getPrototypeOf(subject);
+        while (typeof pd === 'undefined' && proto !== null) {
+          pd = Object.getOwnPropertyDescriptor(proto, name);
+          proto = Object.getPrototypeOf(proto);
+        }
+        return pd;
+      };
+    }
+
+    callback(PLATFORM, FEATURE, DOM);
+  }
+  function reset() {
+    exports.isInitialized = isInitialized = false;
+  }
+});
+define('aurelia-loader',['exports', 'aurelia-path', 'aurelia-metadata'], function (exports, _aureliaPath, _aureliaMetadata) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Loader = exports.TemplateRegistryEntry = exports.TemplateDependency = undefined;
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
 
   
 
-  var logLevel = exports.logLevel = {
-    none: 0,
-    error: 1,
-    warn: 2,
-    info: 3,
-    debug: 4
+  var TemplateDependency = exports.TemplateDependency = function TemplateDependency(src, name) {
+    
+
+    this.src = src;
+    this.name = name;
   };
 
-  var loggers = {};
-  var appenders = [];
-  var globalDefaultLevel = logLevel.none;
-
-  function appendArgs() {
-    return [this].concat(Array.prototype.slice.call(arguments));
-  }
-
-  function logFactory(level) {
-    var threshold = logLevel[level];
-    return function () {
-      if (this.level < threshold) {
-        return;
-      }
-
-      var args = appendArgs.apply(this, arguments);
-      var i = appenders.length;
-      while (i--) {
-        var _appenders$i;
-
-        (_appenders$i = appenders[i])[level].apply(_appenders$i, args);
-      }
-    };
-  }
-
-  function connectLoggers() {
-    Object.assign(Logger.prototype, {
-      debug: logFactory('debug'),
-      info: logFactory('info'),
-      warn: logFactory('warn'),
-      error: logFactory('error')
-    });
-  }
-
-  function getLogger(id) {
-    return loggers[id] || new Logger(id);
-  }
-
-  function addAppender(appender) {
-    if (appenders.push(appender) === 1) {
-      connectLoggers();
-    }
-  }
-
-  function removeAppender(appender) {
-    appenders = appenders.filter(function (a) {
-      return a !== appender;
-    });
-  }
-
-  function setLevel(level) {
-    globalDefaultLevel = level;
-    for (var key in loggers) {
-      loggers[key].setLevel(level);
-    }
-  }
-
-  function getLevel() {
-    return globalDefaultLevel;
-  }
-
-  var Logger = exports.Logger = function () {
-    function Logger(id) {
+  var TemplateRegistryEntry = exports.TemplateRegistryEntry = function () {
+    function TemplateRegistryEntry(address) {
       
 
-      var cached = loggers[id];
-      if (cached) {
-        return cached;
-      }
+      this.templateIsLoaded = false;
+      this.factoryIsReady = false;
+      this.resources = null;
+      this.dependencies = null;
 
-      loggers[id] = this;
-      this.id = id;
-      this.level = globalDefaultLevel;
+      this.address = address;
+      this.onReady = null;
+      this._template = null;
+      this._factory = null;
     }
 
-    Logger.prototype.debug = function debug(message) {};
+    TemplateRegistryEntry.prototype.addDependency = function addDependency(src, name) {
+      var finalSrc = typeof src === 'string' ? (0, _aureliaPath.relativeToFile)(src, this.address) : _aureliaMetadata.Origin.get(src).moduleId;
 
-    Logger.prototype.info = function info(message) {};
-
-    Logger.prototype.warn = function warn(message) {};
-
-    Logger.prototype.error = function error(message) {};
-
-    Logger.prototype.setLevel = function setLevel(level) {
-      this.level = level;
+      this.dependencies.push(new TemplateDependency(finalSrc, name));
     };
 
-    return Logger;
+    _createClass(TemplateRegistryEntry, [{
+      key: 'template',
+      get: function get() {
+        return this._template;
+      },
+      set: function set(value) {
+        var address = this.address;
+        var requires = void 0;
+        var current = void 0;
+        var src = void 0;
+        var dependencies = void 0;
+
+        this._template = value;
+        this.templateIsLoaded = true;
+
+        requires = value.content.querySelectorAll('require');
+        dependencies = this.dependencies = new Array(requires.length);
+
+        for (var i = 0, ii = requires.length; i < ii; ++i) {
+          current = requires[i];
+          src = current.getAttribute('from');
+
+          if (!src) {
+            throw new Error('<require> element in ' + address + ' has no "from" attribute.');
+          }
+
+          dependencies[i] = new TemplateDependency((0, _aureliaPath.relativeToFile)(src, address), current.getAttribute('as'));
+
+          if (current.parentNode) {
+            current.parentNode.removeChild(current);
+          }
+        }
+      }
+    }, {
+      key: 'factory',
+      get: function get() {
+        return this._factory;
+      },
+      set: function set(value) {
+        this._factory = value;
+        this.factoryIsReady = true;
+      }
+    }]);
+
+    return TemplateRegistryEntry;
   }();
+
+  var Loader = exports.Loader = function () {
+    function Loader() {
+      
+
+      this.templateRegistry = {};
+    }
+
+    Loader.prototype.map = function map(id, source) {
+      throw new Error('Loaders must implement map(id, source).');
+    };
+
+    Loader.prototype.normalizeSync = function normalizeSync(moduleId, relativeTo) {
+      throw new Error('Loaders must implement normalizeSync(moduleId, relativeTo).');
+    };
+
+    Loader.prototype.normalize = function normalize(moduleId, relativeTo) {
+      throw new Error('Loaders must implement normalize(moduleId: string, relativeTo: string): Promise<string>.');
+    };
+
+    Loader.prototype.loadModule = function loadModule(id) {
+      throw new Error('Loaders must implement loadModule(id).');
+    };
+
+    Loader.prototype.loadAllModules = function loadAllModules(ids) {
+      throw new Error('Loader must implement loadAllModules(ids).');
+    };
+
+    Loader.prototype.loadTemplate = function loadTemplate(url) {
+      throw new Error('Loader must implement loadTemplate(url).');
+    };
+
+    Loader.prototype.loadText = function loadText(url) {
+      throw new Error('Loader must implement loadText(url).');
+    };
+
+    Loader.prototype.applyPluginToUrl = function applyPluginToUrl(url, pluginName) {
+      throw new Error('Loader must implement applyPluginToUrl(url, pluginName).');
+    };
+
+    Loader.prototype.addPlugin = function addPlugin(pluginName, implementation) {
+      throw new Error('Loader must implement addPlugin(pluginName, implementation).');
+    };
+
+    Loader.prototype.getOrCreateTemplateRegistryEntry = function getOrCreateTemplateRegistryEntry(address) {
+      return this.templateRegistry[address] || (this.templateRegistry[address] = new TemplateRegistryEntry(address));
+    };
+
+    return Loader;
+  }();
+});
+define('aurelia-path',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.relativeToFile = relativeToFile;
+  exports.join = join;
+  exports.buildQueryString = buildQueryString;
+  exports.parseQueryString = parseQueryString;
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
+
+  function trimDots(ary) {
+    for (var i = 0; i < ary.length; ++i) {
+      var part = ary[i];
+      if (part === '.') {
+        ary.splice(i, 1);
+        i -= 1;
+      } else if (part === '..') {
+        if (i === 0 || i === 1 && ary[2] === '..' || ary[i - 1] === '..') {
+          continue;
+        } else if (i > 0) {
+          ary.splice(i - 1, 2);
+          i -= 2;
+        }
+      }
+    }
+  }
+
+  function relativeToFile(name, file) {
+    var fileParts = file && file.split('/');
+    var nameParts = name.trim().split('/');
+
+    if (nameParts[0].charAt(0) === '.' && fileParts) {
+      var normalizedBaseParts = fileParts.slice(0, fileParts.length - 1);
+      nameParts.unshift.apply(nameParts, normalizedBaseParts);
+    }
+
+    trimDots(nameParts);
+
+    return nameParts.join('/');
+  }
+
+  function join(path1, path2) {
+    if (!path1) {
+      return path2;
+    }
+
+    if (!path2) {
+      return path1;
+    }
+
+    var schemeMatch = path1.match(/^([^/]*?:)\//);
+    var scheme = schemeMatch && schemeMatch.length > 0 ? schemeMatch[1] : '';
+    path1 = path1.substr(scheme.length);
+
+    var urlPrefix = void 0;
+    if (path1.indexOf('///') === 0 && scheme === 'file:') {
+      urlPrefix = '///';
+    } else if (path1.indexOf('//') === 0) {
+      urlPrefix = '//';
+    } else if (path1.indexOf('/') === 0) {
+      urlPrefix = '/';
+    } else {
+      urlPrefix = '';
+    }
+
+    var trailingSlash = path2.slice(-1) === '/' ? '/' : '';
+
+    var url1 = path1.split('/');
+    var url2 = path2.split('/');
+    var url3 = [];
+
+    for (var i = 0, ii = url1.length; i < ii; ++i) {
+      if (url1[i] === '..') {
+        url3.pop();
+      } else if (url1[i] === '.' || url1[i] === '') {
+        continue;
+      } else {
+        url3.push(url1[i]);
+      }
+    }
+
+    for (var _i = 0, _ii = url2.length; _i < _ii; ++_i) {
+      if (url2[_i] === '..') {
+        url3.pop();
+      } else if (url2[_i] === '.' || url2[_i] === '') {
+        continue;
+      } else {
+        url3.push(url2[_i]);
+      }
+    }
+
+    return scheme + urlPrefix + url3.join('/') + trailingSlash;
+  }
+
+  var encode = encodeURIComponent;
+  var encodeKey = function encodeKey(k) {
+    return encode(k).replace('%24', '$');
+  };
+
+  function buildParam(key, value, traditional) {
+    var result = [];
+    if (value === null || value === undefined) {
+      return result;
+    }
+    if (Array.isArray(value)) {
+      for (var i = 0, l = value.length; i < l; i++) {
+        if (traditional) {
+          result.push(encodeKey(key) + '=' + encode(value[i]));
+        } else {
+          var arrayKey = key + '[' + (_typeof(value[i]) === 'object' && value[i] !== null ? i : '') + ']';
+          result = result.concat(buildParam(arrayKey, value[i]));
+        }
+      }
+    } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && !traditional) {
+      for (var propertyName in value) {
+        result = result.concat(buildParam(key + '[' + propertyName + ']', value[propertyName]));
+      }
+    } else {
+      result.push(encodeKey(key) + '=' + encode(value));
+    }
+    return result;
+  }
+
+  function buildQueryString(params, traditional) {
+    var pairs = [];
+    var keys = Object.keys(params || {}).sort();
+    for (var i = 0, len = keys.length; i < len; i++) {
+      var key = keys[i];
+      pairs = pairs.concat(buildParam(key, params[key], traditional));
+    }
+
+    if (pairs.length === 0) {
+      return '';
+    }
+
+    return pairs.join('&');
+  }
+
+  function processScalarParam(existedParam, value) {
+    if (Array.isArray(existedParam)) {
+      existedParam.push(value);
+      return existedParam;
+    }
+    if (existedParam !== undefined) {
+      return [existedParam, value];
+    }
+
+    return value;
+  }
+
+  function parseComplexParam(queryParams, keys, value) {
+    var currentParams = queryParams;
+    var keysLastIndex = keys.length - 1;
+    for (var j = 0; j <= keysLastIndex; j++) {
+      var key = keys[j] === '' ? currentParams.length : keys[j];
+      if (j < keysLastIndex) {
+        var prevValue = !currentParams[key] || _typeof(currentParams[key]) === 'object' ? currentParams[key] : [currentParams[key]];
+        currentParams = currentParams[key] = prevValue || (isNaN(keys[j + 1]) ? {} : []);
+      } else {
+        currentParams = currentParams[key] = value;
+      }
+    }
+  }
+
+  function parseQueryString(queryString) {
+    var queryParams = {};
+    if (!queryString || typeof queryString !== 'string') {
+      return queryParams;
+    }
+
+    var query = queryString;
+    if (query.charAt(0) === '?') {
+      query = query.substr(1);
+    }
+
+    var pairs = query.replace(/\+/g, ' ').split('&');
+    for (var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split('=');
+      var key = decodeURIComponent(pair[0]);
+      if (!key) {
+        continue;
+      }
+
+      var keys = key.split('][');
+      var keysLastIndex = keys.length - 1;
+
+      if (/\[/.test(keys[0]) && /\]$/.test(keys[keysLastIndex])) {
+        keys[keysLastIndex] = keys[keysLastIndex].replace(/\]$/, '');
+        keys = keys.shift().split('[').concat(keys);
+        keysLastIndex = keys.length - 1;
+      } else {
+        keysLastIndex = 0;
+      }
+
+      if (pair.length >= 2) {
+        var value = pair[1] ? decodeURIComponent(pair[1]) : '';
+        if (keysLastIndex) {
+          parseComplexParam(queryParams, keys, value);
+        } else {
+          queryParams[key] = processScalarParam(queryParams[key], value);
+        }
+      } else {
+        queryParams[key] = true;
+      }
+    }
+    return queryParams;
+  }
 });
 define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
   'use strict';
@@ -13914,273 +14221,266 @@ define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
     return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
   };
 
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
+  (function (Object, GOPS) {
+    'use strict';
 
-    (function (Object, GOPS) {
-      'use strict';
+    if (GOPS in Object) return;
 
-      if (GOPS in Object) return;
-
-      var setDescriptor,
-          G = _aureliaPal.PLATFORM.global,
-          id = 0,
-          random = '' + Math.random(),
-          prefix = '__\x01symbol:',
-          prefixLength = prefix.length,
-          internalSymbol = '__\x01symbol@@' + random,
-          DP = 'defineProperty',
-          DPies = 'defineProperties',
-          GOPN = 'getOwnPropertyNames',
-          GOPD = 'getOwnPropertyDescriptor',
-          PIE = 'propertyIsEnumerable',
-          gOPN = Object[GOPN],
-          gOPD = Object[GOPD],
-          create = Object.create,
-          keys = Object.keys,
-          defineProperty = Object[DP],
-          $defineProperties = Object[DPies],
-          descriptor = gOPD(Object, GOPN),
-          ObjectProto = Object.prototype,
-          hOP = ObjectProto.hasOwnProperty,
-          pIE = ObjectProto[PIE],
-          toString = ObjectProto.toString,
-          indexOf = Array.prototype.indexOf || function (v) {
-        for (var i = this.length; i-- && this[i] !== v;) {}
-        return i;
-      },
-          addInternalIfNeeded = function addInternalIfNeeded(o, uid, enumerable) {
-        if (!hOP.call(o, internalSymbol)) {
-          defineProperty(o, internalSymbol, {
-            enumerable: false,
-            configurable: false,
-            writable: false,
-            value: {}
-          });
-        }
-        o[internalSymbol]['@@' + uid] = enumerable;
-      },
-          createWithSymbols = function createWithSymbols(proto, descriptors) {
-        var self = create(proto);
-        gOPN(descriptors).forEach(function (key) {
-          if (propertyIsEnumerable.call(descriptors, key)) {
-            $defineProperty(self, key, descriptors[key]);
-          }
-        });
-        return self;
-      },
-          copyAsNonEnumerable = function copyAsNonEnumerable(descriptor) {
-        var newDescriptor = create(descriptor);
-        newDescriptor.enumerable = false;
-        return newDescriptor;
-      },
-          get = function get() {},
-          onlyNonSymbols = function onlyNonSymbols(name) {
-        return name != internalSymbol && !hOP.call(source, name);
-      },
-          onlySymbols = function onlySymbols(name) {
-        return name != internalSymbol && hOP.call(source, name);
-      },
-          propertyIsEnumerable = function propertyIsEnumerable(key) {
-        var uid = '' + key;
-        return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
-      },
-          setAndGetSymbol = function setAndGetSymbol(uid) {
-        var descriptor = {
+    var setDescriptor,
+        G = _aureliaPal.PLATFORM.global,
+        id = 0,
+        random = '' + Math.random(),
+        prefix = '__\x01symbol:',
+        prefixLength = prefix.length,
+        internalSymbol = '__\x01symbol@@' + random,
+        DP = 'defineProperty',
+        DPies = 'defineProperties',
+        GOPN = 'getOwnPropertyNames',
+        GOPD = 'getOwnPropertyDescriptor',
+        PIE = 'propertyIsEnumerable',
+        gOPN = Object[GOPN],
+        gOPD = Object[GOPD],
+        create = Object.create,
+        keys = Object.keys,
+        defineProperty = Object[DP],
+        $defineProperties = Object[DPies],
+        descriptor = gOPD(Object, GOPN),
+        ObjectProto = Object.prototype,
+        hOP = ObjectProto.hasOwnProperty,
+        pIE = ObjectProto[PIE],
+        toString = ObjectProto.toString,
+        indexOf = Array.prototype.indexOf || function (v) {
+      for (var i = this.length; i-- && this[i] !== v;) {}
+      return i;
+    },
+        addInternalIfNeeded = function addInternalIfNeeded(o, uid, enumerable) {
+      if (!hOP.call(o, internalSymbol)) {
+        defineProperty(o, internalSymbol, {
           enumerable: false,
-          configurable: true,
-          get: get,
-          set: function set(value) {
-            setDescriptor(this, uid, {
-              enumerable: false,
-              configurable: true,
-              writable: true,
-              value: value
-            });
-            addInternalIfNeeded(this, uid, true);
-          }
-        };
-        defineProperty(ObjectProto, uid, descriptor);
-        return source[uid] = defineProperty(Object(uid), 'constructor', sourceConstructor);
-      },
-          _Symbol = function _Symbol2(description) {
-        if (this && this !== G) {
-          throw new TypeError('Symbol is not a constructor');
-        }
-        return setAndGetSymbol(prefix.concat(description || '', random, ++id));
-      },
-          source = create(null),
-          sourceConstructor = { value: _Symbol },
-          sourceMap = function sourceMap(uid) {
-        return source[uid];
-      },
-          $defineProperty = function defineProp(o, key, descriptor) {
-        var uid = '' + key;
-        if (onlySymbols(uid)) {
-          setDescriptor(o, uid, descriptor.enumerable ? copyAsNonEnumerable(descriptor) : descriptor);
-          addInternalIfNeeded(o, uid, !!descriptor.enumerable);
-        } else {
-          defineProperty(o, key, descriptor);
-        }
-        return o;
-      },
-          $getOwnPropertySymbols = function getOwnPropertySymbols(o) {
-        var cof = toString.call(o);
-        o = cof === '[object String]' ? o.split('') : Object(o);
-        return gOPN(o).filter(onlySymbols).map(sourceMap);
-      };
-
-      descriptor.value = $defineProperty;
-      defineProperty(Object, DP, descriptor);
-
-      descriptor.value = $getOwnPropertySymbols;
-      defineProperty(Object, GOPS, descriptor);
-
-      descriptor.value = function getOwnPropertyNames(o) {
-        return gOPN(o).filter(onlyNonSymbols);
-      };
-      defineProperty(Object, GOPN, descriptor);
-
-      descriptor.value = function defineProperties(o, descriptors) {
-        var symbols = $getOwnPropertySymbols(descriptors);
-        if (symbols.length) {
-          keys(descriptors).concat(symbols).forEach(function (uid) {
-            if (propertyIsEnumerable.call(descriptors, uid)) {
-              $defineProperty(o, uid, descriptors[uid]);
-            }
-          });
-        } else {
-          $defineProperties(o, descriptors);
-        }
-        return o;
-      };
-      defineProperty(Object, DPies, descriptor);
-
-      descriptor.value = propertyIsEnumerable;
-      defineProperty(ObjectProto, PIE, descriptor);
-
-      descriptor.value = _Symbol;
-      defineProperty(G, 'Symbol', descriptor);
-
-      descriptor.value = function (key) {
-        var uid = prefix.concat(prefix, key, random);
-        return uid in ObjectProto ? source[uid] : setAndGetSymbol(uid);
-      };
-      defineProperty(_Symbol, 'for', descriptor);
-
-      descriptor.value = function (symbol) {
-        return hOP.call(source, symbol) ? symbol.slice(prefixLength * 2, -random.length) : void 0;
-      };
-      defineProperty(_Symbol, 'keyFor', descriptor);
-
-      descriptor.value = function getOwnPropertyDescriptor(o, key) {
-        var descriptor = gOPD(o, key);
-        if (descriptor && onlySymbols(key)) {
-          descriptor.enumerable = propertyIsEnumerable.call(o, key);
-        }
-        return descriptor;
-      };
-      defineProperty(Object, GOPD, descriptor);
-
-      descriptor.value = function (proto, descriptors) {
-        return arguments.length === 1 ? create(proto) : createWithSymbols(proto, descriptors);
-      };
-      defineProperty(Object, 'create', descriptor);
-
-      descriptor.value = function () {
-        var str = toString.call(this);
-        return str === '[object String]' && onlySymbols(this) ? '[object Symbol]' : str;
-      };
-      defineProperty(ObjectProto, 'toString', descriptor);
-
-      try {
-        setDescriptor = create(defineProperty({}, prefix, {
-          get: function get() {
-            return defineProperty(this, prefix, { value: false })[prefix];
-          }
-        }))[prefix] || defineProperty;
-      } catch (o_O) {
-        setDescriptor = function setDescriptor(o, key, descriptor) {
-          var protoDescriptor = gOPD(ObjectProto, key);
-          delete ObjectProto[key];
-          defineProperty(o, key, descriptor);
-          defineProperty(ObjectProto, key, protoDescriptor);
-        };
+          configurable: false,
+          writable: false,
+          value: {}
+        });
       }
-    })(Object, 'getOwnPropertySymbols');
-
-    (function (O, S) {
-      var dP = O.defineProperty,
-          ObjectProto = O.prototype,
-          toString = ObjectProto.toString,
-          toStringTag = 'toStringTag',
-          descriptor;
-      ['iterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', toStringTag].forEach(function (name) {
-        if (!(name in Symbol)) {
-          dP(Symbol, name, { value: Symbol(name) });
-          switch (name) {
-            case toStringTag:
-              descriptor = O.getOwnPropertyDescriptor(ObjectProto, 'toString');
-              descriptor.value = function () {
-                var str = toString.call(this),
-                    tst = typeof this === 'undefined' || this === null ? undefined : this[Symbol.toStringTag];
-                return typeof tst === 'undefined' ? str : '[object ' + tst + ']';
-              };
-              dP(ObjectProto, 'toString', descriptor);
-              break;
-          }
+      o[internalSymbol]['@@' + uid] = enumerable;
+    },
+        createWithSymbols = function createWithSymbols(proto, descriptors) {
+      var self = create(proto);
+      gOPN(descriptors).forEach(function (key) {
+        if (propertyIsEnumerable.call(descriptors, key)) {
+          $defineProperty(self, key, descriptors[key]);
         }
       });
-    })(Object, Symbol);
-
-    (function (Si, AP, SP) {
-
-      function returnThis() {
-        return this;
+      return self;
+    },
+        copyAsNonEnumerable = function copyAsNonEnumerable(descriptor) {
+      var newDescriptor = create(descriptor);
+      newDescriptor.enumerable = false;
+      return newDescriptor;
+    },
+        get = function get() {},
+        onlyNonSymbols = function onlyNonSymbols(name) {
+      return name != internalSymbol && !hOP.call(source, name);
+    },
+        onlySymbols = function onlySymbols(name) {
+      return name != internalSymbol && hOP.call(source, name);
+    },
+        propertyIsEnumerable = function propertyIsEnumerable(key) {
+      var uid = '' + key;
+      return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
+    },
+        setAndGetSymbol = function setAndGetSymbol(uid) {
+      var descriptor = {
+        enumerable: false,
+        configurable: true,
+        get: get,
+        set: function set(value) {
+          setDescriptor(this, uid, {
+            enumerable: false,
+            configurable: true,
+            writable: true,
+            value: value
+          });
+          addInternalIfNeeded(this, uid, true);
+        }
+      };
+      defineProperty(ObjectProto, uid, descriptor);
+      return source[uid] = defineProperty(Object(uid), 'constructor', sourceConstructor);
+    },
+        _Symbol = function _Symbol2(description) {
+      if (this && this !== G) {
+        throw new TypeError('Symbol is not a constructor');
       }
-
-      if (!AP[Si]) AP[Si] = function () {
-        var i = 0,
-            self = this,
-            iterator = {
-          next: function next() {
-            var done = self.length <= i;
-            return done ? { done: done } : { done: done, value: self[i++] };
-          }
-        };
-        iterator[Si] = returnThis;
-        return iterator;
-      };
-
-      if (!SP[Si]) SP[Si] = function () {
-        var fromCodePoint = String.fromCodePoint,
-            self = this,
-            i = 0,
-            length = self.length,
-            iterator = {
-          next: function next() {
-            var done = length <= i,
-                c = done ? '' : fromCodePoint(self.codePointAt(i));
-            i += c.length;
-            return done ? { done: done } : { done: done, value: c };
-          }
-        };
-        iterator[Si] = returnThis;
-        return iterator;
-      };
-    })(Symbol.iterator, Array.prototype, String.prototype);
-  }
-
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
-
-    Number.isNaN = Number.isNaN || function (value) {
-      return value !== value;
+      return setAndGetSymbol(prefix.concat(description || '', random, ++id));
+    },
+        source = create(null),
+        sourceConstructor = { value: _Symbol },
+        sourceMap = function sourceMap(uid) {
+      return source[uid];
+    },
+        $defineProperty = function defineProp(o, key, descriptor) {
+      var uid = '' + key;
+      if (onlySymbols(uid)) {
+        setDescriptor(o, uid, descriptor.enumerable ? copyAsNonEnumerable(descriptor) : descriptor);
+        addInternalIfNeeded(o, uid, !!descriptor.enumerable);
+      } else {
+        defineProperty(o, key, descriptor);
+      }
+      return o;
+    },
+        $getOwnPropertySymbols = function getOwnPropertySymbols(o) {
+      var cof = toString.call(o);
+      o = cof === '[object String]' ? o.split('') : Object(o);
+      return gOPN(o).filter(onlySymbols).map(sourceMap);
     };
 
-    Number.isFinite = Number.isFinite || function (value) {
-      return typeof value === "number" && isFinite(value);
-    };
-  }
+    descriptor.value = $defineProperty;
+    defineProperty(Object, DP, descriptor);
 
+    descriptor.value = $getOwnPropertySymbols;
+    defineProperty(Object, GOPS, descriptor);
+
+    descriptor.value = function getOwnPropertyNames(o) {
+      return gOPN(o).filter(onlyNonSymbols);
+    };
+    defineProperty(Object, GOPN, descriptor);
+
+    descriptor.value = function defineProperties(o, descriptors) {
+      var symbols = $getOwnPropertySymbols(descriptors);
+      if (symbols.length) {
+        keys(descriptors).concat(symbols).forEach(function (uid) {
+          if (propertyIsEnumerable.call(descriptors, uid)) {
+            $defineProperty(o, uid, descriptors[uid]);
+          }
+        });
+      } else {
+        $defineProperties(o, descriptors);
+      }
+      return o;
+    };
+    defineProperty(Object, DPies, descriptor);
+
+    descriptor.value = propertyIsEnumerable;
+    defineProperty(ObjectProto, PIE, descriptor);
+
+    descriptor.value = _Symbol;
+    defineProperty(G, 'Symbol', descriptor);
+
+    descriptor.value = function (key) {
+      var uid = prefix.concat(prefix, key, random);
+      return uid in ObjectProto ? source[uid] : setAndGetSymbol(uid);
+    };
+    defineProperty(_Symbol, 'for', descriptor);
+
+    descriptor.value = function (symbol) {
+      return hOP.call(source, symbol) ? symbol.slice(prefixLength * 2, -random.length) : void 0;
+    };
+    defineProperty(_Symbol, 'keyFor', descriptor);
+
+    descriptor.value = function getOwnPropertyDescriptor(o, key) {
+      var descriptor = gOPD(o, key);
+      if (descriptor && onlySymbols(key)) {
+        descriptor.enumerable = propertyIsEnumerable.call(o, key);
+      }
+      return descriptor;
+    };
+    defineProperty(Object, GOPD, descriptor);
+
+    descriptor.value = function (proto, descriptors) {
+      return arguments.length === 1 ? create(proto) : createWithSymbols(proto, descriptors);
+    };
+    defineProperty(Object, 'create', descriptor);
+
+    descriptor.value = function () {
+      var str = toString.call(this);
+      return str === '[object String]' && onlySymbols(this) ? '[object Symbol]' : str;
+    };
+    defineProperty(ObjectProto, 'toString', descriptor);
+
+    try {
+      setDescriptor = create(defineProperty({}, prefix, {
+        get: function get() {
+          return defineProperty(this, prefix, { value: false })[prefix];
+        }
+      }))[prefix] || defineProperty;
+    } catch (o_O) {
+      setDescriptor = function setDescriptor(o, key, descriptor) {
+        var protoDescriptor = gOPD(ObjectProto, key);
+        delete ObjectProto[key];
+        defineProperty(o, key, descriptor);
+        defineProperty(ObjectProto, key, protoDescriptor);
+      };
+    }
+  })(Object, 'getOwnPropertySymbols');
+
+  (function (O, S) {
+    var dP = O.defineProperty,
+        ObjectProto = O.prototype,
+        toString = ObjectProto.toString,
+        toStringTag = 'toStringTag',
+        descriptor;
+    ['iterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', toStringTag].forEach(function (name) {
+      if (!(name in Symbol)) {
+        dP(Symbol, name, { value: Symbol(name) });
+        switch (name) {
+          case toStringTag:
+            descriptor = O.getOwnPropertyDescriptor(ObjectProto, 'toString');
+            descriptor.value = function () {
+              var str = toString.call(this),
+                  tst = typeof this === 'undefined' || this === null ? undefined : this[Symbol.toStringTag];
+              return typeof tst === 'undefined' ? str : '[object ' + tst + ']';
+            };
+            dP(ObjectProto, 'toString', descriptor);
+            break;
+        }
+      }
+    });
+  })(Object, Symbol);
+
+  (function (Si, AP, SP) {
+
+    function returnThis() {
+      return this;
+    }
+
+    if (!AP[Si]) AP[Si] = function () {
+      var i = 0,
+          self = this,
+          iterator = {
+        next: function next() {
+          var done = self.length <= i;
+          return done ? { done: done } : { done: done, value: self[i++] };
+        }
+      };
+      iterator[Si] = returnThis;
+      return iterator;
+    };
+
+    if (!SP[Si]) SP[Si] = function () {
+      var fromCodePoint = String.fromCodePoint,
+          self = this,
+          i = 0,
+          length = self.length,
+          iterator = {
+        next: function next() {
+          var done = length <= i,
+              c = done ? '' : fromCodePoint(self.codePointAt(i));
+          i += c.length;
+          return done ? { done: done } : { done: done, value: c };
+        }
+      };
+      iterator[Si] = returnThis;
+      return iterator;
+    };
+  })(Symbol.iterator, Array.prototype, String.prototype);
+
+  Number.isNaN = Number.isNaN || function (value) {
+    return value !== value;
+  };
+
+  Number.isFinite = Number.isFinite || function (value) {
+    return typeof value === "number" && isFinite(value);
+  };
   if (!String.prototype.endsWith || function () {
     try {
       return !"ab".endsWith("a", 1);
@@ -14212,112 +14512,109 @@ define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
     };
   }
 
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
-
-    if (!Array.from) {
-      Array.from = function () {
-        var toInteger = function toInteger(it) {
-          return isNaN(it = +it) ? 0 : (it > 0 ? Math.floor : Math.ceil)(it);
-        };
-        var toLength = function toLength(it) {
-          return it > 0 ? Math.min(toInteger(it), 0x1fffffffffffff) : 0;
-        };
-        var iterCall = function iterCall(iter, fn, val, index) {
-          try {
-            return fn(val, index);
-          } catch (E) {
-            if (typeof iter.return == 'function') iter.return();
-            throw E;
-          }
-        };
-
-        return function from(arrayLike) {
-          var O = Object(arrayLike),
-              C = typeof this == 'function' ? this : Array,
-              aLen = arguments.length,
-              mapfn = aLen > 1 ? arguments[1] : undefined,
-              mapping = mapfn !== undefined,
-              index = 0,
-              iterFn = O[Symbol.iterator],
-              length,
-              result,
-              step,
-              iterator;
-          if (mapping) mapfn = mapfn.bind(aLen > 2 ? arguments[2] : undefined);
-          if (iterFn != undefined && !Array.isArray(arrayLike)) {
-            for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
-              result[index] = mapping ? iterCall(iterator, mapfn, step.value, index) : step.value;
-            }
-          } else {
-            length = toLength(O.length);
-            for (result = new C(length); length > index; index++) {
-              result[index] = mapping ? mapfn(O[index], index) : O[index];
-            }
-          }
-          result.length = index;
-          return result;
-        };
-      }();
-    }
-
-    if (!Array.prototype.find) {
-      Object.defineProperty(Array.prototype, 'find', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function value(predicate) {
-          if (this === null) {
-            throw new TypeError('Array.prototype.find called on null or undefined');
-          }
-          if (typeof predicate !== 'function') {
-            throw new TypeError('predicate must be a function');
-          }
-          var list = Object(this);
-          var length = list.length >>> 0;
-          var thisArg = arguments[1];
-          var value;
-
-          for (var i = 0; i < length; i++) {
-            value = list[i];
-            if (predicate.call(thisArg, value, i, list)) {
-              return value;
-            }
-          }
-          return undefined;
+  if (!Array.from) {
+    Array.from = function () {
+      var toInteger = function toInteger(it) {
+        return isNaN(it = +it) ? 0 : (it > 0 ? Math.floor : Math.ceil)(it);
+      };
+      var toLength = function toLength(it) {
+        return it > 0 ? Math.min(toInteger(it), 0x1fffffffffffff) : 0;
+      };
+      var iterCall = function iterCall(iter, fn, val, index) {
+        try {
+          return fn(val, index);
+        } catch (E) {
+          if (typeof iter.return == 'function') iter.return();
+          throw E;
         }
-      });
-    }
+      };
 
-    if (!Array.prototype.findIndex) {
-      Object.defineProperty(Array.prototype, 'findIndex', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function value(predicate) {
-          if (this === null) {
-            throw new TypeError('Array.prototype.findIndex called on null or undefined');
+      return function from(arrayLike) {
+        var O = Object(arrayLike),
+            C = typeof this == 'function' ? this : Array,
+            aLen = arguments.length,
+            mapfn = aLen > 1 ? arguments[1] : undefined,
+            mapping = mapfn !== undefined,
+            index = 0,
+            iterFn = O[Symbol.iterator],
+            length,
+            result,
+            step,
+            iterator;
+        if (mapping) mapfn = mapfn.bind(aLen > 2 ? arguments[2] : undefined);
+        if (iterFn != undefined && !Array.isArray(arrayLike)) {
+          for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
+            result[index] = mapping ? iterCall(iterator, mapfn, step.value, index) : step.value;
           }
-          if (typeof predicate !== 'function') {
-            throw new TypeError('predicate must be a function');
+        } else {
+          length = toLength(O.length);
+          for (result = new C(length); length > index; index++) {
+            result[index] = mapping ? mapfn(O[index], index) : O[index];
           }
-          var list = Object(this);
-          var length = list.length >>> 0;
-          var thisArg = arguments[1];
-          var value;
-
-          for (var i = 0; i < length; i++) {
-            value = list[i];
-            if (predicate.call(thisArg, value, i, list)) {
-              return i;
-            }
-          }
-          return -1;
         }
-      });
-    }
+        result.length = index;
+        return result;
+      };
+    }();
   }
 
-  if (typeof FEATURE_NO_ES2016 === 'undefined' && !Array.prototype.includes) {
+  if (!Array.prototype.find) {
+    Object.defineProperty(Array.prototype, 'find', {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: function value(predicate) {
+        if (this === null) {
+          throw new TypeError('Array.prototype.find called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+          throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
+
+        for (var i = 0; i < length; i++) {
+          value = list[i];
+          if (predicate.call(thisArg, value, i, list)) {
+            return value;
+          }
+        }
+        return undefined;
+      }
+    });
+  }
+
+  if (!Array.prototype.findIndex) {
+    Object.defineProperty(Array.prototype, 'findIndex', {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: function value(predicate) {
+        if (this === null) {
+          throw new TypeError('Array.prototype.findIndex called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+          throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
+
+        for (var i = 0; i < length; i++) {
+          value = list[i];
+          if (predicate.call(thisArg, value, i, list)) {
+            return i;
+          }
+        }
+        return -1;
+      }
+    });
+  }
+
+  if (!Array.prototype.includes) {
     Object.defineProperty(Array.prototype, 'includes', {
       configurable: true,
       writable: true,
@@ -14351,395 +14648,1032 @@ define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
     });
   }
 
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
+  (function () {
+    var needsFix = false;
 
-    (function () {
-      var needsFix = false;
+    try {
+      var s = Object.keys('a');
+      needsFix = s.length !== 1 || s[0] !== '0';
+    } catch (e) {
+      needsFix = true;
+    }
 
-      try {
-        var s = Object.keys('a');
-        needsFix = s.length !== 1 || s[0] !== '0';
-      } catch (e) {
-        needsFix = true;
-      }
+    if (needsFix) {
+      Object.keys = function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !{ toString: null }.propertyIsEnumerable('toString'),
+            dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'],
+            dontEnumsLength = dontEnums.length;
 
-      if (needsFix) {
-        Object.keys = function () {
-          var hasOwnProperty = Object.prototype.hasOwnProperty,
-              hasDontEnumBug = !{ toString: null }.propertyIsEnumerable('toString'),
-              dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'],
-              dontEnumsLength = dontEnums.length;
+        return function (obj) {
+          if (obj === undefined || obj === null) {
+            throw TypeError('Cannot convert undefined or null to object');
+          }
 
-          return function (obj) {
-            if (obj === undefined || obj === null) {
-              throw TypeError('Cannot convert undefined or null to object');
+          obj = Object(obj);
+
+          var result = [],
+              prop,
+              i;
+
+          for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
             }
+          }
 
-            obj = Object(obj);
-
-            var result = [],
-                prop,
-                i;
-
-            for (prop in obj) {
-              if (hasOwnProperty.call(obj, prop)) {
-                result.push(prop);
+          if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+              if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
               }
             }
+          }
 
-            if (hasDontEnumBug) {
-              for (i = 0; i < dontEnumsLength; i++) {
-                if (hasOwnProperty.call(obj, dontEnums[i])) {
-                  result.push(dontEnums[i]);
-                }
-              }
+          return result;
+        };
+      }();
+    }
+  })();
+
+  (function (O) {
+    if ('assign' in O) {
+      return;
+    }
+
+    O.defineProperty(O, 'assign', {
+      configurable: true,
+      writable: true,
+      value: function () {
+        var gOPS = O.getOwnPropertySymbols,
+            pIE = O.propertyIsEnumerable,
+            filterOS = gOPS ? function (self) {
+          return gOPS(self).filter(pIE, self);
+        } : function () {
+          return Array.prototype;
+        };
+
+        return function assign(where) {
+          if (gOPS && !(where instanceof O)) {
+            console.warn('problematic Symbols', where);
+          }
+
+          function set(keyOrSymbol) {
+            where[keyOrSymbol] = arg[keyOrSymbol];
+          }
+
+          for (var i = 1, ii = arguments.length; i < ii; ++i) {
+            var arg = arguments[i];
+
+            if (arg === null || arg === undefined) {
+              continue;
             }
 
-            return result;
-          };
-        }();
+            O.keys(arg).concat(filterOS(arg)).forEach(set);
+          }
+
+          return where;
+        };
+      }()
+    });
+  })(Object);
+
+  (function (global) {
+    var i;
+
+    var defineProperty = Object.defineProperty,
+        is = function is(a, b) {
+      return a === b || a !== a && b !== b;
+    };
+
+    if (typeof WeakMap == 'undefined') {
+      global.WeakMap = createCollection({
+        'delete': sharedDelete,
+
+        clear: sharedClear,
+
+        get: sharedGet,
+
+        has: mapHas,
+
+        set: sharedSet
+      }, true);
+    }
+
+    if (typeof Map == 'undefined' || typeof new Map().values !== 'function' || !new Map().values().next) {
+      var _createCollection;
+
+      global.Map = createCollection((_createCollection = {
+        'delete': sharedDelete,
+
+        has: mapHas,
+
+        get: sharedGet,
+
+        set: sharedSet,
+
+        keys: sharedKeys,
+
+        values: sharedValues,
+
+        entries: mapEntries,
+
+        forEach: sharedForEach,
+
+        clear: sharedClear
+      }, _createCollection[Symbol.iterator] = mapEntries, _createCollection));
+    }
+
+    if (typeof Set == 'undefined' || typeof new Set().values !== 'function' || !new Set().values().next) {
+      var _createCollection2;
+
+      global.Set = createCollection((_createCollection2 = {
+        has: setHas,
+
+        add: sharedAdd,
+
+        'delete': sharedDelete,
+
+        clear: sharedClear,
+
+        keys: sharedValues,
+        values: sharedValues,
+
+        entries: setEntries,
+
+        forEach: sharedForEach
+      }, _createCollection2[Symbol.iterator] = sharedValues, _createCollection2));
+    }
+
+    if (typeof WeakSet == 'undefined') {
+      global.WeakSet = createCollection({
+        'delete': sharedDelete,
+
+        add: sharedAdd,
+
+        clear: sharedClear,
+
+        has: setHas
+      }, true);
+    }
+
+    function createCollection(proto, objectOnly) {
+      function Collection(a) {
+        if (!this || this.constructor !== Collection) return new Collection(a);
+        this._keys = [];
+        this._values = [];
+        this._itp = [];
+        this.objectOnly = objectOnly;
+
+        if (a) init.call(this, a);
       }
-    })();
 
-    (function (O) {
-      if ('assign' in O) {
-        return;
+      if (!objectOnly) {
+        defineProperty(proto, 'size', {
+          get: sharedSize
+        });
       }
 
-      O.defineProperty(O, 'assign', {
-        configurable: true,
-        writable: true,
-        value: function () {
-          var gOPS = O.getOwnPropertySymbols,
-              pIE = O.propertyIsEnumerable,
-              filterOS = gOPS ? function (self) {
-            return gOPS(self).filter(pIE, self);
-          } : function () {
-            return Array.prototype;
-          };
+      proto.constructor = Collection;
+      Collection.prototype = proto;
 
-          return function assign(where) {
-            if (gOPS && !(where instanceof O)) {
-              console.warn('problematic Symbols', where);
-            }
+      return Collection;
+    }
 
-            function set(keyOrSymbol) {
-              where[keyOrSymbol] = arg[keyOrSymbol];
-            }
-
-            for (var i = 1, ii = arguments.length; i < ii; ++i) {
-              var arg = arguments[i];
-
-              if (arg === null || arg === undefined) {
-                continue;
-              }
-
-              O.keys(arg).concat(filterOS(arg)).forEach(set);
-            }
-
-            return where;
-          };
-        }()
-      });
-    })(Object);
-  }
-
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
-
-    (function (global) {
+    function init(a) {
       var i;
 
-      var defineProperty = Object.defineProperty,
-          is = function is(a, b) {
-        return a === b || a !== a && b !== b;
-      };
+      if (this.add) a.forEach(this.add, this);else a.forEach(function (a) {
+          this.set(a[0], a[1]);
+        }, this);
+    }
 
-      if (typeof WeakMap == 'undefined') {
-        global.WeakMap = createCollection({
-          'delete': sharedDelete,
+    function sharedDelete(key) {
+      if (this.has(key)) {
+        this._keys.splice(i, 1);
+        this._values.splice(i, 1);
 
-          clear: sharedClear,
-
-          get: sharedGet,
-
-          has: mapHas,
-
-          set: sharedSet
-        }, true);
+        this._itp.forEach(function (p) {
+          if (i < p[0]) p[0]--;
+        });
       }
 
-      if (typeof Map == 'undefined' || typeof new Map().values !== 'function' || !new Map().values().next) {
-        var _createCollection;
+      return -1 < i;
+    };
 
-        global.Map = createCollection((_createCollection = {
-          'delete': sharedDelete,
+    function sharedGet(key) {
+      return this.has(key) ? this._values[i] : undefined;
+    }
 
-          has: mapHas,
+    function has(list, key) {
+      if (this.objectOnly && key !== Object(key)) throw new TypeError("Invalid value used as weak collection key");
 
-          get: sharedGet,
+      if (key != key || key === 0) for (i = list.length; i-- && !is(list[i], key);) {} else i = list.indexOf(key);
+      return -1 < i;
+    }
 
-          set: sharedSet,
+    function setHas(value) {
+      return has.call(this, this._values, value);
+    }
 
-          keys: sharedKeys,
+    function mapHas(value) {
+      return has.call(this, this._keys, value);
+    }
 
-          values: sharedValues,
+    function sharedSet(key, value) {
+      this.has(key) ? this._values[i] = value : this._values[this._keys.push(key) - 1] = value;
+      return this;
+    }
 
-          entries: mapEntries,
+    function sharedAdd(value) {
+      if (!this.has(value)) this._values.push(value);
+      return this;
+    }
 
-          forEach: sharedForEach,
+    function sharedClear() {
+      (this._keys || 0).length = this._values.length = 0;
+    }
 
-          clear: sharedClear
-        }, _createCollection[Symbol.iterator] = mapEntries, _createCollection));
-      }
+    function sharedKeys() {
+      return sharedIterator(this._itp, this._keys);
+    }
 
-      if (typeof Set == 'undefined' || typeof new Set().values !== 'function' || !new Set().values().next) {
-        var _createCollection2;
+    function sharedValues() {
+      return sharedIterator(this._itp, this._values);
+    }
 
-        global.Set = createCollection((_createCollection2 = {
-          has: setHas,
+    function mapEntries() {
+      return sharedIterator(this._itp, this._keys, this._values);
+    }
 
-          add: sharedAdd,
+    function setEntries() {
+      return sharedIterator(this._itp, this._values, this._values);
+    }
 
-          'delete': sharedDelete,
+    function sharedIterator(itp, array, array2) {
+      var _ref;
 
-          clear: sharedClear,
-
-          keys: sharedValues,
-          values: sharedValues,
-
-          entries: setEntries,
-
-          forEach: sharedForEach
-        }, _createCollection2[Symbol.iterator] = sharedValues, _createCollection2));
-      }
-
-      if (typeof WeakSet == 'undefined') {
-        global.WeakSet = createCollection({
-          'delete': sharedDelete,
-
-          add: sharedAdd,
-
-          clear: sharedClear,
-
-          has: setHas
-        }, true);
-      }
-
-      function createCollection(proto, objectOnly) {
-        function Collection(a) {
-          if (!this || this.constructor !== Collection) return new Collection(a);
-          this._keys = [];
-          this._values = [];
-          this._itp = [];
-          this.objectOnly = objectOnly;
-
-          if (a) init.call(this, a);
-        }
-
-        if (!objectOnly) {
-          defineProperty(proto, 'size', {
-            get: sharedSize
-          });
-        }
-
-        proto.constructor = Collection;
-        Collection.prototype = proto;
-
-        return Collection;
-      }
-
-      function init(a) {
-        var i;
-
-        if (this.add) a.forEach(this.add, this);else a.forEach(function (a) {
-            this.set(a[0], a[1]);
-          }, this);
-      }
-
-      function sharedDelete(key) {
-        if (this.has(key)) {
-          this._keys.splice(i, 1);
-          this._values.splice(i, 1);
-
-          this._itp.forEach(function (p) {
-            if (i < p[0]) p[0]--;
-          });
-        }
-
-        return -1 < i;
-      };
-
-      function sharedGet(key) {
-        return this.has(key) ? this._values[i] : undefined;
-      }
-
-      function has(list, key) {
-        if (this.objectOnly && key !== Object(key)) throw new TypeError("Invalid value used as weak collection key");
-
-        if (key != key || key === 0) for (i = list.length; i-- && !is(list[i], key);) {} else i = list.indexOf(key);
-        return -1 < i;
-      }
-
-      function setHas(value) {
-        return has.call(this, this._values, value);
-      }
-
-      function mapHas(value) {
-        return has.call(this, this._keys, value);
-      }
-
-      function sharedSet(key, value) {
-        this.has(key) ? this._values[i] = value : this._values[this._keys.push(key) - 1] = value;
+      var p = [0],
+          done = false;
+      itp.push(p);
+      return _ref = {}, _ref[Symbol.iterator] = function () {
         return this;
-      }
-
-      function sharedAdd(value) {
-        if (!this.has(value)) this._values.push(value);
-        return this;
-      }
-
-      function sharedClear() {
-        (this._keys || 0).length = this._values.length = 0;
-      }
-
-      function sharedKeys() {
-        return sharedIterator(this._itp, this._keys);
-      }
-
-      function sharedValues() {
-        return sharedIterator(this._itp, this._values);
-      }
-
-      function mapEntries() {
-        return sharedIterator(this._itp, this._keys, this._values);
-      }
-
-      function setEntries() {
-        return sharedIterator(this._itp, this._values, this._values);
-      }
-
-      function sharedIterator(itp, array, array2) {
-        var _ref;
-
-        var p = [0],
-            done = false;
-        itp.push(p);
-        return _ref = {}, _ref[Symbol.iterator] = function () {
-          return this;
-        }, _ref.next = function next() {
-          var v,
-              k = p[0];
-          if (!done && k < array.length) {
-            v = array2 ? [array[k], array2[k]] : array[k];
-            p[0]++;
-          } else {
-            done = true;
-            itp.splice(itp.indexOf(p), 1);
-          }
-          return { done: done, value: v };
-        }, _ref;
-      }
-
-      function sharedSize() {
-        return this._values.length;
-      }
-
-      function sharedForEach(callback, context) {
-        var it = this.entries();
-        for (;;) {
-          var r = it.next();
-          if (r.done) break;
-          callback.call(context, r.value[1], r.value[0], this);
+      }, _ref.next = function next() {
+        var v,
+            k = p[0];
+        if (!done && k < array.length) {
+          v = array2 ? [array[k], array2[k]] : array[k];
+          p[0]++;
+        } else {
+          done = true;
+          itp.splice(itp.indexOf(p), 1);
         }
+        return { done: done, value: v };
+      }, _ref;
+    }
+
+    function sharedSize() {
+      return this._values.length;
+    }
+
+    function sharedForEach(callback, context) {
+      var it = this.entries();
+      for (;;) {
+        var r = it.next();
+        if (r.done) break;
+        callback.call(context, r.value[1], r.value[0], this);
       }
-    })(_aureliaPal.PLATFORM.global);
+    }
+  })(_aureliaPal.PLATFORM.global);
+
+  var emptyMetadata = Object.freeze({});
+  var metadataContainerKey = '__metadata__';
+  var bind = Function.prototype.bind;
+
+  if (typeof _aureliaPal.PLATFORM.global.Reflect === 'undefined') {
+    _aureliaPal.PLATFORM.global.Reflect = {};
   }
 
-  if (typeof FEATURE_NO_ES2015 === 'undefined') {
-    (function () {
-
-      var bind = Function.prototype.bind;
-
-      if (typeof _aureliaPal.PLATFORM.global.Reflect === 'undefined') {
-        _aureliaPal.PLATFORM.global.Reflect = {};
+  if (typeof Reflect.getOwnMetadata !== 'function') {
+    Reflect.getOwnMetadata = function (metadataKey, target, targetKey) {
+      if (target.hasOwnProperty(metadataContainerKey)) {
+        return (target[metadataContainerKey][targetKey] || emptyMetadata)[metadataKey];
       }
-
-      if (typeof Reflect.defineProperty !== 'function') {
-        Reflect.defineProperty = function (target, propertyKey, descriptor) {
-          if ((typeof target === 'undefined' ? 'undefined' : _typeof(target)) === 'object' ? target === null : typeof target !== 'function') {
-            throw new TypeError('Reflect.defineProperty called on non-object');
-          }
-          try {
-            Object.defineProperty(target, propertyKey, descriptor);
-            return true;
-          } catch (e) {
-            return false;
-          }
-        };
-      }
-
-      if (typeof Reflect.construct !== 'function') {
-        Reflect.construct = function (Target, args) {
-          if (args) {
-            switch (args.length) {
-              case 0:
-                return new Target();
-              case 1:
-                return new Target(args[0]);
-              case 2:
-                return new Target(args[0], args[1]);
-              case 3:
-                return new Target(args[0], args[1], args[2]);
-              case 4:
-                return new Target(args[0], args[1], args[2], args[3]);
-            }
-          }
-
-          var a = [null];
-          a.push.apply(a, args);
-          return new (bind.apply(Target, a))();
-        };
-      }
-
-      if (typeof Reflect.ownKeys !== 'function') {
-        Reflect.ownKeys = function (o) {
-          return Object.getOwnPropertyNames(o).concat(Object.getOwnPropertySymbols(o));
-        };
-      }
-    })();
+    };
   }
 
-  if (typeof FEATURE_NO_ESNEXT === 'undefined') {
-    (function () {
+  if (typeof Reflect.defineMetadata !== 'function') {
+    Reflect.defineMetadata = function (metadataKey, metadataValue, target, targetKey) {
+      var metadataContainer = target.hasOwnProperty(metadataContainerKey) ? target[metadataContainerKey] : target[metadataContainerKey] = {};
+      var targetContainer = metadataContainer[targetKey] || (metadataContainer[targetKey] = {});
+      targetContainer[metadataKey] = metadataValue;
+    };
+  }
 
-      var emptyMetadata = Object.freeze({});
-      var metadataContainerKey = '__metadata__';
+  if (typeof Reflect.metadata !== 'function') {
+    Reflect.metadata = function (metadataKey, metadataValue) {
+      return function (target, targetKey) {
+        Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
+      };
+    };
+  }
 
-      if (typeof Reflect.getOwnMetadata !== 'function') {
-        Reflect.getOwnMetadata = function (metadataKey, target, targetKey) {
-          if (target.hasOwnProperty(metadataContainerKey)) {
-            return (target[metadataContainerKey][targetKey] || emptyMetadata)[metadataKey];
+  if (typeof Reflect.defineProperty !== 'function') {
+    Reflect.defineProperty = function (target, propertyKey, descriptor) {
+      if ((typeof target === 'undefined' ? 'undefined' : _typeof(target)) === 'object' ? target === null : typeof target !== 'function') {
+        throw new TypeError('Reflect.defineProperty called on non-object');
+      }
+      try {
+        Object.defineProperty(target, propertyKey, descriptor);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+  }
+
+  if (typeof Reflect.construct !== 'function') {
+    Reflect.construct = function (Target, args) {
+      if (args) {
+        switch (args.length) {
+          case 0:
+            return new Target();
+          case 1:
+            return new Target(args[0]);
+          case 2:
+            return new Target(args[0], args[1]);
+          case 3:
+            return new Target(args[0], args[1], args[2]);
+          case 4:
+            return new Target(args[0], args[1], args[2], args[3]);
+        }
+      }
+
+      var a = [null];
+      a.push.apply(a, args);
+      return new (bind.apply(Target, a))();
+    };
+  }
+
+  if (typeof Reflect.ownKeys !== 'function') {
+    Reflect.ownKeys = function (o) {
+      return Object.getOwnPropertyNames(o).concat(Object.getOwnPropertySymbols(o));
+    };
+  }
+});
+define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports._DOM = exports._FEATURE = exports._PLATFORM = undefined;
+  exports._ensureFunctionName = _ensureFunctionName;
+  exports._ensureClassList = _ensureClassList;
+  exports._ensurePerformance = _ensurePerformance;
+  exports._ensureCustomEvent = _ensureCustomEvent;
+  exports._ensureElementMatches = _ensureElementMatches;
+  exports._ensureHTMLTemplateElement = _ensureHTMLTemplateElement;
+  exports.initialize = initialize;
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+  var _PLATFORM = exports._PLATFORM = {
+    location: window.location,
+    history: window.history,
+    addEventListener: function addEventListener(eventName, callback, capture) {
+      this.global.addEventListener(eventName, callback, capture);
+    },
+    removeEventListener: function removeEventListener(eventName, callback, capture) {
+      this.global.removeEventListener(eventName, callback, capture);
+    },
+
+    performance: window.performance,
+    requestAnimationFrame: function requestAnimationFrame(callback) {
+      return this.global.requestAnimationFrame(callback);
+    }
+  };
+
+  function _ensureFunctionName() {
+    function test() {}
+
+    if (!test.name) {
+      Object.defineProperty(Function.prototype, 'name', {
+        get: function get() {
+          var name = this.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
+
+          Object.defineProperty(this, 'name', { value: name });
+          return name;
+        }
+      });
+    }
+  }
+
+  function _ensureClassList() {
+    if (!('classList' in document.createElement('_')) || document.createElementNS && !('classList' in document.createElementNS('http://www.w3.org/2000/svg', 'g'))) {
+      (function () {
+        var protoProp = 'prototype';
+        var strTrim = String.prototype.trim;
+        var arrIndexOf = Array.prototype.indexOf;
+        var emptyArray = [];
+
+        var DOMEx = function DOMEx(type, message) {
+          this.name = type;
+          this.code = DOMException[type];
+          this.message = message;
+        };
+
+        var checkTokenAndGetIndex = function checkTokenAndGetIndex(classList, token) {
+          if (token === '') {
+            throw new DOMEx('SYNTAX_ERR', 'An invalid or illegal string was specified');
           }
-        };
-      }
 
-      if (typeof Reflect.defineMetadata !== 'function') {
-        Reflect.defineMetadata = function (metadataKey, metadataValue, target, targetKey) {
-          var metadataContainer = target.hasOwnProperty(metadataContainerKey) ? target[metadataContainerKey] : target[metadataContainerKey] = {};
-          var targetContainer = metadataContainer[targetKey] || (metadataContainer[targetKey] = {});
-          targetContainer[metadataKey] = metadataValue;
-        };
-      }
+          if (/\s/.test(token)) {
+            throw new DOMEx('INVALID_CHARACTER_ERR', 'String contains an invalid character');
+          }
 
-      if (typeof Reflect.metadata !== 'function') {
-        Reflect.metadata = function (metadataKey, metadataValue) {
-          return function (target, targetKey) {
-            Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
+          return arrIndexOf.call(classList, token);
+        };
+
+        var ClassList = function ClassList(elem) {
+          var trimmedClasses = strTrim.call(elem.getAttribute('class') || '');
+          var classes = trimmedClasses ? trimmedClasses.split(/\s+/) : emptyArray;
+
+          for (var i = 0, ii = classes.length; i < ii; ++i) {
+            this.push(classes[i]);
+          }
+
+          this._updateClassName = function () {
+            elem.setAttribute('class', this.toString());
           };
         };
+
+        var classListProto = ClassList[protoProp] = [];
+
+        DOMEx[protoProp] = Error[protoProp];
+
+        classListProto.item = function (i) {
+          return this[i] || null;
+        };
+
+        classListProto.contains = function (token) {
+          token += '';
+          return checkTokenAndGetIndex(this, token) !== -1;
+        };
+
+        classListProto.add = function () {
+          var tokens = arguments;
+          var i = 0;
+          var ii = tokens.length;
+          var token = void 0;
+          var updated = false;
+
+          do {
+            token = tokens[i] + '';
+            if (checkTokenAndGetIndex(this, token) === -1) {
+              this.push(token);
+              updated = true;
+            }
+          } while (++i < ii);
+
+          if (updated) {
+            this._updateClassName();
+          }
+        };
+
+        classListProto.remove = function () {
+          var tokens = arguments;
+          var i = 0;
+          var ii = tokens.length;
+          var token = void 0;
+          var updated = false;
+          var index = void 0;
+
+          do {
+            token = tokens[i] + '';
+            index = checkTokenAndGetIndex(this, token);
+            while (index !== -1) {
+              this.splice(index, 1);
+              updated = true;
+              index = checkTokenAndGetIndex(this, token);
+            }
+          } while (++i < ii);
+
+          if (updated) {
+            this._updateClassName();
+          }
+        };
+
+        classListProto.toggle = function (token, force) {
+          token += '';
+
+          var result = this.contains(token);
+          var method = result ? force !== true && 'remove' : force !== false && 'add';
+
+          if (method) {
+            this[method](token);
+          }
+
+          if (force === true || force === false) {
+            return force;
+          }
+
+          return !result;
+        };
+
+        classListProto.toString = function () {
+          return this.join(' ');
+        };
+
+        Object.defineProperty(Element.prototype, 'classList', {
+          get: function get() {
+            return new ClassList(this);
+          },
+          enumerable: true,
+          configurable: true
+        });
+      })();
+    } else {
+      var testElement = document.createElement('_');
+      testElement.classList.add('c1', 'c2');
+
+      if (!testElement.classList.contains('c2')) {
+        var createMethod = function createMethod(method) {
+          var original = DOMTokenList.prototype[method];
+
+          DOMTokenList.prototype[method] = function (token) {
+            for (var i = 0, ii = arguments.length; i < ii; ++i) {
+              token = arguments[i];
+              original.call(this, token);
+            }
+          };
+        };
+
+        createMethod('add');
+        createMethod('remove');
       }
-    })();
+
+      testElement.classList.toggle('c3', false);
+
+      if (testElement.classList.contains('c3')) {
+        (function () {
+          var _toggle = DOMTokenList.prototype.toggle;
+
+          DOMTokenList.prototype.toggle = function (token, force) {
+            if (1 in arguments && !this.contains(token) === !force) {
+              return force;
+            }
+
+            return _toggle.call(this, token);
+          };
+        })();
+      }
+
+      testElement = null;
+    }
   }
+
+  function _ensurePerformance() {
+    // @license http://opensource.org/licenses/MIT
+    if ('performance' in window === false) {
+      window.performance = {};
+    }
+
+    if ('now' in window.performance === false) {
+      (function () {
+        var nowOffset = Date.now();
+
+        if (performance.timing && performance.timing.navigationStart) {
+          nowOffset = performance.timing.navigationStart;
+        }
+
+        window.performance.now = function now() {
+          return Date.now() - nowOffset;
+        };
+      })();
+    }
+
+    _PLATFORM.performance = window.performance;
+  }
+
+  function _ensureCustomEvent() {
+    if (!window.CustomEvent || typeof window.CustomEvent !== 'function') {
+      var _CustomEvent = function _CustomEvent(event, params) {
+        params = params || {
+          bubbles: false,
+          cancelable: false,
+          detail: undefined
+        };
+
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return evt;
+      };
+
+      _CustomEvent.prototype = window.Event.prototype;
+      window.CustomEvent = _CustomEvent;
+    }
+  }
+
+  function _ensureElementMatches() {
+    if (Element && !Element.prototype.matches) {
+      var proto = Element.prototype;
+      proto.matches = proto.matchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector || proto.webkitMatchesSelector;
+    }
+  }
+
+  var _FEATURE = exports._FEATURE = {};
+
+  _FEATURE.shadowDOM = function () {
+    return !!HTMLElement.prototype.attachShadow;
+  }();
+
+  _FEATURE.scopedCSS = function () {
+    return 'scoped' in document.createElement('style');
+  }();
+
+  _FEATURE.htmlTemplateElement = function () {
+    return 'content' in document.createElement('template');
+  }();
+
+  _FEATURE.mutationObserver = function () {
+    return !!(window.MutationObserver || window.WebKitMutationObserver);
+  }();
+
+  function _ensureHTMLTemplateElement() {
+    function isSVGTemplate(el) {
+      return el.tagName === 'template' && el.namespaceURI === 'http://www.w3.org/2000/svg';
+    }
+
+    function fixSVGTemplateElement(el) {
+      var template = el.ownerDocument.createElement('template');
+      var attrs = el.attributes;
+      var length = attrs.length;
+      var attr = void 0;
+
+      el.parentNode.insertBefore(template, el);
+
+      while (length-- > 0) {
+        attr = attrs[length];
+        template.setAttribute(attr.name, attr.value);
+        el.removeAttribute(attr.name);
+      }
+
+      el.parentNode.removeChild(el);
+
+      return fixHTMLTemplateElement(template);
+    }
+
+    function fixHTMLTemplateElement(template) {
+      var content = template.content = document.createDocumentFragment();
+      var child = void 0;
+
+      while (child = template.firstChild) {
+        content.appendChild(child);
+      }
+
+      return template;
+    }
+
+    function fixHTMLTemplateElementRoot(template) {
+      var content = fixHTMLTemplateElement(template).content;
+      var childTemplates = content.querySelectorAll('template');
+
+      for (var i = 0, ii = childTemplates.length; i < ii; ++i) {
+        var child = childTemplates[i];
+
+        if (isSVGTemplate(child)) {
+          fixSVGTemplateElement(child);
+        } else {
+          fixHTMLTemplateElement(child);
+        }
+      }
+
+      return template;
+    }
+
+    if (_FEATURE.htmlTemplateElement) {
+      _FEATURE.ensureHTMLTemplateElement = function (template) {
+        return template;
+      };
+    } else {
+      _FEATURE.ensureHTMLTemplateElement = fixHTMLTemplateElementRoot;
+    }
+  }
+
+  var shadowPoly = window.ShadowDOMPolyfill || null;
+
+  var _DOM = exports._DOM = {
+    Element: Element,
+    SVGElement: SVGElement,
+    boundary: 'aurelia-dom-boundary',
+    addEventListener: function addEventListener(eventName, callback, capture) {
+      document.addEventListener(eventName, callback, capture);
+    },
+    removeEventListener: function removeEventListener(eventName, callback, capture) {
+      document.removeEventListener(eventName, callback, capture);
+    },
+    adoptNode: function adoptNode(node) {
+      return document.adoptNode(node, true);
+    },
+    createElement: function createElement(tagName) {
+      return document.createElement(tagName);
+    },
+    createTextNode: function createTextNode(text) {
+      return document.createTextNode(text);
+    },
+    createComment: function createComment(text) {
+      return document.createComment(text);
+    },
+    createDocumentFragment: function createDocumentFragment() {
+      return document.createDocumentFragment();
+    },
+    createMutationObserver: function createMutationObserver(callback) {
+      return new (window.MutationObserver || window.WebKitMutationObserver)(callback);
+    },
+    createCustomEvent: function createCustomEvent(eventType, options) {
+      return new window.CustomEvent(eventType, options);
+    },
+    dispatchEvent: function dispatchEvent(evt) {
+      document.dispatchEvent(evt);
+    },
+    getComputedStyle: function getComputedStyle(element) {
+      return window.getComputedStyle(element);
+    },
+    getElementById: function getElementById(id) {
+      return document.getElementById(id);
+    },
+    querySelectorAll: function querySelectorAll(query) {
+      return document.querySelectorAll(query);
+    },
+    nextElementSibling: function nextElementSibling(element) {
+      if (element.nextElementSibling) {
+        return element.nextElementSibling;
+      }
+      do {
+        element = element.nextSibling;
+      } while (element && element.nodeType !== 1);
+      return element;
+    },
+    createTemplateFromMarkup: function createTemplateFromMarkup(markup) {
+      var parser = document.createElement('div');
+      parser.innerHTML = markup;
+
+      var temp = parser.firstElementChild;
+      if (!temp || temp.nodeName !== 'TEMPLATE') {
+        throw new Error('Template markup must be wrapped in a <template> element e.g. <template> <!-- markup here --> </template>');
+      }
+
+      return _FEATURE.ensureHTMLTemplateElement(temp);
+    },
+    appendNode: function appendNode(newNode, parentNode) {
+      (parentNode || document.body).appendChild(newNode);
+    },
+    replaceNode: function replaceNode(newNode, node, parentNode) {
+      if (node.parentNode) {
+        node.parentNode.replaceChild(newNode, node);
+      } else if (shadowPoly !== null) {
+        shadowPoly.unwrap(parentNode).replaceChild(shadowPoly.unwrap(newNode), shadowPoly.unwrap(node));
+      } else {
+        parentNode.replaceChild(newNode, node);
+      }
+    },
+    removeNode: function removeNode(node, parentNode) {
+      if (node.parentNode) {
+        node.parentNode.removeChild(node);
+      } else if (parentNode) {
+        if (shadowPoly !== null) {
+          shadowPoly.unwrap(parentNode).removeChild(shadowPoly.unwrap(node));
+        } else {
+          parentNode.removeChild(node);
+        }
+      }
+    },
+    injectStyles: function injectStyles(styles, destination, prepend) {
+      var node = document.createElement('style');
+      node.innerHTML = styles;
+      node.type = 'text/css';
+
+      destination = destination || document.head;
+
+      if (prepend && destination.childNodes.length > 0) {
+        destination.insertBefore(node, destination.childNodes[0]);
+      } else {
+        destination.appendChild(node);
+      }
+
+      return node;
+    }
+  };
+
+  function initialize() {
+    if (_aureliaPal.isInitialized) {
+      return;
+    }
+
+    _ensureCustomEvent();
+    _ensureFunctionName();
+    _ensureHTMLTemplateElement();
+    _ensureElementMatches();
+    _ensureClassList();
+    _ensurePerformance();
+
+    (0, _aureliaPal.initializePAL)(function (platform, feature, dom) {
+      Object.assign(platform, _PLATFORM);
+      Object.assign(feature, _FEATURE);
+      Object.assign(dom, _DOM);
+
+      (function (global) {
+        global.console = global.console || {};
+        var con = global.console;
+        var prop = void 0;
+        var method = void 0;
+        var empty = {};
+        var dummy = function dummy() {};
+        var properties = 'memory'.split(',');
+        var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' + 'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' + 'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+        while (prop = properties.pop()) {
+          if (!con[prop]) con[prop] = empty;
+        }while (method = methods.pop()) {
+          if (!con[method]) con[method] = dummy;
+        }
+      })(platform.global);
+
+      if (platform.global.console && _typeof(console.log) === 'object') {
+        ['log', 'info', 'warn', 'error', 'assert', 'dir', 'clear', 'profile', 'profileEnd'].forEach(function (method) {
+          console[method] = this.bind(console[method], console);
+        }, Function.prototype.call);
+      }
+
+      Object.defineProperty(dom, 'title', {
+        get: function get() {
+          return document.title;
+        },
+        set: function set(value) {
+          document.title = value;
+        }
+      });
+
+      Object.defineProperty(dom, 'activeElement', {
+        get: function get() {
+          return document.activeElement;
+        }
+      });
+
+      Object.defineProperty(platform, 'XMLHttpRequest', {
+        get: function get() {
+          return platform.global.XMLHttpRequest;
+        }
+      });
+    });
+  }
+});
+define('aurelia-logging',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.getLogger = getLogger;
+  exports.addAppender = addAppender;
+  exports.setLevel = setLevel;
+  exports.getLevel = getLevel;
+
+  
+
+  var logLevel = exports.logLevel = {
+    none: 0,
+    error: 1,
+    warn: 2,
+    info: 3,
+    debug: 4
+  };
+
+  var loggers = {};
+  var appenders = [];
+  var slice = Array.prototype.slice;
+  var loggerConstructionKey = {};
+  var globalDefaultLevel = logLevel.none;
+
+  function log(logger, level, args) {
+    var i = appenders.length;
+    var current = void 0;
+
+    args = slice.call(args);
+    args.unshift(logger);
+
+    while (i--) {
+      current = appenders[i];
+      current[level].apply(current, args);
+    }
+  }
+
+  function debug() {
+    if (this.level < 4) {
+      return;
+    }
+
+    log(this, 'debug', arguments);
+  }
+
+  function info() {
+    if (this.level < 3) {
+      return;
+    }
+
+    log(this, 'info', arguments);
+  }
+
+  function warn() {
+    if (this.level < 2) {
+      return;
+    }
+
+    log(this, 'warn', arguments);
+  }
+
+  function error() {
+    if (this.level < 1) {
+      return;
+    }
+
+    log(this, 'error', arguments);
+  }
+
+  function connectLogger(logger) {
+    logger.debug = debug;
+    logger.info = info;
+    logger.warn = warn;
+    logger.error = error;
+  }
+
+  function createLogger(id) {
+    var logger = new Logger(id, loggerConstructionKey);
+    logger.setLevel(globalDefaultLevel);
+
+    if (appenders.length) {
+      connectLogger(logger);
+    }
+
+    return logger;
+  }
+
+  function getLogger(id) {
+    return loggers[id] || (loggers[id] = createLogger(id));
+  }
+
+  function addAppender(appender) {
+    appenders.push(appender);
+
+    if (appenders.length === 1) {
+      for (var key in loggers) {
+        connectLogger(loggers[key]);
+      }
+    }
+  }
+
+  function setLevel(level) {
+    globalDefaultLevel = level;
+    for (var key in loggers) {
+      loggers[key].setLevel(level);
+    }
+  }
+
+  function getLevel() {
+    return globalDefaultLevel;
+  }
+
+  var Logger = exports.Logger = function () {
+    function Logger(id, key) {
+      
+
+      this.level = logLevel.none;
+
+      if (key !== loggerConstructionKey) {
+        throw new Error('Cannot instantiate "Logger". Use "getLogger" instead.');
+      }
+
+      this.id = id;
+    }
+
+    Logger.prototype.debug = function debug(message) {};
+
+    Logger.prototype.info = function info(message) {};
+
+    Logger.prototype.warn = function warn(message) {};
+
+    Logger.prototype.error = function error(message) {};
+
+    Logger.prototype.setLevel = function setLevel(level) {
+      this.level = level;
+    };
+
+    return Logger;
+  }();
 });
 define('aurelia-logging-console',['exports', 'aurelia-logging'], function (exports, _aureliaLogging) {
   'use strict';
@@ -15315,732 +16249,6 @@ define('aurelia-route-recognizer',['exports', 'aurelia-path'], function (exports
     return state;
   }
 });
-define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports._DOM = exports._FEATURE = exports._PLATFORM = undefined;
-  exports._ensureFunctionName = _ensureFunctionName;
-  exports._ensureClassList = _ensureClassList;
-  exports._ensurePerformance = _ensurePerformance;
-  exports._ensureCustomEvent = _ensureCustomEvent;
-  exports._ensureElementMatches = _ensureElementMatches;
-  exports._ensureHTMLTemplateElement = _ensureHTMLTemplateElement;
-  exports.initialize = initialize;
-
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  };
-
-  var _PLATFORM = exports._PLATFORM = {
-    location: window.location,
-    history: window.history,
-    addEventListener: function addEventListener(eventName, callback, capture) {
-      this.global.addEventListener(eventName, callback, capture);
-    },
-    removeEventListener: function removeEventListener(eventName, callback, capture) {
-      this.global.removeEventListener(eventName, callback, capture);
-    },
-
-    performance: window.performance,
-    requestAnimationFrame: function requestAnimationFrame(callback) {
-      return this.global.requestAnimationFrame(callback);
-    }
-  };
-
-  function _ensureFunctionName() {
-    function test() {}
-
-    if (!test.name) {
-      Object.defineProperty(Function.prototype, 'name', {
-        get: function get() {
-          var name = this.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
-
-          Object.defineProperty(this, 'name', { value: name });
-          return name;
-        }
-      });
-    }
-  }
-
-  function _ensureClassList() {
-    if (!('classList' in document.createElement('_')) || document.createElementNS && !('classList' in document.createElementNS('http://www.w3.org/2000/svg', 'g'))) {
-      (function () {
-        var protoProp = 'prototype';
-        var strTrim = String.prototype.trim;
-        var arrIndexOf = Array.prototype.indexOf;
-        var emptyArray = [];
-
-        var DOMEx = function DOMEx(type, message) {
-          this.name = type;
-          this.code = DOMException[type];
-          this.message = message;
-        };
-
-        var checkTokenAndGetIndex = function checkTokenAndGetIndex(classList, token) {
-          if (token === '') {
-            throw new DOMEx('SYNTAX_ERR', 'An invalid or illegal string was specified');
-          }
-
-          if (/\s/.test(token)) {
-            throw new DOMEx('INVALID_CHARACTER_ERR', 'String contains an invalid character');
-          }
-
-          return arrIndexOf.call(classList, token);
-        };
-
-        var ClassList = function ClassList(elem) {
-          var trimmedClasses = strTrim.call(elem.getAttribute('class') || '');
-          var classes = trimmedClasses ? trimmedClasses.split(/\s+/) : emptyArray;
-
-          for (var i = 0, ii = classes.length; i < ii; ++i) {
-            this.push(classes[i]);
-          }
-
-          this._updateClassName = function () {
-            elem.setAttribute('class', this.toString());
-          };
-        };
-
-        var classListProto = ClassList[protoProp] = [];
-
-        DOMEx[protoProp] = Error[protoProp];
-
-        classListProto.item = function (i) {
-          return this[i] || null;
-        };
-
-        classListProto.contains = function (token) {
-          token += '';
-          return checkTokenAndGetIndex(this, token) !== -1;
-        };
-
-        classListProto.add = function () {
-          var tokens = arguments;
-          var i = 0;
-          var ii = tokens.length;
-          var token = void 0;
-          var updated = false;
-
-          do {
-            token = tokens[i] + '';
-            if (checkTokenAndGetIndex(this, token) === -1) {
-              this.push(token);
-              updated = true;
-            }
-          } while (++i < ii);
-
-          if (updated) {
-            this._updateClassName();
-          }
-        };
-
-        classListProto.remove = function () {
-          var tokens = arguments;
-          var i = 0;
-          var ii = tokens.length;
-          var token = void 0;
-          var updated = false;
-          var index = void 0;
-
-          do {
-            token = tokens[i] + '';
-            index = checkTokenAndGetIndex(this, token);
-            while (index !== -1) {
-              this.splice(index, 1);
-              updated = true;
-              index = checkTokenAndGetIndex(this, token);
-            }
-          } while (++i < ii);
-
-          if (updated) {
-            this._updateClassName();
-          }
-        };
-
-        classListProto.toggle = function (token, force) {
-          token += '';
-
-          var result = this.contains(token);
-          var method = result ? force !== true && 'remove' : force !== false && 'add';
-
-          if (method) {
-            this[method](token);
-          }
-
-          if (force === true || force === false) {
-            return force;
-          }
-
-          return !result;
-        };
-
-        classListProto.toString = function () {
-          return this.join(' ');
-        };
-
-        Object.defineProperty(Element.prototype, 'classList', {
-          get: function get() {
-            return new ClassList(this);
-          },
-          enumerable: true,
-          configurable: true
-        });
-      })();
-    } else {
-      var testElement = document.createElement('_');
-      testElement.classList.add('c1', 'c2');
-
-      if (!testElement.classList.contains('c2')) {
-        var createMethod = function createMethod(method) {
-          var original = DOMTokenList.prototype[method];
-
-          DOMTokenList.prototype[method] = function (token) {
-            for (var i = 0, ii = arguments.length; i < ii; ++i) {
-              token = arguments[i];
-              original.call(this, token);
-            }
-          };
-        };
-
-        createMethod('add');
-        createMethod('remove');
-      }
-
-      testElement.classList.toggle('c3', false);
-
-      if (testElement.classList.contains('c3')) {
-        (function () {
-          var _toggle = DOMTokenList.prototype.toggle;
-
-          DOMTokenList.prototype.toggle = function (token, force) {
-            if (1 in arguments && !this.contains(token) === !force) {
-              return force;
-            }
-
-            return _toggle.call(this, token);
-          };
-        })();
-      }
-
-      testElement = null;
-    }
-  }
-
-  function _ensurePerformance() {
-    // @license http://opensource.org/licenses/MIT
-    if ('performance' in window === false) {
-      window.performance = {};
-    }
-
-    if ('now' in window.performance === false) {
-      (function () {
-        var nowOffset = Date.now();
-
-        if (performance.timing && performance.timing.navigationStart) {
-          nowOffset = performance.timing.navigationStart;
-        }
-
-        window.performance.now = function now() {
-          return Date.now() - nowOffset;
-        };
-      })();
-    }
-
-    _PLATFORM.performance = window.performance;
-  }
-
-  function _ensureCustomEvent() {
-    if (!window.CustomEvent || typeof window.CustomEvent !== 'function') {
-      var _CustomEvent = function _CustomEvent(event, params) {
-        params = params || {
-          bubbles: false,
-          cancelable: false,
-          detail: undefined
-        };
-
-        var evt = document.createEvent('CustomEvent');
-        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-        return evt;
-      };
-
-      _CustomEvent.prototype = window.Event.prototype;
-      window.CustomEvent = _CustomEvent;
-    }
-  }
-
-  function _ensureElementMatches() {
-    if (Element && !Element.prototype.matches) {
-      var proto = Element.prototype;
-      proto.matches = proto.matchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector || proto.webkitMatchesSelector;
-    }
-  }
-
-  var _FEATURE = exports._FEATURE = {};
-
-  _FEATURE.shadowDOM = function () {
-    return !!HTMLElement.prototype.attachShadow;
-  }();
-
-  _FEATURE.scopedCSS = function () {
-    return 'scoped' in document.createElement('style');
-  }();
-
-  _FEATURE.htmlTemplateElement = function () {
-    return 'content' in document.createElement('template');
-  }();
-
-  _FEATURE.mutationObserver = function () {
-    return !!(window.MutationObserver || window.WebKitMutationObserver);
-  }();
-
-  function _ensureHTMLTemplateElement() {
-    function isSVGTemplate(el) {
-      return el.tagName === 'template' && el.namespaceURI === 'http://www.w3.org/2000/svg';
-    }
-
-    function fixSVGTemplateElement(el) {
-      var template = el.ownerDocument.createElement('template');
-      var attrs = el.attributes;
-      var length = attrs.length;
-      var attr = void 0;
-
-      el.parentNode.insertBefore(template, el);
-
-      while (length-- > 0) {
-        attr = attrs[length];
-        template.setAttribute(attr.name, attr.value);
-        el.removeAttribute(attr.name);
-      }
-
-      el.parentNode.removeChild(el);
-
-      return fixHTMLTemplateElement(template);
-    }
-
-    function fixHTMLTemplateElement(template) {
-      var content = template.content = document.createDocumentFragment();
-      var child = void 0;
-
-      while (child = template.firstChild) {
-        content.appendChild(child);
-      }
-
-      return template;
-    }
-
-    function fixHTMLTemplateElementRoot(template) {
-      var content = fixHTMLTemplateElement(template).content;
-      var childTemplates = content.querySelectorAll('template');
-
-      for (var i = 0, ii = childTemplates.length; i < ii; ++i) {
-        var child = childTemplates[i];
-
-        if (isSVGTemplate(child)) {
-          fixSVGTemplateElement(child);
-        } else {
-          fixHTMLTemplateElement(child);
-        }
-      }
-
-      return template;
-    }
-
-    if (_FEATURE.htmlTemplateElement) {
-      _FEATURE.ensureHTMLTemplateElement = function (template) {
-        return template;
-      };
-    } else {
-      _FEATURE.ensureHTMLTemplateElement = fixHTMLTemplateElementRoot;
-    }
-  }
-
-  var shadowPoly = window.ShadowDOMPolyfill || null;
-
-  var _DOM = exports._DOM = {
-    Element: Element,
-    SVGElement: SVGElement,
-    boundary: 'aurelia-dom-boundary',
-    addEventListener: function addEventListener(eventName, callback, capture) {
-      document.addEventListener(eventName, callback, capture);
-    },
-    removeEventListener: function removeEventListener(eventName, callback, capture) {
-      document.removeEventListener(eventName, callback, capture);
-    },
-    adoptNode: function adoptNode(node) {
-      return document.adoptNode(node, true);
-    },
-    createElement: function createElement(tagName) {
-      return document.createElement(tagName);
-    },
-    createTextNode: function createTextNode(text) {
-      return document.createTextNode(text);
-    },
-    createComment: function createComment(text) {
-      return document.createComment(text);
-    },
-    createDocumentFragment: function createDocumentFragment() {
-      return document.createDocumentFragment();
-    },
-    createMutationObserver: function createMutationObserver(callback) {
-      return new (window.MutationObserver || window.WebKitMutationObserver)(callback);
-    },
-    createCustomEvent: function createCustomEvent(eventType, options) {
-      return new window.CustomEvent(eventType, options);
-    },
-    dispatchEvent: function dispatchEvent(evt) {
-      document.dispatchEvent(evt);
-    },
-    getComputedStyle: function getComputedStyle(element) {
-      return window.getComputedStyle(element);
-    },
-    getElementById: function getElementById(id) {
-      return document.getElementById(id);
-    },
-    querySelectorAll: function querySelectorAll(query) {
-      return document.querySelectorAll(query);
-    },
-    nextElementSibling: function nextElementSibling(element) {
-      if (element.nextElementSibling) {
-        return element.nextElementSibling;
-      }
-      do {
-        element = element.nextSibling;
-      } while (element && element.nodeType !== 1);
-      return element;
-    },
-    createTemplateFromMarkup: function createTemplateFromMarkup(markup) {
-      var parser = document.createElement('div');
-      parser.innerHTML = markup;
-
-      var temp = parser.firstElementChild;
-      if (!temp || temp.nodeName !== 'TEMPLATE') {
-        throw new Error('Template markup must be wrapped in a <template> element e.g. <template> <!-- markup here --> </template>');
-      }
-
-      return _FEATURE.ensureHTMLTemplateElement(temp);
-    },
-    appendNode: function appendNode(newNode, parentNode) {
-      (parentNode || document.body).appendChild(newNode);
-    },
-    replaceNode: function replaceNode(newNode, node, parentNode) {
-      if (node.parentNode) {
-        node.parentNode.replaceChild(newNode, node);
-      } else if (shadowPoly !== null) {
-        shadowPoly.unwrap(parentNode).replaceChild(shadowPoly.unwrap(newNode), shadowPoly.unwrap(node));
-      } else {
-        parentNode.replaceChild(newNode, node);
-      }
-    },
-    removeNode: function removeNode(node, parentNode) {
-      if (node.parentNode) {
-        node.parentNode.removeChild(node);
-      } else if (parentNode) {
-        if (shadowPoly !== null) {
-          shadowPoly.unwrap(parentNode).removeChild(shadowPoly.unwrap(node));
-        } else {
-          parentNode.removeChild(node);
-        }
-      }
-    },
-    injectStyles: function injectStyles(styles, destination, prepend) {
-      var node = document.createElement('style');
-      node.innerHTML = styles;
-      node.type = 'text/css';
-
-      destination = destination || document.head;
-
-      if (prepend && destination.childNodes.length > 0) {
-        destination.insertBefore(node, destination.childNodes[0]);
-      } else {
-        destination.appendChild(node);
-      }
-
-      return node;
-    }
-  };
-
-  function initialize() {
-    if (_aureliaPal.isInitialized) {
-      return;
-    }
-
-    _ensureCustomEvent();
-    _ensureFunctionName();
-    _ensureHTMLTemplateElement();
-    _ensureElementMatches();
-    _ensureClassList();
-    _ensurePerformance();
-
-    (0, _aureliaPal.initializePAL)(function (platform, feature, dom) {
-      Object.assign(platform, _PLATFORM);
-      Object.assign(feature, _FEATURE);
-      Object.assign(dom, _DOM);
-
-      (function (global) {
-        global.console = global.console || {};
-        var con = global.console;
-        var prop = void 0;
-        var method = void 0;
-        var empty = {};
-        var dummy = function dummy() {};
-        var properties = 'memory'.split(',');
-        var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' + 'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' + 'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-        while (prop = properties.pop()) {
-          if (!con[prop]) con[prop] = empty;
-        }while (method = methods.pop()) {
-          if (!con[method]) con[method] = dummy;
-        }
-      })(platform.global);
-
-      if (platform.global.console && _typeof(console.log) === 'object') {
-        ['log', 'info', 'warn', 'error', 'assert', 'dir', 'clear', 'profile', 'profileEnd'].forEach(function (method) {
-          console[method] = this.bind(console[method], console);
-        }, Function.prototype.call);
-      }
-
-      Object.defineProperty(dom, 'title', {
-        get: function get() {
-          return document.title;
-        },
-        set: function set(value) {
-          document.title = value;
-        }
-      });
-
-      Object.defineProperty(dom, 'activeElement', {
-        get: function get() {
-          return document.activeElement;
-        }
-      });
-
-      Object.defineProperty(platform, 'XMLHttpRequest', {
-        get: function get() {
-          return platform.global.XMLHttpRequest;
-        }
-      });
-    });
-  }
-});
-define('aurelia-path',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.relativeToFile = relativeToFile;
-  exports.join = join;
-  exports.buildQueryString = buildQueryString;
-  exports.parseQueryString = parseQueryString;
-
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
-  function trimDots(ary) {
-    for (var i = 0; i < ary.length; ++i) {
-      var part = ary[i];
-      if (part === '.') {
-        ary.splice(i, 1);
-        i -= 1;
-      } else if (part === '..') {
-        if (i === 0 || i === 1 && ary[2] === '..' || ary[i - 1] === '..') {
-          continue;
-        } else if (i > 0) {
-          ary.splice(i - 1, 2);
-          i -= 2;
-        }
-      }
-    }
-  }
-
-  function relativeToFile(name, file) {
-    var fileParts = file && file.split('/');
-    var nameParts = name.trim().split('/');
-
-    if (nameParts[0].charAt(0) === '.' && fileParts) {
-      var normalizedBaseParts = fileParts.slice(0, fileParts.length - 1);
-      nameParts.unshift.apply(nameParts, normalizedBaseParts);
-    }
-
-    trimDots(nameParts);
-
-    return nameParts.join('/');
-  }
-
-  function join(path1, path2) {
-    if (!path1) {
-      return path2;
-    }
-
-    if (!path2) {
-      return path1;
-    }
-
-    var schemeMatch = path1.match(/^([^/]*?:)\//);
-    var scheme = schemeMatch && schemeMatch.length > 0 ? schemeMatch[1] : '';
-    path1 = path1.substr(scheme.length);
-
-    var urlPrefix = void 0;
-    if (path1.indexOf('///') === 0 && scheme === 'file:') {
-      urlPrefix = '///';
-    } else if (path1.indexOf('//') === 0) {
-      urlPrefix = '//';
-    } else if (path1.indexOf('/') === 0) {
-      urlPrefix = '/';
-    } else {
-      urlPrefix = '';
-    }
-
-    var trailingSlash = path2.slice(-1) === '/' ? '/' : '';
-
-    var url1 = path1.split('/');
-    var url2 = path2.split('/');
-    var url3 = [];
-
-    for (var i = 0, ii = url1.length; i < ii; ++i) {
-      if (url1[i] === '..') {
-        url3.pop();
-      } else if (url1[i] === '.' || url1[i] === '') {
-        continue;
-      } else {
-        url3.push(url1[i]);
-      }
-    }
-
-    for (var _i = 0, _ii = url2.length; _i < _ii; ++_i) {
-      if (url2[_i] === '..') {
-        url3.pop();
-      } else if (url2[_i] === '.' || url2[_i] === '') {
-        continue;
-      } else {
-        url3.push(url2[_i]);
-      }
-    }
-
-    return scheme + urlPrefix + url3.join('/') + trailingSlash;
-  }
-
-  var encode = encodeURIComponent;
-  var encodeKey = function encodeKey(k) {
-    return encode(k).replace('%24', '$');
-  };
-
-  function buildParam(key, value, traditional) {
-    var result = [];
-    if (value === null || value === undefined) {
-      return result;
-    }
-    if (Array.isArray(value)) {
-      for (var i = 0, l = value.length; i < l; i++) {
-        if (traditional) {
-          result.push(encodeKey(key) + '=' + encode(value[i]));
-        } else {
-          var arrayKey = key + '[' + (_typeof(value[i]) === 'object' && value[i] !== null ? i : '') + ']';
-          result = result.concat(buildParam(arrayKey, value[i]));
-        }
-      }
-    } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && !traditional) {
-      for (var propertyName in value) {
-        result = result.concat(buildParam(key + '[' + propertyName + ']', value[propertyName]));
-      }
-    } else {
-      result.push(encodeKey(key) + '=' + encode(value));
-    }
-    return result;
-  }
-
-  function buildQueryString(params, traditional) {
-    var pairs = [];
-    var keys = Object.keys(params || {}).sort();
-    for (var i = 0, len = keys.length; i < len; i++) {
-      var key = keys[i];
-      pairs = pairs.concat(buildParam(key, params[key], traditional));
-    }
-
-    if (pairs.length === 0) {
-      return '';
-    }
-
-    return pairs.join('&');
-  }
-
-  function processScalarParam(existedParam, value) {
-    if (Array.isArray(existedParam)) {
-      existedParam.push(value);
-      return existedParam;
-    }
-    if (existedParam !== undefined) {
-      return [existedParam, value];
-    }
-
-    return value;
-  }
-
-  function parseComplexParam(queryParams, keys, value) {
-    var currentParams = queryParams;
-    var keysLastIndex = keys.length - 1;
-    for (var j = 0; j <= keysLastIndex; j++) {
-      var key = keys[j] === '' ? currentParams.length : keys[j];
-      if (j < keysLastIndex) {
-        var prevValue = !currentParams[key] || _typeof(currentParams[key]) === 'object' ? currentParams[key] : [currentParams[key]];
-        currentParams = currentParams[key] = prevValue || (isNaN(keys[j + 1]) ? {} : []);
-      } else {
-        currentParams = currentParams[key] = value;
-      }
-    }
-  }
-
-  function parseQueryString(queryString) {
-    var queryParams = {};
-    if (!queryString || typeof queryString !== 'string') {
-      return queryParams;
-    }
-
-    var query = queryString;
-    if (query.charAt(0) === '?') {
-      query = query.substr(1);
-    }
-
-    var pairs = query.replace(/\+/g, ' ').split('&');
-    for (var i = 0; i < pairs.length; i++) {
-      var pair = pairs[i].split('=');
-      var key = decodeURIComponent(pair[0]);
-      if (!key) {
-        continue;
-      }
-
-      var keys = key.split('][');
-      var keysLastIndex = keys.length - 1;
-
-      if (/\[/.test(keys[0]) && /\]$/.test(keys[keysLastIndex])) {
-        keys[keysLastIndex] = keys[keysLastIndex].replace(/\]$/, '');
-        keys = keys.shift().split('[').concat(keys);
-        keysLastIndex = keys.length - 1;
-      } else {
-        keysLastIndex = 0;
-      }
-
-      if (pair.length >= 2) {
-        var value = pair[1] ? decodeURIComponent(pair[1]) : '';
-        if (keysLastIndex) {
-          parseComplexParam(queryParams, keys, value);
-        } else {
-          queryParams[key] = processScalarParam(queryParams[key], value);
-        }
-      } else {
-        queryParams[key] = true;
-      }
-    }
-    return queryParams;
-  }
-});
 define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer', 'aurelia-dependency-injection', 'aurelia-history', 'aurelia-event-aggregator'], function (exports, _aureliaLogging, _aureliaRouteRecognizer, _aureliaDependencyInjection, _aureliaHistory, _aureliaEventAggregator) {
   'use strict';
 
@@ -16336,36 +16544,23 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     NavigationInstruction.prototype.getBaseUrl = function getBaseUrl() {
-      var _this = this;
-
-      var fragment = this.fragment;
-
-      if (fragment === '') {
-        var nonEmptyRoute = this.router.routes.find(function (route) {
-          return route.name === _this.config.name && route.route !== '';
-        });
-        if (nonEmptyRoute) {
-          fragment = nonEmptyRoute.route;
-        }
-      }
-
       if (!this.params) {
-        return fragment;
+        return this.fragment;
       }
 
       var wildcardName = this.getWildCardName();
       var path = this.params[wildcardName] || '';
 
       if (!path) {
-        return fragment;
+        return this.fragment;
       }
 
       path = encodeURI(path);
-      return fragment.substr(0, fragment.lastIndexOf(path));
+      return this.fragment.substr(0, this.fragment.lastIndexOf(path));
     };
 
     NavigationInstruction.prototype._commitChanges = function _commitChanges(waitToSwap) {
-      var _this2 = this;
+      var _this = this;
 
       var router = this.router;
       router.currentInstruction = this;
@@ -16383,7 +16578,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
       var delaySwaps = [];
 
       var _loop = function _loop(viewPortName) {
-        var viewPortInstruction = _this2.viewPortInstructions[viewPortName];
+        var viewPortInstruction = _this.viewPortInstructions[viewPortName];
         var viewPort = router.viewPorts[viewPortName];
 
         if (!viewPort) {
@@ -16419,7 +16614,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
         });
         return null;
       }).then(function () {
-        return prune(_this2);
+        return prune(_this);
       });
     };
 
@@ -16827,7 +17022,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
 
   var Router = exports.Router = function () {
     function Router(container, history) {
-      var _this3 = this;
+      var _this2 = this;
 
       
 
@@ -16835,8 +17030,8 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
       this.options = {};
 
       this.transformTitle = function (title) {
-        if (_this3.parent) {
-          return _this3.parent.transformTitle(title);
+        if (_this2.parent) {
+          return _this2.parent.transformTitle(title);
         }
         return title;
       };
@@ -16847,22 +17042,20 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     }
 
     Router.prototype.reset = function reset() {
-      var _this4 = this;
+      var _this3 = this;
 
       this.viewPorts = {};
       this.routes = [];
       this.baseUrl = '';
       this.isConfigured = false;
       this.isNavigating = false;
-      this.isExplicitNavigation = false;
-      this.isExplicitNavigationBack = false;
       this.navigation = [];
       this.currentInstruction = null;
       this._fallbackOrder = 100;
       this._recognizer = new _aureliaRouteRecognizer.RouteRecognizer();
       this._childRecognizer = new _aureliaRouteRecognizer.RouteRecognizer();
       this._configuredPromise = new Promise(function (resolve) {
-        _this4._resolveConfiguredPromise = resolve;
+        _this3._resolveConfiguredPromise = resolve;
       });
     };
 
@@ -16876,7 +17069,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     Router.prototype.configure = function configure(callbackOrConfig) {
-      var _this5 = this;
+      var _this4 = this;
 
       this.isConfigured = true;
 
@@ -16892,9 +17085,9 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
           config = c;
         }
 
-        config.exportToRouter(_this5);
-        _this5.isConfigured = true;
-        _this5._resolveConfiguredPromise();
+        config.exportToRouter(_this4);
+        _this4.isConfigured = true;
+        _this4._resolveConfiguredPromise();
       });
     };
 
@@ -16903,7 +17096,6 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
         return this.parent.navigate(fragment, options);
       }
 
-      this.isExplicitNavigation = true;
       return this.history.navigate(_resolveUrl(fragment, this.baseUrl, this.history._hasPushState), options);
     };
 
@@ -16913,7 +17105,6 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     Router.prototype.navigateBack = function navigateBack() {
-      this.isExplicitNavigationBack = true;
       this.history.navigateBack();
     };
 
@@ -17021,14 +17212,14 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     Router.prototype.handleUnknownRoutes = function handleUnknownRoutes(config) {
-      var _this6 = this;
+      var _this5 = this;
 
       if (!config) {
         throw new Error('Invalid unknown route handler');
       }
 
       this.catchAllHandler = function (instruction) {
-        return _this6._createRouteConfig(config, instruction).then(function (c) {
+        return _this5._createRouteConfig(config, instruction).then(function (c) {
           instruction.config = c;
           return instruction;
         });
@@ -17124,7 +17315,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     Router.prototype._createRouteConfig = function _createRouteConfig(config, instruction) {
-      var _this7 = this;
+      var _this6 = this;
 
       return Promise.resolve(config).then(function (c) {
         if (typeof c === 'string') {
@@ -17138,10 +17329,10 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
         return typeof c === 'string' ? { moduleId: c } : c;
       }).then(function (c) {
         c.route = instruction.params.path;
-        validateRouteConfig(c, _this7.routes);
+        validateRouteConfig(c, _this6.routes);
 
         if (!c.navModel) {
-          c.navModel = _this7.createNavModel(c);
+          c.navModel = _this6.createNavModel(c);
         }
 
         return c;
@@ -17281,8 +17472,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
 
       if (_viewPortPlan.childNavigationInstruction) {
         findDeactivatable(_viewPortPlan.childNavigationInstruction.plan, callbackName, list);
-      }
-      if (prevComponent) {
+      } else if (prevComponent) {
         addPreviousDeactivatable(prevComponent, callbackName, list);
       }
     }
@@ -17605,10 +17795,10 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     }
 
     PipelineSlot.prototype.getSteps = function getSteps() {
-      var _this8 = this;
+      var _this7 = this;
 
       return this.steps.map(function (x) {
-        return _this8.container.get(x);
+        return _this7.container.get(x);
       });
     };
 
@@ -17628,11 +17818,11 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     }
 
     PipelineProvider.prototype.createPipeline = function createPipeline() {
-      var _this9 = this;
+      var _this8 = this;
 
       var pipeline = new Pipeline();
       this.steps.forEach(function (step) {
-        return pipeline.addStep(_this9.container.get(step));
+        return pipeline.addStep(_this8.container.get(step));
       });
       return pipeline;
     };
@@ -17696,11 +17886,11 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     function AppRouter(container, history, pipelineProvider, events) {
       
 
-      var _this10 = _possibleConstructorReturn(this, _Router.call(this, container, history));
+      var _this9 = _possibleConstructorReturn(this, _Router.call(this, container, history));
 
-      _this10.pipelineProvider = pipelineProvider;
-      _this10.events = events;
-      return _this10;
+      _this9.pipelineProvider = pipelineProvider;
+      _this9.events = events;
+      return _this9;
     }
 
     AppRouter.prototype.reset = function reset() {
@@ -17714,35 +17904,35 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     AppRouter.prototype.loadUrl = function loadUrl(url) {
-      var _this11 = this;
+      var _this10 = this;
 
       return this._createNavigationInstruction(url).then(function (instruction) {
-        return _this11._queueInstruction(instruction);
+        return _this10._queueInstruction(instruction);
       }).catch(function (error) {
         logger.error(error);
-        restorePreviousLocation(_this11);
+        restorePreviousLocation(_this10);
       });
     };
 
     AppRouter.prototype.registerViewPort = function registerViewPort(viewPort, name) {
-      var _this12 = this;
+      var _this11 = this;
 
       _Router.prototype.registerViewPort.call(this, viewPort, name);
 
       if (!this.isActive) {
         var _ret6 = function () {
-          var viewModel = _this12._findViewModel(viewPort);
+          var viewModel = _this11._findViewModel(viewPort);
           if ('configureRouter' in viewModel) {
-            if (!_this12.isConfigured) {
+            if (!_this11.isConfigured) {
               var _ret7 = function () {
-                var resolveConfiguredPromise = _this12._resolveConfiguredPromise;
-                _this12._resolveConfiguredPromise = function () {};
+                var resolveConfiguredPromise = _this11._resolveConfiguredPromise;
+                _this11._resolveConfiguredPromise = function () {};
                 return {
                   v: {
-                    v: _this12.configure(function (config) {
-                      return viewModel.configureRouter(config, _this12);
+                    v: _this11.configure(function (config) {
+                      return viewModel.configureRouter(config, _this11);
                     }).then(function () {
-                      _this12.activate();
+                      _this11.activate();
                       resolveConfiguredPromise();
                     })
                   }
@@ -17752,7 +17942,7 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
               if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
             }
           } else {
-            _this12.activate();
+            _this11.activate();
           }
         }();
 
@@ -17781,53 +17971,53 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     AppRouter.prototype._queueInstruction = function _queueInstruction(instruction) {
-      var _this13 = this;
+      var _this12 = this;
 
       return new Promise(function (resolve) {
         instruction.resolve = resolve;
-        _this13._queue.unshift(instruction);
-        _this13._dequeueInstruction();
+        _this12._queue.unshift(instruction);
+        _this12._dequeueInstruction();
       });
     };
 
     AppRouter.prototype._dequeueInstruction = function _dequeueInstruction() {
-      var _this14 = this;
+      var _this13 = this;
 
       var instructionCount = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
       return Promise.resolve().then(function () {
-        if (_this14.isNavigating && !instructionCount) {
+        if (_this13.isNavigating && !instructionCount) {
           return undefined;
         }
 
-        var instruction = _this14._queue.shift();
-        _this14._queue.length = 0;
+        var instruction = _this13._queue.shift();
+        _this13._queue.length = 0;
 
         if (!instruction) {
           return undefined;
         }
 
-        _this14.isNavigating = true;
-        instruction.previousInstruction = _this14.currentInstruction;
+        _this13.isNavigating = true;
+        instruction.previousInstruction = _this13.currentInstruction;
 
         if (!instructionCount) {
-          _this14.events.publish('router:navigation:processing', { instruction: instruction });
-        } else if (instructionCount === _this14.maxInstructionCount - 1) {
+          _this13.events.publish('router:navigation:processing', { instruction: instruction });
+        } else if (instructionCount === _this13.maxInstructionCount - 1) {
           logger.error(instructionCount + 1 + ' navigation instructions have been attempted without success. Restoring last known good location.');
-          restorePreviousLocation(_this14);
-          return _this14._dequeueInstruction(instructionCount + 1);
-        } else if (instructionCount > _this14.maxInstructionCount) {
+          restorePreviousLocation(_this13);
+          return _this13._dequeueInstruction(instructionCount + 1);
+        } else if (instructionCount > _this13.maxInstructionCount) {
           throw new Error('Maximum navigation attempts exceeded. Giving up.');
         }
 
-        var pipeline = _this14.pipelineProvider.createPipeline();
+        var pipeline = _this13.pipelineProvider.createPipeline();
 
         return pipeline.run(instruction).then(function (result) {
-          return processResult(instruction, result, instructionCount, _this14);
+          return processResult(instruction, result, instructionCount, _this13);
         }).catch(function (error) {
           return { output: error instanceof Error ? error : new Error(error) };
         }).then(function (result) {
-          return resolveInstruction(instruction, result, !!instructionCount, _this14);
+          return resolveInstruction(instruction, result, !!instructionCount, _this13);
         });
       });
     };
@@ -17885,12 +18075,9 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
   function resolveInstruction(instruction, result, isInnerInstruction, router) {
     instruction.resolve(result);
 
-    var eventArgs = { instruction: instruction, result: result };
     if (!isInnerInstruction) {
       router.isNavigating = false;
-      router.isExplicitNavigation = false;
-      router.isExplicitNavigationBack = false;
-
+      var eventArgs = { instruction: instruction, result: result };
       var eventName = void 0;
 
       if (result.output instanceof Error) {
@@ -17905,8 +18092,6 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
 
       router.events.publish('router:navigation:' + eventName, eventArgs);
       router.events.publish('router:navigation:complete', eventArgs);
-    } else {
-      router.events.publish('router:navigation:child:complete', eventArgs);
     }
 
     return result;
@@ -17933,15 +18118,7 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
 
   
 
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
   var hasSetImmediate = typeof setImmediate === 'function';
-  var stackSeparator = '\nEnqueued in TaskQueue by:\n';
-  var microStackSeparator = '\nEnqueued in MicroTaskQueue by:\n';
 
   function makeRequestFlushFromMutationObserver(flush) {
     var toggle = 1;
@@ -17967,11 +18144,7 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
     };
   }
 
-  function onError(error, task, longStacks) {
-    if (longStacks && task.stack && (typeof error === 'undefined' ? 'undefined' : _typeof(error)) === 'object' && error !== null) {
-      error.stack = filterFlushStack(error.stack) + task.stack;
-    }
-
+  function onError(error, task) {
     if ('onError' in task) {
       task.onError(error);
     } else if (hasSetImmediate) {
@@ -17992,7 +18165,6 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
       
 
       this.flushing = false;
-      this.longStacks = false;
 
       this.microTaskQueue = [];
       this.microTaskQueueCapacity = 1024;
@@ -18018,9 +18190,6 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
         this.requestFlushMicroTaskQueue();
       }
 
-      if (this.longStacks) {
-        task.stack = this.prepareQueueStack(microStackSeparator);
-      }
       this.microTaskQueue.push(task);
     };
 
@@ -18029,9 +18198,6 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
         this.requestFlushTaskQueue();
       }
 
-      if (this.longStacks) {
-        task.stack = this.prepareQueueStack(stackSeparator);
-      }
       this.taskQueue.push(task);
     };
 
@@ -18046,14 +18212,11 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
         this.flushing = true;
         while (index < queue.length) {
           task = queue[index];
-          if (this.longStacks) {
-            this.stack = typeof task.stack === 'string' ? task.stack : undefined;
-          }
           task.call();
           index++;
         }
       } catch (error) {
-        onError(error, task, this.longStacks);
+        onError(error, task);
       } finally {
         this.flushing = false;
       }
@@ -18069,9 +18232,6 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
         this.flushing = true;
         while (index < queue.length) {
           task = queue[index];
-          if (this.longStacks) {
-            this.stack = typeof task.stack === 'string' ? task.stack : undefined;
-          }
           task.call();
           index++;
 
@@ -18085,7 +18245,7 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
           }
         }
       } catch (error) {
-        onError(error, task, this.longStacks);
+        onError(error, task);
       } finally {
         this.flushing = false;
       }
@@ -18093,46 +18253,157 @@ define('aurelia-task-queue',['exports', 'aurelia-pal'], function (exports, _aure
       queue.length = 0;
     };
 
-    TaskQueue.prototype.prepareQueueStack = function prepareQueueStack(separator) {
-      var stack = separator + filterQueueStack(captureStack());
-      if (typeof this.stack === 'string') {
-        stack = filterFlushStack(stack) + this.stack;
-      }
-      return stack;
-    };
-
     return TaskQueue;
   }();
+});
+define('aurelia-bootstrapper',['exports', 'aurelia-pal', 'aurelia-pal-browser', 'aurelia-polyfills'], function (exports, _aureliaPal, _aureliaPalBrowser) {
+  'use strict';
 
-  function captureStack() {
-    var error = new Error();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.bootstrap = bootstrap;
 
-    if (error.stack) {
-      return error.stack;
-    }
 
-    try {
-      throw error;
-    } catch (e) {
-      return e.stack;
-    }
-  }
+  var bootstrapQueue = [];
+  var sharedLoader = null;
+  var Aurelia = null;
 
-  function filterQueueStack(stack) {
-    return stack.replace(/^[\s\S]*?\bqueue(Micro)?Task\b[^\n]*\n/, '');
-  }
-
-  function filterFlushStack(stack) {
-    var index = stack.lastIndexOf('flushMicroTaskQueue');
-    if (index < 0) {
-      index = stack.lastIndexOf('flushTaskQueue');
-      if (index < 0) {
-        return stack;
+  function onBootstrap(callback) {
+    return new Promise(function (resolve, reject) {
+      if (sharedLoader) {
+        resolve(callback(sharedLoader));
+      } else {
+        bootstrapQueue.push(function () {
+          try {
+            resolve(callback(sharedLoader));
+          } catch (e) {
+            reject(e);
+          }
+        });
       }
-    }
-    index = stack.lastIndexOf('\n', index);
-    return index < 0 ? stack : stack.substr(0, index);
+    });
   }
+
+  function ready(global) {
+    return new Promise(function (resolve, reject) {
+      if (global.document.readyState === 'complete') {
+        resolve(global.document);
+      } else {
+        global.document.addEventListener('DOMContentLoaded', completed);
+        global.addEventListener('load', completed);
+      }
+
+      function completed() {
+        global.document.removeEventListener('DOMContentLoaded', completed);
+        global.removeEventListener('load', completed);
+        resolve(global.document);
+      }
+    });
+  }
+
+  function createLoader() {
+    if (_aureliaPal.PLATFORM.Loader) {
+      return Promise.resolve(new _aureliaPal.PLATFORM.Loader());
+    }
+
+    if (window.System && typeof window.System.import === 'function') {
+      return System.normalize('aurelia-bootstrapper').then(function (bootstrapperName) {
+        return System.normalize('aurelia-loader-default', bootstrapperName);
+      }).then(function (loaderName) {
+        return System.import(loaderName).then(function (m) {
+          return new m.DefaultLoader();
+        });
+      });
+    }
+
+    if (typeof window.require === 'function') {
+      return new Promise(function (resolve, reject) {
+        return require(['aurelia-loader-default'], function (m) {
+          return resolve(new m.DefaultLoader());
+        }, reject);
+      });
+    }
+
+    return Promise.reject('No PLATFORM.Loader is defined and there is neither a System API (ES6) or a Require API (AMD) globally available to load your app.');
+  }
+
+  function preparePlatform(loader) {
+    return loader.normalize('aurelia-bootstrapper').then(function (bootstrapperName) {
+      return loader.normalize('aurelia-framework', bootstrapperName).then(function (frameworkName) {
+        loader.map('aurelia-framework', frameworkName);
+
+        return Promise.all([loader.normalize('aurelia-dependency-injection', frameworkName).then(function (diName) {
+          return loader.map('aurelia-dependency-injection', diName);
+        }), loader.normalize('aurelia-router', bootstrapperName).then(function (routerName) {
+          return loader.map('aurelia-router', routerName);
+        }), loader.normalize('aurelia-logging-console', bootstrapperName).then(function (loggingConsoleName) {
+          return loader.map('aurelia-logging-console', loggingConsoleName);
+        })]).then(function () {
+          return loader.loadModule(frameworkName).then(function (m) {
+            return Aurelia = m.Aurelia;
+          });
+        });
+      });
+    });
+  }
+
+  function handleApp(loader, appHost) {
+    var moduleId = appHost.getAttribute('aurelia-app') || appHost.getAttribute('data-aurelia-app');
+    return config(loader, appHost, moduleId);
+  }
+
+  function config(loader, appHost, configModuleId) {
+    var aurelia = new Aurelia(loader);
+    aurelia.host = appHost;
+    aurelia.configModuleId = configModuleId || null;
+
+    if (configModuleId) {
+      return loader.loadModule(configModuleId).then(function (customConfig) {
+        if (!customConfig.configure) {
+          throw new Error("Cannot initialize module '" + configModuleId + "' without a configure function.");
+        }
+
+        customConfig.configure(aurelia);
+      });
+    }
+
+    aurelia.use.standardConfiguration().developmentLogging();
+
+    return aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+
+  function run() {
+    return ready(window).then(function (doc) {
+      (0, _aureliaPalBrowser.initialize)();
+
+      var appHost = doc.querySelectorAll('[aurelia-app],[data-aurelia-app]');
+      return createLoader().then(function (loader) {
+        return preparePlatform(loader).then(function () {
+          for (var i = 0, ii = appHost.length; i < ii; ++i) {
+            handleApp(loader, appHost[i]).catch(console.error.bind(console));
+          }
+
+          sharedLoader = loader;
+          for (var _i = 0, _ii = bootstrapQueue.length; _i < _ii; ++_i) {
+            bootstrapQueue[_i]();
+          }
+          bootstrapQueue = null;
+        });
+      });
+    });
+  }
+
+  function bootstrap(configure) {
+    return onBootstrap(function (loader) {
+      var aurelia = new Aurelia(loader);
+      return configure(aurelia);
+    });
+  }
+
+  run();
 });
 define('aurelia-templating',['exports', 'aurelia-logging', 'aurelia-metadata', 'aurelia-pal', 'aurelia-path', 'aurelia-loader', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-task-queue'], function (exports, _aureliaLogging, _aureliaMetadata, _aureliaPal, _aureliaPath, _aureliaLoader, _aureliaDependencyInjection, _aureliaBinding, _aureliaTaskQueue) {
   'use strict';
@@ -22955,836 +23226,6 @@ define('aurelia-templating',['exports', 'aurelia-logging', 'aurelia-metadata', '
     return TemplatingEngine;
   }()) || _class18);
 });
-define('aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], function (exports, _aureliaPath, _aureliaPal) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.HttpClient = exports.RequestBuilder = exports.HttpRequestMessage = exports.JSONPRequestMessage = exports.RequestMessageProcessor = exports.mimeTypes = exports.HttpResponseMessage = exports.RequestMessage = exports.Headers = undefined;
-  exports.timeoutTransformer = timeoutTransformer;
-  exports.callbackParameterNameTransformer = callbackParameterNameTransformer;
-  exports.credentialsTransformer = credentialsTransformer;
-  exports.progressTransformer = progressTransformer;
-  exports.responseTypeTransformer = responseTypeTransformer;
-  exports.headerTransformer = headerTransformer;
-  exports.contentTransformer = contentTransformer;
-  exports.createJSONPRequestMessageProcessor = createJSONPRequestMessageProcessor;
-  exports.createHttpRequestMessageProcessor = createHttpRequestMessageProcessor;
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  var _createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  
-
-  var Headers = exports.Headers = function () {
-    function Headers() {
-      var headers = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      
-
-      this.headers = {};
-
-      for (var _key in headers) {
-        this.headers[_key.toLowerCase()] = { key: _key, value: headers[_key] };
-      }
-    }
-
-    Headers.prototype.add = function add(key, value) {
-      this.headers[key.toLowerCase()] = { key: key, value: value };
-    };
-
-    Headers.prototype.get = function get(key) {
-      var header = this.headers[key.toLowerCase()];
-      return header ? header.value : undefined;
-    };
-
-    Headers.prototype.clear = function clear() {
-      this.headers = {};
-    };
-
-    Headers.prototype.has = function has(header) {
-      return this.headers.hasOwnProperty(header.toLowerCase());
-    };
-
-    Headers.prototype.configureXHR = function configureXHR(xhr) {
-      for (var name in this.headers) {
-        if (this.headers.hasOwnProperty(name)) {
-          xhr.setRequestHeader(this.headers[name].key, this.headers[name].value);
-        }
-      }
-    };
-
-    Headers.parse = function parse(headerStr) {
-      var headers = new Headers();
-      if (!headerStr) {
-        return headers;
-      }
-
-      var headerPairs = headerStr.split('\r\n');
-      for (var i = 0; i < headerPairs.length; i++) {
-        var headerPair = headerPairs[i];
-
-        var index = headerPair.indexOf(': ');
-        if (index > 0) {
-          var _key2 = headerPair.substring(0, index);
-          var val = headerPair.substring(index + 2);
-          headers.add(_key2, val);
-        }
-      }
-
-      return headers;
-    };
-
-    return Headers;
-  }();
-
-  var RequestMessage = exports.RequestMessage = function () {
-    function RequestMessage(method, url, content, headers) {
-      
-
-      this.method = method;
-      this.url = url;
-      this.content = content;
-      this.headers = headers || new Headers();
-      this.baseUrl = '';
-    }
-
-    RequestMessage.prototype.buildFullUrl = function buildFullUrl() {
-      var absoluteUrl = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
-      var url = absoluteUrl.test(this.url) ? this.url : (0, _aureliaPath.join)(this.baseUrl, this.url);
-
-      if (this.params) {
-        var qs = (0, _aureliaPath.buildQueryString)(this.params);
-        url = qs ? url + (this.url.indexOf('?') < 0 ? '?' : '&') + qs : url;
-      }
-
-      return url;
-    };
-
-    return RequestMessage;
-  }();
-
-  var HttpResponseMessage = exports.HttpResponseMessage = function () {
-    function HttpResponseMessage(requestMessage, xhr, responseType, reviver) {
-      
-
-      this.requestMessage = requestMessage;
-      this.statusCode = xhr.status;
-      this.response = xhr.response || xhr.responseText;
-      this.isSuccess = xhr.status >= 200 && xhr.status < 400;
-      this.statusText = xhr.statusText;
-      this.reviver = reviver;
-      this.mimeType = null;
-
-      if (xhr.getAllResponseHeaders) {
-        try {
-          this.headers = Headers.parse(xhr.getAllResponseHeaders());
-        } catch (err) {
-          if (xhr.requestHeaders) this.headers = new Headers(xhr.requestHeaders);
-        }
-      } else {
-        this.headers = new Headers();
-      }
-
-      var contentType = void 0;
-
-      if (this.headers && this.headers.headers) {
-        contentType = this.headers.get('Content-Type');
-      }
-
-      if (contentType) {
-        this.mimeType = responseType = contentType.split(';')[0].trim();
-        if (mimeTypes.hasOwnProperty(this.mimeType)) responseType = mimeTypes[this.mimeType];
-      }
-
-      this.responseType = responseType;
-    }
-
-    _createClass(HttpResponseMessage, [{
-      key: 'content',
-      get: function get() {
-        try {
-          if (this._content !== undefined) {
-            return this._content;
-          }
-
-          if (this.response === undefined || this.response === null || this.response === '') {
-            this._content = this.response;
-            return this._content;
-          }
-
-          if (this.responseType === 'json') {
-            this._content = JSON.parse(this.response, this.reviver);
-            return this._content;
-          }
-
-          if (this.reviver) {
-            this._content = this.reviver(this.response);
-            return this._content;
-          }
-
-          this._content = this.response;
-          return this._content;
-        } catch (e) {
-          if (this.isSuccess) {
-            throw e;
-          }
-
-          this._content = null;
-          return this._content;
-        }
-      }
-    }]);
-
-    return HttpResponseMessage;
-  }();
-
-  var mimeTypes = exports.mimeTypes = {
-    'text/html': 'html',
-    'text/javascript': 'js',
-    'application/javascript': 'js',
-    'text/json': 'json',
-    'application/json': 'json',
-    'application/rss+xml': 'rss',
-    'application/atom+xml': 'atom',
-    'application/xhtml+xml': 'xhtml',
-    'text/markdown': 'md',
-    'text/xml': 'xml',
-    'text/mathml': 'mml',
-    'application/xml': 'xml',
-    'text/yml': 'yml',
-    'text/csv': 'csv',
-    'text/css': 'css',
-    'text/less': 'less',
-    'text/stylus': 'styl',
-    'text/scss': 'scss',
-    'text/sass': 'sass',
-    'text/plain': 'txt'
-  };
-
-  function applyXhrTransformers(xhrTransformers, client, processor, message, xhr) {
-    var i = void 0;
-    var ii = void 0;
-
-    for (i = 0, ii = xhrTransformers.length; i < ii; ++i) {
-      xhrTransformers[i](client, processor, message, xhr);
-    }
-  }
-
-  var RequestMessageProcessor = exports.RequestMessageProcessor = function () {
-    function RequestMessageProcessor(xhrType, xhrTransformers) {
-      
-
-      this.XHRType = xhrType;
-      this.xhrTransformers = xhrTransformers;
-      this.isAborted = false;
-    }
-
-    RequestMessageProcessor.prototype.abort = function abort() {
-      if (this.xhr && this.xhr.readyState !== _aureliaPal.PLATFORM.XMLHttpRequest.UNSENT) {
-        this.xhr.abort();
-      }
-
-      this.isAborted = true;
-    };
-
-    RequestMessageProcessor.prototype.process = function process(client, requestMessage) {
-      var _this = this;
-
-      var promise = new Promise(function (resolve, reject) {
-        var xhr = _this.xhr = new _this.XHRType();
-
-        xhr.onload = function (e) {
-          var response = new HttpResponseMessage(requestMessage, xhr, requestMessage.responseType, requestMessage.reviver);
-          if (response.isSuccess) {
-            resolve(response);
-          } else {
-            reject(response);
-          }
-        };
-
-        xhr.ontimeout = function (e) {
-          reject(new HttpResponseMessage(requestMessage, {
-            response: e,
-            status: xhr.status,
-            statusText: xhr.statusText
-          }, 'timeout'));
-        };
-
-        xhr.onerror = function (e) {
-          reject(new HttpResponseMessage(requestMessage, {
-            response: e,
-            status: xhr.status,
-            statusText: xhr.statusText
-          }, 'error'));
-        };
-
-        xhr.onabort = function (e) {
-          reject(new HttpResponseMessage(requestMessage, {
-            response: e,
-            status: xhr.status,
-            statusText: xhr.statusText
-          }, 'abort'));
-        };
-      });
-
-      return Promise.resolve(requestMessage).then(function (message) {
-        var processRequest = function processRequest() {
-          if (_this.isAborted) {
-            _this.xhr.abort();
-          } else {
-            _this.xhr.open(message.method, message.buildFullUrl(), true, message.user, message.password);
-            applyXhrTransformers(_this.xhrTransformers, client, _this, message, _this.xhr);
-            if (typeof message.content === 'undefined') {
-              _this.xhr.send();
-            } else {
-              _this.xhr.send(message.content);
-            }
-          }
-
-          return promise;
-        };
-
-        var chain = [[processRequest, undefined]];
-
-        var interceptors = message.interceptors || [];
-        interceptors.forEach(function (interceptor) {
-          if (interceptor.request || interceptor.requestError) {
-            chain.unshift([interceptor.request ? interceptor.request.bind(interceptor) : undefined, interceptor.requestError ? interceptor.requestError.bind(interceptor) : undefined]);
-          }
-
-          if (interceptor.response || interceptor.responseError) {
-            chain.push([interceptor.response ? interceptor.response.bind(interceptor) : undefined, interceptor.responseError ? interceptor.responseError.bind(interceptor) : undefined]);
-          }
-        });
-
-        var interceptorsPromise = Promise.resolve(message);
-
-        while (chain.length) {
-          var _interceptorsPromise;
-
-          interceptorsPromise = (_interceptorsPromise = interceptorsPromise).then.apply(_interceptorsPromise, chain.shift());
-        }
-
-        return interceptorsPromise;
-      });
-    };
-
-    return RequestMessageProcessor;
-  }();
-
-  function timeoutTransformer(client, processor, message, xhr) {
-    if (message.timeout !== undefined) {
-      xhr.timeout = message.timeout;
-    }
-  }
-
-  function callbackParameterNameTransformer(client, processor, message, xhr) {
-    if (message.callbackParameterName !== undefined) {
-      xhr.callbackParameterName = message.callbackParameterName;
-    }
-  }
-
-  function credentialsTransformer(client, processor, message, xhr) {
-    if (message.withCredentials !== undefined) {
-      xhr.withCredentials = message.withCredentials;
-    }
-  }
-
-  function progressTransformer(client, processor, message, xhr) {
-    if (message.progressCallback) {
-      xhr.upload.onprogress = message.progressCallback;
-    }
-  }
-
-  function responseTypeTransformer(client, processor, message, xhr) {
-    var responseType = message.responseType;
-
-    if (responseType === 'json') {
-      responseType = 'text';
-    }
-
-    xhr.responseType = responseType;
-  }
-
-  function headerTransformer(client, processor, message, xhr) {
-    message.headers.configureXHR(xhr);
-  }
-
-  function contentTransformer(client, processor, message, xhr) {
-    if (message.skipContentProcessing) {
-      return;
-    }
-
-    if (_aureliaPal.PLATFORM.global.FormData && message.content instanceof FormData) {
-      return;
-    }
-
-    if (_aureliaPal.PLATFORM.global.Blob && message.content instanceof Blob) {
-      return;
-    }
-
-    if (_aureliaPal.PLATFORM.global.ArrayBufferView && message.content instanceof ArrayBufferView) {
-      return;
-    }
-
-    if (message.content instanceof Document) {
-      return;
-    }
-
-    if (typeof message.content === 'string') {
-      return;
-    }
-
-    if (message.content === null || message.content === undefined) {
-      return;
-    }
-
-    message.content = JSON.stringify(message.content, message.replacer);
-
-    if (!message.headers.has('Content-Type')) {
-      message.headers.add('Content-Type', 'application/json');
-    }
-  }
-
-  var JSONPRequestMessage = exports.JSONPRequestMessage = function (_RequestMessage) {
-    _inherits(JSONPRequestMessage, _RequestMessage);
-
-    function JSONPRequestMessage(url, callbackParameterName) {
-      
-
-      var _this2 = _possibleConstructorReturn(this, _RequestMessage.call(this, 'JSONP', url));
-
-      _this2.responseType = 'jsonp';
-      _this2.callbackParameterName = callbackParameterName;
-      return _this2;
-    }
-
-    return JSONPRequestMessage;
-  }(RequestMessage);
-
-  var JSONPXHR = function () {
-    function JSONPXHR() {
-      
-    }
-
-    JSONPXHR.prototype.open = function open(method, url) {
-      this.method = method;
-      this.url = url;
-      this.callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-    };
-
-    JSONPXHR.prototype.send = function send() {
-      var _this3 = this;
-
-      var url = this.url + (this.url.indexOf('?') >= 0 ? '&' : '?') + encodeURIComponent(this.callbackParameterName) + '=' + this.callbackName;
-      var script = _aureliaPal.DOM.createElement('script');
-
-      script.src = url;
-      script.onerror = function (e) {
-        cleanUp();
-
-        _this3.status = 0;
-        _this3.onerror(new Error('error'));
-      };
-
-      var cleanUp = function cleanUp() {
-        delete _aureliaPal.PLATFORM.global[_this3.callbackName];
-        _aureliaPal.DOM.removeNode(script);
-      };
-
-      _aureliaPal.PLATFORM.global[this.callbackName] = function (data) {
-        cleanUp();
-
-        if (_this3.status === undefined) {
-          _this3.status = 200;
-          _this3.statusText = 'OK';
-          _this3.response = data;
-          _this3.onload(_this3);
-        }
-      };
-
-      _aureliaPal.DOM.appendNode(script);
-
-      if (this.timeout !== undefined) {
-        setTimeout(function () {
-          if (_this3.status === undefined) {
-            _this3.status = 0;
-            _this3.ontimeout(new Error('timeout'));
-          }
-        }, this.timeout);
-      }
-    };
-
-    JSONPXHR.prototype.abort = function abort() {
-      if (this.status === undefined) {
-        this.status = 0;
-        this.onabort(new Error('abort'));
-      }
-    };
-
-    JSONPXHR.prototype.setRequestHeader = function setRequestHeader() {};
-
-    return JSONPXHR;
-  }();
-
-  function createJSONPRequestMessageProcessor() {
-    return new RequestMessageProcessor(JSONPXHR, [timeoutTransformer, callbackParameterNameTransformer]);
-  }
-
-  var HttpRequestMessage = exports.HttpRequestMessage = function (_RequestMessage2) {
-    _inherits(HttpRequestMessage, _RequestMessage2);
-
-    function HttpRequestMessage(method, url, content, headers) {
-      
-
-      var _this4 = _possibleConstructorReturn(this, _RequestMessage2.call(this, method, url, content, headers));
-
-      _this4.responseType = 'json';return _this4;
-    }
-
-    return HttpRequestMessage;
-  }(RequestMessage);
-
-  function createHttpRequestMessageProcessor() {
-    return new RequestMessageProcessor(_aureliaPal.PLATFORM.XMLHttpRequest, [timeoutTransformer, credentialsTransformer, progressTransformer, responseTypeTransformer, contentTransformer, headerTransformer]);
-  }
-
-  var RequestBuilder = exports.RequestBuilder = function () {
-    function RequestBuilder(client) {
-      
-
-      this.client = client;
-      this.transformers = client.requestTransformers.slice(0);
-      this.useJsonp = false;
-    }
-
-    RequestBuilder.prototype.asDelete = function asDelete() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'DELETE';
-      });
-    };
-
-    RequestBuilder.prototype.asGet = function asGet() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'GET';
-      });
-    };
-
-    RequestBuilder.prototype.asHead = function asHead() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'HEAD';
-      });
-    };
-
-    RequestBuilder.prototype.asOptions = function asOptions() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'OPTIONS';
-      });
-    };
-
-    RequestBuilder.prototype.asPatch = function asPatch() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'PATCH';
-      });
-    };
-
-    RequestBuilder.prototype.asPost = function asPost() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'POST';
-      });
-    };
-
-    RequestBuilder.prototype.asPut = function asPut() {
-      return this._addTransformer(function (client, processor, message) {
-        message.method = 'PUT';
-      });
-    };
-
-    RequestBuilder.prototype.asJsonp = function asJsonp(callbackParameterName) {
-      this.useJsonp = true;
-      return this._addTransformer(function (client, processor, message) {
-        message.callbackParameterName = callbackParameterName;
-      });
-    };
-
-    RequestBuilder.prototype.withUrl = function withUrl(url) {
-      return this._addTransformer(function (client, processor, message) {
-        message.url = url;
-      });
-    };
-
-    RequestBuilder.prototype.withContent = function withContent(content) {
-      return this._addTransformer(function (client, processor, message) {
-        message.content = content;
-      });
-    };
-
-    RequestBuilder.prototype.withBaseUrl = function withBaseUrl(baseUrl) {
-      return this._addTransformer(function (client, processor, message) {
-        message.baseUrl = baseUrl;
-      });
-    };
-
-    RequestBuilder.prototype.withParams = function withParams(params) {
-      return this._addTransformer(function (client, processor, message) {
-        message.params = params;
-      });
-    };
-
-    RequestBuilder.prototype.withResponseType = function withResponseType(responseType) {
-      return this._addTransformer(function (client, processor, message) {
-        message.responseType = responseType;
-      });
-    };
-
-    RequestBuilder.prototype.withTimeout = function withTimeout(timeout) {
-      return this._addTransformer(function (client, processor, message) {
-        message.timeout = timeout;
-      });
-    };
-
-    RequestBuilder.prototype.withHeader = function withHeader(key, value) {
-      return this._addTransformer(function (client, processor, message) {
-        message.headers.add(key, value);
-      });
-    };
-
-    RequestBuilder.prototype.withCredentials = function withCredentials(value) {
-      return this._addTransformer(function (client, processor, message) {
-        message.withCredentials = value;
-      });
-    };
-
-    RequestBuilder.prototype.withLogin = function withLogin(user, password) {
-      return this._addTransformer(function (client, processor, message) {
-        message.user = user;message.password = password;
-      });
-    };
-
-    RequestBuilder.prototype.withReviver = function withReviver(reviver) {
-      return this._addTransformer(function (client, processor, message) {
-        message.reviver = reviver;
-      });
-    };
-
-    RequestBuilder.prototype.withReplacer = function withReplacer(replacer) {
-      return this._addTransformer(function (client, processor, message) {
-        message.replacer = replacer;
-      });
-    };
-
-    RequestBuilder.prototype.withProgressCallback = function withProgressCallback(progressCallback) {
-      return this._addTransformer(function (client, processor, message) {
-        message.progressCallback = progressCallback;
-      });
-    };
-
-    RequestBuilder.prototype.withCallbackParameterName = function withCallbackParameterName(callbackParameterName) {
-      return this._addTransformer(function (client, processor, message) {
-        message.callbackParameterName = callbackParameterName;
-      });
-    };
-
-    RequestBuilder.prototype.withInterceptor = function withInterceptor(interceptor) {
-      return this._addTransformer(function (client, processor, message) {
-        message.interceptors = message.interceptors || [];
-        message.interceptors.unshift(interceptor);
-      });
-    };
-
-    RequestBuilder.prototype.skipContentProcessing = function skipContentProcessing() {
-      return this._addTransformer(function (client, processor, message) {
-        message.skipContentProcessing = true;
-      });
-    };
-
-    RequestBuilder.prototype._addTransformer = function _addTransformer(fn) {
-      this.transformers.push(fn);
-      return this;
-    };
-
-    RequestBuilder.addHelper = function addHelper(name, fn) {
-      RequestBuilder.prototype[name] = function () {
-        return this._addTransformer(fn.apply(this, arguments));
-      };
-    };
-
-    RequestBuilder.prototype.send = function send() {
-      var message = this.useJsonp ? new JSONPRequestMessage() : new HttpRequestMessage();
-      return this.client.send(message, this.transformers);
-    };
-
-    return RequestBuilder;
-  }();
-
-  function trackRequestStart(client, processor) {
-    client.pendingRequests.push(processor);
-    client.isRequesting = true;
-  }
-
-  function trackRequestEnd(client, processor) {
-    var index = client.pendingRequests.indexOf(processor);
-
-    client.pendingRequests.splice(index, 1);
-    client.isRequesting = client.pendingRequests.length > 0;
-
-    if (!client.isRequesting) {
-      (function () {
-        var evt = _aureliaPal.DOM.createCustomEvent('aurelia-http-client-requests-drained', { bubbles: true, cancelable: true });
-        setTimeout(function () {
-          return _aureliaPal.DOM.dispatchEvent(evt);
-        }, 1);
-      })();
-    }
-  }
-
-  var HttpClient = exports.HttpClient = function () {
-    function HttpClient() {
-      
-
-      this.isRequesting = false;
-
-      this.requestTransformers = [];
-      this.requestProcessorFactories = new Map();
-      this.requestProcessorFactories.set(HttpRequestMessage, createHttpRequestMessageProcessor);
-      this.requestProcessorFactories.set(JSONPRequestMessage, createJSONPRequestMessageProcessor);
-      this.pendingRequests = [];
-    }
-
-    HttpClient.prototype.configure = function configure(fn) {
-      var builder = new RequestBuilder(this);
-      fn(builder);
-      this.requestTransformers = builder.transformers;
-      return this;
-    };
-
-    HttpClient.prototype.createRequest = function createRequest(url) {
-      var builder = new RequestBuilder(this);
-
-      if (url) {
-        builder.withUrl(url);
-      }
-
-      return builder;
-    };
-
-    HttpClient.prototype.send = function send(requestMessage, transformers) {
-      var _this5 = this;
-
-      var createProcessor = this.requestProcessorFactories.get(requestMessage.constructor);
-      var processor = void 0;
-      var promise = void 0;
-      var i = void 0;
-      var ii = void 0;
-
-      if (!createProcessor) {
-        throw new Error('No request message processor factory for ' + requestMessage.constructor + '.');
-      }
-
-      processor = createProcessor();
-      trackRequestStart(this, processor);
-
-      transformers = transformers || this.requestTransformers;
-
-      promise = Promise.resolve(requestMessage).then(function (message) {
-        for (i = 0, ii = transformers.length; i < ii; ++i) {
-          transformers[i](_this5, processor, message);
-        }
-
-        return processor.process(_this5, message).then(function (response) {
-          trackRequestEnd(_this5, processor);
-          return response;
-        }).catch(function (response) {
-          trackRequestEnd(_this5, processor);
-          throw response;
-        });
-      });
-
-      promise.abort = promise.cancel = function () {
-        processor.abort();
-      };
-
-      return promise;
-    };
-
-    HttpClient.prototype.delete = function _delete(url) {
-      return this.createRequest(url).asDelete().send();
-    };
-
-    HttpClient.prototype.get = function get(url) {
-      return this.createRequest(url).asGet().send();
-    };
-
-    HttpClient.prototype.head = function head(url) {
-      return this.createRequest(url).asHead().send();
-    };
-
-    HttpClient.prototype.jsonp = function jsonp(url) {
-      var callbackParameterName = arguments.length <= 1 || arguments[1] === undefined ? 'jsoncallback' : arguments[1];
-
-      return this.createRequest(url).asJsonp(callbackParameterName).send();
-    };
-
-    HttpClient.prototype.options = function options(url) {
-      return this.createRequest(url).asOptions().send();
-    };
-
-    HttpClient.prototype.put = function put(url, content) {
-      return this.createRequest(url).asPut().withContent(content).send();
-    };
-
-    HttpClient.prototype.patch = function patch(url, content) {
-      return this.createRequest(url).asPatch().withContent(content).send();
-    };
-
-    HttpClient.prototype.post = function post(url, content) {
-      return this.createRequest(url).asPost().withContent(content).send();
-    };
-
-    return HttpClient;
-  }();
-});
 define('aurelia-templating-binding',['exports', 'aurelia-logging', 'aurelia-binding', 'aurelia-templating'], function (exports, _aureliaLogging, _aureliaBinding, _aureliaTemplating) {
   'use strict';
 
@@ -24472,282 +23913,6 @@ define('aurelia-templating-binding',['exports', 'aurelia-logging', 'aurelia-bind
     config.container.registerAlias(_aureliaTemplating.BindingLanguage, TemplatingBindingLanguage);
   }
 });
-define('text',{});
-define('aurelia-testing/aurelia-testing',['exports', './compile-spy', './view-spy', './component-tester'], function (exports, _compileSpy, _viewSpy, _componentTester) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = exports.ComponentTester = exports.StageComponent = exports.ViewSpy = exports.CompileSpy = undefined;
-
-
-  function configure(config) {
-    config.globalResources('./compile-spy', './view-spy');
-  }
-
-  exports.CompileSpy = _compileSpy.CompileSpy;
-  exports.ViewSpy = _viewSpy.ViewSpy;
-  exports.StageComponent = _componentTester.StageComponent;
-  exports.ComponentTester = _componentTester.ComponentTester;
-  exports.configure = configure;
-});;define('aurelia-testing', ['aurelia-testing/aurelia-testing'], function (main) { return main; });
-
-define('aurelia-testing/compile-spy',['exports', 'aurelia-templating', 'aurelia-dependency-injection', 'aurelia-logging', 'aurelia-pal'], function (exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaLogging, _aureliaPal) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.CompileSpy = undefined;
-
-  var LogManager = _interopRequireWildcard(_aureliaLogging);
-
-  function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) {
-      return obj;
-    } else {
-      var newObj = {};
-
-      if (obj != null) {
-        for (var key in obj) {
-          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
-        }
-      }
-
-      newObj.default = obj;
-      return newObj;
-    }
-  }
-
-  
-
-  var _dec, _dec2, _class;
-
-  var CompileSpy = exports.CompileSpy = (_dec = (0, _aureliaTemplating.customAttribute)('compile-spy'), _dec2 = (0, _aureliaDependencyInjection.inject)(_aureliaPal.DOM.Element, _aureliaTemplating.TargetInstruction), _dec(_class = _dec2(_class = function CompileSpy(element, instruction) {
-    
-
-    LogManager.getLogger('compile-spy').info(element, instruction);
-  }) || _class) || _class);
-});
-define('aurelia-testing/view-spy',['exports', 'aurelia-templating', 'aurelia-logging'], function (exports, _aureliaTemplating, _aureliaLogging) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.ViewSpy = undefined;
-
-  var LogManager = _interopRequireWildcard(_aureliaLogging);
-
-  function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) {
-      return obj;
-    } else {
-      var newObj = {};
-
-      if (obj != null) {
-        for (var key in obj) {
-          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
-        }
-      }
-
-      newObj.default = obj;
-      return newObj;
-    }
-  }
-
-  
-
-  var _dec, _class;
-
-  var ViewSpy = exports.ViewSpy = (_dec = (0, _aureliaTemplating.customAttribute)('view-spy'), _dec(_class = function () {
-    function ViewSpy() {
-      
-
-      this.logger = LogManager.getLogger('view-spy');
-    }
-
-    ViewSpy.prototype._log = function _log(lifecycleName, context) {
-      if (!this.value && lifecycleName === 'created') {
-        this.logger.info(lifecycleName, this.view);
-      } else if (this.value && this.value.indexOf(lifecycleName) !== -1) {
-        this.logger.info(lifecycleName, this.view, context);
-      }
-    };
-
-    ViewSpy.prototype.created = function created(view) {
-      this.view = view;
-      this._log('created');
-    };
-
-    ViewSpy.prototype.bind = function bind(bindingContext) {
-      this._log('bind', bindingContext);
-    };
-
-    ViewSpy.prototype.attached = function attached() {
-      this._log('attached');
-    };
-
-    ViewSpy.prototype.detached = function detached() {
-      this._log('detached');
-    };
-
-    ViewSpy.prototype.unbind = function unbind() {
-      this._log('unbind');
-    };
-
-    return ViewSpy;
-  }()) || _class);
-});
-define('aurelia-testing/component-tester',['exports', 'aurelia-templating', 'aurelia-framework'], function (exports, _aureliaTemplating, _aureliaFramework) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.ComponentTester = exports.StageComponent = undefined;
-
-  
-
-  var StageComponent = exports.StageComponent = {
-    withResources: function withResources(resources) {
-      return new ComponentTester().withResources(resources);
-    }
-  };
-
-  var ComponentTester = exports.ComponentTester = function () {
-    function ComponentTester() {
-      
-
-      this.configure = function (aurelia) {
-        return aurelia.use.standardConfiguration();
-      };
-
-      this._resources = [];
-    }
-
-    ComponentTester.prototype.bootstrap = function bootstrap(configure) {
-      this.configure = configure;
-    };
-
-    ComponentTester.prototype.withResources = function withResources(resources) {
-      this._resources = resources;
-      return this;
-    };
-
-    ComponentTester.prototype.inView = function inView(html) {
-      this._html = html;
-      return this;
-    };
-
-    ComponentTester.prototype.boundTo = function boundTo(bindingContext) {
-      this._bindingContext = bindingContext;
-      return this;
-    };
-
-    ComponentTester.prototype.manuallyHandleLifecycle = function manuallyHandleLifecycle() {
-      this._prepareLifecycle();
-      return this;
-    };
-
-    ComponentTester.prototype.create = function create(bootstrap) {
-      var _this = this;
-
-      return bootstrap(function (aurelia) {
-        return Promise.resolve(_this.configure(aurelia)).then(function () {
-          if (_this._resources) {
-            aurelia.use.globalResources(_this._resources);
-          }
-
-          return aurelia.start().then(function (a) {
-            _this.host = document.createElement('div');
-            _this.host.innerHTML = _this._html;
-
-            document.body.appendChild(_this.host);
-
-            return aurelia.enhance(_this._bindingContext, _this.host).then(function () {
-              _this._rootView = aurelia.root;
-              _this.element = _this.host.firstElementChild;
-
-              if (aurelia.root.controllers.length) {
-                _this.viewModel = aurelia.root.controllers[0].viewModel;
-              }
-
-              return new Promise(function (resolve) {
-                return setTimeout(function () {
-                  return resolve();
-                }, 0);
-              });
-            });
-          });
-        });
-      });
-    };
-
-    ComponentTester.prototype.dispose = function dispose() {
-      if (this.host === undefined || this._rootView === undefined) {
-        throw new Error('Cannot call ComponentTester.dispose() before ComponentTester.create()');
-      }
-
-      this._rootView.detached();
-      this._rootView.unbind();
-
-      return this.host.parentNode.removeChild(this.host);
-    };
-
-    ComponentTester.prototype._prepareLifecycle = function _prepareLifecycle() {
-      var _this2 = this;
-
-      var bindPrototype = _aureliaTemplating.View.prototype.bind;
-      _aureliaTemplating.View.prototype.bind = function () {};
-      this.bind = function (bindingContext) {
-        return new Promise(function (resolve) {
-          _aureliaTemplating.View.prototype.bind = bindPrototype;
-          if (bindingContext !== undefined) {
-            _this2._bindingContext = bindingContext;
-          }
-          _this2._rootView.bind(_this2._bindingContext);
-          setTimeout(function () {
-            return resolve();
-          }, 0);
-        });
-      };
-
-      var attachedPrototype = _aureliaTemplating.View.prototype.attached;
-      _aureliaTemplating.View.prototype.attached = function () {};
-      this.attached = function () {
-        return new Promise(function (resolve) {
-          _aureliaTemplating.View.prototype.attached = attachedPrototype;
-          _this2._rootView.attached();
-          setTimeout(function () {
-            return resolve();
-          }, 0);
-        });
-      };
-
-      this.detached = function () {
-        return new Promise(function (resolve) {
-          _this2._rootView.detached();
-          setTimeout(function () {
-            return resolve();
-          }, 0);
-        });
-      };
-
-      this.unbind = function () {
-        return new Promise(function (resolve) {
-          _this2._rootView.unbind();
-          setTimeout(function () {
-            return resolve();
-          }, 0);
-        });
-      };
-    };
-
-    return ComponentTester;
-  }();
-});
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
@@ -24771,18 +23936,17 @@ var platform = navigator.platform
 var gecko = /gecko\/\d/i.test(userAgent)
 var ie_upto10 = /MSIE \d/.test(userAgent)
 var ie_11up = /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(userAgent)
-var edge = /Edge\/(\d+)/.exec(userAgent)
-var ie = ie_upto10 || ie_11up || edge
-var ie_version = ie && (ie_upto10 ? document.documentMode || 6 : +(edge || ie_11up)[1])
-var webkit = !edge && /WebKit\//.test(userAgent)
+var ie = ie_upto10 || ie_11up
+var ie_version = ie && (ie_upto10 ? document.documentMode || 6 : ie_11up[1])
+var webkit = /WebKit\//.test(userAgent)
 var qtwebkit = webkit && /Qt\/\d+\.\d+/.test(userAgent)
-var chrome = !edge && /Chrome\//.test(userAgent)
+var chrome = /Chrome\//.test(userAgent)
 var presto = /Opera\//.test(userAgent)
 var safari = /Apple Computer/.test(navigator.vendor)
 var mac_geMountainLion = /Mac OS X 1\d\D([8-9]|\d\d)\D/.test(userAgent)
 var phantom = /PhantomJS/.test(userAgent)
 
-var ios = !edge && /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent)
+var ios = /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent)
 // This is woefully incomplete. Suggestions for alternative methods welcome.
 var mobile = ios || /Android|webOS|BlackBerry|Opera Mini|Opera Mobi|IEMobile/i.test(userAgent)
 var mac = ios || /Mac/.test(platform)
@@ -24916,11 +24080,11 @@ function countColumn(string, end, tabSize, startIndex, startValue) {
   }
 }
 
-var Delayed = function() {this.id = null};
-Delayed.prototype.set = function (ms, f) {
+function Delayed() {this.id = null}
+Delayed.prototype.set = function(ms, f) {
   clearTimeout(this.id)
   this.id = setTimeout(f, ms)
-};
+}
 
 function indexOf(array, elt) {
   for (var i = 0; i < array.length; ++i)
@@ -25013,23 +24177,6 @@ function isEmpty(obj) {
 // of code points as a group.
 var extendingChars = /[\u0300-\u036f\u0483-\u0489\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u064b-\u065e\u0670\u06d6-\u06dc\u06de-\u06e4\u06e7\u06e8\u06ea-\u06ed\u0711\u0730-\u074a\u07a6-\u07b0\u07eb-\u07f3\u0816-\u0819\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0900-\u0902\u093c\u0941-\u0948\u094d\u0951-\u0955\u0962\u0963\u0981\u09bc\u09be\u09c1-\u09c4\u09cd\u09d7\u09e2\u09e3\u0a01\u0a02\u0a3c\u0a41\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a70\u0a71\u0a75\u0a81\u0a82\u0abc\u0ac1-\u0ac5\u0ac7\u0ac8\u0acd\u0ae2\u0ae3\u0b01\u0b3c\u0b3e\u0b3f\u0b41-\u0b44\u0b4d\u0b56\u0b57\u0b62\u0b63\u0b82\u0bbe\u0bc0\u0bcd\u0bd7\u0c3e-\u0c40\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62\u0c63\u0cbc\u0cbf\u0cc2\u0cc6\u0ccc\u0ccd\u0cd5\u0cd6\u0ce2\u0ce3\u0d3e\u0d41-\u0d44\u0d4d\u0d57\u0d62\u0d63\u0dca\u0dcf\u0dd2-\u0dd4\u0dd6\u0ddf\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0eb1\u0eb4-\u0eb9\u0ebb\u0ebc\u0ec8-\u0ecd\u0f18\u0f19\u0f35\u0f37\u0f39\u0f71-\u0f7e\u0f80-\u0f84\u0f86\u0f87\u0f90-\u0f97\u0f99-\u0fbc\u0fc6\u102d-\u1030\u1032-\u1037\u1039\u103a\u103d\u103e\u1058\u1059\u105e-\u1060\u1071-\u1074\u1082\u1085\u1086\u108d\u109d\u135f\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17b7-\u17bd\u17c6\u17c9-\u17d3\u17dd\u180b-\u180d\u18a9\u1920-\u1922\u1927\u1928\u1932\u1939-\u193b\u1a17\u1a18\u1a56\u1a58-\u1a5e\u1a60\u1a62\u1a65-\u1a6c\u1a73-\u1a7c\u1a7f\u1b00-\u1b03\u1b34\u1b36-\u1b3a\u1b3c\u1b42\u1b6b-\u1b73\u1b80\u1b81\u1ba2-\u1ba5\u1ba8\u1ba9\u1c2c-\u1c33\u1c36\u1c37\u1cd0-\u1cd2\u1cd4-\u1ce0\u1ce2-\u1ce8\u1ced\u1dc0-\u1de6\u1dfd-\u1dff\u200c\u200d\u20d0-\u20f0\u2cef-\u2cf1\u2de0-\u2dff\u302a-\u302f\u3099\u309a\ua66f-\ua672\ua67c\ua67d\ua6f0\ua6f1\ua802\ua806\ua80b\ua825\ua826\ua8c4\ua8e0-\ua8f1\ua926-\ua92d\ua947-\ua951\ua980-\ua982\ua9b3\ua9b6-\ua9b9\ua9bc\uaa29-\uaa2e\uaa31\uaa32\uaa35\uaa36\uaa43\uaa4c\uaab0\uaab2-\uaab4\uaab7\uaab8\uaabe\uaabf\uaac1\uabe5\uabe8\uabed\udc00-\udfff\ufb1e\ufe00-\ufe0f\ufe20-\ufe26\uff9e\uff9f]/
 function isExtendingChar(ch) { return ch.charCodeAt(0) >= 768 && extendingChars.test(ch) }
-
-// Returns a number from the range [`0`; `str.length`] unless `pos` is outside that range.
-function skipExtendingChars(str, pos, dir) {
-  while ((dir < 0 ? pos > 0 : pos < str.length) && isExtendingChar(str.charAt(pos))) { pos += dir }
-  return pos
-}
-
-// Returns the value from the range [`from`; `to`] that satisfies
-// `pred` and is closest to `from`. Assumes that at least `to` satisfies `pred`.
-function findFirst(pred, from, to) {
-  for (;;) {
-    if (Math.abs(from - to) <= 1) { return pred(from) ? from : to }
-    var mid = Math.floor((from + to) / 2)
-    if (pred(mid)) { to = mid }
-    else { from = mid }
-  }
-}
 
 // The display handles the DOM integration, both for input reading
 // and content drawing. It holds references to DOM nodes and
@@ -25218,20 +24365,14 @@ function lineNumberFor(options, i) {
 }
 
 // A Pos instance represents a position within the text.
-function Pos(line, ch, sticky) {
-  if ( sticky === void 0 ) sticky = null;
-
-  if (!(this instanceof Pos)) { return new Pos(line, ch, sticky) }
-  this.line = line
-  this.ch = ch
-  this.sticky = sticky
+function Pos (line, ch) {
+  if (!(this instanceof Pos)) { return new Pos(line, ch) }
+  this.line = line; this.ch = ch
 }
 
 // Compare two positions, return 0 if they are the same, a negative
 // number when a is less, and a positive number otherwise.
 function cmp(a, b) { return a.line - b.line || a.ch - b.ch }
-
-function equalCursorPos(a, b) { return a.sticky == b.sticky && cmp(a, b) == 0 }
 
 function copyPos(x) {return Pos(x.line, x.ch)}
 function maxPos(a, b) { return cmp(a, b) < 0 ? b : a }
@@ -25428,7 +24569,7 @@ function removeReadOnlyRanges(doc, from, to) {
       if (dto > 0 || !mk.inclusiveRight && !dto)
         { newParts.push({from: m.to, to: p.to}) }
       parts.splice.apply(parts, newParts)
-      j += newParts.length - 3
+      j += newParts.length - 1
     }
   }
   return parts
@@ -25510,13 +24651,6 @@ function visualLine(line) {
   var merged
   while (merged = collapsedSpanAtStart(line))
     { line = merged.find(-1, true).line }
-  return line
-}
-
-function visualLineEnd(line) {
-  var merged
-  while (merged = collapsedSpanAtEnd(line))
-    { line = merged.find(1, true).line }
   return line
 }
 
@@ -25651,23 +24785,84 @@ function iterateBidiSections(order, from, to, f) {
   if (!found) { f(from, to, "ltr") }
 }
 
+function bidiLeft(part) { return part.level % 2 ? part.to : part.from }
+function bidiRight(part) { return part.level % 2 ? part.from : part.to }
+
+function lineLeft(line) { var order = getOrder(line); return order ? bidiLeft(order[0]) : 0 }
+function lineRight(line) {
+  var order = getOrder(line)
+  if (!order) { return line.text.length }
+  return bidiRight(lst(order))
+}
+
+function compareBidiLevel(order, a, b) {
+  var linedir = order[0].level
+  if (a == linedir) { return true }
+  if (b == linedir) { return false }
+  return a < b
+}
+
 var bidiOther = null
-function getBidiPartAt(order, ch, sticky) {
+function getBidiPartAt(order, pos) {
   var found
   bidiOther = null
   for (var i = 0; i < order.length; ++i) {
     var cur = order[i]
-    if (cur.from < ch && cur.to > ch) { return i }
-    if (cur.to == ch) {
-      if (cur.from != cur.to && sticky == "before") { found = i }
-      else { bidiOther = i }
-    }
-    if (cur.from == ch) {
-      if (cur.from != cur.to && sticky != "before") { found = i }
-      else { bidiOther = i }
+    if (cur.from < pos && cur.to > pos) { return i }
+    if ((cur.from == pos || cur.to == pos)) {
+      if (found == null) {
+        found = i
+      } else if (compareBidiLevel(order, cur.level, order[found].level)) {
+        if (cur.from != cur.to) { bidiOther = found }
+        return i
+      } else {
+        if (cur.from != cur.to) { bidiOther = i }
+        return found
+      }
     }
   }
-  return found != null ? found : bidiOther
+  return found
+}
+
+function moveInLine(line, pos, dir, byUnit) {
+  if (!byUnit) { return pos + dir }
+  do { pos += dir }
+  while (pos > 0 && isExtendingChar(line.text.charAt(pos)))
+  return pos
+}
+
+// This is needed in order to move 'visually' through bi-directional
+// text -- i.e., pressing left should make the cursor go left, even
+// when in RTL text. The tricky part is the 'jumps', where RTL and
+// LTR text touch each other. This often requires the cursor offset
+// to move more than one unit, in order to visually move one unit.
+function moveVisually(line, start, dir, byUnit) {
+  var bidi = getOrder(line)
+  if (!bidi) { return moveLogically(line, start, dir, byUnit) }
+  var pos = getBidiPartAt(bidi, start), part = bidi[pos]
+  var target = moveInLine(line, start, part.level % 2 ? -dir : dir, byUnit)
+
+  for (;;) {
+    if (target > part.from && target < part.to) { return target }
+    if (target == part.from || target == part.to) {
+      if (getBidiPartAt(bidi, target) == pos) { return target }
+      part = bidi[pos += dir]
+      return (dir > 0) == part.level % 2 ? part.to : part.from
+    } else {
+      part = bidi[pos += dir]
+      if (!part) { return null }
+      if ((dir > 0) == part.level % 2)
+        { target = moveInLine(line, part.to, -1, byUnit) }
+      else
+        { target = moveInLine(line, part.from, 1, byUnit) }
+    }
+  }
+}
+
+function moveLogically(line, start, dir, byUnit) {
+  var target = start + dir
+  if (byUnit) { while (target > 0 && isExtendingChar(line.text.charAt(target))) { target += dir } }
+  return target < 0 || target > line.text.length ? null : target
 }
 
 // Bidirectional ordering algorithm
@@ -25833,6 +25028,10 @@ var bidiOrdering = (function() {
       lst(order).to -= m[0].length
       order.push(new BidiSpan(0, len - m[0].length, len))
     }
+    if (order[0].level == 2)
+      { order.unshift(new BidiSpan(1, order[0].to, order[0].to)) }
+    if (order[0].level != lst(order).level)
+      { order.push(new BidiSpan(order[0].level, len, len)) }
 
     return order
   }
@@ -25845,111 +25044,6 @@ function getOrder(line) {
   var order = line.order
   if (order == null) { order = line.order = bidiOrdering(line.text) }
   return order
-}
-
-function moveCharLogically(line, ch, dir) {
-  var target = skipExtendingChars(line.text, ch + dir, dir)
-  return target < 0 || target > line.text.length ? null : target
-}
-
-function moveLogically(line, start, dir) {
-  var ch = moveCharLogically(line, start.ch, dir)
-  return ch == null ? null : new Pos(start.line, ch, dir < 0 ? "after" : "before")
-}
-
-function endOfLine(visually, cm, lineObj, lineNo, dir) {
-  if (visually) {
-    var order = getOrder(lineObj)
-    if (order) {
-      var part = dir < 0 ? lst(order) : order[0]
-      var moveInStorageOrder = (dir < 0) == (part.level == 1)
-      var sticky = moveInStorageOrder ? "after" : "before"
-      var ch
-      // With a wrapped rtl chunk (possibly spanning multiple bidi parts),
-      // it could be that the last bidi part is not on the last visual line,
-      // since visual lines contain content order-consecutive chunks.
-      // Thus, in rtl, we are looking for the first (content-order) character
-      // in the rtl chunk that is on the last line (that is, the same line
-      // as the last (content-order) character).
-      if (part.level > 0) {
-        var prep = prepareMeasureForLine(cm, lineObj)
-        ch = dir < 0 ? lineObj.text.length - 1 : 0
-        var targetTop = measureCharPrepared(cm, prep, ch).top
-        ch = findFirst(function (ch) { return measureCharPrepared(cm, prep, ch).top == targetTop; }, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
-        if (sticky == "before") { ch = moveCharLogically(lineObj, ch, 1, true) }
-      } else { ch = dir < 0 ? part.to : part.from }
-      return new Pos(lineNo, ch, sticky)
-    }
-  }
-  return new Pos(lineNo, dir < 0 ? lineObj.text.length : 0, dir < 0 ? "before" : "after")
-}
-
-function moveVisually(cm, line, start, dir) {
-  var bidi = getOrder(line)
-  if (!bidi) { return moveLogically(line, start, dir) }
-  if (start.ch >= line.text.length) {
-    start.ch = line.text.length
-    start.sticky = "before"
-  } else if (start.ch <= 0) {
-    start.ch = 0
-    start.sticky = "after"
-  }
-  var partPos = getBidiPartAt(bidi, start.ch, start.sticky), part = bidi[partPos]
-  if (part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
-    // Case 1: We move within an ltr part. Even with wrapped lines,
-    // nothing interesting happens.
-    return moveLogically(line, start, dir)
-  }
-
-  var mv = function (pos, dir) { return moveCharLogically(line, pos instanceof Pos ? pos.ch : pos, dir); }
-  var prep
-  var getWrappedLineExtent = function (ch) {
-    if (!cm.options.lineWrapping) { return {begin: 0, end: line.text.length} }
-    prep = prep || prepareMeasureForLine(cm, line)
-    return wrappedLineExtentChar(cm, line, prep, ch)
-  }
-  var wrappedLineExtent = getWrappedLineExtent(start.sticky == "before" ? mv(start, -1) : start.ch)
-
-  if (part.level % 2 == 1) {
-    var ch = mv(start, -dir)
-    if (ch != null && (dir > 0 ? ch >= part.from && ch >= wrappedLineExtent.begin : ch <= part.to && ch <= wrappedLineExtent.end)) {
-      // Case 2: We move within an rtl part on the same visual line
-      var sticky = dir < 0 ? "before" : "after"
-      return new Pos(start.line, ch, sticky)
-    }
-  }
-
-  // Case 3: Could not move within this bidi part in this visual line, so leave
-  // the current bidi part
-
-  var searchInVisualLine = function (partPos, dir, wrappedLineExtent) {
-    var getRes = function (ch, moveInStorageOrder) { return moveInStorageOrder
-      ? new Pos(start.line, mv(ch, 1), "before")
-      : new Pos(start.line, ch, "after"); }
-
-    for (; partPos >= 0 && partPos < bidi.length; partPos += dir) {
-      var part = bidi[partPos]
-      var moveInStorageOrder = (dir > 0) == (part.level != 1)
-      var ch = moveInStorageOrder ? wrappedLineExtent.begin : mv(wrappedLineExtent.end, -1)
-      if (part.from <= ch && ch < part.to) { return getRes(ch, moveInStorageOrder) }
-      ch = moveInStorageOrder ? part.from : mv(part.to, -1)
-      if (wrappedLineExtent.begin <= ch && ch < wrappedLineExtent.end) { return getRes(ch, moveInStorageOrder) }
-    }
-  }
-
-  // Case 3a: Look for other bidi parts on the same visual line
-  var res = searchInVisualLine(partPos + dir, dir, wrappedLineExtent)
-  if (res) { return res }
-
-  // Case 3b: Look for other bidi parts on the next visual line
-  var nextCh = dir > 0 ? wrappedLineExtent.end : mv(wrappedLineExtent.begin, -1)
-  if (nextCh != null && !(dir > 0 && nextCh == line.text.length)) {
-    res = searchInVisualLine(dir > 0 ? 0 : bidi.length - 1, dir, getWrappedLineExtent(nextCh))
-    if (res) { return res }
-  }
-
-  // Case 4: Nowhere to move
-  return null
 }
 
 // EVENT HANDLING
@@ -26240,72 +25334,74 @@ var StringStream = function(string, tabSize) {
   this.tabSize = tabSize || 8
   this.lastColumnPos = this.lastColumnValue = 0
   this.lineStart = 0
-};
+}
 
-StringStream.prototype.eol = function () {return this.pos >= this.string.length};
-StringStream.prototype.sol = function () {return this.pos == this.lineStart};
-StringStream.prototype.peek = function () {return this.string.charAt(this.pos) || undefined};
-StringStream.prototype.next = function () {
-  if (this.pos < this.string.length)
-    { return this.string.charAt(this.pos++) }
-};
-StringStream.prototype.eat = function (match) {
-  var ch = this.string.charAt(this.pos)
-  var ok
-  if (typeof match == "string") { ok = ch == match }
-  else { ok = ch && (match.test ? match.test(ch) : match(ch)) }
-  if (ok) {++this.pos; return ch}
-};
-StringStream.prototype.eatWhile = function (match) {
-  var start = this.pos
-  while (this.eat(match)){}
-  return this.pos > start
-};
-StringStream.prototype.eatSpace = function () {
+StringStream.prototype = {
+  eol: function() {return this.pos >= this.string.length},
+  sol: function() {return this.pos == this.lineStart},
+  peek: function() {return this.string.charAt(this.pos) || undefined},
+  next: function() {
+    if (this.pos < this.string.length)
+      { return this.string.charAt(this.pos++) }
+  },
+  eat: function(match) {
+    var ch = this.string.charAt(this.pos)
+    var ok
+    if (typeof match == "string") { ok = ch == match }
+    else { ok = ch && (match.test ? match.test(ch) : match(ch)) }
+    if (ok) {++this.pos; return ch}
+  },
+  eatWhile: function(match) {
+    var start = this.pos
+    while (this.eat(match)){}
+    return this.pos > start
+  },
+  eatSpace: function() {
     var this$1 = this;
 
-  var start = this.pos
-  while (/[\s\u00a0]/.test(this.string.charAt(this.pos))) { ++this$1.pos }
-  return this.pos > start
-};
-StringStream.prototype.skipToEnd = function () {this.pos = this.string.length};
-StringStream.prototype.skipTo = function (ch) {
-  var found = this.string.indexOf(ch, this.pos)
-  if (found > -1) {this.pos = found; return true}
-};
-StringStream.prototype.backUp = function (n) {this.pos -= n};
-StringStream.prototype.column = function () {
-  if (this.lastColumnPos < this.start) {
-    this.lastColumnValue = countColumn(this.string, this.start, this.tabSize, this.lastColumnPos, this.lastColumnValue)
-    this.lastColumnPos = this.start
-  }
-  return this.lastColumnValue - (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
-};
-StringStream.prototype.indentation = function () {
-  return countColumn(this.string, null, this.tabSize) -
-    (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
-};
-StringStream.prototype.match = function (pattern, consume, caseInsensitive) {
-  if (typeof pattern == "string") {
-    var cased = function (str) { return caseInsensitive ? str.toLowerCase() : str; }
-    var substr = this.string.substr(this.pos, pattern.length)
-    if (cased(substr) == cased(pattern)) {
-      if (consume !== false) { this.pos += pattern.length }
-      return true
+    var start = this.pos
+    while (/[\s\u00a0]/.test(this.string.charAt(this.pos))) { ++this$1.pos }
+    return this.pos > start
+  },
+  skipToEnd: function() {this.pos = this.string.length},
+  skipTo: function(ch) {
+    var found = this.string.indexOf(ch, this.pos)
+    if (found > -1) {this.pos = found; return true}
+  },
+  backUp: function(n) {this.pos -= n},
+  column: function() {
+    if (this.lastColumnPos < this.start) {
+      this.lastColumnValue = countColumn(this.string, this.start, this.tabSize, this.lastColumnPos, this.lastColumnValue)
+      this.lastColumnPos = this.start
     }
-  } else {
-    var match = this.string.slice(this.pos).match(pattern)
-    if (match && match.index > 0) { return null }
-    if (match && consume !== false) { this.pos += match[0].length }
-    return match
+    return this.lastColumnValue - (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
+  },
+  indentation: function() {
+    return countColumn(this.string, null, this.tabSize) -
+      (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
+  },
+  match: function(pattern, consume, caseInsensitive) {
+    if (typeof pattern == "string") {
+      var cased = function (str) { return caseInsensitive ? str.toLowerCase() : str; }
+      var substr = this.string.substr(this.pos, pattern.length)
+      if (cased(substr) == cased(pattern)) {
+        if (consume !== false) { this.pos += pattern.length }
+        return true
+      }
+    } else {
+      var match = this.string.slice(this.pos).match(pattern)
+      if (match && match.index > 0) { return null }
+      if (match && consume !== false) { this.pos += match[0].length }
+      return match
+    }
+  },
+  current: function(){return this.string.slice(this.start, this.pos)},
+  hideFirstChars: function(n, inner) {
+    this.lineStart += n
+    try { return inner() }
+    finally { this.lineStart -= n }
   }
-};
-StringStream.prototype.current = function (){return this.string.slice(this.start, this.pos)};
-StringStream.prototype.hideFirstChars = function (n, inner) {
-  this.lineStart += n
-  try { return inner() }
-  finally { this.lineStart -= n }
-};
+}
 
 // Compute a style array (an array starting with a mode generation
 // -- for invalidation -- followed by pairs of end positions and
@@ -26510,14 +25606,13 @@ function findStartLine(cm, n, precise) {
 
 // Line objects. These hold state related to a line, including
 // highlighting info (the styles array).
-var Line = function(text, markedSpans, estimateHeight) {
+function Line(text, markedSpans, estimateHeight) {
   this.text = text
   attachMarkedSpans(this, markedSpans)
   this.height = estimateHeight ? estimateHeight(this) : 1
-};
-
-Line.prototype.lineNo = function () { return lineNo(this) };
+}
 eventMixin(Line)
+Line.prototype.lineNo = function() { return lineNo(this) }
 
 // Change the content (text, markers) of a line. Automatically
 // invalidates cached information and tries to re-estimate the
@@ -27437,19 +26532,6 @@ function charCoords(cm, pos, context, lineObj, bias) {
 // Returns a box for a given cursor position, which may have an
 // 'other' property containing the position of the secondary cursor
 // on a bidi boundary.
-// A cursor Pos(line, char, "before") is on the same visual line as `char - 1`
-// and after `char - 1` in writing order of `char - 1`
-// A cursor Pos(line, char, "after") is on the same visual line as `char`
-// and before `char` in writing order of `char`
-// Examples (upper-case letters are RTL, lower-case are LTR):
-//     Pos(0, 1, ...)
-//     before   after
-// ab     a|b     a|b
-// aB     a|B     aB|
-// Ab     |Ab     A|b
-// AB     B|A     B|A
-// Every position after the last character on a line is considered to stick
-// to the last character on the line.
 function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeight) {
   lineObj = lineObj || getLine(cm.doc, pos.line)
   if (!preparedMeasure) { preparedMeasure = prepareMeasureForLine(cm, lineObj) }
@@ -27458,24 +26540,25 @@ function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeight) {
     if (right) { m.left = m.right; } else { m.right = m.left }
     return intoCoordSystem(cm, lineObj, m, context)
   }
-  var order = getOrder(lineObj), ch = pos.ch, sticky = pos.sticky
-  if (ch >= lineObj.text.length) {
-    ch = lineObj.text.length
-    sticky = "before"
-  } else if (ch <= 0) {
-    ch = 0
-    sticky = "after"
+  function getBidi(ch, partPos) {
+    var part = order[partPos], right = part.level % 2
+    if (ch == bidiLeft(part) && partPos && part.level < order[partPos - 1].level) {
+      part = order[--partPos]
+      ch = bidiRight(part) - (part.level % 2 ? 0 : 1)
+      right = true
+    } else if (ch == bidiRight(part) && partPos < order.length - 1 && part.level < order[partPos + 1].level) {
+      part = order[++partPos]
+      ch = bidiLeft(part) - part.level % 2
+      right = false
+    }
+    if (right && ch == part.to && ch > part.from) { return get(ch - 1) }
+    return get(ch, right)
   }
-  if (!order) { return get(sticky == "before" ? ch - 1 : ch, sticky == "before") }
-
-  function getBidi(ch, partPos, invert) {
-    var part = order[partPos], right = (part.level % 2) != 0
-    return get(invert ? ch - 1 : ch, right != invert)
-  }
-  var partPos = getBidiPartAt(order, ch, sticky)
-  var other = bidiOther
-  var val = getBidi(ch, partPos, sticky == "before")
-  if (other != null) { val.other = getBidi(ch, other, sticky != "before") }
+  var order = getOrder(lineObj), ch = pos.ch
+  if (!order) { return get(ch) }
+  var partPos = getBidiPartAt(order, ch)
+  var val = getBidi(ch, partPos)
+  if (bidiOther != null) { val.other = getBidi(ch, bidiOther) }
   return val
 }
 
@@ -27496,8 +26579,8 @@ function estimateCoords(cm, pos) {
 // the right of the character position, for example). When outside
 // is true, that means the coordinates lie outside the line's
 // vertical range.
-function PosWithInfo(line, ch, sticky, outside, xRel) {
-  var pos = Pos(line, ch, sticky)
+function PosWithInfo(line, ch, outside, xRel) {
+  var pos = Pos(line, ch)
   pos.xRel = xRel
   if (outside) { pos.outside = true }
   return pos
@@ -27508,10 +26591,10 @@ function PosWithInfo(line, ch, sticky, outside, xRel) {
 function coordsChar(cm, x, y) {
   var doc = cm.doc
   y += cm.display.viewOffset
-  if (y < 0) { return PosWithInfo(doc.first, 0, null, true, -1) }
+  if (y < 0) { return PosWithInfo(doc.first, 0, true, -1) }
   var lineN = lineAtHeight(doc, y), last = doc.first + doc.size - 1
   if (lineN > last)
-    { return PosWithInfo(doc.first + doc.size - 1, getLine(doc, last).text.length, null, true, 1) }
+    { return PosWithInfo(doc.first + doc.size - 1, getLine(doc, last).text.length, true, 1) }
   if (x < 0) { x = 0 }
 
   var lineObj = getLine(doc, lineN)
@@ -27526,68 +26609,57 @@ function coordsChar(cm, x, y) {
   }
 }
 
-function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
-  var measure = function (ch) { return intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line"); }
-  var end = lineObj.text.length
-  var begin = findFirst(function (ch) { return measure(ch - 1).bottom <= y; }, end, 0)
-  end = findFirst(function (ch) { return measure(ch).top > y; }, begin, end)
-  return {begin: begin, end: end}
-}
-
-function wrappedLineExtentChar(cm, lineObj, preparedMeasure, target) {
-  var targetTop = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, target), "line").top
-  return wrappedLineExtent(cm, lineObj, preparedMeasure, targetTop)
-}
-
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
-  y -= heightAtLine(lineObj)
-  var begin = 0, end = lineObj.text.length
+  var innerOff = y - heightAtLine(lineObj)
+  var wrongLine = false, adjust = 2 * cm.display.wrapper.clientWidth
   var preparedMeasure = prepareMeasureForLine(cm, lineObj)
-  var pos
-  var order = getOrder(lineObj)
-  if (order) {
-    if (cm.options.lineWrapping) {
-      ;var assign;
-      ((assign = wrappedLineExtent(cm, lineObj, preparedMeasure, y), begin = assign.begin, end = assign.end, assign))
-    }
-    pos = new Pos(lineNo, begin)
-    var beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    var dir = beginLeft < x ? 1 : -1
-    var prevDiff, diff = beginLeft - x, prevPos
-    do {
-      prevDiff = diff
-      prevPos = pos
-      pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-        pos = prevPos
-        break
-      }
-      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
-    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
-    if (Math.abs(diff) > Math.abs(prevDiff)) {
-      if ((diff < 0) == (prevDiff < 0)) { throw new Error("Broke out of infinite loop in coordsCharInner") }
-      pos = prevPos
-    }
-  } else {
-    var ch = findFirst(function (ch) {
-      var box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-      if (box.top > y) {
-        // For the cursor stickiness
-        end = Math.min(ch, end)
-        return true
-      }
-      else if (box.bottom <= y) { return false }
-      else if (box.left > x) { return true }
-      else if (box.right < x) { return false }
-      else { return (x - box.left < box.right - x) }
-    }, begin, end)
-    ch = skipExtendingChars(lineObj.text, ch, 1)
-    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
+
+  function getX(ch) {
+    var sp = cursorCoords(cm, Pos(lineNo, ch), "line", lineObj, preparedMeasure)
+    wrongLine = true
+    if (innerOff > sp.bottom) { return sp.left - adjust }
+    else if (innerOff < sp.top) { return sp.left + adjust }
+    else { wrongLine = false }
+    return sp.left
   }
-  var coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
-  if (y < coords.top || coords.bottom < y) { pos.outside = true }
-  pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)
-  return pos
+
+  var bidi = getOrder(lineObj), dist = lineObj.text.length
+  var from = lineLeft(lineObj), to = lineRight(lineObj)
+  var fromX = getX(from), fromOutside = wrongLine, toX = getX(to), toOutside = wrongLine
+
+  if (x > toX) { return PosWithInfo(lineNo, to, toOutside, 1) }
+  // Do a binary search between these bounds.
+  for (;;) {
+    if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
+      var ch = x < fromX || x - fromX <= toX - x ? from : to
+      var outside = ch == from ? fromOutside : toOutside
+      var xDiff = x - (ch == from ? fromX : toX)
+      // This is a kludge to handle the case where the coordinates
+      // are after a line-wrapped line. We should replace it with a
+      // more general handling of cursor positions around line
+      // breaks. (Issue #4078)
+      if (toOutside && !bidi && !/\s/.test(lineObj.text.charAt(ch)) && xDiff > 0 &&
+          ch < lineObj.text.length && preparedMeasure.view.measure.heights.length > 1) {
+        var charSize = measureCharPrepared(cm, preparedMeasure, ch, "right")
+        if (innerOff <= charSize.bottom && innerOff >= charSize.top && Math.abs(x - charSize.right) < xDiff) {
+          outside = false
+          ch++
+          xDiff = x - charSize.right
+        }
+      }
+      while (isExtendingChar(lineObj.text.charAt(ch))) { ++ch }
+      var pos = PosWithInfo(lineNo, ch, outside, xDiff < -1 ? -1 : xDiff > 1 ? 1 : 0)
+      return pos
+    }
+    var step = Math.ceil(dist / 2), middle = from + step
+    if (bidi) {
+      middle = from
+      for (var i = 0; i < step; ++i) { middle = moveVisually(lineObj, middle, 1) }
+    }
+    var middleX = getX(middle)
+    if (middleX > x) {to = middle; toX = middleX; if (toOutside = wrongLine) { toX += 1000; } dist = step}
+    else {from = middle; fromX = middleX; fromOutside = wrongLine; dist -= step}
+  }
 }
 
 var measureText
@@ -28174,7 +27246,7 @@ NativeScrollbars.prototype.update = function (measure) {
     this.horiz.style.left = measure.barLeft + "px"
     var totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
     this.horiz.firstChild.style.width =
-      Math.max(0, measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
+      (measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
   } else {
     this.horiz.style.display = ""
     this.horiz.firstChild.style.width = "0"
@@ -29059,61 +28131,63 @@ function setGuttersForLineNumbers(options) {
 // (and non-touching) ranges, sorted, and an integer that indicates
 // which one is the primary selection (the one that's scrolled into
 // view, that getCursor returns, etc).
-var Selection = function(ranges, primIndex) {
+function Selection(ranges, primIndex) {
   this.ranges = ranges
   this.primIndex = primIndex
-};
+}
 
-Selection.prototype.primary = function () { return this.ranges[this.primIndex] };
-
-Selection.prototype.equals = function (other) {
+Selection.prototype = {
+  primary: function() { return this.ranges[this.primIndex] },
+  equals: function(other) {
     var this$1 = this;
 
-  if (other == this) { return true }
-  if (other.primIndex != this.primIndex || other.ranges.length != this.ranges.length) { return false }
-  for (var i = 0; i < this.ranges.length; i++) {
-    var here = this$1.ranges[i], there = other.ranges[i]
-    if (!equalCursorPos(here.anchor, there.anchor) || !equalCursorPos(here.head, there.head)) { return false }
+    if (other == this) { return true }
+    if (other.primIndex != this.primIndex || other.ranges.length != this.ranges.length) { return false }
+    for (var i = 0; i < this.ranges.length; i++) {
+      var here = this$1.ranges[i], there = other.ranges[i]
+      if (cmp(here.anchor, there.anchor) != 0 || cmp(here.head, there.head) != 0) { return false }
+    }
+    return true
+  },
+  deepCopy: function() {
+    var this$1 = this;
+
+    var out = []
+    for (var i = 0; i < this.ranges.length; i++)
+      { out[i] = new Range(copyPos(this$1.ranges[i].anchor), copyPos(this$1.ranges[i].head)) }
+    return new Selection(out, this.primIndex)
+  },
+  somethingSelected: function() {
+    var this$1 = this;
+
+    for (var i = 0; i < this.ranges.length; i++)
+      { if (!this$1.ranges[i].empty()) { return true } }
+    return false
+  },
+  contains: function(pos, end) {
+    var this$1 = this;
+
+    if (!end) { end = pos }
+    for (var i = 0; i < this.ranges.length; i++) {
+      var range = this$1.ranges[i]
+      if (cmp(end, range.from()) >= 0 && cmp(pos, range.to()) <= 0)
+        { return i }
+    }
+    return -1
   }
-  return true
-};
+}
 
-Selection.prototype.deepCopy = function () {
-    var this$1 = this;
-
-  var out = []
-  for (var i = 0; i < this.ranges.length; i++)
-    { out[i] = new Range(copyPos(this$1.ranges[i].anchor), copyPos(this$1.ranges[i].head)) }
-  return new Selection(out, this.primIndex)
-};
-
-Selection.prototype.somethingSelected = function () {
-    var this$1 = this;
-
-  for (var i = 0; i < this.ranges.length; i++)
-    { if (!this$1.ranges[i].empty()) { return true } }
-  return false
-};
-
-Selection.prototype.contains = function (pos, end) {
-    var this$1 = this;
-
-  if (!end) { end = pos }
-  for (var i = 0; i < this.ranges.length; i++) {
-    var range = this$1.ranges[i]
-    if (cmp(end, range.from()) >= 0 && cmp(pos, range.to()) <= 0)
-      { return i }
-  }
-  return -1
-};
-
-var Range = function(anchor, head) {
+function Range(anchor, head) {
   this.anchor = anchor; this.head = head
-};
+}
 
-Range.prototype.from = function () { return minPos(this.anchor, this.head) };
-Range.prototype.to = function () { return maxPos(this.anchor, this.head) };
-Range.prototype.empty = function () { return this.head.line == this.anchor.line && this.head.ch == this.anchor.ch };
+Range.prototype = {
+  from: function() { return minPos(this.anchor, this.head) },
+  to: function() { return maxPos(this.anchor, this.head) },
+  empty: function() {
+    return this.head.line == this.anchor.line && this.head.ch == this.anchor.ch
+  }
+}
 
 // Take an unsorted, potentially overlapping set of ranges, and
 // build a selection out of it. 'Consumes' ranges array (modifying
@@ -30052,7 +29126,7 @@ function changeLine(doc, handle, changeType, op) {
 //
 // See also http://marijnhaverbeke.nl/blog/codemirror-line-tree.html
 
-var LeafChunk = function(lines) {
+function LeafChunk(lines) {
   var this$1 = this;
 
   this.lines = lines
@@ -30063,47 +29137,45 @@ var LeafChunk = function(lines) {
     height += lines[i].height
   }
   this.height = height
-};
+}
 
-LeafChunk.prototype.chunkSize = function () { return this.lines.length };
-
-// Remove the n lines at offset 'at'.
-LeafChunk.prototype.removeInner = function (at, n) {
+LeafChunk.prototype = {
+  chunkSize: function() { return this.lines.length },
+  // Remove the n lines at offset 'at'.
+  removeInner: function(at, n) {
     var this$1 = this;
 
-  for (var i = at, e = at + n; i < e; ++i) {
-    var line = this$1.lines[i]
-    this$1.height -= line.height
-    cleanUpLine(line)
-    signalLater(line, "delete")
+    for (var i = at, e = at + n; i < e; ++i) {
+      var line = this$1.lines[i]
+      this$1.height -= line.height
+      cleanUpLine(line)
+      signalLater(line, "delete")
+    }
+    this.lines.splice(at, n)
+  },
+  // Helper used to collapse a small branch into a single leaf.
+  collapse: function(lines) {
+    lines.push.apply(lines, this.lines)
+  },
+  // Insert the given array of lines at offset 'at', count them as
+  // having the given height.
+  insertInner: function(at, lines, height) {
+    var this$1 = this;
+
+    this.height += height
+    this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at))
+    for (var i = 0; i < lines.length; ++i) { lines[i].parent = this$1 }
+  },
+  // Used to iterate over a part of the tree.
+  iterN: function(at, n, op) {
+    var this$1 = this;
+
+    for (var e = at + n; at < e; ++at)
+      { if (op(this$1.lines[at])) { return true } }
   }
-  this.lines.splice(at, n)
-};
+}
 
-// Helper used to collapse a small branch into a single leaf.
-LeafChunk.prototype.collapse = function (lines) {
-  lines.push.apply(lines, this.lines)
-};
-
-// Insert the given array of lines at offset 'at', count them as
-// having the given height.
-LeafChunk.prototype.insertInner = function (at, lines, height) {
-    var this$1 = this;
-
-  this.height += height
-  this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at))
-  for (var i = 0; i < lines.length; ++i) { lines[i].parent = this$1 }
-};
-
-// Used to iterate over a part of the tree.
-LeafChunk.prototype.iterN = function (at, n, op) {
-    var this$1 = this;
-
-  for (var e = at + n; at < e; ++at)
-    { if (op(this$1.lines[at])) { return true } }
-};
-
-var BranchChunk = function(children) {
+function BranchChunk(children) {
   var this$1 = this;
 
   this.children = children
@@ -30116,120 +29188,123 @@ var BranchChunk = function(children) {
   this.size = size
   this.height = height
   this.parent = null
-};
+}
 
-BranchChunk.prototype.chunkSize = function () { return this.size };
-
-BranchChunk.prototype.removeInner = function (at, n) {
+BranchChunk.prototype = {
+  chunkSize: function() { return this.size },
+  removeInner: function(at, n) {
     var this$1 = this;
 
-  this.size -= n
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize()
-    if (at < sz) {
-      var rm = Math.min(n, sz - at), oldHeight = child.height
-      child.removeInner(at, rm)
-      this$1.height -= oldHeight - child.height
-      if (sz == rm) { this$1.children.splice(i--, 1); child.parent = null }
-      if ((n -= rm) == 0) { break }
-      at = 0
-    } else { at -= sz }
-  }
-  // If the result is smaller than 25 lines, ensure that it is a
-  // single leaf node.
-  if (this.size - n < 25 &&
-      (this.children.length > 1 || !(this.children[0] instanceof LeafChunk))) {
-    var lines = []
-    this.collapse(lines)
-    this.children = [new LeafChunk(lines)]
-    this.children[0].parent = this
-  }
-};
-
-BranchChunk.prototype.collapse = function (lines) {
+    this.size -= n
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize()
+      if (at < sz) {
+        var rm = Math.min(n, sz - at), oldHeight = child.height
+        child.removeInner(at, rm)
+        this$1.height -= oldHeight - child.height
+        if (sz == rm) { this$1.children.splice(i--, 1); child.parent = null }
+        if ((n -= rm) == 0) { break }
+        at = 0
+      } else { at -= sz }
+    }
+    // If the result is smaller than 25 lines, ensure that it is a
+    // single leaf node.
+    if (this.size - n < 25 &&
+        (this.children.length > 1 || !(this.children[0] instanceof LeafChunk))) {
+      var lines = []
+      this.collapse(lines)
+      this.children = [new LeafChunk(lines)]
+      this.children[0].parent = this
+    }
+  },
+  collapse: function(lines) {
     var this$1 = this;
 
-  for (var i = 0; i < this.children.length; ++i) { this$1.children[i].collapse(lines) }
-};
-
-BranchChunk.prototype.insertInner = function (at, lines, height) {
+    for (var i = 0; i < this.children.length; ++i) { this$1.children[i].collapse(lines) }
+  },
+  insertInner: function(at, lines, height) {
     var this$1 = this;
 
-  this.size += lines.length
-  this.height += height
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize()
-    if (at <= sz) {
-      child.insertInner(at, lines, height)
-      if (child.lines && child.lines.length > 50) {
-        // To avoid memory thrashing when child.lines is huge (e.g. first view of a large file), it's never spliced.
-        // Instead, small slices are taken. They're taken in order because sequential memory accesses are fastest.
-        var remaining = child.lines.length % 25 + 25
-        for (var pos = remaining; pos < child.lines.length;) {
-          var leaf = new LeafChunk(child.lines.slice(pos, pos += 25))
-          child.height -= leaf.height
-          this$1.children.splice(++i, 0, leaf)
-          leaf.parent = this$1
+    this.size += lines.length
+    this.height += height
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize()
+      if (at <= sz) {
+        child.insertInner(at, lines, height)
+        if (child.lines && child.lines.length > 50) {
+          // To avoid memory thrashing when child.lines is huge (e.g. first view of a large file), it's never spliced.
+          // Instead, small slices are taken. They're taken in order because sequential memory accesses are fastest.
+          var remaining = child.lines.length % 25 + 25
+          for (var pos = remaining; pos < child.lines.length;) {
+            var leaf = new LeafChunk(child.lines.slice(pos, pos += 25))
+            child.height -= leaf.height
+            this$1.children.splice(++i, 0, leaf)
+            leaf.parent = this$1
+          }
+          child.lines = child.lines.slice(0, remaining)
+          this$1.maybeSpill()
         }
-        child.lines = child.lines.slice(0, remaining)
-        this$1.maybeSpill()
+        break
       }
-      break
+      at -= sz
     }
-    at -= sz
-  }
-};
-
-// When a node has grown, check whether it should be split.
-BranchChunk.prototype.maybeSpill = function () {
-  if (this.children.length <= 10) { return }
-  var me = this
-  do {
-    var spilled = me.children.splice(me.children.length - 5, 5)
-    var sibling = new BranchChunk(spilled)
-    if (!me.parent) { // Become the parent node
-      var copy = new BranchChunk(me.children)
-      copy.parent = me
-      me.children = [copy, sibling]
-      me = copy
-   } else {
-      me.size -= sibling.size
-      me.height -= sibling.height
-      var myIndex = indexOf(me.parent.children, me)
-      me.parent.children.splice(myIndex + 1, 0, sibling)
-    }
-    sibling.parent = me.parent
-  } while (me.children.length > 10)
-  me.parent.maybeSpill()
-};
-
-BranchChunk.prototype.iterN = function (at, n, op) {
+  },
+  // When a node has grown, check whether it should be split.
+  maybeSpill: function() {
+    if (this.children.length <= 10) { return }
+    var me = this
+    do {
+      var spilled = me.children.splice(me.children.length - 5, 5)
+      var sibling = new BranchChunk(spilled)
+      if (!me.parent) { // Become the parent node
+        var copy = new BranchChunk(me.children)
+        copy.parent = me
+        me.children = [copy, sibling]
+        me = copy
+     } else {
+        me.size -= sibling.size
+        me.height -= sibling.height
+        var myIndex = indexOf(me.parent.children, me)
+        me.parent.children.splice(myIndex + 1, 0, sibling)
+      }
+      sibling.parent = me.parent
+    } while (me.children.length > 10)
+    me.parent.maybeSpill()
+  },
+  iterN: function(at, n, op) {
     var this$1 = this;
 
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize()
-    if (at < sz) {
-      var used = Math.min(n, sz - at)
-      if (child.iterN(at, used, op)) { return true }
-      if ((n -= used) == 0) { break }
-      at = 0
-    } else { at -= sz }
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize()
+      if (at < sz) {
+        var used = Math.min(n, sz - at)
+        if (child.iterN(at, used, op)) { return true }
+        if ((n -= used) == 0) { break }
+        at = 0
+      } else { at -= sz }
+    }
   }
-};
+}
 
 // Line widgets are block elements displayed above or below a line.
 
-var LineWidget = function(doc, node, options) {
+function LineWidget(doc, node, options) {
   var this$1 = this;
 
   if (options) { for (var opt in options) { if (options.hasOwnProperty(opt))
     { this$1[opt] = options[opt] } } }
   this.doc = doc
   this.node = node
-};
+}
+eventMixin(LineWidget)
 
-LineWidget.prototype.clear = function () {
-    var this$1 = this;
+function adjustScrollWhenAboveVisible(cm, line, diff) {
+  if (heightAtLine(line) < ((cm.curOp && cm.curOp.scrollTop) || cm.doc.scrollTop))
+    { addToScrollPos(cm, null, diff) }
+}
+
+LineWidget.prototype.clear = function() {
+  var this$1 = this;
 
   var cm = this.doc.cm, ws = this.line.widgets, line = this.line, no = lineNo(line)
   if (no == null || !ws) { return }
@@ -30237,36 +29312,21 @@ LineWidget.prototype.clear = function () {
   if (!ws.length) { line.widgets = null }
   var height = widgetHeight(this)
   updateLineHeight(line, Math.max(0, line.height - height))
-  if (cm) {
-    runInOp(cm, function () {
-      adjustScrollWhenAboveVisible(cm, line, -height)
-      regLineChange(cm, no, "widget")
-    })
-    signalLater(cm, "lineWidgetCleared", cm, this, no)
-  }
-};
-
-LineWidget.prototype.changed = function () {
-    var this$1 = this;
-
+  if (cm) { runInOp(cm, function () {
+    adjustScrollWhenAboveVisible(cm, line, -height)
+    regLineChange(cm, no, "widget")
+  }) }
+}
+LineWidget.prototype.changed = function() {
   var oldH = this.height, cm = this.doc.cm, line = this.line
   this.height = null
   var diff = widgetHeight(this) - oldH
   if (!diff) { return }
   updateLineHeight(line, line.height + diff)
-  if (cm) {
-    runInOp(cm, function () {
-      cm.curOp.forceUpdate = true
-      adjustScrollWhenAboveVisible(cm, line, diff)
-      signalLater(cm, "lineWidgetChanged", cm, this$1, lineNo(line))
-    })
-  }
-};
-eventMixin(LineWidget)
-
-function adjustScrollWhenAboveVisible(cm, line, diff) {
-  if (heightAtLine(line) < ((cm.curOp && cm.curOp.scrollTop) || cm.doc.scrollTop))
-    { addToScrollPos(cm, null, diff) }
+  if (cm) { runInOp(cm, function () {
+    cm.curOp.forceUpdate = true
+    adjustScrollWhenAboveVisible(cm, line, diff)
+  }) }
 }
 
 function addLineWidget(doc, handle, node, options) {
@@ -30286,7 +29346,6 @@ function addLineWidget(doc, handle, node, options) {
     }
     return true
   })
-  signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle))
   return widget
 }
 
@@ -30307,16 +29366,17 @@ function addLineWidget(doc, handle, node, options) {
 // when they overlap (they may nest, but not partially overlap).
 var nextMarkerId = 0
 
-var TextMarker = function(doc, type) {
+function TextMarker(doc, type) {
   this.lines = []
   this.type = type
   this.doc = doc
   this.id = ++nextMarkerId
-};
+}
+eventMixin(TextMarker)
 
 // Clear the marker.
-TextMarker.prototype.clear = function () {
-    var this$1 = this;
+TextMarker.prototype.clear = function() {
+  var this$1 = this;
 
   if (this.explicitlyCleared) { return }
   var cm = this.doc.cm, withOp = cm && !cm.curOp
@@ -30354,18 +29414,18 @@ TextMarker.prototype.clear = function () {
     this.doc.cantEdit = false
     if (cm) { reCheckSelection(cm.doc) }
   }
-  if (cm) { signalLater(cm, "markerCleared", cm, this, min, max) }
+  if (cm) { signalLater(cm, "markerCleared", cm, this) }
   if (withOp) { endOperation(cm) }
   if (this.parent) { this.parent.clear() }
-};
+}
 
 // Find the position of the marker in the document. Returns a {from,
 // to} object by default. Side can be passed to get a specific side
 // -- 0 (both), -1 (left), or 1 (right). When lineObj is true, the
 // Pos objects returned contain a line object, rather than a line
 // number (used to prevent looking up the same line twice).
-TextMarker.prototype.find = function (side, lineObj) {
-    var this$1 = this;
+TextMarker.prototype.find = function(side, lineObj) {
+  var this$1 = this;
 
   if (side == null && this.type == "bookmark") { side = 1 }
   var from, to
@@ -30382,13 +29442,11 @@ TextMarker.prototype.find = function (side, lineObj) {
     }
   }
   return from && {from: from, to: to}
-};
+}
 
 // Signals that the marker's widget changed, and surrounding layout
 // should be recomputed.
-TextMarker.prototype.changed = function () {
-    var this$1 = this;
-
+TextMarker.prototype.changed = function() {
   var pos = this.find(-1, true), widget = this, cm = this.doc.cm
   if (!pos || !cm) { return }
   runInOp(cm, function () {
@@ -30406,27 +29464,24 @@ TextMarker.prototype.changed = function () {
       if (dHeight)
         { updateLineHeight(line, line.height + dHeight) }
     }
-    signalLater(cm, "markerChanged", cm, this$1)
   })
-};
+}
 
-TextMarker.prototype.attachLine = function (line) {
+TextMarker.prototype.attachLine = function(line) {
   if (!this.lines.length && this.doc.cm) {
     var op = this.doc.cm.curOp
     if (!op.maybeHiddenMarkers || indexOf(op.maybeHiddenMarkers, this) == -1)
       { (op.maybeUnhiddenMarkers || (op.maybeUnhiddenMarkers = [])).push(this) }
   }
   this.lines.push(line)
-};
-
-TextMarker.prototype.detachLine = function (line) {
+}
+TextMarker.prototype.detachLine = function(line) {
   this.lines.splice(indexOf(this.lines, line), 1)
   if (!this.lines.length && this.doc.cm) {
     var op = this.doc.cm.curOp
     ;(op.maybeHiddenMarkers || (op.maybeHiddenMarkers = [])).push(this)
   }
-};
-eventMixin(TextMarker)
+}
 
 // Create a marker, wire it up to the right lines, and
 function markText(doc, from, to, options, type) {
@@ -30504,29 +29559,28 @@ function markText(doc, from, to, options, type) {
 // A shared marker spans multiple linked documents. It is
 // implemented as a meta-marker-object controlling multiple normal
 // markers.
-var SharedTextMarker = function(markers, primary) {
+function SharedTextMarker(markers, primary) {
   var this$1 = this;
 
   this.markers = markers
   this.primary = primary
   for (var i = 0; i < markers.length; ++i)
     { markers[i].parent = this$1 }
-};
+}
+eventMixin(SharedTextMarker)
 
-SharedTextMarker.prototype.clear = function () {
-    var this$1 = this;
+SharedTextMarker.prototype.clear = function() {
+  var this$1 = this;
 
   if (this.explicitlyCleared) { return }
   this.explicitlyCleared = true
   for (var i = 0; i < this.markers.length; ++i)
     { this$1.markers[i].clear() }
   signalLater(this, "clear")
-};
-
-SharedTextMarker.prototype.find = function (side, lineObj) {
+}
+SharedTextMarker.prototype.find = function(side, lineObj) {
   return this.primary.find(side, lineObj)
-};
-eventMixin(SharedTextMarker)
+}
 
 function markTextShared(doc, from, to, options, type) {
   options = copyObj(options)
@@ -31461,13 +30515,19 @@ function lineStart(cm, lineN) {
   var line = getLine(cm.doc, lineN)
   var visual = visualLine(line)
   if (visual != line) { lineN = lineNo(visual) }
-  return endOfLine(true, cm, visual, lineN, 1)
+  var order = getOrder(visual)
+  var ch = !order ? 0 : order[0].level % 2 ? lineRight(visual) : lineLeft(visual)
+  return Pos(lineN, ch)
 }
 function lineEnd(cm, lineN) {
-  var line = getLine(cm.doc, lineN)
-  var visual = visualLineEnd(line)
-  if (visual != line) { lineN = lineNo(visual) }
-  return endOfLine(true, cm, line, lineN, -1)
+  var merged, line = getLine(cm.doc, lineN)
+  while (merged = collapsedSpanAtEnd(line)) {
+    line = merged.find(1, true).line
+    lineN = null
+  }
+  var order = getOrder(line)
+  var ch = !order ? line.text.length : order[0].level % 2 ? lineLeft(line) : lineRight(line)
+  return Pos(lineN == null ? lineNo(line) : lineN, ch)
 }
 function lineStartSmart(cm, pos) {
   var start = lineStart(cm, pos.line)
@@ -31476,7 +30536,7 @@ function lineStartSmart(cm, pos) {
   if (!order || order[0].level == 0) {
     var firstNonWS = Math.max(0, line.text.search(/\S/))
     var inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch
-    return Pos(start.line, inWS ? 0 : firstNonWS, start.sticky)
+    return Pos(start.line, inWS ? 0 : firstNonWS)
   }
   return start
 }
@@ -32668,7 +31728,7 @@ function addEditorMethods(CodeMirror) {
       } else {
         lineObj = line
       }
-      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets || end).top +
+      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets).top +
         (end ? this.doc.height - heightAtLine(lineObj) : 0)
     },
 
@@ -32800,7 +31860,7 @@ function addEditorMethods(CodeMirror) {
       var start = pos.ch, end = pos.ch
       if (line) {
         var helper = this.getHelper(pos, "wordChars")
-        if ((pos.sticky == "before" || end == line.length) && start) { --start; } else { ++end }
+        if ((pos.xRel < 0 || end == line.length) && start) { --start; } else { ++end }
         var startChar = line.charAt(start)
         var check = isWordChar(startChar, helper)
           ? function (ch) { return isWordChar(ch, helper); }
@@ -32931,30 +31991,22 @@ function addEditorMethods(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  var oldPos = pos
-  var origDir = dir
-  var lineObj = getLine(doc, pos.line)
+  var line = pos.line, ch = pos.ch, origDir = dir
+  var lineObj = getLine(doc, line)
   function findNextLine() {
-    var l = pos.line + dir
+    var l = line + dir
     if (l < doc.first || l >= doc.first + doc.size) { return false }
-    pos = new Pos(l, pos.ch, pos.sticky)
+    line = l
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    var next
-    if (visually) {
-      next = moveVisually(doc.cm, lineObj, pos, dir)
-    } else {
-      next = moveLogically(lineObj, pos, dir)
-    }
+    var next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
     if (next == null) {
-      if (!boundToLine && findNextLine())
-        { pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir) }
-      else
-        { return false }
-    } else {
-      pos = next
-    }
+      if (!boundToLine && findNextLine()) {
+        if (visually) { ch = (dir < 0 ? lineRight : lineLeft)(lineObj) }
+        else { ch = dir < 0 ? lineObj.text.length : 0 }
+      } else { return false }
+    } else { ch = next }
     return true
   }
 
@@ -32967,14 +32019,14 @@ function findPosH(doc, pos, dir, unit, visually) {
     var helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
     for (var first = true;; first = false) {
       if (dir < 0 && !moveOnce(!first)) { break }
-      var cur = lineObj.text.charAt(pos.ch) || "\n"
+      var cur = lineObj.text.charAt(ch) || "\n"
       var type = isWordChar(cur, helper) ? "w"
         : group && cur == "\n" ? "n"
         : !group || /\s/.test(cur) ? null
         : "p"
       if (group && !first && !type) { type = "s" }
       if (sawType && sawType != type) {
-        if (dir < 0) {dir = 1; moveOnce(); pos.sticky = "after"}
+        if (dir < 0) {dir = 1; moveOnce()}
         break
       }
 
@@ -32982,8 +32034,8 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) { break }
     }
   }
-  var result = skipAtomic(doc, pos, oldPos, origDir, true)
-  if (equalCursorPos(oldPos, result)) { result.hitSide = true }
+  var result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
+  if (!cmp(pos, result)) { result.hitSide = true }
   return result
 }
 
@@ -33326,7 +32378,6 @@ ContentEditableInput.prototype.setUneditable = function (node) {
 };
 
 ContentEditableInput.prototype.onKeyPress = function (e) {
-  if (e.charCode == 0) { return }
   e.preventDefault()
   if (!this.cm.isReadOnly())
     { operation(this.cm, applyTextInput)(this.cm, String.fromCharCode(e.charCode == null ? e.keyCode : e.charCode), 0) }
@@ -33791,14 +32842,10 @@ TextareaInput.prototype.onContextMenu = function (e) {
       if (!ie || (ie && ie_version < 9)) { prepareSelectAllHack() }
       var i = 0, poll = function () {
         if (display.selForContextMenu == cm.doc.sel && te.selectionStart == 0 &&
-            te.selectionEnd > 0 && input.prevInput == "\u200b") {
-          operation(cm, selectAll)(cm)
-        } else if (i++ < 10) {
-          display.detectingSelectAll = setTimeout(poll, 500)
-        } else {
-          display.selForContextMenu = null
-          display.input.reset()
-        }
+            te.selectionEnd > 0 && input.prevInput == "\u200b")
+          { operation(cm, selectAll)(cm) }
+        else if (i++ < 10) { display.detectingSelectAll = setTimeout(poll, 500) }
+        else { display.input.reset() }
       }
       display.detectingSelectAll = setTimeout(poll, 200)
     }
@@ -33974,14 +33021,845 @@ CodeMirror.fromTextArea = fromTextArea
 
 addLegacyProps(CodeMirror)
 
-CodeMirror.version = "5.24.2"
+CodeMirror.version = "5.23.0"
 
 return CodeMirror;
 
 })));;define('codemirror', ['codemirror/lib/codemirror'], function (main) { return main; });
 
 define('text!codemirror/theme/eclipse.css', ['module'], function(module) { module.exports = ".cm-s-eclipse span.cm-meta { color: #FF1717; }\n.cm-s-eclipse span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }\n.cm-s-eclipse span.cm-atom { color: #219; }\n.cm-s-eclipse span.cm-number { color: #164; }\n.cm-s-eclipse span.cm-def { color: #00f; }\n.cm-s-eclipse span.cm-variable { color: black; }\n.cm-s-eclipse span.cm-variable-2 { color: #0000C0; }\n.cm-s-eclipse span.cm-variable-3 { color: #0000C0; }\n.cm-s-eclipse span.cm-property { color: black; }\n.cm-s-eclipse span.cm-operator { color: black; }\n.cm-s-eclipse span.cm-comment { color: #3F7F5F; }\n.cm-s-eclipse span.cm-string { color: #2A00FF; }\n.cm-s-eclipse span.cm-string-2 { color: #f50; }\n.cm-s-eclipse span.cm-qualifier { color: #555; }\n.cm-s-eclipse span.cm-builtin { color: #30a; }\n.cm-s-eclipse span.cm-bracket { color: #cc7; }\n.cm-s-eclipse span.cm-tag { color: #170; }\n.cm-s-eclipse span.cm-attribute { color: #00c; }\n.cm-s-eclipse span.cm-link { color: #219; }\n.cm-s-eclipse span.cm-error { color: #f00; }\n\n.cm-s-eclipse .CodeMirror-activeline-background { background: #e8f2ff; }\n.cm-s-eclipse .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }\n"; });
-define('text!codemirror/lib/codemirror.css', ['module'], function(module) { module.exports = "/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: monospace;\n  height: 300px;\n  color: black;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n  white-space: nowrap;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n  white-space: nowrap;\n}\n\n.CodeMirror-guttermarker { color: black; }\n.CodeMirror-guttermarker-subtle { color: #999; }\n\n/* CURSOR */\n\n.CodeMirror-cursor {\n  border-left: 1px solid black;\n  border-right: none;\n  width: 0;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.cm-fat-cursor .CodeMirror-cursor {\n  width: auto;\n  border: 0 !important;\n  background: #7e7;\n}\n.cm-fat-cursor div.CodeMirror-cursors {\n  z-index: 1;\n}\n\n.cm-animate-fat-cursor {\n  width: auto;\n  border: 0;\n  -webkit-animation: blink 1.06s steps(1) infinite;\n  -moz-animation: blink 1.06s steps(1) infinite;\n  animation: blink 1.06s steps(1) infinite;\n  background-color: #7e7;\n}\n@-moz-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@-webkit-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror-overwrite .CodeMirror-cursor {}\n\n.cm-tab { display: inline-block; text-decoration: inherit; }\n\n.CodeMirror-rulers {\n  position: absolute;\n  left: 0; right: 0; top: -50px; bottom: -20px;\n  overflow: hidden;\n}\n.CodeMirror-ruler {\n  border-left: 1px solid #ccc;\n  top: 0; bottom: 0;\n  position: absolute;\n}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n.cm-strikethrough {text-decoration: line-through;}\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable,\n.cm-s-default .cm-punctuation,\n.cm-s-default .cm-property,\n.cm-s-default .cm-operator {}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3 {color: #085;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-s-default .cm-error {color: #f00;}\n.cm-invalidchar {color: #f00;}\n\n.CodeMirror-composing { border-bottom: 2px solid; }\n\n/* Default styles for common addons */\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }\n.CodeMirror-activeline-background {background: #e8f2ff;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  position: relative;\n  overflow: hidden;\n  background: white;\n}\n\n.CodeMirror-scroll {\n  overflow: scroll !important; /* Things will break if this is overridden */\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n  border-right: 30px solid transparent;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actual scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n}\n.CodeMirror-gutter-filler {\n  left: 0; bottom: 0;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  min-height: 100%;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  white-space: normal;\n  height: 100%;\n  display: inline-block;\n  vertical-align: top;\n  margin-bottom: -30px;\n}\n.CodeMirror-gutter-wrapper {\n  position: absolute;\n  z-index: 4;\n  background: none !important;\n  border: none !important;\n}\n.CodeMirror-gutter-background {\n  position: absolute;\n  top: 0; bottom: 0;\n  z-index: 4;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n.CodeMirror-gutter-wrapper {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  user-select: none;\n}\n\n.CodeMirror-lines {\n  cursor: text;\n  min-height: 1px; /* prevents collapsing before first draw */\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-font-variant-ligatures: contextual;\n  font-variant-ligatures: contextual;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {}\n\n.CodeMirror-code {\n  outline: none;\n}\n\n/* Force content-box sizing for the elements where we expect it */\n.CodeMirror-scroll,\n.CodeMirror-sizer,\n.CodeMirror-gutter,\n.CodeMirror-gutters,\n.CodeMirror-linenumber {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%;\n  height: 0;\n  overflow: hidden;\n  visibility: hidden;\n}\n\n.CodeMirror-cursor {\n  position: absolute;\n  pointer-events: none;\n}\n.CodeMirror-measure pre { position: static; }\n\ndiv.CodeMirror-cursors {\n  visibility: hidden;\n  position: relative;\n  z-index: 3;\n}\ndiv.CodeMirror-dragcursors {\n  visibility: visible;\n}\n\n.CodeMirror-focused div.CodeMirror-cursors {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n.CodeMirror-crosshair { cursor: crosshair; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* Used to force a border model for a node */\n.cm-force-border { padding-right: .1px; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursors {\n    visibility: hidden;\n  }\n}\n\n/* See issue #2901 */\n.cm-tab-wrap-hack:after { content: ''; }\n\n/* Help users use markselection to safely style text background */\nspan.CodeMirror-selectedtext { background: none; }\n"; });
+define('text!codemirror/lib/codemirror.css', ['module'], function(module) { module.exports = "/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: monospace;\n  height: 75%;\n  color: black;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n  white-space: nowrap;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n  white-space: nowrap;\n}\n\n.CodeMirror-guttermarker { color: black; }\n.CodeMirror-guttermarker-subtle { color: #999; }\n\n/* CURSOR */\n\n.CodeMirror-cursor {\n  border-left: 1px solid black;\n  border-right: none;\n  width: 0;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.cm-fat-cursor .CodeMirror-cursor {\n  width: auto;\n  border: 0 !important;\n  background: #7e7;\n}\n.cm-fat-cursor div.CodeMirror-cursors {\n  z-index: 1;\n}\n\n.cm-animate-fat-cursor {\n  width: auto;\n  border: 0;\n  -webkit-animation: blink 1.06s steps(1) infinite;\n  -moz-animation: blink 1.06s steps(1) infinite;\n  animation: blink 1.06s steps(1) infinite;\n  background-color: #7e7;\n}\n@-moz-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@-webkit-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror-overwrite .CodeMirror-cursor {}\n\n.cm-tab { display: inline-block; text-decoration: inherit; }\n\n.CodeMirror-rulers {\n  position: absolute;\n  left: 0; right: 0; top: -50px; bottom: -20px;\n  overflow: hidden;\n}\n.CodeMirror-ruler {\n  border-left: 1px solid #ccc;\n  top: 0; bottom: 0;\n  position: absolute;\n}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n.cm-strikethrough {text-decoration: line-through;}\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable,\n.cm-s-default .cm-punctuation,\n.cm-s-default .cm-property,\n.cm-s-default .cm-operator {}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3 {color: #085;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-s-default .cm-error {color: #f00;}\n.cm-invalidchar {color: #f00;}\n\n.CodeMirror-composing { border-bottom: 2px solid; }\n\n/* Default styles for common addons */\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }\n.CodeMirror-activeline-background {background: #e8f2ff;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  position: relative;\n  overflow: hidden;\n  background: white;\n}\n\n.CodeMirror-scroll {\n  overflow: scroll !important; /* Things will break if this is overridden */\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n  border-right: 30px solid transparent;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actual scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n}\n.CodeMirror-gutter-filler {\n  left: 0; bottom: 0;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  min-height: 100%;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  white-space: normal;\n  height: 100%;\n  display: inline-block;\n  vertical-align: top;\n  margin-bottom: -30px;\n}\n.CodeMirror-gutter-wrapper {\n  position: absolute;\n  z-index: 4;\n  background: none !important;\n  border: none !important;\n}\n.CodeMirror-gutter-background {\n  position: absolute;\n  top: 0; bottom: 0;\n  z-index: 4;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n.CodeMirror-gutter-wrapper {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  user-select: none;\n}\n\n.CodeMirror-lines {\n  cursor: text;\n  min-height: 1px; /* prevents collapsing before first draw */\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-font-variant-ligatures: contextual;\n  font-variant-ligatures: contextual;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {}\n\n.CodeMirror-code {\n  outline: none;\n}\n\n/* Force content-box sizing for the elements where we expect it */\n.CodeMirror-scroll,\n.CodeMirror-sizer,\n.CodeMirror-gutter,\n.CodeMirror-gutters,\n.CodeMirror-linenumber {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%;\n  height: 0;\n  overflow: hidden;\n  visibility: hidden;\n}\n\n.CodeMirror-cursor {\n  position: absolute;\n  pointer-events: none;\n}\n.CodeMirror-measure pre { position: static; }\n\ndiv.CodeMirror-cursors {\n  visibility: hidden;\n  position: relative;\n  z-index: 3;\n}\ndiv.CodeMirror-dragcursors {\n  visibility: visible;\n}\n\n.CodeMirror-focused div.CodeMirror-cursors {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n.CodeMirror-crosshair { cursor: crosshair; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* Used to force a border model for a node */\n.cm-force-border { padding-right: .1px; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursors {\n    visibility: hidden;\n  }\n}\n\n/* See issue #2901 */\n.cm-tab-wrap-hack:after { content: ''; }\n\n/* Help users use markselection to safely style text background */\nspan.CodeMirror-selectedtext { background: none; }\n"; });
+define('text',{});
+define('aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], function (exports, _aureliaPath, _aureliaPal) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.HttpClient = exports.RequestBuilder = exports.HttpRequestMessage = exports.JSONPRequestMessage = exports.RequestMessageProcessor = exports.mimeTypes = exports.HttpResponseMessage = exports.RequestMessage = exports.Headers = undefined;
+  exports.timeoutTransformer = timeoutTransformer;
+  exports.callbackParameterNameTransformer = callbackParameterNameTransformer;
+  exports.credentialsTransformer = credentialsTransformer;
+  exports.progressTransformer = progressTransformer;
+  exports.responseTypeTransformer = responseTypeTransformer;
+  exports.headerTransformer = headerTransformer;
+  exports.contentTransformer = contentTransformer;
+  exports.createJSONPRequestMessageProcessor = createJSONPRequestMessageProcessor;
+  exports.createHttpRequestMessageProcessor = createHttpRequestMessageProcessor;
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  
+
+  var Headers = exports.Headers = function () {
+    function Headers() {
+      var headers = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      
+
+      this.headers = {};
+
+      for (var _key in headers) {
+        this.headers[_key.toLowerCase()] = { key: _key, value: headers[_key] };
+      }
+    }
+
+    Headers.prototype.add = function add(key, value) {
+      this.headers[key.toLowerCase()] = { key: key, value: value };
+    };
+
+    Headers.prototype.get = function get(key) {
+      var header = this.headers[key.toLowerCase()];
+      return header ? header.value : undefined;
+    };
+
+    Headers.prototype.clear = function clear() {
+      this.headers = {};
+    };
+
+    Headers.prototype.has = function has(header) {
+      return this.headers.hasOwnProperty(header.toLowerCase());
+    };
+
+    Headers.prototype.configureXHR = function configureXHR(xhr) {
+      for (var name in this.headers) {
+        if (this.headers.hasOwnProperty(name)) {
+          xhr.setRequestHeader(this.headers[name].key, this.headers[name].value);
+        }
+      }
+    };
+
+    Headers.parse = function parse(headerStr) {
+      var headers = new Headers();
+      if (!headerStr) {
+        return headers;
+      }
+
+      var headerPairs = headerStr.split('\r\n');
+      for (var i = 0; i < headerPairs.length; i++) {
+        var headerPair = headerPairs[i];
+
+        var index = headerPair.indexOf(': ');
+        if (index > 0) {
+          var _key2 = headerPair.substring(0, index);
+          var val = headerPair.substring(index + 2);
+          headers.add(_key2, val);
+        }
+      }
+
+      return headers;
+    };
+
+    return Headers;
+  }();
+
+  var RequestMessage = exports.RequestMessage = function () {
+    function RequestMessage(method, url, content, headers) {
+      
+
+      this.method = method;
+      this.url = url;
+      this.content = content;
+      this.headers = headers || new Headers();
+      this.baseUrl = '';
+    }
+
+    RequestMessage.prototype.buildFullUrl = function buildFullUrl() {
+      var absoluteUrl = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
+      var url = absoluteUrl.test(this.url) ? this.url : (0, _aureliaPath.join)(this.baseUrl, this.url);
+
+      if (this.params) {
+        var qs = (0, _aureliaPath.buildQueryString)(this.params);
+        url = qs ? url + (this.url.indexOf('?') < 0 ? '?' : '&') + qs : url;
+      }
+
+      return url;
+    };
+
+    return RequestMessage;
+  }();
+
+  var HttpResponseMessage = exports.HttpResponseMessage = function () {
+    function HttpResponseMessage(requestMessage, xhr, responseType, reviver) {
+      
+
+      this.requestMessage = requestMessage;
+      this.statusCode = xhr.status;
+      this.response = xhr.response || xhr.responseText;
+      this.isSuccess = xhr.status >= 200 && xhr.status < 400;
+      this.statusText = xhr.statusText;
+      this.reviver = reviver;
+      this.mimeType = null;
+
+      if (xhr.getAllResponseHeaders) {
+        try {
+          this.headers = Headers.parse(xhr.getAllResponseHeaders());
+        } catch (err) {
+          if (xhr.requestHeaders) this.headers = new Headers(xhr.requestHeaders);
+        }
+      } else {
+        this.headers = new Headers();
+      }
+
+      var contentType = void 0;
+
+      if (this.headers && this.headers.headers) {
+        contentType = this.headers.get('Content-Type');
+      }
+
+      if (contentType) {
+        this.mimeType = responseType = contentType.split(';')[0].trim();
+        if (mimeTypes.hasOwnProperty(this.mimeType)) responseType = mimeTypes[this.mimeType];
+      }
+
+      this.responseType = responseType;
+    }
+
+    _createClass(HttpResponseMessage, [{
+      key: 'content',
+      get: function get() {
+        try {
+          if (this._content !== undefined) {
+            return this._content;
+          }
+
+          if (this.response === undefined || this.response === null || this.response === '') {
+            this._content = this.response;
+            return this._content;
+          }
+
+          if (this.responseType === 'json') {
+            this._content = JSON.parse(this.response, this.reviver);
+            return this._content;
+          }
+
+          if (this.reviver) {
+            this._content = this.reviver(this.response);
+            return this._content;
+          }
+
+          this._content = this.response;
+          return this._content;
+        } catch (e) {
+          if (this.isSuccess) {
+            throw e;
+          }
+
+          this._content = null;
+          return this._content;
+        }
+      }
+    }]);
+
+    return HttpResponseMessage;
+  }();
+
+  var mimeTypes = exports.mimeTypes = {
+    'text/html': 'html',
+    'text/javascript': 'js',
+    'application/javascript': 'js',
+    'text/json': 'json',
+    'application/json': 'json',
+    'application/rss+xml': 'rss',
+    'application/atom+xml': 'atom',
+    'application/xhtml+xml': 'xhtml',
+    'text/markdown': 'md',
+    'text/xml': 'xml',
+    'text/mathml': 'mml',
+    'application/xml': 'xml',
+    'text/yml': 'yml',
+    'text/csv': 'csv',
+    'text/css': 'css',
+    'text/less': 'less',
+    'text/stylus': 'styl',
+    'text/scss': 'scss',
+    'text/sass': 'sass',
+    'text/plain': 'txt'
+  };
+
+  function applyXhrTransformers(xhrTransformers, client, processor, message, xhr) {
+    var i = void 0;
+    var ii = void 0;
+
+    for (i = 0, ii = xhrTransformers.length; i < ii; ++i) {
+      xhrTransformers[i](client, processor, message, xhr);
+    }
+  }
+
+  var RequestMessageProcessor = exports.RequestMessageProcessor = function () {
+    function RequestMessageProcessor(xhrType, xhrTransformers) {
+      
+
+      this.XHRType = xhrType;
+      this.xhrTransformers = xhrTransformers;
+      this.isAborted = false;
+    }
+
+    RequestMessageProcessor.prototype.abort = function abort() {
+      if (this.xhr && this.xhr.readyState !== _aureliaPal.PLATFORM.XMLHttpRequest.UNSENT) {
+        this.xhr.abort();
+      }
+
+      this.isAborted = true;
+    };
+
+    RequestMessageProcessor.prototype.process = function process(client, requestMessage) {
+      var _this = this;
+
+      var promise = new Promise(function (resolve, reject) {
+        var xhr = _this.xhr = new _this.XHRType();
+
+        xhr.onload = function (e) {
+          var response = new HttpResponseMessage(requestMessage, xhr, requestMessage.responseType, requestMessage.reviver);
+          if (response.isSuccess) {
+            resolve(response);
+          } else {
+            reject(response);
+          }
+        };
+
+        xhr.ontimeout = function (e) {
+          reject(new HttpResponseMessage(requestMessage, {
+            response: e,
+            status: xhr.status,
+            statusText: xhr.statusText
+          }, 'timeout'));
+        };
+
+        xhr.onerror = function (e) {
+          reject(new HttpResponseMessage(requestMessage, {
+            response: e,
+            status: xhr.status,
+            statusText: xhr.statusText
+          }, 'error'));
+        };
+
+        xhr.onabort = function (e) {
+          reject(new HttpResponseMessage(requestMessage, {
+            response: e,
+            status: xhr.status,
+            statusText: xhr.statusText
+          }, 'abort'));
+        };
+      });
+
+      return Promise.resolve(requestMessage).then(function (message) {
+        var processRequest = function processRequest() {
+          if (_this.isAborted) {
+            _this.xhr.abort();
+          } else {
+            _this.xhr.open(message.method, message.buildFullUrl(), true, message.user, message.password);
+            applyXhrTransformers(_this.xhrTransformers, client, _this, message, _this.xhr);
+            if (typeof message.content === 'undefined') {
+              _this.xhr.send();
+            } else {
+              _this.xhr.send(message.content);
+            }
+          }
+
+          return promise;
+        };
+
+        var chain = [[processRequest, undefined]];
+
+        var interceptors = message.interceptors || [];
+        interceptors.forEach(function (interceptor) {
+          if (interceptor.request || interceptor.requestError) {
+            chain.unshift([interceptor.request ? interceptor.request.bind(interceptor) : undefined, interceptor.requestError ? interceptor.requestError.bind(interceptor) : undefined]);
+          }
+
+          if (interceptor.response || interceptor.responseError) {
+            chain.push([interceptor.response ? interceptor.response.bind(interceptor) : undefined, interceptor.responseError ? interceptor.responseError.bind(interceptor) : undefined]);
+          }
+        });
+
+        var interceptorsPromise = Promise.resolve(message);
+
+        while (chain.length) {
+          var _interceptorsPromise;
+
+          interceptorsPromise = (_interceptorsPromise = interceptorsPromise).then.apply(_interceptorsPromise, chain.shift());
+        }
+
+        return interceptorsPromise;
+      });
+    };
+
+    return RequestMessageProcessor;
+  }();
+
+  function timeoutTransformer(client, processor, message, xhr) {
+    if (message.timeout !== undefined) {
+      xhr.timeout = message.timeout;
+    }
+  }
+
+  function callbackParameterNameTransformer(client, processor, message, xhr) {
+    if (message.callbackParameterName !== undefined) {
+      xhr.callbackParameterName = message.callbackParameterName;
+    }
+  }
+
+  function credentialsTransformer(client, processor, message, xhr) {
+    if (message.withCredentials !== undefined) {
+      xhr.withCredentials = message.withCredentials;
+    }
+  }
+
+  function progressTransformer(client, processor, message, xhr) {
+    if (message.progressCallback) {
+      xhr.upload.onprogress = message.progressCallback;
+    }
+  }
+
+  function responseTypeTransformer(client, processor, message, xhr) {
+    var responseType = message.responseType;
+
+    if (responseType === 'json') {
+      responseType = 'text';
+    }
+
+    xhr.responseType = responseType;
+  }
+
+  function headerTransformer(client, processor, message, xhr) {
+    message.headers.configureXHR(xhr);
+  }
+
+  function contentTransformer(client, processor, message, xhr) {
+    if (message.skipContentProcessing) {
+      return;
+    }
+
+    if (_aureliaPal.PLATFORM.global.FormData && message.content instanceof FormData) {
+      return;
+    }
+
+    if (_aureliaPal.PLATFORM.global.Blob && message.content instanceof Blob) {
+      return;
+    }
+
+    if (_aureliaPal.PLATFORM.global.ArrayBufferView && message.content instanceof ArrayBufferView) {
+      return;
+    }
+
+    if (message.content instanceof Document) {
+      return;
+    }
+
+    if (typeof message.content === 'string') {
+      return;
+    }
+
+    if (message.content === null || message.content === undefined) {
+      return;
+    }
+
+    message.content = JSON.stringify(message.content, message.replacer);
+
+    if (!message.headers.has('Content-Type')) {
+      message.headers.add('Content-Type', 'application/json');
+    }
+  }
+
+  var JSONPRequestMessage = exports.JSONPRequestMessage = function (_RequestMessage) {
+    _inherits(JSONPRequestMessage, _RequestMessage);
+
+    function JSONPRequestMessage(url, callbackParameterName) {
+      
+
+      var _this2 = _possibleConstructorReturn(this, _RequestMessage.call(this, 'JSONP', url));
+
+      _this2.responseType = 'jsonp';
+      _this2.callbackParameterName = callbackParameterName;
+      return _this2;
+    }
+
+    return JSONPRequestMessage;
+  }(RequestMessage);
+
+  var JSONPXHR = function () {
+    function JSONPXHR() {
+      
+    }
+
+    JSONPXHR.prototype.open = function open(method, url) {
+      this.method = method;
+      this.url = url;
+      this.callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    };
+
+    JSONPXHR.prototype.send = function send() {
+      var _this3 = this;
+
+      var url = this.url + (this.url.indexOf('?') >= 0 ? '&' : '?') + encodeURIComponent(this.callbackParameterName) + '=' + this.callbackName;
+      var script = _aureliaPal.DOM.createElement('script');
+
+      script.src = url;
+      script.onerror = function (e) {
+        cleanUp();
+
+        _this3.status = 0;
+        _this3.onerror(new Error('error'));
+      };
+
+      var cleanUp = function cleanUp() {
+        delete _aureliaPal.PLATFORM.global[_this3.callbackName];
+        _aureliaPal.DOM.removeNode(script);
+      };
+
+      _aureliaPal.PLATFORM.global[this.callbackName] = function (data) {
+        cleanUp();
+
+        if (_this3.status === undefined) {
+          _this3.status = 200;
+          _this3.statusText = 'OK';
+          _this3.response = data;
+          _this3.onload(_this3);
+        }
+      };
+
+      _aureliaPal.DOM.appendNode(script);
+
+      if (this.timeout !== undefined) {
+        setTimeout(function () {
+          if (_this3.status === undefined) {
+            _this3.status = 0;
+            _this3.ontimeout(new Error('timeout'));
+          }
+        }, this.timeout);
+      }
+    };
+
+    JSONPXHR.prototype.abort = function abort() {
+      if (this.status === undefined) {
+        this.status = 0;
+        this.onabort(new Error('abort'));
+      }
+    };
+
+    JSONPXHR.prototype.setRequestHeader = function setRequestHeader() {};
+
+    return JSONPXHR;
+  }();
+
+  function createJSONPRequestMessageProcessor() {
+    return new RequestMessageProcessor(JSONPXHR, [timeoutTransformer, callbackParameterNameTransformer]);
+  }
+
+  var HttpRequestMessage = exports.HttpRequestMessage = function (_RequestMessage2) {
+    _inherits(HttpRequestMessage, _RequestMessage2);
+
+    function HttpRequestMessage(method, url, content, headers) {
+      
+
+      var _this4 = _possibleConstructorReturn(this, _RequestMessage2.call(this, method, url, content, headers));
+
+      _this4.responseType = 'json';return _this4;
+    }
+
+    return HttpRequestMessage;
+  }(RequestMessage);
+
+  function createHttpRequestMessageProcessor() {
+    return new RequestMessageProcessor(_aureliaPal.PLATFORM.XMLHttpRequest, [timeoutTransformer, credentialsTransformer, progressTransformer, responseTypeTransformer, contentTransformer, headerTransformer]);
+  }
+
+  var RequestBuilder = exports.RequestBuilder = function () {
+    function RequestBuilder(client) {
+      
+
+      this.client = client;
+      this.transformers = client.requestTransformers.slice(0);
+      this.useJsonp = false;
+    }
+
+    RequestBuilder.prototype.asDelete = function asDelete() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'DELETE';
+      });
+    };
+
+    RequestBuilder.prototype.asGet = function asGet() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'GET';
+      });
+    };
+
+    RequestBuilder.prototype.asHead = function asHead() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'HEAD';
+      });
+    };
+
+    RequestBuilder.prototype.asOptions = function asOptions() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'OPTIONS';
+      });
+    };
+
+    RequestBuilder.prototype.asPatch = function asPatch() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'PATCH';
+      });
+    };
+
+    RequestBuilder.prototype.asPost = function asPost() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'POST';
+      });
+    };
+
+    RequestBuilder.prototype.asPut = function asPut() {
+      return this._addTransformer(function (client, processor, message) {
+        message.method = 'PUT';
+      });
+    };
+
+    RequestBuilder.prototype.asJsonp = function asJsonp(callbackParameterName) {
+      this.useJsonp = true;
+      return this._addTransformer(function (client, processor, message) {
+        message.callbackParameterName = callbackParameterName;
+      });
+    };
+
+    RequestBuilder.prototype.withUrl = function withUrl(url) {
+      return this._addTransformer(function (client, processor, message) {
+        message.url = url;
+      });
+    };
+
+    RequestBuilder.prototype.withContent = function withContent(content) {
+      return this._addTransformer(function (client, processor, message) {
+        message.content = content;
+      });
+    };
+
+    RequestBuilder.prototype.withBaseUrl = function withBaseUrl(baseUrl) {
+      return this._addTransformer(function (client, processor, message) {
+        message.baseUrl = baseUrl;
+      });
+    };
+
+    RequestBuilder.prototype.withParams = function withParams(params) {
+      return this._addTransformer(function (client, processor, message) {
+        message.params = params;
+      });
+    };
+
+    RequestBuilder.prototype.withResponseType = function withResponseType(responseType) {
+      return this._addTransformer(function (client, processor, message) {
+        message.responseType = responseType;
+      });
+    };
+
+    RequestBuilder.prototype.withTimeout = function withTimeout(timeout) {
+      return this._addTransformer(function (client, processor, message) {
+        message.timeout = timeout;
+      });
+    };
+
+    RequestBuilder.prototype.withHeader = function withHeader(key, value) {
+      return this._addTransformer(function (client, processor, message) {
+        message.headers.add(key, value);
+      });
+    };
+
+    RequestBuilder.prototype.withCredentials = function withCredentials(value) {
+      return this._addTransformer(function (client, processor, message) {
+        message.withCredentials = value;
+      });
+    };
+
+    RequestBuilder.prototype.withLogin = function withLogin(user, password) {
+      return this._addTransformer(function (client, processor, message) {
+        message.user = user;message.password = password;
+      });
+    };
+
+    RequestBuilder.prototype.withReviver = function withReviver(reviver) {
+      return this._addTransformer(function (client, processor, message) {
+        message.reviver = reviver;
+      });
+    };
+
+    RequestBuilder.prototype.withReplacer = function withReplacer(replacer) {
+      return this._addTransformer(function (client, processor, message) {
+        message.replacer = replacer;
+      });
+    };
+
+    RequestBuilder.prototype.withProgressCallback = function withProgressCallback(progressCallback) {
+      return this._addTransformer(function (client, processor, message) {
+        message.progressCallback = progressCallback;
+      });
+    };
+
+    RequestBuilder.prototype.withCallbackParameterName = function withCallbackParameterName(callbackParameterName) {
+      return this._addTransformer(function (client, processor, message) {
+        message.callbackParameterName = callbackParameterName;
+      });
+    };
+
+    RequestBuilder.prototype.withInterceptor = function withInterceptor(interceptor) {
+      return this._addTransformer(function (client, processor, message) {
+        message.interceptors = message.interceptors || [];
+        message.interceptors.unshift(interceptor);
+      });
+    };
+
+    RequestBuilder.prototype.skipContentProcessing = function skipContentProcessing() {
+      return this._addTransformer(function (client, processor, message) {
+        message.skipContentProcessing = true;
+      });
+    };
+
+    RequestBuilder.prototype._addTransformer = function _addTransformer(fn) {
+      this.transformers.push(fn);
+      return this;
+    };
+
+    RequestBuilder.addHelper = function addHelper(name, fn) {
+      RequestBuilder.prototype[name] = function () {
+        return this._addTransformer(fn.apply(this, arguments));
+      };
+    };
+
+    RequestBuilder.prototype.send = function send() {
+      var message = this.useJsonp ? new JSONPRequestMessage() : new HttpRequestMessage();
+      return this.client.send(message, this.transformers);
+    };
+
+    return RequestBuilder;
+  }();
+
+  function trackRequestStart(client, processor) {
+    client.pendingRequests.push(processor);
+    client.isRequesting = true;
+  }
+
+  function trackRequestEnd(client, processor) {
+    var index = client.pendingRequests.indexOf(processor);
+
+    client.pendingRequests.splice(index, 1);
+    client.isRequesting = client.pendingRequests.length > 0;
+
+    if (!client.isRequesting) {
+      (function () {
+        var evt = _aureliaPal.DOM.createCustomEvent('aurelia-http-client-requests-drained', { bubbles: true, cancelable: true });
+        setTimeout(function () {
+          return _aureliaPal.DOM.dispatchEvent(evt);
+        }, 1);
+      })();
+    }
+  }
+
+  var HttpClient = exports.HttpClient = function () {
+    function HttpClient() {
+      
+
+      this.isRequesting = false;
+
+      this.requestTransformers = [];
+      this.requestProcessorFactories = new Map();
+      this.requestProcessorFactories.set(HttpRequestMessage, createHttpRequestMessageProcessor);
+      this.requestProcessorFactories.set(JSONPRequestMessage, createJSONPRequestMessageProcessor);
+      this.pendingRequests = [];
+    }
+
+    HttpClient.prototype.configure = function configure(fn) {
+      var builder = new RequestBuilder(this);
+      fn(builder);
+      this.requestTransformers = builder.transformers;
+      return this;
+    };
+
+    HttpClient.prototype.createRequest = function createRequest(url) {
+      var builder = new RequestBuilder(this);
+
+      if (url) {
+        builder.withUrl(url);
+      }
+
+      return builder;
+    };
+
+    HttpClient.prototype.send = function send(requestMessage, transformers) {
+      var _this5 = this;
+
+      var createProcessor = this.requestProcessorFactories.get(requestMessage.constructor);
+      var processor = void 0;
+      var promise = void 0;
+      var i = void 0;
+      var ii = void 0;
+
+      if (!createProcessor) {
+        throw new Error('No request message processor factory for ' + requestMessage.constructor + '.');
+      }
+
+      processor = createProcessor();
+      trackRequestStart(this, processor);
+
+      transformers = transformers || this.requestTransformers;
+
+      promise = Promise.resolve(requestMessage).then(function (message) {
+        for (i = 0, ii = transformers.length; i < ii; ++i) {
+          transformers[i](_this5, processor, message);
+        }
+
+        return processor.process(_this5, message).then(function (response) {
+          trackRequestEnd(_this5, processor);
+          return response;
+        }).catch(function (response) {
+          trackRequestEnd(_this5, processor);
+          throw response;
+        });
+      });
+
+      promise.abort = promise.cancel = function () {
+        processor.abort();
+      };
+
+      return promise;
+    };
+
+    HttpClient.prototype.delete = function _delete(url) {
+      return this.createRequest(url).asDelete().send();
+    };
+
+    HttpClient.prototype.get = function get(url) {
+      return this.createRequest(url).asGet().send();
+    };
+
+    HttpClient.prototype.head = function head(url) {
+      return this.createRequest(url).asHead().send();
+    };
+
+    HttpClient.prototype.jsonp = function jsonp(url) {
+      var callbackParameterName = arguments.length <= 1 || arguments[1] === undefined ? 'jsoncallback' : arguments[1];
+
+      return this.createRequest(url).asJsonp(callbackParameterName).send();
+    };
+
+    HttpClient.prototype.options = function options(url) {
+      return this.createRequest(url).asOptions().send();
+    };
+
+    HttpClient.prototype.put = function put(url, content) {
+      return this.createRequest(url).asPut().withContent(content).send();
+    };
+
+    HttpClient.prototype.patch = function patch(url, content) {
+      return this.createRequest(url).asPatch().withContent(content).send();
+    };
+
+    HttpClient.prototype.post = function post(url, content) {
+      return this.createRequest(url).asPost().withContent(content).send();
+    };
+
+    return HttpClient;
+  }();
+});
 define('aurelia-templating-resources/aurelia-templating-resources',['exports', './compose', './if', './with', './repeat', './show', './hide', './sanitize-html', './replaceable', './focus', 'aurelia-templating', './css-resource', './html-sanitizer', './attr-binding-behavior', './binding-mode-behaviors', './throttle-binding-behavior', './debounce-binding-behavior', './signal-binding-behavior', './binding-signaler', './update-trigger-binding-behavior', './abstract-repeater', './repeat-strategy-locator', './html-resource-plugin', './null-repeat-strategy', './array-repeat-strategy', './map-repeat-strategy', './set-repeat-strategy', './number-repeat-strategy', './repeat-utilities', './analyze-view-factory', './aurelia-hide-style'], function (exports, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _aureliaTemplating, _cssResource, _htmlSanitizer, _attrBindingBehavior, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior, _abstractRepeater, _repeatStrategyLocator, _htmlResourcePlugin, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy, _repeatUtilities, _analyzeViewFactory, _aureliaHideStyle) {
   'use strict';
 
@@ -36786,164 +36664,33 @@ define('aurelia-templating-router/route-href',['exports', 'aurelia-templating', 
     return RouteHref;
   }()) || _class) || _class) || _class) || _class) || _class);
 });
-define('aurelia-bootstrapper',['exports', 'aurelia-pal', 'aurelia-pal-browser', 'aurelia-polyfills'], function (exports, _aureliaPal, _aureliaPalBrowser) {
+define('aurelia-testing/aurelia-testing',['exports', './compile-spy', './view-spy', './component-tester'], function (exports, _compileSpy, _viewSpy, _componentTester) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.bootstrap = bootstrap;
+  exports.configure = exports.ComponentTester = exports.StageComponent = exports.ViewSpy = exports.CompileSpy = undefined;
 
 
-  var bootstrapQueue = [];
-  var sharedLoader = null;
-  var Aurelia = null;
-
-  function onBootstrap(callback) {
-    return new Promise(function (resolve, reject) {
-      if (sharedLoader) {
-        resolve(callback(sharedLoader));
-      } else {
-        bootstrapQueue.push(function () {
-          try {
-            resolve(callback(sharedLoader));
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-    });
+  function configure(config) {
+    config.globalResources('./compile-spy', './view-spy');
   }
 
-  function ready(global) {
-    return new Promise(function (resolve, reject) {
-      if (global.document.readyState === 'complete') {
-        resolve(global.document);
-      } else {
-        global.document.addEventListener('DOMContentLoaded', completed);
-        global.addEventListener('load', completed);
-      }
-
-      function completed() {
-        global.document.removeEventListener('DOMContentLoaded', completed);
-        global.removeEventListener('load', completed);
-        resolve(global.document);
-      }
-    });
-  }
-
-  function createLoader() {
-    if (_aureliaPal.PLATFORM.Loader) {
-      return Promise.resolve(new _aureliaPal.PLATFORM.Loader());
-    }
-
-    if (window.System && typeof window.System.import === 'function') {
-      return System.normalize('aurelia-bootstrapper').then(function (bootstrapperName) {
-        return System.normalize('aurelia-loader-default', bootstrapperName);
-      }).then(function (loaderName) {
-        return System.import(loaderName).then(function (m) {
-          return new m.DefaultLoader();
-        });
-      });
-    }
-
-    if (typeof window.require === 'function') {
-      return new Promise(function (resolve, reject) {
-        return require(['aurelia-loader-default'], function (m) {
-          return resolve(new m.DefaultLoader());
-        }, reject);
-      });
-    }
-
-    return Promise.reject('No PLATFORM.Loader is defined and there is neither a System API (ES6) or a Require API (AMD) globally available to load your app.');
-  }
-
-  function preparePlatform(loader) {
-    return loader.normalize('aurelia-bootstrapper').then(function (bootstrapperName) {
-      return loader.normalize('aurelia-framework', bootstrapperName).then(function (frameworkName) {
-        loader.map('aurelia-framework', frameworkName);
-
-        return Promise.all([loader.normalize('aurelia-dependency-injection', frameworkName).then(function (diName) {
-          return loader.map('aurelia-dependency-injection', diName);
-        }), loader.normalize('aurelia-router', bootstrapperName).then(function (routerName) {
-          return loader.map('aurelia-router', routerName);
-        }), loader.normalize('aurelia-logging-console', bootstrapperName).then(function (loggingConsoleName) {
-          return loader.map('aurelia-logging-console', loggingConsoleName);
-        })]).then(function () {
-          return loader.loadModule(frameworkName).then(function (m) {
-            return Aurelia = m.Aurelia;
-          });
-        });
-      });
-    });
-  }
-
-  function handleApp(loader, appHost) {
-    var moduleId = appHost.getAttribute('aurelia-app') || appHost.getAttribute('data-aurelia-app');
-    return config(loader, appHost, moduleId);
-  }
-
-  function config(loader, appHost, configModuleId) {
-    var aurelia = new Aurelia(loader);
-    aurelia.host = appHost;
-    aurelia.configModuleId = configModuleId || null;
-
-    if (configModuleId) {
-      return loader.loadModule(configModuleId).then(function (customConfig) {
-        if (!customConfig.configure) {
-          throw new Error("Cannot initialize module '" + configModuleId + "' without a configure function.");
-        }
-
-        customConfig.configure(aurelia);
-      });
-    }
-
-    aurelia.use.standardConfiguration().developmentLogging();
-
-    return aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-
-  function run() {
-    return ready(window).then(function (doc) {
-      (0, _aureliaPalBrowser.initialize)();
-
-      var appHost = doc.querySelectorAll('[aurelia-app],[data-aurelia-app]');
-      return createLoader().then(function (loader) {
-        return preparePlatform(loader).then(function () {
-          for (var i = 0, ii = appHost.length; i < ii; ++i) {
-            handleApp(loader, appHost[i]).catch(console.error.bind(console));
-          }
-
-          sharedLoader = loader;
-          for (var _i = 0, _ii = bootstrapQueue.length; _i < _ii; ++_i) {
-            bootstrapQueue[_i]();
-          }
-          bootstrapQueue = null;
-        });
-      });
-    });
-  }
-
-  function bootstrap(configure) {
-    return onBootstrap(function (loader) {
-      var aurelia = new Aurelia(loader);
-      return configure(aurelia);
-    });
-  }
-
-  run();
-});
-define('aurelia-event-aggregator',['exports', 'aurelia-logging'], function (exports, _aureliaLogging) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.EventAggregator = undefined;
-  exports.includeEventsIn = includeEventsIn;
+  exports.CompileSpy = _compileSpy.CompileSpy;
+  exports.ViewSpy = _viewSpy.ViewSpy;
+  exports.StageComponent = _componentTester.StageComponent;
+  exports.ComponentTester = _componentTester.ComponentTester;
   exports.configure = configure;
+});;define('aurelia-testing', ['aurelia-testing/aurelia-testing'], function (main) { return main; });
+
+define('aurelia-testing/compile-spy',['exports', 'aurelia-templating', 'aurelia-dependency-injection', 'aurelia-logging', 'aurelia-pal'], function (exports, _aureliaTemplating, _aureliaDependencyInjection, _aureliaLogging, _aureliaPal) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.CompileSpy = undefined;
 
   var LogManager = _interopRequireWildcard(_aureliaLogging);
 
@@ -36966,182 +36713,230 @@ define('aurelia-event-aggregator',['exports', 'aurelia-logging'], function (expo
 
   
 
-  var logger = LogManager.getLogger('event-aggregator');
+  var _dec, _dec2, _class;
 
-  var Handler = function () {
-    function Handler(messageType, callback) {
-      
+  var CompileSpy = exports.CompileSpy = (_dec = (0, _aureliaTemplating.customAttribute)('compile-spy'), _dec2 = (0, _aureliaDependencyInjection.inject)(_aureliaPal.DOM.Element, _aureliaTemplating.TargetInstruction), _dec(_class = _dec2(_class = function CompileSpy(element, instruction) {
+    
 
-      this.messageType = messageType;
-      this.callback = callback;
-    }
-
-    Handler.prototype.handle = function handle(message) {
-      if (message instanceof this.messageType) {
-        this.callback.call(null, message);
-      }
-    };
-
-    return Handler;
-  }();
-
-  function invokeCallback(callback, data, event) {
-    try {
-      callback(data, event);
-    } catch (e) {
-      logger.error(e);
-    }
-  }
-
-  function invokeHandler(handler, data) {
-    try {
-      handler.handle(data);
-    } catch (e) {
-      logger.error(e);
-    }
-  }
-
-  var EventAggregator = exports.EventAggregator = function () {
-    function EventAggregator() {
-      
-
-      this.eventLookup = {};
-      this.messageHandlers = [];
-    }
-
-    EventAggregator.prototype.publish = function publish(event, data) {
-      var subscribers = void 0;
-      var i = void 0;
-
-      if (!event) {
-        throw new Error('Event was invalid.');
-      }
-
-      if (typeof event === 'string') {
-        subscribers = this.eventLookup[event];
-        if (subscribers) {
-          subscribers = subscribers.slice();
-          i = subscribers.length;
-
-          while (i--) {
-            invokeCallback(subscribers[i], data, event);
-          }
-        }
-      } else {
-        subscribers = this.messageHandlers.slice();
-        i = subscribers.length;
-
-        while (i--) {
-          invokeHandler(subscribers[i], event);
-        }
-      }
-    };
-
-    EventAggregator.prototype.subscribe = function subscribe(event, callback) {
-      var handler = void 0;
-      var subscribers = void 0;
-
-      if (!event) {
-        throw new Error('Event channel/type was invalid.');
-      }
-
-      if (typeof event === 'string') {
-        handler = callback;
-        subscribers = this.eventLookup[event] || (this.eventLookup[event] = []);
-      } else {
-        handler = new Handler(event, callback);
-        subscribers = this.messageHandlers;
-      }
-
-      subscribers.push(handler);
-
-      return {
-        dispose: function dispose() {
-          var idx = subscribers.indexOf(handler);
-          if (idx !== -1) {
-            subscribers.splice(idx, 1);
-          }
-        }
-      };
-    };
-
-    EventAggregator.prototype.subscribeOnce = function subscribeOnce(event, callback) {
-      var sub = this.subscribe(event, function (a, b) {
-        sub.dispose();
-        return callback(a, b);
-      });
-
-      return sub;
-    };
-
-    return EventAggregator;
-  }();
-
-  function includeEventsIn(obj) {
-    var ea = new EventAggregator();
-
-    obj.subscribeOnce = function (event, callback) {
-      return ea.subscribeOnce(event, callback);
-    };
-
-    obj.subscribe = function (event, callback) {
-      return ea.subscribe(event, callback);
-    };
-
-    obj.publish = function (event, data) {
-      ea.publish(event, data);
-    };
-
-    return ea;
-  }
-
-  function configure(config) {
-    config.instance(EventAggregator, includeEventsIn(config.aurelia));
-  }
+    LogManager.getLogger('compile-spy').info(element, instruction);
+  }) || _class) || _class);
 });
-define('aurelia-history',['exports'], function (exports) {
+define('aurelia-testing/view-spy',['exports', 'aurelia-templating', 'aurelia-logging'], function (exports, _aureliaTemplating, _aureliaLogging) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.ViewSpy = undefined;
+
+  var LogManager = _interopRequireWildcard(_aureliaLogging);
+
+  function _interopRequireWildcard(obj) {
+    if (obj && obj.__esModule) {
+      return obj;
+    } else {
+      var newObj = {};
+
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+
+      newObj.default = obj;
+      return newObj;
+    }
+  }
 
   
 
-  function mi(name) {
-    throw new Error('History must implement ' + name + '().');
-  }
+  var _dec, _class;
 
-  var History = exports.History = function () {
-    function History() {
+  var ViewSpy = exports.ViewSpy = (_dec = (0, _aureliaTemplating.customAttribute)('view-spy'), _dec(_class = function () {
+    function ViewSpy() {
       
+
+      this.logger = LogManager.getLogger('view-spy');
     }
 
-    History.prototype.activate = function activate(options) {
-      mi('activate');
+    ViewSpy.prototype._log = function _log(lifecycleName, context) {
+      if (!this.value && lifecycleName === 'created') {
+        this.logger.info(lifecycleName, this.view);
+      } else if (this.value && this.value.indexOf(lifecycleName) !== -1) {
+        this.logger.info(lifecycleName, this.view, context);
+      }
     };
 
-    History.prototype.deactivate = function deactivate() {
-      mi('deactivate');
+    ViewSpy.prototype.created = function created(view) {
+      this.view = view;
+      this._log('created');
     };
 
-    History.prototype.getAbsoluteRoot = function getAbsoluteRoot() {
-      mi('getAbsoluteRoot');
+    ViewSpy.prototype.bind = function bind(bindingContext) {
+      this._log('bind', bindingContext);
     };
 
-    History.prototype.navigate = function navigate(fragment, options) {
-      mi('navigate');
+    ViewSpy.prototype.attached = function attached() {
+      this._log('attached');
     };
 
-    History.prototype.navigateBack = function navigateBack() {
-      mi('navigateBack');
+    ViewSpy.prototype.detached = function detached() {
+      this._log('detached');
     };
 
-    History.prototype.setTitle = function setTitle(title) {
-      mi('setTitle');
+    ViewSpy.prototype.unbind = function unbind() {
+      this._log('unbind');
     };
 
-    return History;
+    return ViewSpy;
+  }()) || _class);
+});
+define('aurelia-testing/component-tester',['exports', 'aurelia-templating', 'aurelia-framework'], function (exports, _aureliaTemplating, _aureliaFramework) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.ComponentTester = exports.StageComponent = undefined;
+
+  
+
+  var StageComponent = exports.StageComponent = {
+    withResources: function withResources(resources) {
+      return new ComponentTester().withResources(resources);
+    }
+  };
+
+  var ComponentTester = exports.ComponentTester = function () {
+    function ComponentTester() {
+      
+
+      this.configure = function (aurelia) {
+        return aurelia.use.standardConfiguration();
+      };
+
+      this._resources = [];
+    }
+
+    ComponentTester.prototype.bootstrap = function bootstrap(configure) {
+      this.configure = configure;
+    };
+
+    ComponentTester.prototype.withResources = function withResources(resources) {
+      this._resources = resources;
+      return this;
+    };
+
+    ComponentTester.prototype.inView = function inView(html) {
+      this._html = html;
+      return this;
+    };
+
+    ComponentTester.prototype.boundTo = function boundTo(bindingContext) {
+      this._bindingContext = bindingContext;
+      return this;
+    };
+
+    ComponentTester.prototype.manuallyHandleLifecycle = function manuallyHandleLifecycle() {
+      this._prepareLifecycle();
+      return this;
+    };
+
+    ComponentTester.prototype.create = function create(bootstrap) {
+      var _this = this;
+
+      return bootstrap(function (aurelia) {
+        return Promise.resolve(_this.configure(aurelia)).then(function () {
+          if (_this._resources) {
+            aurelia.use.globalResources(_this._resources);
+          }
+
+          return aurelia.start().then(function (a) {
+            _this.host = document.createElement('div');
+            _this.host.innerHTML = _this._html;
+
+            document.body.appendChild(_this.host);
+
+            return aurelia.enhance(_this._bindingContext, _this.host).then(function () {
+              _this._rootView = aurelia.root;
+              _this.element = _this.host.firstElementChild;
+
+              if (aurelia.root.controllers.length) {
+                _this.viewModel = aurelia.root.controllers[0].viewModel;
+              }
+
+              return new Promise(function (resolve) {
+                return setTimeout(function () {
+                  return resolve();
+                }, 0);
+              });
+            });
+          });
+        });
+      });
+    };
+
+    ComponentTester.prototype.dispose = function dispose() {
+      if (this.host === undefined || this._rootView === undefined) {
+        throw new Error('Cannot call ComponentTester.dispose() before ComponentTester.create()');
+      }
+
+      this._rootView.detached();
+      this._rootView.unbind();
+
+      return this.host.parentNode.removeChild(this.host);
+    };
+
+    ComponentTester.prototype._prepareLifecycle = function _prepareLifecycle() {
+      var _this2 = this;
+
+      var bindPrototype = _aureliaTemplating.View.prototype.bind;
+      _aureliaTemplating.View.prototype.bind = function () {};
+      this.bind = function (bindingContext) {
+        return new Promise(function (resolve) {
+          _aureliaTemplating.View.prototype.bind = bindPrototype;
+          if (bindingContext !== undefined) {
+            _this2._bindingContext = bindingContext;
+          }
+          _this2._rootView.bind(_this2._bindingContext);
+          setTimeout(function () {
+            return resolve();
+          }, 0);
+        });
+      };
+
+      var attachedPrototype = _aureliaTemplating.View.prototype.attached;
+      _aureliaTemplating.View.prototype.attached = function () {};
+      this.attached = function () {
+        return new Promise(function (resolve) {
+          _aureliaTemplating.View.prototype.attached = attachedPrototype;
+          _this2._rootView.attached();
+          setTimeout(function () {
+            return resolve();
+          }, 0);
+        });
+      };
+
+      this.detached = function () {
+        return new Promise(function (resolve) {
+          _this2._rootView.detached();
+          setTimeout(function () {
+            return resolve();
+          }, 0);
+        });
+      };
+
+      this.unbind = function () {
+        return new Promise(function (resolve) {
+          _this2._rootView.unbind();
+          setTimeout(function () {
+            return resolve();
+          }, 0);
+        });
+      };
+    };
+
+    return ComponentTester;
   }();
 });
-function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","text":"../node_modules/text/text","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"},{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","environment","main","accordion/accordion-section","accordion/accordion","accordion/app","accordion/environment","accordion/main","b2dropcontrol/acontrol","b2dropcontrol/app","b2dropcontrol/b2dropcontrol","b2dropcontrol/dropboxcontrol","b2dropcontrol/environment","b2dropcontrol/main","b2dropcontrol/onedrivecontrol","dataset/app","dataset/environment","dataset/main","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/main","filemanager2/panel","filemanager2/viewpanelpv","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","pdbcomponents/analysepanel","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/pdbautocompletesearch","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/index","tabs/messages","tabs/tabs","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/urlutils","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css","accordion/styles","accordion/index-accordion"]}})}
+function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","text":"../node_modules/text/text","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","environment","main","b2dropcontrol/acontrol","b2dropcontrol/app","b2dropcontrol/b2dropcontrol","b2dropcontrol/dropboxcontrol","b2dropcontrol/environment","b2dropcontrol/main","b2dropcontrol/onedrivecontrol","dataset/app","dataset/environment","dataset/main","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/main","filemanager2/panel","filemanager2/viewpanelpv","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","pdbcomponents/analysepanel","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/pdbautocompletesearch","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/index","tabs/messages","tabs/tabs","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/urlutils","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css"]}})}

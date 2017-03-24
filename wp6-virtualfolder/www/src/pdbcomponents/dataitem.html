@@ -7,6 +7,7 @@
 
   <span class="w3-right" show.bind="itemPDBEntry">recognized as PDB entry</span>
   <span class="w3-right" show.bind="! itemPDBEntry">recognized as UniProt entry</span>
+  <!--
   <br/><span if.bind="itemPDBEntry">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id="${item}">${item}</a></span>
   <span if.bind="! itemPDBEntry">UniProt Link <a href="http://www.uniprot.org/uniprot/${item}">${item}</a></span>
   <div id="pdblinks-${item}" if.bind="showitem">
@@ -23,5 +24,5 @@
   <div id="uniprot-${item}" if.bind="showuniprotitem">
     <hideable title="PDB UniProt Viewer"><pdb-uniprot-viewer entry-id="${item}" height="320"></pdb-uniprot-viewer></hideable>
   </div>
-
+-->
 </template>
