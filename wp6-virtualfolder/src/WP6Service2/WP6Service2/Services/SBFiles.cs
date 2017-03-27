@@ -29,6 +29,7 @@ namespace MetadataService.Services
 		public String path { get; set; }
 		public FileType filetype {get;set;}
 		public String webdavuri { get; set; }
+	    public String publicwebdavuri { get; set; }
 	}
 
     public interface IProviderContext
