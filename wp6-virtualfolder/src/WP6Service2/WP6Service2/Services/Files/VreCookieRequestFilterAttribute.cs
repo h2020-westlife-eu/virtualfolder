@@ -22,7 +22,7 @@ namespace MetadataService.Services.Files
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
         private const string _httpLocalhostApi = "http://localhost:8004/api/";
         private const string _sessionserviceurl = "vfsession/";
-        private const string _authproxyserviceurl = "authproxy/";
+        private const string _authproxyserviceurl = "authproxy/get_signed_url/";
 
         private readonly string _vreapiurl = Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME)!=null?
             Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME):
