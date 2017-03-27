@@ -2,16 +2,21 @@
 ## Reusing virtual folder components
 The components can be reused in any HTML by adding this HTML snippet (where scripts/vendor-bundle.js links to VF web site):
 ```
-<div aurelia-app="virtualfoldersetting/main">
+<div aurelia-app="[componentname]/main">
    <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
    Loading ...
 </div>
 ```
+Change [componentname] with appropriate name supplied in the list bellow:
 These components are available:
-- Virtual Folder Settings page - allows to manage file providers (B2DROP,Dropbox,Filesystem,...)
-- File manager - allows to browse files in defined file providers (demo view of PDB )
-- File picker - allows to pick the file from Virtual Folder and it's WEBDAV URI is returned to managing page
-- Virtual Folder VM Modules - allows to enable optional modules available at Virtual Folder Container.
+
+- filepicker - File picker - allows to pick the file from Virtual Folder and it's WEBDAV URI is returned to managing page. See the demo at filepicker.html and filepickercomponent.html.
+- filemanager2 - File manager - allows to browse files in defined file providers (demo view of PDB ). See the demo at filemanager.html.
+- dataset - Dataset definition page - allows to define list of entries - PDB and Uniprot entries can be refined with
+
+These components change settings in west-life portal or custom VM:
+- virtualfoldersettings - Virtual Folder Settings page - allows to manage file providers (B2DROP,Dropbox,Filesystem,...)
+- virtualfoldermodules - Virtual Folder VM Modules - available in custom VM - allows to enable optional modules available at Virtual Folder Container.
 
 ## Adding static content
 The content is pure HTML in directory ```wp6-virtualfolder/www```. Apache server is by default configured with [SSI (Server Side Include)](http://httpd.apache.org/docs/current/howto/ssi.html) module. The ```header.html``` and ```footer.html``` can  be included into other html. To add new HTML page:
@@ -49,10 +54,10 @@ add e.g. following row into desirable place of the menu
 ## Development Instruction
 The components uses aurelia framework to
 - handle http communication
-- bundle component into one vendor-bundle.js
+- bundle component into one vendor-bundle.js and transpile it from ES6 not yet widely supported to compatible Javascript implementation.
 - maintain source code and use best practices/patterns to compose/configure the parts together
 
-To use the components, no framework/library is needed. To develop the components, the followin is recommended:
+To use the components, no framework/library is needed. To develop the components, the following procedure is recommended:
 
   1. restore npm modules <code>npm install</code>
   1. install other npm modules <code>npm install browsersync-ssi http-proxy-middleware aurelia-http-client</code>
@@ -91,6 +96,9 @@ To use the components, no framework/library is needed. To develop the components
 
 ### b2dropcontrol
 Deprecated - use virtualfoldersettings.
+
+### Contact
+H2020-westlife-wp6 (at) mailman.muni.cz
 
 ## Further doc
 http://internal-wiki.west-life.eu/w/index.php?title=D6.2
