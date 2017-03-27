@@ -1327,41 +1327,51 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
       console.log(this.item);
       this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/";
       this.client = httpclient;
-      this.client.configure(function (config) {
-        config.withDefaults({
-          credentials: 'same-origin',
-          headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'Fetch'
-          }
-        });
-      });
+      this.entityids = [1];
+      this.selectedid = this.entityids[0];
     }
 
-    Dataitem.prototype.attached = function attached() {
+    Dataitem.prototype.attached = function attached() {};
+
+    Dataitem.prototype.bind = function bind() {
       var _this = this;
 
+      this.itemPDBEntry = this.isPDBEntry(this.item);
+      this.showitem = this.itemPDBEntry;
+      this.showuniprotitem = !this.itemPDBEntry;
       if (this.itemPDBEntry) {
         this.client.fetch(this.serviceurl + this.item).then(function (response) {
           return response.json();
         }).then(function (data) {
 
-          console.log("ENTRY ID Fetch, there is response");
+          console.log("ENTRY ID Fetch, data:");
           console.log(data);
+          _this.entityids = [];
+          for (var entryname in data) {
+            for (var _iterator = data[entryname], _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+              var _ref;
+
+              if (_isArray) {
+                if (_i >= _iterator.length) break;
+                _ref = _iterator[_i++];
+              } else {
+                _i = _iterator.next();
+                if (_i.done) break;
+                _ref = _i.value;
+              }
+
+              var item = _ref;
+
+              _this.entityids.push(item.entity_id);
+            }
+          }
+          _this.selectedid = _this.entityids[0];
         }).catch(function (error) {
 
           console.log('Error');
           console.log(error);
-          alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this.serviceurl);
         });
       }
-    };
-
-    Dataitem.prototype.bind = function bind() {
-      this.itemPDBEntry = this.isPDBEntry(this.item);
-      this.showitem = this.itemPDBEntry;
-      this.showuniprotitem = !this.itemPDBEntry;
-      console.log(this.item);
     };
 
     Dataitem.prototype.hideitem = function hideitem() {
@@ -5810,7 +5820,7 @@ define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { modu
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
 define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n  </div>\n</template>\n"; });
-define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
+define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n\n  <select name=\"entityids\" value.bind=\"selectedid\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer entry-id=\"${item}\" entity-id=\"${selectedid}\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer entry-id=\"${item}\" entity-id=\"${selectedid}\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
 define('text!pdbcomponents/pdbautocompletesearch.html', ['module'], function(module) { module.exports = "<template>\n  <input class=\"pdbAutoCompleteSearchBox\" value.bind=\"searchbox & debounce:500\" placeholder=\"2hhd\"/>\n</template>\n"; });
