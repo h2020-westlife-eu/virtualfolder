@@ -2,7 +2,7 @@
  * created by Tomas Kulhanek on 3/15/17.
  */
 import {bindable} from 'aurelia-framework';
-import {HttpClient} from 'aurelia-http-client';
+import {HttpClient} from 'aurelia-fetch-client';
 
 //export class Filepanel{
   //static inject = [EventAggregator,HttpClient];
@@ -33,38 +33,42 @@ export class Dataitem {
       console.log(this.item);
       this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
       this.client = httpclient;
-
+      this.client.configure(config => {
+        config
+          .withDefaults({
+            credentials: 'same-origin',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'Fetch'
+            }
+          })
+      });
+/*
       this.client.configure(config => {
         config.withHeader('Accept', 'application/json');
         config.withHeader('Content-Type', 'application/json');
-      });
+      });*/
     }
       //console.log(this.serviceurl)
 
       attached() {
+        if (this.itemPDBEntry) {
+          this.client.fetch(this.serviceurl + this.item)
+            .then(response => response.json())
+            .then(data => {
 
-        this.client.get(this.serviceurl+this.item)
-          .then(data => {
-            if (data.response) {
-              console.log("there is response");
+              console.log("ENTRY ID Fetch, there is response");
+              console.log(data)
               //this.populateFiles(data.response);
-            }
-          }).catch(error => {
 
-          console.log('Error');
-          console.log(error);
-          alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl);
-        });
+            }).catch(error => {
 
-
+            console.log('Error');
+            console.log(error);
+            alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
+          });
+        }
     }
-
-  populateFiles(dataresponse){
-
-    this.files = JSON.parse(dataresponse);//populate window list
-
-    console.log("kotoba");
-  }
 
     bind() {
       this.itemPDBEntry= this.isPDBEntry(this.item);
@@ -86,9 +90,7 @@ export class Dataitem {
     }
 
     getIdentityID () {
-      //console.log("This item is " + this.item)
-
-
+      //console.log("This item is " + this.item);
       console.log("This try is " + this.serviceurl)
     }
 
