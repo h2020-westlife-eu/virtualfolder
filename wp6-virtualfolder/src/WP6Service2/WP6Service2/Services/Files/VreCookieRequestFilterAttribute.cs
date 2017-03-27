@@ -11,6 +11,12 @@ namespace MetadataService.Services.Files
 {
     public class VreCookieRequestFilterAttribute : RequestFilterAttribute
     {
+        static VreCookieRequestFilterAttribute()
+        {
+            ServicePointManager.ServerCertificateValidationCallback +=
+                new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
+        }
+
         private Dictionary<string, string> sessionuser = new Dictionary<string, string>();
         private Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
@@ -22,10 +28,7 @@ namespace MetadataService.Services.Files
             Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME):
             _httpLocalhostApi;
 
-        static
-        {
-            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
-        }
+
 
 
         public override void Execute(IHttpRequest req, IHttpResponse res, object requestDto)
