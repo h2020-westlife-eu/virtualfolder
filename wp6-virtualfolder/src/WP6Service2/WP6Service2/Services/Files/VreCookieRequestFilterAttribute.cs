@@ -12,14 +12,20 @@ namespace MetadataService.Services.Files
     public class VreCookieRequestFilterAttribute : RequestFilterAttribute
     {
         private Dictionary<string, string> sessionuser = new Dictionary<string, string>();
+        private Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
         private const string _httpLocalhostApi = "http://localhost:8004/api/";
         private const string _sessionserviceurl = "vfsession/";
+        private const string _authproxyserviceurl = "authproxy/";
 
         private readonly string _vreapiurl = Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME)!=null?
             Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME):
             _httpLocalhostApi;
 
+        static
+        {
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
+        }
 
 
         public override void Execute(IHttpRequest req, IHttpResponse res, object requestDto)
@@ -30,12 +36,16 @@ namespace MetadataService.Services.Files
             //get user info related to session id fromVRE
             if (mysession == null) return; //no cookie set - return
             var loggeduser = GetAssociatedUser(mysession.Value);
+            var authproxy = GetAuthProxy(mysession.Value);
 
             //Console.WriteLine("Provider Service list"+loggeduser);
             //TODO get the providers associated to user
             req.Items.Add("userid",loggeduser);
             if (requestDto.GetType() == typeof(ProviderItem))
+            {
                 ((ProviderItem) requestDto).loggeduser = loggeduser;
+            }
+            req.Items.Add("authproxy",authproxy);
             //throw new NotImplementedException();
         }
 
@@ -43,7 +53,6 @@ namespace MetadataService.Services.Files
         {
             if (sessionuser.ContainsKey(sessionid)) return sessionuser[sessionid];
             //fix check server certificate - certificates probably not installed for MONO environment
-            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
             var client = new JsonServiceClient(_vreapiurl);
             try
             {
@@ -58,6 +67,27 @@ namespace MetadataService.Services.Files
                 return "";
             }
         }
+
+        private string GetAuthProxy(String sessionid)
+        {
+            if (sessionauthproxy.ContainsKey(sessionid)) return sessionauthproxy[sessionid];
+            //fix check server certificate - certificates probably not installed for MONO environment
+            var client = new JsonServiceClient(_vreapiurl);
+            try
+            {
+                client.CookieContainer.Add(new Cookie("sessionid",sessionid));
+                var response = client.Get<DjangoAuthproxyInfo>(_authproxyserviceurl);
+                sessionauthproxy[sessionid] = response.authproxy;
+                Console.WriteLine("authproxy "+response.authproxy);
+                return response.authproxy;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("error during getting authproxy info of sessionid "+sessionid+" "+ e.Message+e.StackTrace);
+                return "";
+            }
+        }
+
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {

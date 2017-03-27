@@ -54,6 +54,8 @@ namespace MetadataService.Services.Files
             }
         }
 
+        /** generates automatic unique alias based on prefix, checks whether it already exists and adds numbered suffix up to 1024 _####
+        */
         //returns first available alias e.g. dropbox or dropbox_2, dropbox_3
         private string firstempty(string prefix)
         {

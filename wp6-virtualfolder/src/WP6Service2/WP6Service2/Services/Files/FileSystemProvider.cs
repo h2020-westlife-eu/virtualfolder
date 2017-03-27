@@ -20,6 +20,7 @@ namespace MetadataService.Services.Files
     {
         private string localpath;
 //        private string webdavfolder;// = "/home/vagrant/work/";
+        public string publicwebdavhash = "webdav";
 
         public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
         {
@@ -62,11 +63,11 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             //Console.WriteLine("ListOfFiles( "+path+" )");
-            return ListOfFiles(localpath, Webdavroot  +username+"/"+ alias + "/",path);
+            return ListOfFiles(localpath, Webdavroot  +username+"/"+ alias + "/",Webdavroot  +publicwebdavhash+"/"+ alias + "/",path);
             //return listOfFiles; //returns all
         }
 
-        public static List<SBFile> ListOfFiles(string pathprefix,string webdavprefix,string path)
+        public static List<SBFile> ListOfFiles(string pathprefix,string webdavprefix,string publicwebdavprefix,string path)
         {
             var di = new DirectoryInfo(Path.Combine(pathprefix,path));
             var fis = di.GetFileSystemInfos();
@@ -86,7 +87,9 @@ namespace MetadataService.Services.Files
                     date = fi.LastWriteTime,
                     filetype = (isdirectory ? FileType.Directory : FileType.None) & FileType.Read &
                                ((fi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write),
-                    webdavuri = webdavprefix + mypath + fi.Name
+                    webdavuri = webdavprefix + mypath + fi.Name,
+                    publicwebdavuri = publicwebdavprefix + mypath+ fi.Name
+
                 });
             }
             ;

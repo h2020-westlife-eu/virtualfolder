@@ -42,7 +42,7 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVURL,path);
+            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVURL,PUBLICWEBDAVURL,path);
         }
 
         public override bool DeleteSettings()
