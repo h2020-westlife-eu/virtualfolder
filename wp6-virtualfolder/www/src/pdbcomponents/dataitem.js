@@ -2,7 +2,7 @@
  * created by Tomas Kulhanek on 3/15/17.
  */
 import {bindable} from 'aurelia-framework';
-import {HttpClient} from 'aurelia-fetch-client';
+import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
 export class Dataitem {
 
@@ -31,9 +31,11 @@ export class Dataitem {
           console.log("ENTRY ID Fetch, data:");
           console.log(data)
           this.entityids=[];
-          for (var entryname in data) {
-            for (let item of data[entryname]) {
-              this.entityids.push(item.entity_id);
+          for (var entryname in data) {  //data.2hhd data.4yg0 data.1cbs data.{ }   for (var ... in ...) { } //enumeration
+            for (let item of data[entryname]) { //data[{}] == data[2hhd] == data.2hhd, for (let ... of ...)  [ ]  //array
+              //only polypeptide molecules can be viewed by components
+              if (item.molecule_type.startsWith("polypeptide"))
+                this.entityids.push(item.entity_id);
             }
           }
           this.selectedid=this.entityids[0]; //first one
@@ -49,14 +51,15 @@ export class Dataitem {
 
   attached() {
     //create stem clones of element
-    this.stemel1=this.el1.cloneNode();
-    this.stemel2=this.el2.cloneNode();
+    this.stemel1=this.el1.cloneNode(); //pure <pdb-topology
+    this.stemel2=this.el2.cloneNode(); //pure <pdb-sequence
   }
 
   selectedValueChanged() {
     //replacing first element
     let newel=this.stemel1.cloneNode();
 
+    //repleace old <pdb-topology with new pure <pdb-topology
     let parent = this.el1.parentNode;
     //remove the element - angular
     parent.removeChild(this.el1);
@@ -88,11 +91,6 @@ export class Dataitem {
 
   isPDBEntry(entry) {
     return /^[0-9][A-Za-z0-9]{3}$/.test(entry);
-  }
-
-  getIdentityID() {
-    //console.log("This item is " + this.item);
-    console.log("This try is " + this.serviceurl)
   }
 
 }
