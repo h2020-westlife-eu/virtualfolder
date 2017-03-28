@@ -750,8 +750,8 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
             this.ids = [this.uid + '.list', this.uid + '.view', this.uid + '.visual', this.uid + '.analyse', this.uid + '.dataset'];
 
             this.selectedTab = this.ids[0];
-            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'View/Edit' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'Analyse' }, { id: this.ids[4], label: 'Dataset' }];
-            this.selectedAnalyse = this.selectedView = this.selectedVisual = this.selectedDataset = false;
+            this.paneltabs = [{ id: this.ids[0], label: 'File List' }, { id: this.ids[1], label: 'View/Edit' }, { id: this.ids[2], label: 'Visualize' }, { id: this.ids[3], label: 'Dataset' }];
+            this.selectedView = this.selectedVisual = this.selectedDataset = false;
             this.selectedList = true;
         }
 
@@ -761,8 +761,7 @@ define('filemanager2/panel',['exports', 'aurelia-event-aggregator', '../filepick
                 this.selectedList = this.selectedTab == this.ids[0];
                 this.selectedView = this.selectedTab == this.ids[1];
                 this.selectedVisual = this.selectedTab == this.ids[2];
-                this.selectedAnalyse = this.selectedTab == this.ids[3];
-                this.selectedDataset = this.selectedTab == this.ids[4];
+                this.selectedDataset = this.selectedTab == this.ids[3];
             }
         };
 
@@ -1165,99 +1164,6 @@ define('filepicker/messages',["exports"], function (exports) {
     this.senderid = senderid;
   };
 });
-define('pdbcomponents/analysepanel',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Analysepanel = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor, _class2, _temp;
-
-  var Analysepanel = exports.Analysepanel = (_class = (_temp = _class2 = function () {
-    function Analysepanel(el) {
-      _classCallCheck(this, Analysepanel);
-
-      _initDefineProp(this, 'pdbids', _descriptor, this);
-
-      this.pdbids = ['1cbs', '2hhd'];
-
-      this.element = el;
-    }
-
-    Analysepanel.prototype.attached = function attached() {
-      var el = this.element;
-      this.pdbids.forEach(function (pdbid) {
-        el.insertAdjacentHTML('beforeend', "<a class='pdb-links' pdb-id='" + pdbid + "' href='javascript:void(0);'>" + pdbid + "</a><hr/>");
-      });
-
-      angular.bootstrap(this.element, ['pdb.component.library']);
-    };
-
-    Analysepanel.prototype.pdbidsChanged = function pdbidsChanged(newValue, oldValue) {
-      this.element.setAttribute('pdbids', newValue);
-    };
-
-    Analysepanel.prototype.pdbidChanged = function pdbidChanged(newValue, oldValue) {
-      this.element.setAttribute('pdbid', newValue);
-    };
-
-    return Analysepanel;
-  }(), _class2.inject = [Element], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'pdbids', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  })), _class);
-});
 define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
   'use strict';
 
@@ -1327,11 +1233,10 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
       console.log(this.item);
       this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/";
       this.client = httpclient;
+
       this.entityids = [1];
       this.selectedid = this.entityids[0];
     }
-
-    Dataitem.prototype.attached = function attached() {};
 
     Dataitem.prototype.bind = function bind() {
       var _this = this;
@@ -1372,6 +1277,34 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
           console.log(error);
         });
       }
+    };
+
+    Dataitem.prototype.attached = function attached() {
+      this.stemel1 = this.el1.cloneNode();
+      this.stemel2 = this.el2.cloneNode();
+    };
+
+    Dataitem.prototype.selectedValueChanged = function selectedValueChanged() {
+      var newel = this.stemel1.cloneNode();
+
+      var parent = this.el1.parentNode;
+
+      parent.removeChild(this.el1);
+
+      newel.setAttribute("entity-id", this.selectedid);
+      this.el1 = parent.appendChild(newel);
+      angular.bootstrap(newel, ['pdb.component.library']);
+
+      newel = this.stemel2.cloneNode();
+
+      parent = this.el2.parentNode;
+
+      parent.removeChild(this.el2);
+
+      newel.setAttribute("entity-id", this.selectedid);
+
+      this.el2 = parent.appendChild(newel);
+      angular.bootstrap(newel, ['pdb.component.library']);
     };
 
     Dataitem.prototype.hideitem = function hideitem() {
@@ -1434,10 +1367,9 @@ define('pdbcomponents/dataset',["exports", "aurelia-http-client", "aurelia-frame
   var _class, _temp;
 
   var Dataset = exports.Dataset = (_temp = _class = function () {
-    function Dataset(element, httpclient) {
+    function Dataset(httpclient) {
       _classCallCheck(this, Dataset);
 
-      this.element = element;
       this.pdbdataset = [];
       this.pdbdataitem = "";
       this.pdblinkset = [];
@@ -1488,7 +1420,7 @@ define('pdbcomponents/dataset',["exports", "aurelia-http-client", "aurelia-frame
     }]);
 
     return Dataset;
-  }(), _class.inject = [Element, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
 });
 define('pdbcomponents/entry-id',['exports'], function (exports) {
   'use strict';
@@ -3276,16 +3208,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "do else enum extends final finally float for goto if implements import " +
                     "instanceof interface native new package private protected public " +
                     "return static strictfp super switch synchronized this throw throws transient " +
-                    "try volatile while"),
+                    "try volatile while @interface"),
     types: words("byte short int long float double boolean char void Boolean Byte Character Double Float " +
                  "Integer Long Number Object Short String StringBuffer StringBuilder Void"),
     blockKeywords: words("catch class do else finally for if switch try while"),
-    defKeywords: words("class interface package enum"),
+    defKeywords: words("class interface package enum @interface"),
     typeFirstDefinitions: true,
     atoms: words("true false null"),
     number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+\.?\d*|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
     hooks: {
       "@": function(stream) {
+        // Don't match the @interface keyword.
+        if (stream.match('interface', false)) return false;
+
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
@@ -3341,14 +3276,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       /* scala */
       "abstract case catch class def do else extends final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
-      "sealed super this throw trait try type val var while with yield _ : = => <- <: " +
-      "<% >: # @ " +
+      "sealed super this throw trait try type val var while with yield _ " +
 
       /* package scala */
       "assert assume require print println printf readLine readBoolean readByte readShort " +
-      "readChar readInt readLong readFloat readDouble " +
-
-      ":: #:: "
+      "readChar readInt readLong readFloat readDouble"
     ),
     types: words(
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
@@ -3369,6 +3301,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("true false null"),
     indentStatements: false,
     indentSwitch: false,
+    isOperatorChar: /[+\-*&%=<>!?|\/#:@]/,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
@@ -3425,7 +3358,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "file import where by get set abstract enum open inner override private public internal " +
       "protected catch finally out final vararg reified dynamic companion constructor init " +
       "sealed field property receiver param sparam lateinit data inline noinline tailrec " +
-      "external annotation crossinline const operator infix"
+      "external annotation crossinline const operator infix suspend"
     ),
     types: words(
       /* package java.lang */
@@ -3437,6 +3370,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     intendSwitch: false,
     indentStatements: false,
     multiLineStrings: true,
+    number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+\.?\d*|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
     blockKeywords: words("catch class do else finally for if where try while enum"),
     defKeywords: words("class val var object package interface fun"),
     atoms: words("true false null this"),
@@ -3651,7 +3585,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   var defaultTags = {
     script: [
       ["lang", /(javascript|babel)/i, "javascript"],
-      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i, "javascript"],
+      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^module$|^$/i, "javascript"],
       ["type", /./, "text/plain"],
       [null, null, "javascript"]
     ],
@@ -4819,12 +4753,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
   function classNameAfter(type, value) {
-    if (value == "extends" || value == "implements") return cont(isTS ? typeexpr : expression, classNameAfter);
+    if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, classNameAfter)
+    if (value == "extends" || value == "implements" || (isTS && type == ","))
+      return cont(isTS ? typeexpr : expression, classNameAfter);
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
     if (type == "variable" || cx.style == "keyword") {
-      if ((value == "static" || value == "get" || value == "set" ||
+      if ((value == "async" || value == "static" || value == "get" || value == "set" ||
            (isTS && (value == "public" || value == "private" || value == "protected" || value == "readonly" || value == "abstract"))) &&
           cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
         cx.marked = "keyword";
@@ -4833,6 +4769,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "property";
       return cont(isTS ? classfield : functiondef, classBody);
     }
+    if (type == "[")
+      return cont(expression, expect("]"), isTS ? classfield : functiondef, classBody)
     if (value == "*") {
       cx.marked = "keyword";
       return cont(classBody);
@@ -4843,6 +4781,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function classfield(type, value) {
     if (value == "?") return cont(classfield)
     if (type == ":") return cont(typeexpr, maybeAssign)
+    if (value == "=") return cont(expressionNoComma)
     return pass(functiondef)
   }
   function afterExport(type, value) {
@@ -5011,6 +4950,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
       allowNested = parserConfig.allowNested,
+      lineComment = parserConfig.lineComment,
       supportsAtComponent = parserConfig.supportsAtComponent === true;
 
   var type, override;
@@ -5236,6 +5176,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.pseudo = function(type, stream, state) {
+    if (type == "meta") return "pseudo";
+
     if (type == "word") {
       override = "variable-3";
       return state.context.type;
@@ -5390,6 +5332,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     electricChars: "}",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
+    lineComment: lineComment,
     fold: "brace"
   };
 });
@@ -5646,7 +5589,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "small", "small-caps", "small-caption", "smaller", "soft-light", "solid", "somali",
     "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "spell-out", "square",
     "square-button", "start", "static", "status-bar", "stretch", "stroke", "sub",
-    "subpixel-antialiased", "super", "sw-resize", "symbolic", "symbols", "table",
+    "subpixel-antialiased", "super", "sw-resize", "symbolic", "symbols", "system-ui", "table",
     "table-caption", "table-cell", "table-column", "table-column-group",
     "table-footer-group", "table-header-group", "table-row", "table-row-group",
     "tamil",
@@ -5713,6 +5656,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
@@ -5755,6 +5699,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
@@ -5815,12 +5760,11 @@ define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) {
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/analysepanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n  <div show.bind=\"selectedAnalyse\">\n    <analysepanel></analysepanel>\n  </div>\n\n  <div show.bind=\"selectedDataset\">\n    <dataset></dataset>\n  </div>\n\n\n</template>\n"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n\n  <div show.bind=\"selectedDataset\">\n    <dataset></dataset>\n  </div>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
-define('text!pdbcomponents/analysepanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n  <p><b>EMBL EBI PDB Components: </b>${pdbids}</p>\n  <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n         maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n         change.delegate='loadpdb()'/>from PDB database</input>\n<!--\n  <pdb-prints pdb-ids.bind=\"pdbids\" settings='{\"size\": 48 }'></pdb-prints>\n\n  <span repeat.for=\"pdbid of pdbids\">\n  <pdb-topology-viewer entry-id.bind=\"pdbid\" entity-id=\"1\"></pdb-topology-viewer>\n  </span>\n-->\n  </div>\n</template>\n"; });
-define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n\n  <select name=\"entityids\" value.bind=\"selectedid\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer entry-id=\"${item}\" entity-id=\"${selectedid}\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer entry-id=\"${item}\" entity-id=\"${selectedid}\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
+define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hr/>\n    Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
 define('text!pdbcomponents/pdbautocompletesearch.html', ['module'], function(module) { module.exports = "<template>\n  <input class=\"pdbAutoCompleteSearchBox\" value.bind=\"searchbox & debounce:500\" placeholder=\"2hhd\"/>\n</template>\n"; });

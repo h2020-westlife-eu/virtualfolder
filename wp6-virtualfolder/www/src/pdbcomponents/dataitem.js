@@ -14,12 +14,9 @@ export class Dataitem {
     console.log(this.item);
     this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
     this.client = httpclient;
+
     this.entityids = [1];
     this.selectedid = this.entityids[0];
-  }
-
-  attached() {
-
   }
 
   bind() {
@@ -47,6 +44,38 @@ export class Dataitem {
         console.log(error);
       });
     }
+
+  }
+
+  attached() {
+    //create stem clones of element
+    this.stemel1=this.el1.cloneNode();
+    this.stemel2=this.el2.cloneNode();
+  }
+
+  selectedValueChanged() {
+    //replacing first element
+    let newel=this.stemel1.cloneNode();
+
+    let parent = this.el1.parentNode;
+    //remove the element - angular
+    parent.removeChild(this.el1);
+    //append the clean clone
+    newel.setAttribute("entity-id",this.selectedid)
+    this.el1 = parent.appendChild(newel);
+    angular.bootstrap(newel, ['pdb.component.library']);
+
+    //replacing second element
+    newel=this.stemel2.cloneNode();
+
+    parent = this.el2.parentNode;
+    //remove the element - angular
+    parent.removeChild(this.el2);
+    //append the clean clone
+    newel.setAttribute("entity-id",this.selectedid)
+
+    this.el2 =parent.appendChild(newel);
+    angular.bootstrap(newel, ['pdb.component.library']);
   }
 
   hideitem() {
