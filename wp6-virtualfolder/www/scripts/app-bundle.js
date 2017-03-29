@@ -509,8 +509,8 @@ define('dataset/environment',["exports"], function (exports) {
     value: true
   });
   exports.default = {
-    debug: true,
-    testing: true
+    debug: false,
+    testing: false
   };
 });
 define('dataset/main',['exports', './environment'], function (exports, _environment) {
@@ -804,7 +804,7 @@ define('filemanager2/viewpanelpv',['exports', 'aurelia-event-aggregator', '../fi
 
       this.ea = ea;
       this.httpclient = httpclient;
-      this.ea.subscribe(VisualizeFile, function (msg) {
+      this.ea.subscribe(_messages.VisualizeFile, function (msg) {
         return _this.viewfile(msg.file);
       });
     }
@@ -1546,6 +1546,64 @@ define('pdbcomponents/hideable',['exports', 'aurelia-framework'], function (expo
     }
   })), _class);
 });
+define('pdbcomponents/pdb-autocomplete-search',['exports', 'aurelia-framework', 'aurelia-http-client', './sasclient'], function (exports, _aureliaFramework, _aureliaHttpClient, _sasclient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.PdbAutocompleteSearch = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var PdbAutocompleteSearch = exports.PdbAutocompleteSearch = (_temp = _class = function () {
+    function PdbAutocompleteSearch(element) {
+      _classCallCheck(this, PdbAutocompleteSearch);
+
+      this.element = element;
+    }
+
+    PdbAutocompleteSearch.prototype.attached = function attached() {
+      console.log("pdb autocomplete");
+      console.log(this.element);
+
+      this.PdbeAutocompleteSearchConfig = {
+        resultBoxAlign: 'left',
+        redirectOnClick: false,
+        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
+        fields: 'value,num_pdb_entries,var_name',
+        group: 'group=true&group.field=category',
+        groupLimit: '25',
+        sort: 'category+asc,num_pdb_entries+desc',
+        searchParams: 'rows=20000&json.nl=map&wt=json',
+        longStackTraces: true
+      };
+
+      document.addEventListener('PDBe.autocomplete.click', function (e) {
+        console.log(e.eventData);
+      });
+
+      var event;
+      if (typeof MouseEvent == 'function') {
+        event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
+      } else if (typeof document.createEvent == 'function') {
+        event = document.createEvent('MouseEvents');
+        event.initEvent('PDBeWebComponentsReady', true, true);
+      }
+
+      document.dispatchEvent(event);
+      angular.bootstrap(this.element);
+    };
+
+    return PdbAutocompleteSearch;
+  }(), _class.inject = [Element], _temp);
+});
 define('pdbcomponents/pdb-id',['exports'], function (exports) {
   'use strict';
 
@@ -1641,91 +1699,6 @@ define('pdbcomponents/pdb-ids',['exports'], function (exports) {
 
     return PdbIdsCustomAttribute;
   }(), _class.inject = [Element], _temp);
-});
-define('pdbcomponents/pdbautocompletesearch',['exports', 'aurelia-framework', 'aurelia-http-client', './sasclient'], function (exports, _aureliaFramework, _aureliaHttpClient, _sasclient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Pdbautocompletesearch = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor, _class2, _temp;
-
-  var Pdbautocompletesearch = exports.Pdbautocompletesearch = (_class = (_temp = _class2 = function () {
-    function Pdbautocompletesearch(httpclient) {
-      _classCallCheck(this, Pdbautocompletesearch);
-
-      _initDefineProp(this, 'searchbox', _descriptor, this);
-
-      this.searchbox = "";
-      this.sasclient = new _sasclient.Sasclient(httpclient);
-    }
-
-    Pdbautocompletesearch.prototype.attached = function attached() {};
-
-    Pdbautocompletesearch.prototype.searchboxChanged = function searchboxChanged(newVal, oldVal) {
-      console.log("pdbautocomplete.searchboxChanged()");
-      console.log(this.searchbox);
-      this.sasclient.search(this.searchbox);
-    };
-
-    return Pdbautocompletesearch;
-  }(), _class2.inject = [_aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'searchbox', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "";
-    }
-  })), _class);
 });
 define('pdbcomponents/sasclient',['exports'], function (exports) {
   'use strict';
@@ -5767,7 +5740,7 @@ define('text!filepicker/filepanel.html', ['module'], function(module) { module.e
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <button click.delegate=\"getIdentityID()\">Try this</button>\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hr/>\n    Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
-define('text!pdbcomponents/pdbautocompletesearch.html', ['module'], function(module) { module.exports = "<template>\n  <input class=\"pdbAutoCompleteSearchBox\" value.bind=\"searchbox & debounce:500\" placeholder=\"2hhd\"/>\n</template>\n"; });
+define('text!pdbcomponents/pdb-autocomplete-search.html', ['module'], function(module) { module.exports = "<template>\n</template>\n"; });
 define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
