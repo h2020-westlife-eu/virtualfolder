@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+ 
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[en_GB]=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/coot.png
+Exec=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/bin/coot
+Name[en_GB]=coot
+Name=coot
+Icon=/cvmfs/facilities.gridpp.ac.uk/ccp4/devel/Version5/ccp4-7.0/coot.png
+Categories=Scientific
