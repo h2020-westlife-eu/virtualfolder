@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 #transcript from bootstrapweb.sh
-cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/conf/etc/* /etc/yum.repos.d
-echo Added mirrors to sl7 repo
+cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
+echo Added mirrors to sl7 repo, httpd config, westlife services
 yum -y install epel-release
 yum repolist
-cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/000-default.conf /etc/httpd/conf.d/000-default.conf
 yum -y install davfs2
 systemctl start httpd
 systemctl enable httpd
@@ -41,9 +40,6 @@ cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagra
 cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/Desktop/scipion* /home/vagrant/Desktop
 chmod ugo+x /home/vagrant/Desktop/*
 # preparing autostart
-cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/000-default.conf /etc/httpd/conf.d/000-default.conf
-cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/westlife-metadata.service /etc/systemd/system/
-cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/westlife-vre.service /etc/systemd/system/
 chmod -R 600 /home/vagrant/.westlife
 chmod u+x /home/vagrant/.westlife 
 #add permission to allow browse webdav content in /home/vagrant/work
