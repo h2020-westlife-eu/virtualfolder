@@ -23,10 +23,9 @@ export class Panel {
             { id: this.ids[0], label: 'File List'},
             { id: this.ids[1], label: 'View/Edit' },
             { id: this.ids[2], label: 'Visualize' },
-          { id: this.ids[3], label: 'Analyse' },
-          { id: this.ids[4], label: 'Dataset' }
+          { id: this.ids[3], label: 'Dataset' }
         ];
-        this.selectedAnalyse=this.selectedView=this.selectedVisual=this.selectedDataset=false;
+        this.selectedView=this.selectedVisual=this.selectedDataset=false;
         this.selectedList=true;
     }
 
@@ -52,8 +51,7 @@ export class Panel {
             this.selectedList = this.selectedTab == this.ids[0];
             this.selectedView = this.selectedTab == this.ids[1];
             this.selectedVisual = this.selectedTab == this.ids[2];
-          this.selectedAnalyse=  this.selectedTab == this.ids[3];
-          this.selectedDataset = this.selectedTab == this.ids[4];
+          this.selectedDataset = this.selectedTab == this.ids[3];
         }
     }
 
