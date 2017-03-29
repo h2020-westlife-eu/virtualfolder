@@ -3,8 +3,6 @@
  */
 
 import {bindable} from 'aurelia-framework';
-import {HttpClient} from 'aurelia-http-client';
-import {Sasclient} from './sasclient';
 
 export class PdbAutocompleteSearch {
   static inject = [Element];
@@ -43,7 +41,7 @@ export class PdbAutocompleteSearch {
       }
       //Dispatch
       document.dispatchEvent(event);
-    angular.bootstrap(this.element);
+    angular.bootstrap(this.element.parentNode);
 
     }
 }
