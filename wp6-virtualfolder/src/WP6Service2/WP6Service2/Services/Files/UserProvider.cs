@@ -9,21 +9,23 @@ namespace MetadataService.Services.Files
     public class UserProvider
     {
         private string userid;
+        private string userauthproxy;
         private readonly List<ProviderItem> _providers; //list of configured providers
         private Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
 
         private static Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
 
-        public static UserProvider GetInstance(string _userid, ISettingsStorage storage, IDbConnection db)
+        public static UserProvider GetInstance(string _userid,string _userauthproxy, ISettingsStorage storage, IDbConnection db)
         {
-            if (!_instances.ContainsKey(_userid)) _instances[_userid]= new UserProvider(_userid,storage,db);
+            if (!_instances.ContainsKey(_userid)) _instances[_userid]= new UserProvider(_userid,_userauthproxy,storage,db);
                 return _instances[_userid];
         }
 
         private static object userlock = new object();
-        private UserProvider(string _userid, ISettingsStorage storage,IDbConnection db)
+        private UserProvider(string _userid, string _userauthproxy,ISettingsStorage storage,IDbConnection db)
         {
             userid = _userid;
+            userauthproxy = _userauthproxy;
             lock (userlock) //seems two threads enters this section
             {
                 if (_providers == null)
@@ -41,7 +43,7 @@ namespace MetadataService.Services.Files
                             if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                             {
                                 _providers.Add(pf);
-                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db));
+                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db,userauthproxy));
                             }
                             else Console.WriteLine("the provider type has not registered creator:" + pf.type);
                         }
@@ -81,7 +83,7 @@ namespace MetadataService.Services.Files
             if (ProviderFactory.AvailableProviders.TryGetValue(provideritem.type, out impl))
             {
                 if (string.IsNullOrEmpty(provideritem.alias)) provideritem.alias = firstempty(provideritem.type.ToLower());
-                var aprovider = impl.CreateProvider(provideritem,storage,connection);
+                var aprovider = impl.CreateProvider(provideritem,storage,connection,userauthproxy);
 
                 _providers.Add(provideritem);
                 linkedimpl.Add(provideritem.alias,aprovider);

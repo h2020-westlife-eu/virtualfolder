@@ -10,9 +10,9 @@ namespace MetadataService.Services.Files
 
     public class FileSystemProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy)
         {
-            return new FileSystemProvider(item,storage,connection);//.securetoken,item.alias);
+            return new FileSystemProvider(item,storage,connection,authproxy);//.securetoken,item.alias);
         }
     }
 
@@ -20,9 +20,9 @@ namespace MetadataService.Services.Files
     {
         private string localpath;
 //        private string webdavfolder;// = "/home/vagrant/work/";
-        public string publicwebdavhash = "webdav";
+        //public string publicwebdavhash = "webdav";
 
-        public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
+        public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy) :base(item,storage,connection,authproxy)
         {
             //webdavfolder = "/home/" + item.username + "/virtualfolder/"+ item.alias;
             localpath = item.securetoken;
@@ -63,7 +63,7 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             //Console.WriteLine("ListOfFiles( "+path+" )");
-            return ListOfFiles(localpath, Webdavroot  +username+"/"+ alias + "/",Webdavroot  +publicwebdavhash+"/"+ alias + "/",path);
+            return ListOfFiles(localpath, Webdavroot  +username+"/"+ alias + "/",PUBLICWEBDAVURL + "/",path);
             //return listOfFiles; //returns all
         }
 

@@ -62,7 +62,7 @@ namespace MetadataService
 	                            else
 	                            {
 	                                Console.WriteLine("Warning: database is encrypted with different key. Encrypted items will not be accessible.");
-	                                SettingsStorageInDB.storeSetting(db);
+	                                //SettingsStorageInDB.storeSetting(db);
 	                            }
 	                            //throw new SecurityException("database is encrypted with different key");
 	                        }

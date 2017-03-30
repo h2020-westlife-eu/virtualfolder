@@ -19,9 +19,9 @@ namespace MetadataService.Services.Files
 
     public class DropboxProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy)
         {
-            return new DropboxProvider(item,storage,connection);//.securetoken,item.alias);
+            return new DropboxProvider(item,storage,connection,authproxy);//.securetoken,item.alias);
         }
     }
 
@@ -32,7 +32,7 @@ namespace MetadataService.Services.Files
         private bool initialized = false;
         private string accesstoken = "";
         private string DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
-        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :base(item,storage,connection)
+        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy) :base(item,storage,connection,authproxy)
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
@@ -195,7 +195,9 @@ namespace MetadataService.Services.Files
                         date = DateTime.Now,
                         filetype = FileType.Directory & FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT+mypath+fi.Name
+                        webdavuri = DROPBOXURIROOT+mypath+fi.Name,
+                        //publicwebdavuri = PUBLICDROPBOXURIROOT+mypath+fi.Name,
+
                     });
                 }
 
@@ -211,7 +213,8 @@ namespace MetadataService.Services.Files
                         date = fi.AsFile.ServerModified,
                         filetype = FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = LocalOrRemote(DROPBOXURIROOT+ mypath+ fi.Name)
+                        webdavuri = LocalOrRemote(DROPBOXURIROOT+ mypath+ fi.Name),
+                        publicwebdavuri = PUBLICWEBDAVURL+mypath+fi.Name,
                     });
                 }
 

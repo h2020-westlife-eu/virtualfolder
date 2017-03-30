@@ -56,7 +56,7 @@ namespace MetadataService.Services.Files
 
     public class DjangoAuthproxyInfo
     {
-        public string authproxy { get; set; }
+        public string signed_url { get; set; }
     }
 
     [VreCookieRequestFilter]
@@ -86,8 +86,9 @@ namespace MetadataService.Services.Files
         private UserProvider getUserProviders()
         {
             var userid = (string) base.Request.Items["userid"];
+            var userauthproxy = (string) base.Request.Items["authproxy"];
             if (userid.Length == 0) throw new UnauthorizedAccessException();
-            return UserProvider.GetInstance(userid,storage,Db);
+            return UserProvider.GetInstance(userid,userauthproxy,storage,Db);
         }
 
         /** returns list of configured file providers */
