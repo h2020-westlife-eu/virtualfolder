@@ -13,6 +13,7 @@ export class App {
     console.log("selectFile()")
     console.log(file);
     window.opener.postMessage(window.location.protocol+"//"+window.location.hostname+file.webdavuri, "*");
+      //+" "+window.location.protocol+"//"+window.location.hostname+file.publicwebdavuri, "*");
     window.close();
   }
 
