@@ -14,7 +14,7 @@ export class PdbAutocompleteSearch {
   //triggered when the element is attached to DOM
   attached(){
   console.log("pdb autocomplete");
-    console.log(this.element);
+  /*  console.log(this.element);
     //Autocomplete Config Object
     this.PdbeAutocompleteSearchConfig = {
       resultBoxAlign: 'left',
@@ -42,6 +42,6 @@ export class PdbAutocompleteSearch {
       //Dispatch
       document.dispatchEvent(event);
     angular.bootstrap(this.element.parentNode);
-
+*/
     }
 }

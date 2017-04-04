@@ -5,7 +5,7 @@
   <require from="./entry-id"></require>
   <require from="./dataitem"></require>
   <require from="./hideable"></require>
-  <require from="./pdbAutocompleteSearch"></require>
+  <require from="./vfAutocompleteSearch"></require>
 
 <div class="w3-card w3-pale-blue">
 
@@ -21,6 +21,8 @@
   <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
 
   <pdb-autocomplete-search></pdb-autocomplete-search>
+
+  <vf-autocomplete-search></vf-autocomplete-search>
 <hr/>
   <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
 <br/>

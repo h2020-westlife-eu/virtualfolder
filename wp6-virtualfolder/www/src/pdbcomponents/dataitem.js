@@ -51,8 +51,10 @@ export class Dataitem {
 
   attached() {
     //create stem clones of element
-    this.stemel1=this.el1.cloneNode(); //pure <pdb-topology
-    this.stemel2=this.el2.cloneNode(); //pure <pdb-sequence
+    if (this.itemPDBEntry) {
+      this.stemel1 = this.el1.cloneNode(); //pure <pdb-topology
+      this.stemel2 = this.el2.cloneNode(); //pure <pdb-sequence
+    }
   }
 
   selectedValueChanged() {

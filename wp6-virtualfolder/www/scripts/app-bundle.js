@@ -1281,8 +1281,10 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
     };
 
     Dataitem.prototype.attached = function attached() {
-      this.stemel1 = this.el1.cloneNode();
-      this.stemel2 = this.el2.cloneNode();
+      if (this.itemPDBEntry) {
+        this.stemel1 = this.el1.cloneNode();
+        this.stemel2 = this.el2.cloneNode();
+      }
     };
 
     Dataitem.prototype.selectedValueChanged = function selectedValueChanged() {
@@ -1639,8 +1641,8 @@ define('pdbcomponents/pdb-ids',['exports'], function (exports) {
     return PdbIdsCustomAttribute;
   }(), _class.inject = [Element], _temp);
 });
-define('pdbcomponents/pdbAutocompleteSearch',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
-  'use strict';
+define('pdbcomponents/pdbAutocompleteSearch',["exports", "aurelia-framework"], function (exports, _aureliaFramework) {
+  "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -1664,34 +1666,6 @@ define('pdbcomponents/pdbAutocompleteSearch',['exports', 'aurelia-framework'], f
 
     PdbAutocompleteSearch.prototype.attached = function attached() {
       console.log("pdb autocomplete");
-      console.log(this.element);
-
-      this.PdbeAutocompleteSearchConfig = {
-        resultBoxAlign: 'left',
-        redirectOnClick: false,
-        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
-        fields: 'value,num_pdb_entries,var_name',
-        group: 'group=true&group.field=category',
-        groupLimit: '25',
-        sort: 'category+asc,num_pdb_entries+desc',
-        searchParams: 'rows=20000&json.nl=map&wt=json',
-        longStackTraces: true
-      };
-
-      document.addEventListener('PDBe.autocomplete.click', function (e) {
-        console.log(e.eventData);
-      });
-
-      var event;
-      if (typeof MouseEvent == 'function') {
-        event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
-      } else if (typeof document.createEvent == 'function') {
-        event = document.createEvent('MouseEvents');
-        event.initEvent('PDBeWebComponentsReady', true, true);
-      }
-
-      document.dispatchEvent(event);
-      angular.bootstrap(this.element.parentNode);
     };
 
     return PdbAutocompleteSearch;
@@ -1746,6 +1720,115 @@ define('pdbcomponents/sasclient',['exports'], function (exports) {
 
     return Sasclient;
   }();
+});
+define('pdbcomponents/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.VfAutocompleteSearch = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var VfAutocompleteSearch = exports.VfAutocompleteSearch = (_temp = _class = function () {
+    function VfAutocompleteSearch(element, httpclient) {
+      _classCallCheck(this, VfAutocompleteSearch);
+
+      this.element = element;
+      this.pdbentries = ["1r6a", "2hhd", "4yg0"];
+      this.http = httpclient;
+      this.config = {
+        resultBoxAlign: 'left',
+        redirectOnClick: false,
+        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
+        fields: 'value,num_pdb_entries,var_name',
+        group: 'group=true&group.field=category',
+        groupLimit: '25',
+        sort: 'category+asc,num_pdb_entries+desc',
+        additionalParams: 'rows=20000&json.nl=map&wt=json'
+      };
+    }
+
+    VfAutocompleteSearch.prototype.hideSuggestions = function hideSuggestions() {
+      this.showing = false;
+    };
+
+    VfAutocompleteSearch.prototype.showSuggestions = function showSuggestions() {
+      this.showing = true;
+    };
+
+    VfAutocompleteSearch.prototype.attached = function attached() {};
+
+    VfAutocompleteSearch.prototype.search = function search(term, config) {
+      var _this = this;
+
+      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=' + config.groupLimit + '&q=value:' + term + '*~10';
+      return this.http.fetch(url).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        console.log("search response:");
+        console.log(data);
+        _this.resultGroups = data.grouped.category.groups;
+        console.log(_this.resultGroups);
+      }).catch(function (err) {
+        return console.log('error');
+      });
+    };
+
+    VfAutocompleteSearch.prototype.keyPressed = function keyPressed(evt) {
+      var key = evt.keyCode;
+
+      if (this._suggestionsShown) {
+        switch (key) {
+          case 13:
+            if (this._selected !== null) this.select(this._selected);
+            break;
+          case 40:
+            this._selected++;
+            if (this._selected >= this._suggestions.length) this._selected = this._suggestions.length - 1;
+            this.makeVisible(this._selected);
+            break;
+          case 38:
+            this._selected--;
+            if (this._selected < 0) this._selected = 0;
+            this.makeVisible(this._selected);
+            break;
+          case 27:
+            this.hideSuggestions();
+            break;
+        }
+      } else {
+        if (key === 13) if (this.immediateValue && this.immediateValue !== this.value) {
+          this.fireSelectedEvent(this.immediateValue);
+        } else if (this.value) {
+          this.fireSelectedEvent(this.value, this.selectedValue);
+        }
+      }
+      this.showSuggestions();
+      if (this.value && this.value.length > 0) {
+        this.search(this.value, this.config);
+      }
+      return true;
+    };
+
+    VfAutocompleteSearch.prototype.searchMore = function searchMore(term, fqVal, config) {
+      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=-1&q=value:' + term + '*~10&fq=var_name:' + fqVal;
+      return this.http.get(url).toPromise().then(function (response) {
+        return response.json().grouped.category.groups;
+      }).catch(function (err) {
+        return console.log('error');
+      });
+    };
+
+    return VfAutocompleteSearch;
+  }(), _class.inject = [Element, _aureliaFetchClient.HttpClient], _temp);
 });
 define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-http-client', 'aurelia-framework'], function (exports, _aureliaEventAggregator, _messages, _aureliaHttpClient, _aureliaFramework) {
   'use strict';
@@ -5723,21 +5806,22 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 });
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${message}</h1>\n</template>\n"; });
-define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
-define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
-define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
-define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
-define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager</h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel></panel>\n    </div>\n    <!--div class=\"w3-half\">\n        <tabs tabs.bind=\"paneltabs2\"></tabs>\n\n        <div show.one-way=\"paneltabslist2\">\n            <filepanel panelid=\"right\"></filepanel>\n        </div>\n        <div show.one-way=\"paneltabsview2\">\n            View file not implemented\n        </div>\n        <div show.one-way=\"paneltabsvisual2\">\n            Visualize file not implemented\n        </div>\n    </div-->\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"uid\"></filepanel>\n    </div>\n\n    <div if.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel panelid.bind=\"uid\"></viewpanel>\n    </div>\n\n\n  <div show.bind=\"selectedDataset\">\n    <dataset></dataset>\n  </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
+define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
+define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
+define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
+define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
+define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hr/>\n    Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
-define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./pdbAutocompleteSearch\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <pdb-autocomplete-search></pdb-autocomplete-search>\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
+define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./vfAutocompleteSearch\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    dataset name:\n    <input value.bind=\"name\" change.trigger=\"changename()\"/>\n    <br/>\n    pdb or uniprot item to add:\n    <input value.bind=\"pdbdataitem\" change.delegate=\"additem()\"  placeholder=\"4yg0\"/><br/>\n  </form>\n\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n  <pdb-autocomplete-search></pdb-autocomplete-search>\n\n  <vf-autocomplete-search></vf-autocomplete-search>\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
 define('text!pdbcomponents/pdbAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n</template>\n"; });
+define('text!pdbcomponents/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n<form>\n  <input autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"hideSuggestions()\"\n         keydown.delegate=\"keyPressed($event)\" placeholder.bind=\"placeholder\" focus.trigger=\"showSuggestions()\">\n  <div show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\">\n      <div class=\"result-card\">\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <ul class=\"result-card-body\">\n          <li repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n            <!--TODO proper link-->\n            <a class=\"result-card-item\">${doclistRec.value} (${doclistRec.num_pdb_entries}</a>\n          </li>\n        </ul>\n        <footer>\n          <!--TODO proper more-->\n          <a href=\"#\" click.delegate=\"searchMore()\">More...</a>\n        </footer>\n      </div>\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">No hints.</div>\n  </div>\n</form>\n</template>\n"; });
 define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
@@ -5748,4 +5832,5 @@ define('text!virtualfoldermodules/virtuosocontrol.html', ['module'], function(mo
 define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half w3-sand w3-padding\">\n\n\n      <table class=\"w3-sand \">\n        <thead>\n        <tr><th colspan=\"3\">List of connected providers</th> </tr>\n        <tr>\n          <th align=\"left\">Alias</th>\n          <th align=\"left\">Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td><td>${provider.type}</td><td><a href=\"filemanager.html\"class=\"w3-button\">Browse content</a></td><td align=\"center\"><i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i></td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large w3-blue\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n        </tr>\n        </tfoot>\n      </table>\n\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - Settings</h3>\n  </div>\n\n\n     <form submit.trigger=\"newProvider()\">\n    <aliastable></aliastable>\n    </form>\n\n    <genericcontrol show.bind=\"showprovider\"></genericcontrol>\n\n\n</template>\n"; });
 define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-half w3-sand w3-padding\">\n\n    <form submit.trigger=\"addProvider()\">\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n            West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>\n          <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n            Fill in the existing B2DROP username and password here:</p>\n          Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"/><br/>\n            Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n            <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input type=\"text\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WEBDAV is standard protocol to access content via web technologies. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input type=\"text\" name=\"accessurl\" size=\"15\" maxlength=\"1024\" value.bind=\"accessurl\"/><br/>\n          Username:<input type=\"text\" name=\"username\" size=\"15\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input type=\"password\" name=\"securetoken\" size=\"30\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\" size=\"15\" maxlength=\"1024\" value.bind=\"alias\"/><br/>\n          <span class=\"w3-tiny\">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n      </div>\n\n    </form>\n\n\n  </div>\n\n</template>\n"; });
+define('text!pdbcomponents/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow: hidden;\n  box-sizing: content-box !important;\n}\n\n.secondary-result-card-warpper{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  box-sizing: content-box !important;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.secondary-result-card-warpper .result-card-heading{\n  flex-basis: auto !important;\n}\n\n.secondary-result-card-warpper .result-card-body{\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.secondar-result-card-item, .secondar-result-card-item:visited{\n  width:250px;\n  font-size: 11.5px;\n  margin:5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.secondar-result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 0px 5px 10px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 //# sourceMappingURL=app-bundle.js.map
