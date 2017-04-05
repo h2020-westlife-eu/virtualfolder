@@ -3,22 +3,24 @@
 <form>
   <input autocomplete="off" value.bind="value & debounce:750"
          blur.trigger="hideSuggestions()"
-         keydown.delegate="keyPressed($event)" placeholder.bind="placeholder" focus.trigger="showSuggestions()">
+         keydown.delegate="keypressed($event)"
+         placeholder.bind="placeholder" focus.trigger="showSuggestions()">
   <div show.bind="showing" class="result-container">
-    <div repeat.for="resultGroup of resultGroups">
-      <div class="result-card">
+    <div repeat.for="resultGroup of resultGroups" class="result-card">
+
         <header class="result-card-heading">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>
-        <ul class="result-card-body">
-          <li repeat.for="doclistRec of resultGroup.doclist.docs">
+        <div class="result-card-body">
+          <span repeat.for="doclistRec of resultGroup.doclist.docs">
             <!--TODO proper link-->
-            <a class="result-card-item">${doclistRec.value} (${doclistRec.num_pdb_entries}</a>
-          </li>
-        </ul>
-        <footer>
+            <div class="result-card-item"><span class="result-card-item-label">${doclistRec.value}</span> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
+          </span>
+
+        </div>
+        <footer class="result-card-footer">
           <!--TODO proper more-->
           <a href="#" click.delegate="searchMore()">More...</a>
         </footer>
-      </div>
+
     </div>
     <div show.bind="resultGroupsEmpty">No hints.</div>
   </div>

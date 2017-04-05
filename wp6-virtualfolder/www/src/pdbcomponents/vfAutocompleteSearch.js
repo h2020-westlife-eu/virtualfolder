@@ -8,11 +8,12 @@ import {HttpClient} from 'aurelia-fetch-client';
 import {computedFrom} from 'aurelia-framework';
 
 export class VfAutocompleteSearch {
-  static inject = [Element,HttpClient];
+  @bindable value = ""; // value of input
+  @bindable placeholder = "";
 
-  constructor(element,httpclient) {
-    this.element = element;
-    this.pdbentries = ["1r6a","2hhd","4yg0"];
+  static inject = [HttpClient];
+
+  constructor(httpclient) {
     this.http = httpclient;
     this.config = {
       resultBoxAlign: 'left',
@@ -90,11 +91,15 @@ export class VfAutocompleteSearch {
         }
     }
     this.showSuggestions();
+    return true;
+  }
+
+  valueChanged(newValue,oldValue){
+    console.log("valuechanged()");
     if (this.value && this.value.length>0) {
       this.search(this.value, this.config);
 
     }
-    return true;
   }
 
   searchMore(term, fqVal, config) {
