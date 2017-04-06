@@ -38,9 +38,9 @@ export class Dataset {
 
   }
 
-  additem(){
+  additem(item){
     console.log("additem()");
-    this.pdbdataset.unshift(this.pdbdataitem);
+    this.pdbdataset.unshift(item);
 
     //this.canSubmit = this.pdbdataset.length>0?true:false;
   }

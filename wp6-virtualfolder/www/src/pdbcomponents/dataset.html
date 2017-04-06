@@ -11,18 +11,12 @@
 
   <h1>Dataset demo</h1>
   <form>
-    dataset name:
-    <input value.bind="name" change.trigger="changename()"/>
-    <br/>
-    pdb or uniprot item to add:
-    <input value.bind="pdbdataitem" change.delegate="additem()"  placeholder="4yg0"/><br/>
+    PDB or related item to add:
+    <vf-autocomplete-search submit.call="additem(item)"></vf-autocomplete-search>
   </form>
 
-  <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
 
-  <pdb-autocomplete-search></pdb-autocomplete-search>
 
-  <vf-autocomplete-search></vf-autocomplete-search>
 <hr/>
   <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
 <br/>
@@ -32,6 +26,11 @@
       <dataitem item="${item}"></dataitem>
     </li>
   </ul>
+
+  dataset name:
+  <input value.bind="name" change.trigger="changename()"/>
+  <br/>
+  <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
 
 </div>
 </template>

@@ -10,6 +10,7 @@ import {computedFrom} from 'aurelia-framework';
 export class VfAutocompleteSearch {
   @bindable value = ""; // value of input
   @bindable placeholder = "";
+  @bindable submit;
 
   static inject = [HttpClient];
 
@@ -27,91 +28,116 @@ export class VfAutocompleteSearch {
     }
   }
 
+  /*hides the suggestion by setting the binded property to false*/
   hideSuggestions() {
-    this.showing=false;
+      this.showing=false;
   }
 
+  /* check if blured to related element, then no hiding, otherwise hide*/
+  blurSuggestions(evt) {
+    if (evt.relatedTarget && evt.relatedTarget.className.startsWith('result-card-item')) return;
+    this.hideSuggestions();
+  }
+
+  /* show the suggestions by setting the binded proparty to true*/
   showSuggestions() {
     this.showing=true;
+  }
+
+  /* reset the value in input field and shows */
+  focusSuggestions() {
+    this.value="";
+    this.showSuggestions();
   }
 
   attached(){
 
   }
 
-  search(term, config){
+  /**
+   * Method to search via AJAX call for the suggestion items which will be shown
+   */
+  search(){
+    let term = this.value;
+    let config = this.config;
     let url = `${config.searchUrl}?${config.additionalParams}&${config.group}&fl=${config.fields}&sort=${config.sort}&group.limit=${config.groupLimit}&q=value:${term}*~10`
     return this.http
       .fetch(url)
       .then(response => response.json())
       .then(data => {
-        console.log("search response:")
-        console.log(data);
+        //console.log("search response:")
+        //console.log(data);
         this.resultGroups= data.grouped.category.groups
-        console.log(this.resultGroups);
+        //console.log(this.resultGroups);
       })
-      .catch( err => console.log('error'));
+      .catch( err => {console.log('error search()');console.log(err)});
   }
 
- /*@computedFrom('resultGroups')
+  /* just compute if the results group is empty */
+ @computedFrom('resultGroups')
  get resultGroupsEmpty() {
-   return this.resultGroups.length == 0;
- }*/
+   return this.showing && this.resultGroups && this.resultGroups.length == 0;
+ }
 
-  keyPressed(evt) {
-    let key = evt.keyCode;
-    //logger.debug(`Key pressed ${key}`);
-    if (this._suggestionsShown) {
-      switch (key) {
-        case 13: // Enter
-          if (this._selected !== null) this.select(this._selected)
-          break;
-        case 40: // Down
-          this._selected++;
-          if (this._selected >= this._suggestions.length) this._selected = this._suggestions.length - 1;
-          this.makeVisible(this._selected);
-          break;
-        case 38: // Up
-          this._selected--;
-          if (this._selected < 0) this._selected = 0;
-          this.makeVisible(this._selected);
-          break;
-        case 27: // Escape
-          this.hideSuggestions();
-          break;
-      }
-    } else {
-      if (key === 13)
-        if (this.immediateValue && this.immediateValue !== this.value) {
-          //enable enter for fast typing - before delayed value changes
-          this.fireSelectedEvent(this.immediateValue);
+ /**
+  * Method triggered when a key is pressed,
+  * enter = submit, esc= hide suggestion
+  * @param {event} DOM event holding key pressed */
+ keypressed(evt){
+   let key = evt.keyCode;
+   if (key === 13) {
+     /*may not be updated with input field as debounce has 750 ms this.submit({item:this.value});
+      */
+     this.submit({item: evt.originalTarget.value})
+   } else
+     if (key===27) this.hideSuggestions();
 
-        } else if (this.value) {
-          this.fireSelectedEvent(this.value, this.selectedValue);
-        }
-    }
-    this.showSuggestions();
-    return true;
+   return true;
+ }
+
+ /*
+  entered() {
+    this.submit({item:this.value});
+    return false;
+  }*/
+
+  /**
+   * Method triggered when a suggestion item was clicked,
+   * therefore taking it's value, submit and hide
+   * @param {clickvalue} value which was clicked and will be submitted */
+  clicked(clickvalue) {
+    this.value = clickvalue;
+    this.submit({item:clickvalue});
+    this.hideSuggestions();
   }
 
+  /**
+   * Method triggered by AU when a value in input field is changed,
+   * using debounce - it is triggered only after some delay (750ms) */
   valueChanged(newValue,oldValue){
-    console.log("valuechanged()");
     if (this.value && this.value.length>0) {
-      this.search(this.value, this.config);
+      this.search();
 
     }
   }
 
-  searchMore(term, fqVal, config) {
+ /**
+  * Method to search for more suggestions api call
+  * @param {filter} a name of the group to be filtered
+  */
+  searchMore(filter) {
+    let term = this.value;
+      let fqVal = filter;
+        let config=this.config;
     let url = `${config.searchUrl}?${config.additionalParams}&${config.group}&fl=${config.fields}&sort=${config.sort}&group.limit=-1&q=value:${term}*~10&fq=var_name:${fqVal}`
     return this.http
     //.get(`${this.pdbSolrUrl}&group.limit=-1&q=value:${term}*~10&fq=var_name:${fqVal}`)
-      .get(url)
-      .toPromise()
-      .then(response => {
-        return response.json().grouped.category.groups
+      .fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.resultGroups= data.grouped.category.groups
       })
-      .catch( err => console.log('error'));
+      .catch( err => {console.log('error searchMore()'); console.log(err);});
   }
 
 }

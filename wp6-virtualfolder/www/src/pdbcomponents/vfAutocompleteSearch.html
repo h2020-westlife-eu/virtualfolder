@@ -1,28 +1,30 @@
 <template>
   <require from="./vfAutocompleteSearch.css"></require>
-<form>
-  <input autocomplete="off" value.bind="value & debounce:750"
-         blur.trigger="hideSuggestions()"
+
+  <input ref="input" autocomplete="off" value.bind="value & debounce:750"
+         blur.trigger="blurSuggestions($event)"
          keydown.delegate="keypressed($event)"
-         placeholder.bind="placeholder" focus.trigger="showSuggestions()">
-  <div show.bind="showing" class="result-container">
+         placeholder.bind="placeholder" focus.trigger="focusSuggestions()">
+
+  <div ref="results" show.bind="showing" class="result-container">
     <div repeat.for="resultGroup of resultGroups" class="result-card">
 
         <header class="result-card-heading">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>
         <div class="result-card-body">
           <span repeat.for="doclistRec of resultGroup.doclist.docs">
             <!--TODO proper link-->
-            <div class="result-card-item"><span class="result-card-item-label">${doclistRec.value}</span> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
+            <div class="result-card-item"><button class="result-card-item-label w3-button w3-padding-0" click.trigger="clicked(doclistRec.value)" >${doclistRec.value}</button> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
           </span>
 
         </div>
         <footer class="result-card-footer">
           <!--TODO proper more-->
-          <a href="#" click.delegate="searchMore()">More...</a>
+          <a class="result-card-item-label" href="#" click.delegate="searchMore(resultGroup.doclist.docs[0].var_name)">More...</a>
         </footer>
 
     </div>
     <div show.bind="resultGroupsEmpty">No hints.</div>
   </div>
-</form>
+</div>
+
 </template>
