@@ -50,10 +50,6 @@ export class VfAutocompleteSearch {
     this.showSuggestions();
   }
 
-  attached(){
-
-  }
-
   /**
    * Method to search via AJAX call for the suggestion items which will be shown
    */
@@ -95,12 +91,6 @@ export class VfAutocompleteSearch {
    return true;
  }
 
- /*
-  entered() {
-    this.submit({item:this.value});
-    return false;
-  }*/
-
   /**
    * Method triggered when a suggestion item was clicked,
    * therefore taking it's value, submit and hide
@@ -139,5 +129,4 @@ export class VfAutocompleteSearch {
       })
       .catch( err => {console.log('error searchMore()'); console.log(err);});
   }
-
 }

@@ -12,13 +12,13 @@
         <header class="result-card-heading">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>
         <div class="result-card-body">
           <span repeat.for="doclistRec of resultGroup.doclist.docs">
-            <!--TODO proper link-->
+
             <div class="result-card-item"><button class="result-card-item-label w3-button w3-padding-0" click.trigger="clicked(doclistRec.value)" >${doclistRec.value}</button> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
           </span>
 
         </div>
         <footer class="result-card-footer">
-          <!--TODO proper more-->
+
           <a class="result-card-item-label" href="#" click.delegate="searchMore(resultGroup.doclist.docs[0].var_name)">More...</a>
         </footer>
 
