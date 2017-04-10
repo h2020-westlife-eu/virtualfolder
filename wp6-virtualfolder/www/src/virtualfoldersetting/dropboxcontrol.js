@@ -8,6 +8,7 @@
 import {UrlUtils} from './urlutils';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSelected} from './messages';
+import {Dropbox} from 'dropbox';
 
 //let client = new HttpClient();
 
@@ -26,6 +27,8 @@ export class DropboxControl {
 
     //instantiate dropboxclient - needed for getting URL to redirect
     this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
+    var Dropbox = require('dropbox');
+    console.log(Dropbox);
     var dbx = new Dropbox({clientId: this.CLIENTIDENC.split('').map( function(c) {
       return String.fromCharCode( 23 ^ c.charCodeAt() );
     }).join("")});

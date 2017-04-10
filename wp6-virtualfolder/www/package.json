@@ -15,7 +15,10 @@
     "bluebird": "^3.4.1",
     "requirejs": "^2.3.2",
     "text": "github:requirejs/text#latest",
-    "codemirror": "^5.23.0"
+    "codemirror": "^5.23.0",
+    "w3-css": "^2.9.9",
+    "font-awesome": "^4.7.0",
+    "dropbox": "^2.0.0"
   },
   "peerDependencies": {},
   "devDependencies": {

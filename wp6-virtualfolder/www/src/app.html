@@ -1,3 +1,28 @@
 <template>
-  <h1>${message}</h1>
+  <require from="w3-css/w3.css"></require>
+  <div class="w3-card-2 w3-sand w3-center">
+    <h3>Virtual Folder</h3>
+  </div>
+  <div if.bind="firsttime">
+    <intro></intro>
+    <setting></setting>
+  </div>
+  <div if.bind="!firsttime">
+    <filemanager></filemanager>
+  </div>
 </template>
+<!--
+{
+            "name":"w3-css",
+            "path": "../node_modules/w3-css",
+            "main": "",
+            "resources": [
+              "w3.css"
+            ]
+          },
+          {
+            "name": "font-awesome",
+            "path": "../node_modules/font-awesome/css",
+            "main": "font-awesome.min.css"
+          },
+-->

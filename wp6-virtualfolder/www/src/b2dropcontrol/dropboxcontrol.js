@@ -3,6 +3,7 @@
  */
 
 import {AControl} from './acontrol';
+import {Dropbox} from 'dropbox';
 
 export class Dropboxcontrol extends AControl {
 
