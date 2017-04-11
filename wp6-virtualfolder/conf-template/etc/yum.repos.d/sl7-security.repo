@@ -1,0 +1,12 @@
+[sl-security]
+name=Scientific Linux $slreleasever - $basearch - security updates
+baseurl=http://www.mirrorservice.org/sites/ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/security/
+        http://anorien.csc.warwick.ac.uk/mirrors/scientific/$slreleasever/$basearch/updates/security/
+                http://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/security/
+                http://ftp1.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/security/
+                http://ftp2.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/security/
+                ftp://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/updates/security/
+#mirrorlist=http://ftp.scientificlinux.org/linux/scientific/mirrorlist/sl-security-7.txt
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl7

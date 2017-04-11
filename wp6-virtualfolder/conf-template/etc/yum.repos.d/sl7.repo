@@ -1,0 +1,12 @@
+[sl]
+name=Scientific Linux $slreleasever - $basearch
+baseurl=http://www.mirrorservice.org/sites/ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/os/
+                http://anorien.csc.warwick.ac.uk/mirrors/scientific/$slreleasever/$basearch/os/
+                http://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/os/
+                http://ftp1.scientificlinux.org/linux/scientific/$slreleasever/$basearch/os/
+                http://ftp2.scientificlinux.org/linux/scientific/$slreleasever/$basearch/os/
+                ftp://ftp.scientificlinux.org/linux/scientific/$slreleasever/$basearch/os/
+#mirrorlist=http://ftp.scientificlinux.org/linux/scientific/mirrorlist/sl-base-7.txt
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl7
