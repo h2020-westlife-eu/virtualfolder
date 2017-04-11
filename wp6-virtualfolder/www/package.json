@@ -52,6 +52,10 @@
     "minimatch": "^3.0.2",
     "through2": "^2.0.1",
     "uglify-js": "^2.6.3",
-    "vinyl-fs": "^2.4.3"
+    "vinyl-fs": "^2.4.3",
+    "aurelia-http-client": "^0.0.1",
+    "aurelia-fetch-client": "^0.0.1",
+    "w3-css": "^0.0.1",
+    "font-awesome": "^0.0.1"
   }
 }
