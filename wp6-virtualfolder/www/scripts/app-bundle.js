@@ -260,369 +260,8 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
 });
-define('b2dropcontrol/acontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
-    "use strict";
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.AControl = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    var client = new _aureliaHttpClient.HttpClient();
-
-    var AControl = exports.AControl = function () {
-        function AControl() {
-            _classCallCheck(this, AControl);
-
-            this.heading = "connector";
-            this.username = "";
-            this.usertoken = "";
-            this.status = "unknown";
-            this.dialogstate = 1;
-            this.dialogstateconnected, this.dialogstateconnecting = false;
-            this.dialogstateentry = true;
-            this.servicecontext = "";
-            this.showbutton = false;
-            client.configure(function (config) {
-                config.withHeader('Accept', 'application/json');
-                config.withHeader('Content-Type', 'application/json');
-            });
-        }
-
-        AControl.prototype.updatestate = function updatestate(state) {
-            this.dialogstate = state;
-            this.dialogstateconnected = state == 3;
-            this.dialogstateconnecting = state == 2;
-            this.dialogstateentry = state == 1;
-        };
-
-        AControl.prototype.attached = function attached() {
-            var _this = this;
-
-            console.log("Acontrol.attached()");
-            console.log("dialogstate:" + this.dialogstate);
-
-            client.get("/metadataservice/" + this.servicecontext).then(function (data) {
-                _this.status = "disconnected";
-                _this.updatestate(1);
-
-                if (data.response) {
-                    var myresponse = JSON.parse(data.response);
-                    if (myresponse.connected) {
-                        _this.status = "OK";
-                        _this.updatestate(3);
-                    }
-                }
-            });
-        };
-
-        AControl.prototype.reconnect = function reconnect() {
-            this.updatestate(1);
-        };
-
-        AControl.prototype.addservice = function addservice(servicename) {
-            this.updatestate(2);
-            var postdata = { username: this.username, securetoken: this.usertoken };
-
-            var postdatajson = JSON.stringify(postdata);
-
-
-            client.post("/metadataservice/" + servicename, postdatajson).then(function (data) {
-                var myresponse = JSON.parse(data.response);
-                if (myresponse.connected) {
-                    okcallback();
-                } else {
-                    failcallback(myresponse);
-                }
-            });
-        };
-
-        AControl.prototype.failcallback = function failcallback() {
-            console.log('acontrol.okcallback() should be overridden');
-        };
-
-        AControl.prototype.okcallback = function okcallback() {
-            console.log('acontrol.okcallback() should be overridden');
-        };
-
-        AControl.prototype.parseQueryString = function parseQueryString(str) {
-            var ret = Object.create(null);
-
-            if (typeof str !== 'string') {
-                return ret;
-            }
-
-            str = str.trim().replace(/^(\?|#|&)/, '');
-
-            if (!str) {
-                return ret;
-            }
-
-            str.split('&').forEach(function (param) {
-                var parts = param.replace(/\+/g, ' ').split('=');
-
-                var key = parts.shift();
-                var val = parts.length > 0 ? parts.join('=') : undefined;
-
-                key = decodeURIComponent(key);
-
-                val = val === undefined ? null : decodeURIComponent(val);
-
-                if (ret[key] === undefined) {
-                    ret[key] = val;
-                } else if (Array.isArray(ret[key])) {
-                    ret[key].push(val);
-                } else {
-                    ret[key] = [ret[key], val];
-                }
-            });
-
-            return ret;
-        };
-
-        return AControl;
-    }();
-});
-define('b2dropcontrol/app',["exports"], function (exports) {
+define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
   "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-  };
-});
-define('b2dropcontrol/b2dropcontrol',['exports', 'aurelia-http-client', './acontrol'], function (exports, _aureliaHttpClient, _acontrol) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.B2dropcontrol = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var client = new _aureliaHttpClient.HttpClient();
-
-    var B2dropcontrol = exports.B2dropcontrol = function (_AControl) {
-        _inherits(B2dropcontrol, _AControl);
-
-        function B2dropcontrol() {
-            _classCallCheck(this, B2dropcontrol);
-
-            var _this = _possibleConstructorReturn(this, _AControl.call(this));
-
-            _this.heading = "B2DROP connector";
-            _this.servicecontext = "b2dropconnector";
-            return _this;
-        }
-
-        B2dropcontrol.prototype.failcallback = function failcallback(myresponse) {
-            this.updatestate(1);
-            this.status = "fail:";
-            if (myresponse.output) {
-                this.status += myresponse.output;
-            }
-        };
-
-        B2dropcontrol.prototype.okcallback = function okcallback() {
-            this.status = "OK";
-            this.updatestate(3);
-        };
-
-        return B2dropcontrol;
-    }(_acontrol.AControl);
-});
-define('b2dropcontrol/dropboxcontrol',['exports', './acontrol', 'dropbox'], function (exports, _acontrol, _dropbox) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.Dropboxcontrol = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var Dropboxcontrol = exports.Dropboxcontrol = function (_AControl) {
-        _inherits(Dropboxcontrol, _AControl);
-
-        function Dropboxcontrol() {
-            _classCallCheck(this, Dropboxcontrol);
-
-            var _this = _possibleConstructorReturn(this, _AControl.call(this));
-
-            _this.heading = "DROPBOX connector";
-            _this.CLIENTID = "x5tdu20lllmr0nv";
-            _this.showdropboxbutton = false;
-            _this.servicecontext = "dropboxconnector";
-            _this.dropBoxAuthUrl = "";
-            return _this;
-        }
-
-        Dropboxcontrol.prototype.attached = function attached() {
-            console.log('dropbox');
-            console.log(_dropbox.Dropbox);
-            if (this.isAuthenticated()) {
-                this.showdropboxbutton = false;
-                this.usertoken = this.getAccessTokenFromUrl();
-                this.addservice('dropboxconnector');
-            } else {
-                console.log("dropboxcontrol.attached()");
-                console.log(this.dialogstateentry);
-                console.log(this.dialogstate);
-                console.log(this.CLIENTID);
-                this.showdropboxbutton = true;
-                console.log(this.showdropboxbutton);
-
-                var dbx = new _dropbox.Dropbox({ clientId: this.CLIENTID });
-                console.log(dbx);
-                var currentUrl = window.location.href;
-                console.log('current url:' + currentUrl);
-                this.dropBoxAuthUrl = dbx.getAuthenticationUrl(currentUrl);
-                console.log(this.dropBoxAuthUrl);
-            }
-            _AControl.prototype.attached.call(this);
-        };
-
-        Dropboxcontrol.prototype.failcallback = function failcallback(myresponse) {
-            this.updatedropboxstate(1);
-            this.status = "fail:";
-            if (myresponse.output) {
-                this.status += myresponse.output;
-            }
-        };
-
-        Dropboxcontrol.prototype.okcallback = function okcallback() {
-            this.status = "OK";
-            this.updatestate(3);
-        };
-
-        Dropboxcontrol.prototype.getAccessTokenFromUrl = function getAccessTokenFromUrl() {
-            return this.parseQueryString(window.location.hash).access_token;
-        };
-
-        Dropboxcontrol.prototype.isAuthenticated = function isAuthenticated() {
-            return !!this.getAccessTokenFromUrl();
-        };
-
-        return Dropboxcontrol;
-    }(_acontrol.AControl);
-});
-define('b2dropcontrol/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: true,
-    testing: false
-  };
-});
-define('b2dropcontrol/main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  function configure(aurelia) {
-    aurelia.use.basicConfiguration();
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('b2dropcontrol/onedrivecontrol',['exports', 'aurelia-http-client', './acontrol'], function (exports, _aureliaHttpClient, _acontrol) {
-  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -635,48 +274,15 @@ define('b2dropcontrol/onedrivecontrol',['exports', 'aurelia-http-client', './aco
     }
   }
 
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
   var client = new _aureliaHttpClient.HttpClient();
 
-  var Onedrivecontrol = exports.Onedrivecontrol = function (_AControl) {
-    _inherits(Onedrivecontrol, _AControl);
+  var Onedrivecontrol = exports.Onedrivecontrol = function Onedrivecontrol() {
+    _classCallCheck(this, Onedrivecontrol);
 
-    function Onedrivecontrol() {
-      _classCallCheck(this, Onedrivecontrol);
-
-      var _this = _possibleConstructorReturn(this, _AControl.call(this));
-
-      _this.heading = "ONEDRIVE connector";
-      _this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
-      _this.servicecontext = "onedriveconnector";
-      return _this;
-    }
-
-    return Onedrivecontrol;
-  }(_acontrol.AControl);
+    this.heading = "ONEDRIVE connector";
+    this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
+    this.servicecontext = "onedriveconnector";
+  };
 });
 define('dataset/app',["exports"], function (exports) {
   "use strict";
@@ -2536,7 +2142,7 @@ define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', './mes
     return App;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-event-aggregator', './messages', 'dropbox', 'dropbox'], function (exports, _urlutils, _aureliaEventAggregator, _messages, _dropbox, Dropbox) {
+define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-event-aggregator', './messages', "dropbox"], function (exports, _urlutils, _aureliaEventAggregator, _messages, Dropbox) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2563,16 +2169,20 @@ define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-
       console.log('dropboxcontrol() accesstoken:' + this.accesstoken);
 
       this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
+      try {
+        var dbx = new Dropbox({
+          clientId: this.CLIENTIDENC.split('').map(function (c) {
+            return String.fromCharCode(23 ^ c.charCodeAt());
+          }).join("")
+        });
+        var currentUrl = window.location.href;
 
-      console.log(Dropbox);
-      var dbx = new Dropbox({ clientId: this.CLIENTIDENC.split('').map(function (c) {
-          return String.fromCharCode(23 ^ c.charCodeAt());
-        }).join("") });
+        this.authurl = dbx.getAuthenticationUrl(currentUrl);
+      } catch (e) {
+        console.log("exception:");
+        console.log(e);
+      }
 
-      var currentUrl = window.location.href;
-      console.log('dropboxcontrol() current url:' + currentUrl);
-      this.authurl = dbx.getAuthenticationUrl(currentUrl);
-      console.log(this.dropBoxAuthUrl);
       this.id = "Dropbox";
     }
 
@@ -5864,9 +5474,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"w3-css/w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder</h3>\n  </div>\n  <div if.bind=\"firsttime\">\n    <intro></intro>\n    <setting></setting>\n  </div>\n  <div if.bind=\"!firsttime\">\n    <filemanager></filemanager>\n  </div>\n</template>\n<!--\n{\n            \"name\":\"w3-css\",\n            \"path\": \"../node_modules/w3-css\",\n            \"main\": \"\",\n            \"resources\": [\n              \"w3.css\"\n            ]\n          },\n          {\n            \"name\": \"font-awesome\",\n            \"path\": \"../node_modules/font-awesome/css\",\n            \"main\": \"font-awesome.min.css\"\n          },\n-->\n"; });
 define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n  <require from=\"\"\n\n  <input ref=\"input\" autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"blurSuggestions($event)\"\n         keydown.delegate=\"keypressed($event)\"\n         placeholder.bind=\"placeholder\" focus.trigger=\"focusSuggestions()\">\n\n  <div ref=\"results\" show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\" class=\"result-card\">\n\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <div class=\"result-card-body\">\n          <span repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n\n            <div class=\"result-card-item\"><button class=\"result-card-item-label w3-button w3-padding-0\" click.trigger=\"clicked(doclistRec.value)\" >${doclistRec.value}</button> <span class=\"result-card-item-count\">(${doclistRec.num_pdb_entries})</span></div>\n          </span>\n\n        </div>\n        <footer class=\"result-card-footer\">\n\n          <a class=\"result-card-item-label\" href=\"#\" click.delegate=\"searchMore(resultGroup.doclist.docs[0].var_name)\">More...</a>\n        </footer>\n\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">No hints.</div>\n  </div>\n</div>\n\n</template>\n"; });
-define('text!b2dropcontrol/app.html', ['module'], function(module) { module.exports = "<template>\n\n    <require from=\"./b2dropcontrol\"></require>\n    <require from=\"./dropboxcontrol\"></require>\n    <require from=\"./onedrivecontrol\"></require>\n\n\n    <b2dropcontrol></b2dropcontrol>\n    <dropboxcontrol></dropboxcontrol>\n    <onedrivecontrol></onedrivecontrol>\n  <div class=\"w3-clear\"></div>\n\n</template>\n"; });
-define('text!b2dropcontrol/b2dropcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n        <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n            <h3>${heading}</h3>\n            <p>B2DROP is academic secure and trusted data exchange service provided by EUDAT.\n                West-life portal uses B2DROP TO store, upload and download AND share the data files. </p>\n            <!-- form is showed only if the b2drop is not connected -->\n            <form show.bind=\"dialogstateentry\" submit.trigger=\"addservice('b2dropconnector')\">\n                <p>You need to create B2DROP account first at <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">b2drop.eudat.eu/pwm/public/NewUser?</a>\n                    Then ,if you have an existing account, fill in the B2DROP username and password here:</p>\n\n                <input type=\"text\" value.bind=\"username\">\n                <input type=\"password\" value.bind=\"usertoken\">\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">Connect to B2DROP</button>\n                Status: <span>${status}</span>\n            </form>\n            <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n            <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n                <span>B2Drop service connected.</span>\n                <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n            </form>\n\n            <div show.bind=\"dialogstateconnecting\">\n                <span>B2Drop connecting ...</span>\n            </div>\n        </div>\n    </div>\n</template>\n"; });
-define('text!b2dropcontrol/dropboxcontrol.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n        <h3>${heading}</h3>\n        <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n        <form show.bind=\"dialogstateentry\">\n            <p>You need to have existing DROPBOX account. </p>\n            <a show.bind=\"showdropboxbutton\" class=\"w3-btn w3-round-large\" href=\"${dropBoxAuthUrl}\" id=\"authlink\">Connect to DROPBOX</a>\n            <hr/>Status: <span>${status}</span>\n        </form>\n        <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n        <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n            <span>DROPBOX service connected.</span>\n            <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n        </form>\n\n        <div show.bind=\"dialogstateconnecting\">\n            <span>DROPBOX connecting ...</span>\n        </div>\n    </div>\n</div>\n</template>\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });

@@ -128,9 +128,12 @@
               "font-awesome.min.css"
             ]
           },
-          {"name":"dropbox",
+
+
+          {
+            "name":"dropbox",
             "path": "../node_modules/dropbox/dist",
-            "main": "dropbox-sdk.js"
+            "main": "Dropbox-sdk.min.js"
           },
           "text",
           {
