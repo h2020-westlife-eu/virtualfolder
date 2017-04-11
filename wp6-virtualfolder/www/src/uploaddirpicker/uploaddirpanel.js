@@ -16,6 +16,13 @@ export class Uploaddirpanel extends Filepanel {
     super(ea,httpclient)
     this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
   }
+
+  selectFile(file){
+    console.log("filepanel tableid:"+this.panelid);
+    if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
+  }
+
+
   selectThisDir() {
     console.log("selected:"+this.path);
     let myfile= {};
@@ -23,7 +30,12 @@ export class Uploaddirpanel extends Filepanel {
     this.client.get(this.getpublicwebdavurl)
       .then(data => {
         if (data.response) {
-          this.ea.publish(new SelectedFile(data.response + this.path + "#D", this.panelid));
+          let mypath2=JSON.parse(data.response);
+          let mypath = mypath2.signed_url;
+          mypath+= this.path.startsWith('/')?this.path.slice(1):this.path;
+          let mydir = {};
+          mydir.webdavuri = mypath+"#D";
+          this.ea.publish(new SelectedFile(mydir, this.panelid));
         }
       });
   }
