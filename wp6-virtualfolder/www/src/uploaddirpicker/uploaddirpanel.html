@@ -1,0 +1,19 @@
+<template bindable="panelid">
+  <div class="w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right">
+    <span>${path} contains ${filescount} items.<button click.delegate="refresh()">refresh</button> <button click.delegate="selectThisDir()">Select this as UPLOAD dir</button></span>
+    <table id="${panelid}">
+      <thead>
+      <tr>
+        <th style="text-align:left">name</th>
+        <th style="text-align:right">size</th>
+        <th style="text-align:center">date</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
+        <td>${file.name}</td><td>${file.size}</td><td align="center">${file.date}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
