@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.Serialization;
 using MetadataService.Services.Settings;
 using ServiceStack.DataAnnotations;
 using ServiceStack.ServiceHost;
@@ -30,6 +31,7 @@ namespace MetadataService.Services.Files
         public string username { get; set; } //(mandatory for some types e.g. webdav,b2drop)
         public string output { get; set; } //output property debug output from scripts
         public string loggeduser { get; set; } //internal field, filled by service
+        [IgnoreDataMember]
         public string loggeduserhash { get; set; } //internal field, filled by service
         public string accessurl { get; set; } //(mandatory for type webdav), not used by other providers
     }

@@ -1,6 +1,6 @@
 <template>
   <require from="./vfAutocompleteSearch.css"></require>
-  
+
 
   <input ref="input" autocomplete="off" value.bind="value & debounce:750"
          blur.trigger="blurSuggestions($event)"
