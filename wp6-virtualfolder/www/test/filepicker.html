@@ -20,8 +20,7 @@
 
 <!--#include virtual="../footer.html" -->
 <script>
-
-  var popup;
+var popup;
 
   //opens popup window in defined location
 function openwindow(href) {
@@ -31,9 +30,6 @@ function openwindow(href) {
 //receives message from popup window
   function receiveMessage(event)
   {
-    console.log("received message");
-    console.log(event);
-    console.log(event.data);
     //directory upload distinguished by '#D' at the end
     if (event.data.endsWith('#D')) {
       document.getElementById("uploaddir").innerHTML=event.data;
@@ -44,8 +40,9 @@ function openwindow(href) {
     }
   }
 
-  window.addEventListener("message", receiveMessage, false);
+window.addEventListener("message", receiveMessage, false);
 
 </script>
 </body>
 </html>
+L
