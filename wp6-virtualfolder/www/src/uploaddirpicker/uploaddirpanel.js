@@ -14,7 +14,6 @@ export class Uploaddirpanel extends Filepanel {
 
   constructor(ea, httpclient) {
     super(ea,httpclient)
-    this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
   }
 
   selectFile(file){

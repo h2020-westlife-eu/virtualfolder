@@ -26,6 +26,7 @@ export class Filepanel{
             config.withHeader('Content-Type','application/json');
         });
         console.log("filepanel tableid:"+this.panelid);
+        this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
     }
 
     //triggered after this object is placed to DOM
@@ -123,7 +124,20 @@ export class Filepanel{
     selectFile(file){
       console.log("filepanel tableid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
-      else this.ea.publish(new SelectedFile(file,this.panelid));
+      else {
+        this.client.get(this.getpublicwebdavurl)
+          .then(data => {
+            if (data.response) {
+              let mypath2=JSON.parse(data.response);
+              let mypath = mypath2.signed_url;
+              mypath+= this.path.startsWith('/')?this.path.slice(1):this.path;
+              file.publicwebdavuri=mypath+"/"+file.name;
+              this.ea.publish(new SelectedFile(file, this.panelid));
+              //this.ea.publish(new SelectedFile(file,this.panelid));
+            }
+          });
+
+      }
     }
 
 }
