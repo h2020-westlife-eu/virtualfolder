@@ -2,7 +2,7 @@
 #transcript from bootstrapweb.sh
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
 #single deployment uncomment, VRE deployment, comment
-mv /etc/httpd/conf.d/vre.conf.single /etc/httpd/conf.d/vre.conf
+#mv /etc/httpd/conf.d/vre.conf.single /etc/httpd/conf.d/vre.conf
 echo Added mirrors to sl7 repo, httpd config, westlife services
 yum -y install epel-release
 yum repolist
@@ -30,9 +30,8 @@ else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
    echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
 fi
-# transcript of bootstrapvre.sh, single deployment comment # transcript of bootstrapscipion.sh
-# yum -y install python-virtualenv
-yum -y install openmpi openmpi-devel
+# transcript of bootstrapvre.sh # transcript of bootstrapscipion.sh
+yum -y install python-virtualenv openmpi openmpi-devel
 export PATH=$PATH;/usr/lib64/openmpi/bin
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
 mkdir -p /home/vagrant/.config/scipion/myfirstmap /home/vagrant/.config/scipion/mymovies /home/vagrant/.config/scipion/myresmap /home/vagrant/.config/scipion/firstmap /home/vagrant/.config/scipion/movies /home/vagrant/.config/scipion/resmap
@@ -44,7 +43,7 @@ cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/Desktop/scipion* /
 chmod ugo+x /home/vagrant/Desktop/*
 # preparing autostart
 chmod -R 600 /home/vagrant/.westlife
-chmod u+x /home/vagrant/.westlife 
+chmod u+x /home/vagrant/.westlife
 #add permission to allow browse webdav content in /home/vagrant/work
 chmod ugo+rwx /home/vagrant/work
 chmod go+rx /home/vagrant
@@ -54,6 +53,6 @@ systemctl reload
 systemctl enable westlife-metadata
 systemctl start westlife-metadata
 #single deployment comment, VRE deployment, uncomment
-#systemctl enable westlife-vre
-#systemctl start westlife-vre
+systemctl enable westlife-vre
+systemctl start westlife-vre
 echo "BOOTSTRAP FINISHED, VM prepared to use"
