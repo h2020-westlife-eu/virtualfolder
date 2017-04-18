@@ -1,14 +1,11 @@
-<VirtualHost *>
     # single VRE
     # returns static json response on api/authproxy/get_signed_url and /api/vfsession
-    Redirect 301 "/" "/virtualfolder"
-    Alias "/" "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre"
-    	<Directory "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre">
-    	    RewriteRule ^/api/authproxy/get_signed_url/(.*) /api/authproxy/get_signed_url
-    	    RewriteRule ^/api/vfsession/(.*) /api/vfsession
-    	    Require all granted
-    		Options FollowSymLinks IncludesNOEXEC
-    		AllowOverride All
-    		XBitHack On
-    	</Directory>
-</VirtualHost>
+    Alias "/" "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre/"
+    <Directory "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre">
+      RewriteEngine on
+      RewriteRule ^api/authproxy/get_signed_url/(.*) /api/authproxy/get_signed_url [L]
+      RewriteRule ^api/vfsession/(.*) /api/vfsession [L]
+      RewriteRule ^$ /virtualfolder [L]
+	    Options Indexes FollowSymLinks
+	    Require all granted
+    </Directory>

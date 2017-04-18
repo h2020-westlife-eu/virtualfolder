@@ -20,7 +20,7 @@ namespace MetadataService.Services.Files
         private static Dictionary<string, string> sessionuser = new Dictionary<string, string>();
         private static Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
-        private const string _httpLocalhostApi = "http://localhost:8004/api/";
+        private const string _httpLocalhostApi = "http://localhost/api/";
         private const string _sessionserviceurl = "vfsession/";
         private const string _authproxyserviceurl = "authproxy/get_signed_url/";
         private static object initlock = new object();

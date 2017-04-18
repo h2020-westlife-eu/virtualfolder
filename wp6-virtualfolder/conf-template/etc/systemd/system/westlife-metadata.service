@@ -3,7 +3,7 @@ Description=West-Life VirtualFolder MetadataService
 
 [Service]
 Type=simple
-Environment=VF_VRE_API_URL=http://localhost:8004/api/
+Environment=VF_VRE_API_URL=http://localhost/api/
 Environment=VF_STORAGE_DIR=/home/vagrant/work
 Environment=VF_ALLOW_FILESYSTEM=true
 EnvironmentFile=/home/vagrant/.westlife/metadata.key

@@ -7,6 +7,7 @@ chmod ugo+x `grep -rl '/home/vagrant/west-life-wp6/wp6-virtualfolder/www' -e "<\
 ./release-copy.sh bootstrap $VERSION
 ./release-copy.sh conf $VERSION
 ./release-copy.sh scripts $VERSION
+./release-copy.sh singlevre $VERSION
 ./release-copy-nr.sh www $VERSION
 ./release-copy.sh www/css $VERSION
 ./release-copy.sh www/img $VERSION
