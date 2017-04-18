@@ -77,10 +77,8 @@ usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
-# TODO will be done by dokuwiki plugin
 
 # mount b2drop
-# TODO optional will be done by dokuwiki plugin - if needed
 #mkdir /home/vagrant/.davfs
 #copy script for mounting B2DROP and setting root SetUID bit
 #fromdos /home/vagrant/mountb2drop.sh

@@ -19,10 +19,10 @@ else
   chown -R vagrant:vagrant .ssh
   echo added non-secure public key
 fi
-# bootstrap from cloud
+# single user VRE, set 1, for standard VRE unset or set 0
+export SINGLE_USER=1
+# bootstrap from cvmfs
 /cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapcloud.sh
-# or bootstrap from sources
-#/cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapsources.sh
 exit
 
 [amiconfig]
