@@ -22,12 +22,17 @@ namespace MetadataService
 	{
 	    //Define the Web Services AppHost
 	    public class AppHost : AppHostHttpListenerBase {
+	        private string _SQLITE_FILENAME_VAR = "VF_DATABASE_FILE";
+
 	        public AppHost()
 	            : base("HttpListener Self-Host", typeof(SBService).Assembly) {}
 
 	        public override void Configure(Funq.Container container) {
+	            var connectionString = Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)!=null?
+	                Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR):"db.sqlite";
+
 	            container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
-	                "db.sqlite", SqliteDialect.Provider)); //added db.sqlite as a file name of DB - fixes sqlite errors on in memory db not populated
+	                connectionString, SqliteDialect.Provider)); //added db.sqlite as a file name of DB - fixes sqlite errors on in memory db not populated
 
 	            //sets URL context to /metadataservice
 	            SetConfig(new EndpointHostConfig {

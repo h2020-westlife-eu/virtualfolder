@@ -6,6 +6,7 @@ Type=simple
 Environment=VF_VRE_API_URL=http://localhost/api/
 Environment=VF_STORAGE_DIR=/home/vagrant/work
 Environment=VF_ALLOW_FILESYSTEM=true
+Environment=VF_DATABASE_FILE=/home/vagrant/.westlife/metadata.sqlite
 EnvironmentFile=/home/vagrant/.westlife/metadata.key
 PIDFile=/var/run/westlife-metadata.pid
 User=vagrant
