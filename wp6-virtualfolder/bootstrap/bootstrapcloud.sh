@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-#transcript from bootstrapweb.sh
+#transcript from bootstrap scripts - set PORTAL_DEPLOYMENT=1 to enable VRE, otherwise single user deployment is available
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
-#single deployment uncomment, VRE deployment, comment
-if [ ${SINGLE_USER} -eq "1"]; then mv /etc/httpd/conf.d/vre.conf.single /etc/httpd/conf.d/vre.conf; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.conf.single /etc/httpd/conf.d/vre.conf; fi
 echo Added mirrors to sl7 repo, httpd config, westlife services
 yum -y install epel-release
 yum repolist
@@ -31,7 +30,7 @@ else
    echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
 fi
 # transcript of bootstrapvre.sh, single deployment comment # transcript of bootstrapscipion.sh
-if [ ${SINGLE_USER} -ne "1"];then yum -y install python-virtualenv; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then yum -y install python-virtualenv; fi
 yum -y install openmpi openmpi-devel
 export PATH=$PATH;/usr/lib64/openmpi/bin
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
@@ -54,6 +53,6 @@ systemctl reload
 systemctl enable westlife-metadata
 systemctl start westlife-metadata
 #single deployment comment, VRE deployment, uncomment
-if [ ${SINGLE_USER} -ne "1"]; then systemctl enable westlife-vre; fi
-if [ ${SINGLE_USER} -ne "1"]; then systemctl start westlife-vre; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 echo "BOOTSTRAP FINISHED, VM prepared to use"
