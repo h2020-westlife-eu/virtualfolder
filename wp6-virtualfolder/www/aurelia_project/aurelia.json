@@ -114,7 +114,7 @@
           "aurelia-fetch-client",
           {
             "name":"w3-css",
-            "path": "../node_modules/w3-css/",
+            "path": "../css/",
             "main": "w3.css",
             "resources": [
               "w3.css"
