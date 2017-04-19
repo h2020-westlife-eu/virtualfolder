@@ -123,10 +123,7 @@
           {
             "name": "font-awesome",
             "path": "../node_modules/font-awesome/css/",
-            "main": "font-awesome.min.css",
-            "resource": [
-              "font-awesome.min.css"
-            ]
+            "main": "font-awesome.min.css"
           },
 
 

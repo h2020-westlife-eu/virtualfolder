@@ -65,7 +65,7 @@ ul.w3-ul{list-style-type:none;padding:0;margin:0}ul.w3-ul li{padding:8px 16px;bo
 .w3-navbar li{float:left}.w3-navbar li a,.w3-navitem,.w3-navbar li .w3-btn,.w3-navbar li .w3-input{display:block;padding:8px 16px}.w3-navbar li .w3-btn,.w3-navbar li .w3-input{border:none;outline:none;width:100%}
 .w3-navbar li a:hover{color:#000;background-color:#ccc}
 .w3-navbar .w3-dropdown-hover,.w3-navbar .w3-dropdown-click{position:static}
-.w3-navbar .w3-dropdown-hover:hover,.w3-navbar .w3-dropdown-hover:first-child,.w3-navbar .w3-dropdown-click:hover{background-color:#ccc;color:#000}
+.w3-navbar .w3-dropdown-hover:hover,.w3-navbar .w3-dropdown-click:hover{background-color:#ccc;color:#000}
 .w3-navbar a,.w3-topnav a,.w3-sidenav a,.w3-dropdown-content a,.w3-accordion-content a,.w3-dropnav a,.w3-navblock a{text-decoration:none!important}
 .w3-navbar .w3-opennav.w3-right{float:right!important}.w3-topnav{padding:8px 8px}
 .w3-navblock .w3-dropdown-hover:hover,.w3-navblock .w3-dropdown-hover:first-child,.w3-navblock .w3-dropdown-click:hover{background-color:#ccc;color:#000}
