@@ -6,6 +6,5 @@
       RewriteRule ^api/authproxy/get_signed_url/(.*) /api/authproxy/get_signed_url [L]
       RewriteRule ^api/vfsession/(.*) /api/vfsession [L]
       RewriteRule ^$ /virtualfolder [L]
-	    Options Indexes FollowSymLinks
-	    Require all granted
+	  Require all granted
     </Directory>
