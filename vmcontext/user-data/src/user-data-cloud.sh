@@ -2,11 +2,15 @@
 . /etc/cernvm/site.conf
 echo Provisioning CernVM...
 usermod -G wheel,docker,users,vagrant vagrant
-#passwd -d vagrant
+passwd -d vagrant
 /etc/cernvm/config -x
 date > /etc/vagrant_provisioned_at
 echo "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 echo "Defaults:vagrant !requiretty"   >> /etc/sudoers
+if [ -f "/root/.ssh/authorized_keys" ];then
+  mkdir -p /home/vagrant/.ssh
+  cp /root/.ssh/authorized_keys /home/vagrant/.ssh/authorized_keys
+end
 cd /home/vagrant
 if [ -f "/home/vagrant/.ssh/authorized_keys" ]
 then
@@ -19,8 +23,8 @@ else
   chown -R vagrant:vagrant .ssh
   echo added non-secure public key
 fi
-# single user VRE, set 1, for standard VRE unset or set 0
-export SINGLE_USER=1
+# for single user VRE unset or set 0, for standard VRE set 1
+export PORTAL_DEPLOYMENT=0
 # bootstrap from cvmfs
 /cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapcloud.sh
 exit

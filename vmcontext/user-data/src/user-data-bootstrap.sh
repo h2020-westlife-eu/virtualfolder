@@ -16,7 +16,7 @@ else
   chmod 0700               .ssh
   chown -R vagrant:vagrant .ssh
 fi
-/cern
+
 exit
 
 [amiconfig]
