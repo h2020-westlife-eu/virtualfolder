@@ -8,7 +8,6 @@ import project from '../aurelia.json';
 
 export default gulp.series(
   readProjectConfiguration,
-  prepareFontAwesome,
   gulp.parallel(
     transpile,
     processMarkup,
@@ -25,10 +24,3 @@ function writeBundles() {
   return build.dest();
 }
 
-function prepareFontAwesome() {
-  const source = 'node_modules/font-awesome';
-  const taskFonts = gulp.src(`${source}/fonts/*`)
-    .pipe(changedInPlace({ firstPass: true }))
-    .pipe(gulp.dest(`${project.platform.output}/../fonts`));
-  return taskFonts;
-}

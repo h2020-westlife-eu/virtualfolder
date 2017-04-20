@@ -121,13 +121,6 @@
             ]
           },
           {
-            "name": "font-awesome",
-            "path": "../node_modules/font-awesome/css/",
-            "main": "font-awesome.min.css"
-          },
-
-
-          {
             "name":"dropbox",
             "path": "../node_modules/dropbox/dist",
             "main": "Dropbox-sdk.min.js"
