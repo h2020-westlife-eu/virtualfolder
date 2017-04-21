@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #transcript from bootstrap scripts - set PORTAL_DEPLOYMENT=1 to enable VRE, otherwise single user deployment is available
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.conf.single /etc/httpd/conf.d/vre.conf; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc; fi
 echo Added mirrors to sl7 repo, httpd config, westlife services
 yum -y install epel-release
 yum repolist
