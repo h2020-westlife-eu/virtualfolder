@@ -152,7 +152,10 @@ namespace MetadataService.Services.Settings
                 VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 KeyHash = getHash()
             };
-            db.Insert<DBSettings>(dbsettings);
+            if (db.Select<DBSettings>().Count >0)
+                db.Update<DBSettings>(dbsettings);
+            else
+                db.Insert<DBSettings>(dbsettings);
         }
 
         public static DBSettings getDBSettings(IDbConnection db)
