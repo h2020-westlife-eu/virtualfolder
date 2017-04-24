@@ -35,10 +35,18 @@ namespace MetadataService.Services.Files
         public override void Execute(IHttpRequest req, IHttpResponse res, object requestDto)
         {
             //get sessionid from cookie
-            var mysession = req.Cookies["sessionid"];
+            Cookie mysession;
+            try
+            {
+                mysession = req.Cookies["sessionid"];
+                if (mysession == null) return; //no cookie set - return
+            }
+            catch (KeyNotFoundException e)//no cookie set - return
+            {
+                return;
+            }
 
             //get user info related to session id fromVRE
-            if (mysession == null) return; //no cookie set - return
             String loggeduser;
             String authproxy;
             lock (initlock)

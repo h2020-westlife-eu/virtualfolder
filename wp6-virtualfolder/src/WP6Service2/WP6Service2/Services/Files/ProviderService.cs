@@ -87,10 +87,17 @@ namespace MetadataService.Services.Files
         /** determining which configured provider belongs to the user logged within this request */
         private UserProvider getUserProviders()
         {
-            var userid = (string) base.Request.Items["userid"];
-            var userauthproxy = (string) base.Request.Items["authproxy"];
-            if (userid.Length == 0) throw new UnauthorizedAccessException();
-            return UserProvider.GetInstance(userid,userauthproxy,storage,Db);
+            try
+            {
+                var userid = (string) base.Request.Items["userid"];
+                var userauthproxy = (string) base.Request.Items["authproxy"];
+                if (userid.Length == 0) throw new UnauthorizedAccessException();
+                return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
+            }
+            catch (KeyNotFoundException e)
+            {
+                throw new UnauthorizedAccessException();
+            }
         }
 
         /** returns list of configured file providers */
