@@ -806,7 +806,9 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
                     _this.populateFiles(data.response);
                 }
             }).catch(function (error) {
-
+                if (error.statusCode == 403) {
+                    window.location.replace("/login");
+                }
                 console.log('Error');
                 console.log(error);
                 alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this.serviceurl);
