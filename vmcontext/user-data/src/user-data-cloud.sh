@@ -6,13 +6,12 @@ usermod -G wheel,docker,users,vagrant vagrant
 date > /etc/vagrant_provisioned_at
 echo "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 echo "Defaults:vagrant !requiretty"   >> /etc/sudoers
-if [ -f "/root/.ssh/authorized_keys" ];then
+if [ -f "/root/.ssh/authorized_keys" ]; then
   mkdir -p /home/vagrant/.ssh
   cp /root/.ssh/authorized_keys /home/vagrant/.ssh/authorized_keys
-end
+fi
 cd /home/vagrant
-if [ -f "/home/vagrant/.ssh/authorized_keys" ]
-then
+if [ -f "/home/vagrant/.ssh/authorized_keys" ];then
   echo ssh public key exists, removing default pass
   passwd -d vagrant
 else
@@ -26,6 +25,7 @@ fi
 # for single user VRE unset or set 0, for standard VRE set 1
 export PORTAL_DEPLOYMENT=0
 # bootstrap from cvmfs
+cd /cvmfs/west-life.egi.eu
 /cvmfs/west-life.egi.eu/software/virtualfolder/latest/bootstrap/bootstrapcloud.sh
 exit
 

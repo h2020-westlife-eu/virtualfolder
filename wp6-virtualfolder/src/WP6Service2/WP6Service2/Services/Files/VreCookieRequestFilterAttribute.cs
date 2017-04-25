@@ -41,9 +41,10 @@ namespace MetadataService.Services.Files
                 mysession = req.Cookies["sessionid"];
                 if (mysession == null) return; //no cookie set - return
             }
-            catch (KeyNotFoundException e)//no cookie set - return
+            catch (KeyNotFoundException e)//no cookie set - either needs to log in or in single user deployment - it is vagrant user
             {
-                return;
+                mysession = new Cookie();
+                mysession.Value = "west-life_vf_insecure_session_id";
             }
 
             //get user info related to session id fromVRE
