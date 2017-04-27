@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Policy;
 using System.Threading;
@@ -12,6 +13,7 @@ using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using ServiceStack.Common.Extensions;
+using WP6Service2.Services.Dataset;
 
 namespace MetadataServiceTest
 {
@@ -102,6 +104,30 @@ namespace MetadataServiceTest
 	        Assert.True(items[0].securetoken.Equals(testmessage));
 	        Assert.True(items[1].securetoken.Equals(testmessage));
 
+	    }
+
+	    [Test()]
+	    public void DatasetTestCase()
+	    {
+	        var client = new JsonServiceClient(BaseUri);
+	        var all = client.Get(new DatasetsDTO() {});
+	        Assert.That(all.ToString(), Is.StringStarting("{}")); // asserts that the json is empty
+	        var mydto = new DatasetDTO()
+	        {
+	            Name="testdataset",
+	            Entries=new string[]{"2hhd","3csb","4yg0"}.ToList(),
+	            Urls=new string[]{"http://www.pdb.org/2hhd","http://www.pdb.org/3csb","http://www.pdb.org/4yg0"}.ToList()
+	        };
+	        client.Put(mydto);
+	        var all2 = client.Get(new DatasetsDTO() { });//gets all
+	        var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
+	        var all3 = client.Get(new DatasetDTO() {Name = testdto.DatasetNames[0]});
+	        var firstdto = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
+	        Assert.True(firstdto.Name == mydto.Name);
+	        Assert.True(firstdto.Entries.Count==mydto.Entries.Count);
+	        Assert.True(firstdto.Entries[0]==mydto.Entries[0]);
+	        Assert.True(firstdto.Urls.Count==mydto.Urls.Count);
+	        Assert.True(firstdto.Urls[0]==mydto.Urls[0]);
 	    }
 
 	    /*[Test()]

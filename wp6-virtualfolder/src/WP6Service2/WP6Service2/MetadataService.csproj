@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Dataset\DatasetService.cs" />
     <Compile Include="Services\Files\B2DropProvider.cs" />
     <Compile Include="Services\Files\DropboxProvider.cs" />
     <Compile Include="Services\Files\FileSystemProvider.cs" />
