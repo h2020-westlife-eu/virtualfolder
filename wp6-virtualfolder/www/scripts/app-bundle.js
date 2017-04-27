@@ -807,7 +807,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
                 }
             }).catch(function (error) {
                 if (error.statusCode == 403) {
-                    window.location.replace("/login");
+                    console.log("redirecting");
+                    window.location = "/login";
                 }
                 console.log('Error');
                 console.log(error);
@@ -1935,6 +1936,505 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
     initializer: null
   })), _class);
 });
+define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Aliastable = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var Aliastable = exports.Aliastable = (_temp = _class = function () {
+    function Aliastable(ea, httpclient) {
+      var _this = this;
+
+      _classCallCheck(this, Aliastable);
+
+      this.serviceurl = "/metadataservice/files";
+      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
+        return _this.submitSettings(msg.settings);
+      });
+      this.client = httpclient;
+      this.providers = [{ alias: "Loading available providers ...", temporary: true }];
+      this.client.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+    }
+
+    Aliastable.prototype.attached = function attached() {
+      var _this2 = this;
+
+      this.client.get(this.serviceurl).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this2.providers = JSON.parse(data.response);
+        }
+      }).catch(function (error) {
+        console.log("aliastable.attached() error:");
+        console.log(error);
+
+        if (error.statusCode == 403) {
+          console.log("redirecting");
+          window.location = "/login";
+        }
+        alert('Sorry, error when connecting backend web service at ' + _this2.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+      });
+    };
+
+    Aliastable.prototype.submitSettings = function submitSettings(settings) {
+      var _this3 = this;
+
+      this.client.put(this.serviceurl, JSON.stringify(settings)).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this3.providers = JSON.parse(data.response);
+        }
+      }).catch(function (error) {
+        console.log(error);
+
+        alert('Sorry. Settings not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+      });
+    };
+
+    Aliastable.prototype.removeProvider = function removeProvider(settings) {
+      var _this4 = this;
+
+      if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
+      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this4.providers = JSON.parse(data.response);
+        }
+      });
+    };
+
+    return Aliastable;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+});
+define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaEventAggregator, _messages) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.App = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var App = exports.App = (_temp = _class = function () {
+    function App(ea) {
+      var _this = this;
+
+      _classCallCheck(this, App);
+
+      this.showprovider = false;
+      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
+        return _this.submitSettings(msg.settings);
+      });
+      ea.subscribe(_messages.SettingsSelected, function (msg) {
+        return _this.selectSettings(msg.settings);
+      });
+    }
+
+    App.prototype.newProvider = function newProvider() {
+      this.showprovider = true;
+    };
+
+    App.prototype.submitSettings = function submitSettings(settings) {
+      this.showprovider = false;
+    };
+
+    App.prototype.selectSettings = function selectSettings(settings) {
+      this.showprovider = true;
+    };
+
+    return App;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
+});
+define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-event-aggregator', './messages', "dropbox"], function (exports, _urlutils, _aureliaEventAggregator, _messages, Dropbox) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.DropboxControl = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var DropboxControl = exports.DropboxControl = (_temp = _class = function () {
+    function DropboxControl(ea, urlutils) {
+      _classCallCheck(this, DropboxControl);
+
+      this.ea = ea;
+      this.urlutils = urlutils;
+      this.accesstoken = this.urlutils.parseQueryString(window.location.hash).access_token;
+      this.isAuthenticated = !!this.accesstoken;
+      console.log('dropboxcontrol() accesstoken:' + this.accesstoken);
+
+      this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
+      try {
+        var dbx = new Dropbox({
+          clientId: this.CLIENTIDENC.split('').map(function (c) {
+            return String.fromCharCode(23 ^ c.charCodeAt());
+          }).join("")
+        });
+        var currentUrl = window.location.href;
+
+        this.authurl = dbx.getAuthenticationUrl(currentUrl);
+      } catch (e) {
+        console.log("exception:");
+        console.log(e);
+      }
+
+      this.id = "Dropbox";
+    }
+
+    DropboxControl.prototype.initialize = function initialize() {
+      if (this.isAuthenticated) {
+        var settings = {};
+        settings.type = this.id;
+
+        settings.securetoken = this.accesstoken;
+
+        this.ea.publish(new _messages.SettingsSelected(settings));
+      }
+    };
+
+    return DropboxControl;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _urlutils.UrlUtils], _temp);
+});
+define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Genericcontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  var _dec, _dec2, _dec3, _dec4, _desc, _value, _class, _class2, _temp;
+
+  var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec4 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = (_temp = _class2 = function () {
+    function Genericcontrol(ea, httpclient, dropboxcontrol) {
+      var _this = this;
+
+      _classCallCheck(this, Genericcontrol);
+
+      this.heading = "File Provider";
+      this.ea = ea;
+      this.dropboxcontrol = dropboxcontrol;
+      this.editing = true;
+      this.servicecontext = "providers";
+      this.knowtoken = false;
+      this.dropboxauthurl = "";
+      this.providers = [];
+      this.selectedProvider = "";
+      console.log('genericcontrol()');
+      this.client = httpclient;
+      this.client.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+      this.ea.subscribe(_messages.SettingsSelected, function (msg) {
+        return _this.selectSettings(msg.settings);
+      });
+    }
+
+    Genericcontrol.prototype.clear = function clear() {
+      this.selectedProvider = "";
+      this.username = "";
+      this.securetoken = "";
+      this.filesystempath = "";
+      this.alias = "";
+      this.accessurl = "";
+    };
+
+    Genericcontrol.prototype.attached = function attached() {
+      var _this2 = this;
+
+      console.log('genericcontrol.attached()');
+      console.log("dialogstate:" + this.dialogstate);
+
+      this.dropboxauthurl = this.dropboxcontrol.authurl;
+      this.client.get("/metadataservice/" + this.servicecontext).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        if (data.response) {
+          _this2.providers = JSON.parse(data.response);
+        }
+      }).catch(function (error) {
+        if (error.statusCode == 403) {
+          console.log("redirecting");
+          window.location = "/login";
+        }
+        console.log('Error');
+        console.log(error);
+        alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + _this2.serviceurl);
+      });;
+      this.dropboxcontrol.initialize();
+    };
+
+    Genericcontrol.prototype.addProvider = function addProvider() {
+      var settings = {};
+      settings.type = this.selectedProvider;
+      settings.alias = this.alias;
+      if (this.selectedDropbox) settings.securetoken = this.securetoken;
+      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
+      if (this.selectedB2Drop) {
+        settings.securetoken = this.password;
+        settings.username = this.username;
+      }
+      if (this.selectedWebDav) {
+        settings.accessurl = this.accessurl;
+        settings.securetoken = this.password;
+        settings.username = this.username;
+      }
+      console.log("publishing");
+      this.ea.publish(new _messages.SettingsSubmitted(settings));
+      this.clear();
+    };
+
+    Genericcontrol.prototype.selectSettings = function selectSettings(settings) {
+      this.selectedProvider = settings.type;
+      this.alias = settings.alias;
+      this.securetoken = settings.securetoken;
+      if (!!this.securetoken) {
+        this.editing = false;this.knownSecureToken.checked = true;
+      }
+    };
+
+    _createClass(Genericcontrol, [{
+      key: 'selectedDropbox',
+      get: function get() {
+        return this.selectedProvider == this.dropboxcontrol.id;
+      }
+    }, {
+      key: 'selectedB2Drop',
+      get: function get() {
+        return this.selectedProvider == 'B2Drop';
+      }
+    }, {
+      key: 'selectedFileSystem',
+      get: function get() {
+        return this.selectedProvider == 'FileSystem';
+      }
+    }, {
+      key: 'selectedWebDav',
+      get: function get() {
+        return this.selectedProvider == 'WebDav';
+      }
+    }, {
+      key: 'knowntoken',
+      get: function get() {
+        if (this.knownSecureToken) return this.knownSecureToken.checked;
+      }
+    }]);
+
+    return Genericcontrol;
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
+});
+define('virtualfoldersetting/main',['exports', '../environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('virtualfoldersetting/messages',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var SettingsSubmitted = exports.SettingsSubmitted = function SettingsSubmitted(settings) {
+    _classCallCheck(this, SettingsSubmitted);
+
+    this.settings = settings;
+  };
+
+  var SettingsSelected = exports.SettingsSelected = function SettingsSelected(settings) {
+    _classCallCheck(this, SettingsSelected);
+
+    this.settings = settings;
+  };
+
+  var SettingsRemoved = exports.SettingsRemoved = function SettingsRemoved(settings) {
+    _classCallCheck(this, SettingsRemoved);
+
+    this.settings = settings;
+  };
+});
+define('virtualfoldersetting/urlutils',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var UrlUtils = exports.UrlUtils = function () {
+    function UrlUtils() {
+      _classCallCheck(this, UrlUtils);
+    }
+
+    UrlUtils.prototype.parseQueryString = function parseQueryString(str) {
+      var ret = Object.create(null);
+
+      if (typeof str !== 'string') {
+        return ret;
+      }
+
+      str = str.trim().replace(/^(\?|#|&)/, '');
+
+      if (!str) {
+        return ret;
+      }
+
+      str.split('&').forEach(function (param) {
+        var parts = param.replace(/\+/g, ' ').split('=');
+
+        var key = parts.shift();
+        var val = parts.length > 0 ? parts.join('=') : undefined;
+
+        key = decodeURIComponent(key);
+
+        val = val === undefined ? null : decodeURIComponent(val);
+
+        if (ret[key] === undefined) {
+          ret[key] = val;
+        } else if (Array.isArray(ret[key])) {
+          ret[key].push(val);
+        } else {
+          ret[key] = [ret[key], val];
+        }
+      });
+
+      return ret;
+    };
+
+    return UrlUtils;
+  }();
+});
 define('virtualfoldermodules/app',["exports"], function (exports) {
   "use strict";
 
@@ -2231,492 +2731,6 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol"], fu
 
     return Virtuosocontrol;
   }(_modulecontrol.Modulecontrol);
-});
-define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Aliastable = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _class, _temp;
-
-  var Aliastable = exports.Aliastable = (_temp = _class = function () {
-    function Aliastable(ea, httpclient) {
-      var _this = this;
-
-      _classCallCheck(this, Aliastable);
-
-      this.serviceurl = "/metadataservice/files";
-      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
-        return _this.submitSettings(msg.settings);
-      });
-      this.client = httpclient;
-      this.providers = [{ alias: "Loading available providers ...", temporary: true }];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-    }
-
-    Aliastable.prototype.attached = function attached() {
-      var _this2 = this;
-
-      this.client.get(this.serviceurl).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this2.providers = JSON.parse(data.response);
-        }
-      }).catch(function (error) {
-        console.log(error);
-
-        alert('Sorry, error when connecting backend web service at ' + _this2.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });
-    };
-
-    Aliastable.prototype.submitSettings = function submitSettings(settings) {
-      var _this3 = this;
-
-      this.client.put(this.serviceurl, JSON.stringify(settings)).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this3.providers = JSON.parse(data.response);
-        }
-      }).catch(function (error) {
-        console.log(error);
-
-        alert('Sorry. Settings not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });
-    };
-
-    Aliastable.prototype.removeProvider = function removeProvider(settings) {
-      var _this4 = this;
-
-      if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
-      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this4.providers = JSON.parse(data.response);
-        }
-      });
-    };
-
-    return Aliastable;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
-});
-define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaEventAggregator, _messages) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.App = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _class, _temp;
-
-  var App = exports.App = (_temp = _class = function () {
-    function App(ea) {
-      var _this = this;
-
-      _classCallCheck(this, App);
-
-      this.showprovider = false;
-      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
-        return _this.submitSettings(msg.settings);
-      });
-      ea.subscribe(_messages.SettingsSelected, function (msg) {
-        return _this.selectSettings(msg.settings);
-      });
-    }
-
-    App.prototype.newProvider = function newProvider() {
-      this.showprovider = true;
-    };
-
-    App.prototype.submitSettings = function submitSettings(settings) {
-      this.showprovider = false;
-    };
-
-    App.prototype.selectSettings = function selectSettings(settings) {
-      this.showprovider = true;
-    };
-
-    return App;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
-});
-define('virtualfoldersetting/dropboxcontrol',['exports', './urlutils', 'aurelia-event-aggregator', './messages', "dropbox"], function (exports, _urlutils, _aureliaEventAggregator, _messages, Dropbox) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.DropboxControl = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _class, _temp;
-
-  var DropboxControl = exports.DropboxControl = (_temp = _class = function () {
-    function DropboxControl(ea, urlutils) {
-      _classCallCheck(this, DropboxControl);
-
-      this.ea = ea;
-      this.urlutils = urlutils;
-      this.accesstoken = this.urlutils.parseQueryString(window.location.hash).access_token;
-      this.isAuthenticated = !!this.accesstoken;
-      console.log('dropboxcontrol() accesstoken:' + this.accesstoken);
-
-      this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
-      try {
-        var dbx = new Dropbox({
-          clientId: this.CLIENTIDENC.split('').map(function (c) {
-            return String.fromCharCode(23 ^ c.charCodeAt());
-          }).join("")
-        });
-        var currentUrl = window.location.href;
-
-        this.authurl = dbx.getAuthenticationUrl(currentUrl);
-      } catch (e) {
-        console.log("exception:");
-        console.log(e);
-      }
-
-      this.id = "Dropbox";
-    }
-
-    DropboxControl.prototype.initialize = function initialize() {
-      if (this.isAuthenticated) {
-        var settings = {};
-        settings.type = this.id;
-
-        settings.securetoken = this.accesstoken;
-
-        this.ea.publish(new _messages.SettingsSelected(settings));
-      }
-    };
-
-    return DropboxControl;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _urlutils.UrlUtils], _temp);
-});
-define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Genericcontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  var _dec, _dec2, _dec3, _dec4, _desc, _value, _class, _class2, _temp;
-
-  var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec4 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = (_temp = _class2 = function () {
-    function Genericcontrol(ea, httpclient, dropboxcontrol) {
-      var _this = this;
-
-      _classCallCheck(this, Genericcontrol);
-
-      this.heading = "File Provider";
-      this.ea = ea;
-      this.dropboxcontrol = dropboxcontrol;
-      this.editing = true;
-      this.servicecontext = "providers";
-      this.knowtoken = false;
-      this.dropboxauthurl = "";
-      this.providers = [];
-      this.selectedProvider = "";
-      console.log('genericcontrol()');
-      this.client = httpclient;
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-      this.ea.subscribe(_messages.SettingsSelected, function (msg) {
-        return _this.selectSettings(msg.settings);
-      });
-    }
-
-    Genericcontrol.prototype.clear = function clear() {
-      this.selectedProvider = "";
-      this.username = "";
-      this.securetoken = "";
-      this.filesystempath = "";
-      this.alias = "";
-      this.accessurl = "";
-    };
-
-    Genericcontrol.prototype.attached = function attached() {
-      var _this2 = this;
-
-      console.log('genericcontrol.attached()');
-      console.log("dialogstate:" + this.dialogstate);
-
-      this.dropboxauthurl = this.dropboxcontrol.authurl;
-      this.client.get("/metadataservice/" + this.servicecontext).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        if (data.response) {
-          _this2.providers = JSON.parse(data.response);
-        }
-      });
-      this.dropboxcontrol.initialize();
-    };
-
-    Genericcontrol.prototype.addProvider = function addProvider() {
-      var settings = {};
-      settings.type = this.selectedProvider;
-      settings.alias = this.alias;
-      if (this.selectedDropbox) settings.securetoken = this.securetoken;
-      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
-      if (this.selectedB2Drop) {
-        settings.securetoken = this.password;
-        settings.username = this.username;
-      }
-      if (this.selectedWebDav) {
-        settings.accessurl = this.accessurl;
-        settings.securetoken = this.password;
-        settings.username = this.username;
-      }
-      console.log("publishing");
-      this.ea.publish(new _messages.SettingsSubmitted(settings));
-      this.clear();
-    };
-
-    Genericcontrol.prototype.selectSettings = function selectSettings(settings) {
-      this.selectedProvider = settings.type;
-      this.alias = settings.alias;
-      this.securetoken = settings.securetoken;
-      if (!!this.securetoken) {
-        this.editing = false;this.knownSecureToken.checked = true;
-      }
-    };
-
-    _createClass(Genericcontrol, [{
-      key: 'selectedDropbox',
-      get: function get() {
-        return this.selectedProvider == this.dropboxcontrol.id;
-      }
-    }, {
-      key: 'selectedB2Drop',
-      get: function get() {
-        return this.selectedProvider == 'B2Drop';
-      }
-    }, {
-      key: 'selectedFileSystem',
-      get: function get() {
-        return this.selectedProvider == 'FileSystem';
-      }
-    }, {
-      key: 'selectedWebDav',
-      get: function get() {
-        return this.selectedProvider == 'WebDav';
-      }
-    }, {
-      key: 'knowntoken',
-      get: function get() {
-        if (this.knownSecureToken) return this.knownSecureToken.checked;
-      }
-    }]);
-
-    return Genericcontrol;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
-});
-define('virtualfoldersetting/main',['exports', '../environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('virtualfoldersetting/messages',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var SettingsSubmitted = exports.SettingsSubmitted = function SettingsSubmitted(settings) {
-    _classCallCheck(this, SettingsSubmitted);
-
-    this.settings = settings;
-  };
-
-  var SettingsSelected = exports.SettingsSelected = function SettingsSelected(settings) {
-    _classCallCheck(this, SettingsSelected);
-
-    this.settings = settings;
-  };
-
-  var SettingsRemoved = exports.SettingsRemoved = function SettingsRemoved(settings) {
-    _classCallCheck(this, SettingsRemoved);
-
-    this.settings = settings;
-  };
-});
-define('virtualfoldersetting/urlutils',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var UrlUtils = exports.UrlUtils = function () {
-    function UrlUtils() {
-      _classCallCheck(this, UrlUtils);
-    }
-
-    UrlUtils.prototype.parseQueryString = function parseQueryString(str) {
-      var ret = Object.create(null);
-
-      if (typeof str !== 'string') {
-        return ret;
-      }
-
-      str = str.trim().replace(/^(\?|#|&)/, '');
-
-      if (!str) {
-        return ret;
-      }
-
-      str.split('&').forEach(function (param) {
-        var parts = param.replace(/\+/g, ' ').split('=');
-
-        var key = parts.shift();
-        var val = parts.length > 0 ? parts.join('=') : undefined;
-
-        key = decodeURIComponent(key);
-
-        val = val === undefined ? null : decodeURIComponent(val);
-
-        if (ret[key] === undefined) {
-          ret[key] = val;
-        } else if (Array.isArray(ret[key])) {
-          ret[key].push(val);
-        } else {
-          ret[key] = [ret[key], val];
-        }
-      });
-
-      return ret;
-    };
-
-    return UrlUtils;
-  }();
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE

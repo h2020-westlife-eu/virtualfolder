@@ -36,8 +36,15 @@ export class Aliastable {
         }
       })
       .catch(error =>{
+        console.log("aliastable.attached() error:")
         console.log(error);
-
+          //handle 403 unauthorized
+          if (error.statusCode == 403) {
+            //try to login
+            console.log("redirecting");
+            window.location = "/login";
+            //window.location =
+          }
         alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
   }

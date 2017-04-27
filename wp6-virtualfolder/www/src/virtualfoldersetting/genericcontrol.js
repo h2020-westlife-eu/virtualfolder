@@ -78,7 +78,18 @@ export class Genericcontrol {
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
-      });
+      }).catch(error => {
+      //handle 403 unauthorized
+      if (error.statusCode == 403) {
+        //try to login
+        console.log("redirecting");
+        window.location = "/login";
+        //window.location =
+      }
+      console.log('Error');
+      console.log(error);
+      alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl);
+    });;
     this.dropboxcontrol.initialize();
   }
 

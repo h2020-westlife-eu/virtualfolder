@@ -42,7 +42,9 @@ export class Filepanel{
                 //handle 403 unauthorized
                 if (error.statusCode == 403) {
                   //try to login
-                  window.location.replace("/login");
+                  console.log("redirecting");
+                  window.location = "/login";
+                  //window.location =
                 }
                 console.log('Error');
                 console.log(error);
