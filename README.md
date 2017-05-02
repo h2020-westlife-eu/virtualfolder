@@ -6,17 +6,18 @@ The WP6 is distributed as a vagrant package. Configuration files and scripts whi
 
 ## Installation
 
-Follow instruction at the meta repository from https://github.com/h2020-westlife-eu/wp6-vm.git.
- 
+To install the West-Life virtual folder you have several options:
+  1) To prepare testing and development environment, follow instruction at the meta repository to prepare the copy of West-Life VM with virtual folder https://github.com/h2020-westlife-eu/wp6-vm.git.
+  2) To prepare testing & production environment, import the released OVA image into preferred virtual machine monitor - cloud computing environment. 
+  3) To prepare production environment in scientific cloud infrastructure, deploy the image released at https://appdb.egi.eu/store/vappliance/d6.1.virtualfoldervm for OVA compatible or https://appdb.egi.eu/store/vappliance/west.life.vm for OpenStack
+  
 ## Usage
 
-After installation, the new virtual machine can be accessed via web browser (port 8080 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number)
+After installation, the new virtual machine can be accessed via web browser 
 
-    http://localhost:8080/
+    http://[vm.ip.address]/
     
-Files of the current working directory of host are mounted into <code>/home/vagrant/work/local</code>
-Repositories allowing WEBDAV interface (B2DROP) are mounted into <code>/home/vagrant/work/b2drop</code>
-Other configured repositories creates a directory in <code>/home/vagrant/work/</code>
+If you used option 1) - vagrant tool forwards the port 8080 to the virtual machine by default and it is accessible at http://localhost:8080/, check VagrantFile or vagrant log for exact port number. Files of the current working directory of host are mounted into <code>/home/vagrant/work/local</code> Repositories allowing WEBDAV interface (B2DROP) are mounted into <code>/home/vagrant/work/b2drop</code> Other configured repositories creates a directory in <code>/home/vagrant/work/</code>
 
 ## Release Notes
 
