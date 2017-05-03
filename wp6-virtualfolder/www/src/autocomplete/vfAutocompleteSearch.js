@@ -84,6 +84,8 @@ export class VfAutocompleteSearch {
    if (key === 13) {
      /*may not be updated with input field as debounce has 750 ms this.submit({item:this.value});
       */
+     console.log("keypressed(): submitting()")
+     //this.hideSuggestions();
      this.submit({item: evt.originalTarget.value})
    } else
      if (key===27) this.hideSuggestions();
@@ -96,6 +98,7 @@ export class VfAutocompleteSearch {
    * therefore taking it's value, submit and hide
    * @param {clickvalue} value which was clicked and will be submitted */
   clicked(clickvalue) {
+    console.log("clicked(): submitting()")
     this.value = clickvalue;
     this.submit({item:clickvalue});
     this.hideSuggestions();
