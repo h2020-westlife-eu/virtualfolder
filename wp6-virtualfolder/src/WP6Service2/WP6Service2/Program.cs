@@ -15,6 +15,7 @@ using Mono.Unix.Native;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Sqlite;
 using ServiceStack.WebHost.Endpoints;
+using WP6Service2.Services.Dataset;
 
 namespace MetadataService
 {
@@ -46,6 +47,7 @@ namespace MetadataService
 	                db.CreateTableIfNotExists<DBSettings>();
 	                try
 	                {
+		                CreateTablesV1705(db);
 	                    var dbsettings = SettingsStorageInDB.getDBSettings(db);
 	                    var version = new Version(dbsettings.VirtualFolderVersion);
                         Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
@@ -117,6 +119,13 @@ namespace MetadataService
 
 	            }
 	        }
+
+		    private void CreateTablesV1705(IDbConnection db)
+		    {
+			    db.CreateTableIfNotExists<Dataset>();
+			    db.CreateTableIfNotExists<DatasetEntry>();
+			    db.CreateTableIfNotExists<DatasetEntries>();
+		    }
 	    }
 
 		//Run it!
