@@ -83,7 +83,7 @@ export class Genericcontrol {
       if (error.statusCode == 403) {
         //try to login
         console.log("redirecting");
-        window.location = "/login";
+        window.location = "/login?next=" + window.location.pathname;
         //window.location =
       }
       console.log('Error');
