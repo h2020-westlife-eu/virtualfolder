@@ -20,7 +20,7 @@ namespace MetadataServiceTest
 	[TestFixture ()]
 	public class Test
 	{
-	    string BaseUri = "http://localhost:8002/metadataservice/";
+	    string BaseUri = "http://localhost:8001/metadataservice/";
 
 
 	    [TestFixtureSetUp]
@@ -29,6 +29,8 @@ namespace MetadataServiceTest
 	        //sets the dropbox key to parallel task
 	        //WP6Service2.Program.StartHost(BaseUri,new string[]{});
 	        //wait 1 second
+		    //Environment.SetEnvironmentVariable("VF_STORAGE_PKEY", "xYD+jvVfisbY5Mer1ZfTEuv7KWw/NZN0BJaUoTBSFXw=");
+		    //Environment.SetEnvironmentVariable("VF_DATABASE_FILE", "home/vagrant/.westlife/metadata.sqlite");
 	        Program.StartHost(BaseUri,null);
 	        Thread.Sleep(1000);
 	    }
