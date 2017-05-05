@@ -42,7 +42,7 @@ export class Aliastable {
           if (error.statusCode == 403) {
             //try to login
             console.log("redirecting");
-            window.location = "/login";
+            window.location = "/login?next=" + window.location.pathname;
             //window.location =
           }
         alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
