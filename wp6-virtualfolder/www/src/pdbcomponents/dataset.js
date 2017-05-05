@@ -58,10 +58,17 @@ export class Dataset {
 
 
   submit(){
-    this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
+    console.log("submitting data:");
+    this.submitdataset = {};
+    this.submitdataset.Name = this.name;
+    this.submitdataset.Entries = this.pdbdataset;
+    //this.submitdataset.Urls =
+    console.log(this.submitdataset);
+    console.log(JSON.stringify(this.submitdataset));
+    this.client.post("/metadataservice/dataset",JSON.stringify(this.submitdataset))
       .then(data =>{
         console.log("data response");
-        console.log(data);9
+        console.log(data);
       })
       .catch(error =>{
         console.log(error);

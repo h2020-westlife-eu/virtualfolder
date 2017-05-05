@@ -112,7 +112,7 @@ namespace MetadataServiceTest
 	    public void DatasetTestCase()
 	    {
 	        var client = new JsonServiceClient(BaseUri);
-	        var all = client.Get(new DatasetsDTO() {});
+	        var all = client.Get(new GetDatasets() );
 		    Assert.True(all.Count >= 0);
 
 		    //    Is.StringStarting("[")); // asserts that the json is array
@@ -123,16 +123,15 @@ namespace MetadataServiceTest
 	            Urls=new string[]{"http://www.pdb.org/2hhd","http://www.pdb.org/3csb","http://www.pdb.org/4yg0"}.ToList()
 	        };
 	        client.Put(mydto);
-	        var all2 = client.Get(new DatasetsDTO() { });//gets all
+	        var all2 = client.Get(new GetDatasets());//gets all
 	        //var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
-	        var all3 = client.Get(new DatasetDTO() {Name = all2[0]});
+	        var all3 = client.Get(new DatasetDTO() {Id = all2[0].Id});
 	        //var all3 = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
 	        Assert.True(all3.Name == mydto.Name);
 	        //Assert.True(all3.Entries.Count==mydto.Entries.Count);
 	        //Assert.True(all3.Entries[0]==mydto.Entries[0]);
 	        //Assert.True(all3.Urls.Count==mydto.Urls.Count);
 	        //Assert.True(all3.Urls[0]==mydto.Urls[0]);
-
 	    }
 
 	    /*[Test()]
