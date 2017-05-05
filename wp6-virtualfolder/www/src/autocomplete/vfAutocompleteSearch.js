@@ -10,6 +10,7 @@ import {computedFrom} from 'aurelia-framework';
 export class VfAutocompleteSearch {
   @bindable value = ""; // value of input
   @bindable placeholder = "";
+  @bindable size = "40";
   @bindable submit;
 
   static inject = [HttpClient];

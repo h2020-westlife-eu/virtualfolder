@@ -5,7 +5,8 @@
   <input ref="input" autocomplete="off" value.bind="value & debounce:750"
          blur.trigger="blurSuggestions($event)"
          keydown.delegate="keypressed($event)"
-         placeholder.bind="placeholder" focus.trigger="focusSuggestions()">
+         placeholder.bind="placeholder" focus.trigger="focusSuggestions()"
+         size.bind="size">
 
   <div ref="results" show.bind="showing" class="result-container">
     <div repeat.for="resultGroup of resultGroups" class="result-card">
@@ -24,7 +25,7 @@
         </footer>
 
     </div>
-    <div show.bind="resultGroupsEmpty">No hints.</div>
+    <div show.bind="resultGroupsEmpty">Enter PDB or UnitProt accession code, protein name or related terms.</div>
   </div>
 </div>
 </template>

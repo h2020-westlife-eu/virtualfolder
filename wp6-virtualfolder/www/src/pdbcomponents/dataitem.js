@@ -12,17 +12,19 @@ export class Dataitem {
   constructor(httpclient) {
     //console.log('dataitem()')
     //console.log(this.item);
-    this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
+    this.serviceurl = "//www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
     this.client = httpclient;
 
     this.entityids = [1];
     this.selectedid = this.entityids[0];
+    this.showitem = true;
   }
 
   bind() {
     this.itemPDBEntry = this.isPDBEntry(this.item);
-    this.showitem = this.itemPDBEntry;
-    this.showuniprotitem = !this.itemPDBEntry;
+    //this.showitem = this.itemPDBEntry;
+    //this.showuniprotitem = !this.itemPDBEntry;
+    this.itemUniprotEntry = this.isUniprotEntry(this.item);
     if (this.itemPDBEntry) {
       this.client.fetch(this.serviceurl + this.item)
         .then(response => response.json())
@@ -42,7 +44,7 @@ export class Dataitem {
 
         }).catch(error => {
 
-        console.log('Error dataitem() fetch()');
+        console.log('Error dataitem().fetch() of "'+this.serviceurl + this.item+'"');
         console.log(error);
       });
     }
@@ -84,15 +86,14 @@ export class Dataitem {
   }
 
   hideitem() {
-    if (this.itemPDBEntry) {
       this.showitem = !this.showitem;
-    } else {
-      this.showuniprotitem = !this.showuniprotitem;
-    }
   }
 
   isPDBEntry(entry) {
     return /^[0-9][A-Za-z0-9]{3}$/.test(entry);
+  }
+  isUniprotEntry(entry) {
+    return /^[P][0-9]{5}-?[0-9]*$/.test(entry);
   }
 
 }
