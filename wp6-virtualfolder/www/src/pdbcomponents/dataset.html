@@ -11,8 +11,8 @@
 
   <h1>Dataset demo</h1>
   <form>
-    PDB or related item to add:
-    <vf-autocomplete-search submit.call="additem(item)"></vf-autocomplete-search>
+    PDB or related item to add:<br/>
+    <vf-autocomplete-search submit.call="additem(item)" placeholder="1csb (PDB entry) or P077050 (Uniprot entry)" size="40"></vf-autocomplete-search>
   </form>
 
 
@@ -30,7 +30,10 @@
   dataset name:
   <input value.bind="name" change.trigger="changename()"/>
   <br/>
-  <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
+
+  <!-- will be enabled after backend service is available
+  button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button
+  -->
 
 </div>
 </template>

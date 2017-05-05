@@ -142,7 +142,7 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
   }
 
-  var _dec, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _class2, _temp;
+  var _dec, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _class2, _temp;
 
   var VfAutocompleteSearch = exports.VfAutocompleteSearch = (_dec = (0, _aureliaFramework.computedFrom)('resultGroups'), (_class = (_temp = _class2 = function () {
     function VfAutocompleteSearch(httpclient) {
@@ -152,7 +152,9 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
 
       _initDefineProp(this, 'placeholder', _descriptor2, this);
 
-      _initDefineProp(this, 'submit', _descriptor3, this);
+      _initDefineProp(this, 'size', _descriptor3, this);
+
+      _initDefineProp(this, 'submit', _descriptor4, this);
 
       this.http = httpclient;
       this.config = {
@@ -255,7 +257,12 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     initializer: function initializer() {
       return "";
     }
-  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'submit', [_aureliaFramework.bindable], {
+  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'size', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return 16;
+    }
+  }), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'submit', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
@@ -1052,14 +1059,15 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
 
       this.entityids = [1];
       this.selectedid = this.entityids[0];
+      this.showitem = true;
     }
 
     Dataitem.prototype.bind = function bind() {
       var _this = this;
 
       this.itemPDBEntry = this.isPDBEntry(this.item);
-      this.showitem = this.itemPDBEntry;
-      this.showuniprotitem = !this.itemPDBEntry;
+
+      this.itemUniprotEntry = this.isUniprotEntry(this.item);
       if (this.itemPDBEntry) {
         this.client.fetch(this.serviceurl + this.item).then(function (response) {
           return response.json();
@@ -1126,15 +1134,16 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
     };
 
     Dataitem.prototype.hideitem = function hideitem() {
-      if (this.itemPDBEntry) {
-        this.showitem = !this.showitem;
-      } else {
-        this.showuniprotitem = !this.showuniprotitem;
-      }
+      this.showitem = !this.showitem;
     };
 
     Dataitem.prototype.isPDBEntry = function isPDBEntry(entry) {
       return (/^[0-9][A-Za-z0-9]{3}$/.test(entry)
+      );
+    };
+
+    Dataitem.prototype.isUniprotEntry = function isUniprotEntry(entry) {
+      return (/^[P][0-9]{5}-?[0-9]*$/.test(entry)
       );
     };
 
@@ -1936,6 +1945,303 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
     initializer: null
   })), _class);
 });
+define('virtualfoldermodules/app',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var App = exports.App = function App() {
+    _classCallCheck(this, App);
+  };
+});
+define('virtualfoldermodules/ccp4control',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Ccp4control = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Ccp4control = exports.Ccp4control = function (_Modulecontrol) {
+    _inherits(Ccp4control, _Modulecontrol);
+
+    function Ccp4control() {
+      _classCallCheck(this, Ccp4control);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.posturl = "/metadataservice/sbservice/ccp4suite";
+      _this.url = "/metadataservice/sbservice/ccp4suite";
+      return _this;
+    }
+
+    return Ccp4control;
+  }(_modulecontrol.Modulecontrol);
+});
+define('virtualfoldermodules/main',['exports', '../environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Modulecontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulecontrol = exports.Modulecontrol = function () {
+    function Modulecontrol() {
+      _classCallCheck(this, Modulecontrol);
+
+      this.httpclient = new _aureliaHttpClient.HttpClient();
+      this.url = window.location.href;
+      this.enabled = false;
+      this.httpclient.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+    }
+
+    Modulecontrol.prototype.attached = function attached() {
+      var _this = this;
+
+      console.log("attached() url:" + this.url);
+      this.httpclient.get(this.url).then(function (response) {
+        return _this.okcallback(response);
+      }).catch(function (error) {
+        return _this.failcallback(error);
+      });
+    };
+
+    Modulecontrol.prototype.okcallback = function okcallback(response) {
+      console.log("okcallback()");
+      var res = JSON.parse(response.response);
+      console.log(res.enabled);
+      this.enabled = res.enabled;
+    };
+
+    Modulecontrol.prototype.failcallback = function failcallback(error) {
+      this.enabled = false;
+      console.log('Sorry, error when connecting backend web service at ' + this.url + ' error:' + error.response + " status:" + error.statusText);
+    };
+
+    Modulecontrol.prototype.enable = function enable() {
+      var _this2 = this;
+
+      this.httpclient.post(this.url).then(function (response) {
+        return _this2.okcallback(response);
+      }).catch(function (error) {
+        return _this2.failcallback(error);
+      });
+    };
+
+    return Modulecontrol;
+  }();
+});
+define('virtualfoldermodules/modulesetting',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulesetting = exports.Modulesetting = function Modulesetting() {
+    _classCallCheck(this, Modulesetting);
+  };
+});
+define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Scipioncontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Scipioncontrol = exports.Scipioncontrol = function (_Modulecontrol) {
+    _inherits(Scipioncontrol, _Modulecontrol);
+
+    function Scipioncontrol() {
+      _classCallCheck(this, Scipioncontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.url = "/metadataservice/sbservice/scipion";
+      _this.posturl = "/metadataservice/sbservice/scipion";
+      return _this;
+    }
+
+    return Scipioncontrol;
+  }(_modulecontrol.Modulecontrol);
+});
+define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Virtuosocontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var Virtuosocontrol = exports.Virtuosocontrol = function (_Modulecontrol) {
+    _inherits(Virtuosocontrol, _Modulecontrol);
+
+    function Virtuosocontrol() {
+      _classCallCheck(this, Virtuosocontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _this.url = "/metadataservice/sbservice/virtuoso";
+      return _this;
+    }
+
+    return Virtuosocontrol;
+  }(_modulecontrol.Modulecontrol);
+});
 define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
   'use strict';
 
@@ -2434,303 +2740,6 @@ define('virtualfoldersetting/urlutils',['exports'], function (exports) {
 
     return UrlUtils;
   }();
-});
-define('virtualfoldermodules/app',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-  };
-});
-define('virtualfoldermodules/ccp4control',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Ccp4control = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  var Ccp4control = exports.Ccp4control = function (_Modulecontrol) {
-    _inherits(Ccp4control, _Modulecontrol);
-
-    function Ccp4control() {
-      _classCallCheck(this, Ccp4control);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _this.posturl = "/metadataservice/sbservice/ccp4suite";
-      _this.url = "/metadataservice/sbservice/ccp4suite";
-      return _this;
-    }
-
-    return Ccp4control;
-  }(_modulecontrol.Modulecontrol);
-});
-define('virtualfoldermodules/main',['exports', '../environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Modulecontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Modulecontrol = exports.Modulecontrol = function () {
-    function Modulecontrol() {
-      _classCallCheck(this, Modulecontrol);
-
-      this.httpclient = new _aureliaHttpClient.HttpClient();
-      this.url = window.location.href;
-      this.enabled = false;
-      this.httpclient.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-    }
-
-    Modulecontrol.prototype.attached = function attached() {
-      var _this = this;
-
-      console.log("attached() url:" + this.url);
-      this.httpclient.get(this.url).then(function (response) {
-        return _this.okcallback(response);
-      }).catch(function (error) {
-        return _this.failcallback(error);
-      });
-    };
-
-    Modulecontrol.prototype.okcallback = function okcallback(response) {
-      console.log("okcallback()");
-      var res = JSON.parse(response.response);
-      console.log(res.enabled);
-      this.enabled = res.enabled;
-    };
-
-    Modulecontrol.prototype.failcallback = function failcallback(error) {
-      this.enabled = false;
-      console.log('Sorry, error when connecting backend web service at ' + this.url + ' error:' + error.response + " status:" + error.statusText);
-    };
-
-    Modulecontrol.prototype.enable = function enable() {
-      var _this2 = this;
-
-      this.httpclient.post(this.url).then(function (response) {
-        return _this2.okcallback(response);
-      }).catch(function (error) {
-        return _this2.failcallback(error);
-      });
-    };
-
-    return Modulecontrol;
-  }();
-});
-define('virtualfoldermodules/modulesetting',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Modulesetting = exports.Modulesetting = function Modulesetting() {
-    _classCallCheck(this, Modulesetting);
-  };
-});
-define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Scipioncontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  var Scipioncontrol = exports.Scipioncontrol = function (_Modulecontrol) {
-    _inherits(Scipioncontrol, _Modulecontrol);
-
-    function Scipioncontrol() {
-      _classCallCheck(this, Scipioncontrol);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _this.url = "/metadataservice/sbservice/scipion";
-      _this.posturl = "/metadataservice/sbservice/scipion";
-      return _this;
-    }
-
-    return Scipioncontrol;
-  }(_modulecontrol.Modulecontrol);
-});
-define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol"], function (exports, _modulecontrol) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Virtuosocontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  var Virtuosocontrol = exports.Virtuosocontrol = function (_Modulecontrol) {
-    _inherits(Virtuosocontrol, _Modulecontrol);
-
-    function Virtuosocontrol() {
-      _classCallCheck(this, Virtuosocontrol);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _this.url = "/metadataservice/sbservice/virtuoso";
-      return _this;
-    }
-
-    return Virtuosocontrol;
-  }(_modulecontrol.Modulecontrol);
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -5705,7 +5714,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"w3-css/w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder</h3>\n  </div>\n  <div if.bind=\"firsttime\">\n    <intro></intro>\n    <setting></setting>\n  </div>\n  <div if.bind=\"!firsttime\">\n    <filemanager></filemanager>\n  </div>\n</template>\n\n"; });
 define('text!icons.css', ['module'], function(module) { module.exports = ".fa {\n  display: inline-block;\n  font-size: inherit;\n  text-rendering: auto;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  width: 18px;\n}\n.fa-remove:before,\n.fa-close:before,\n.fa-times:before {\n  content: url(\"data:image/svg+xml;utf8,<svg version='1.1' width='100%' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21.9 21.9' enable-background='new 0 0 21.9 21.9'><path d='M14.1,11.3c-0.2-0.2-0.2-0.5,0-0.7l7.5-7.5c0.2-0.2,0.3-0.5,0.3-0.7s-0.1-0.5-0.3-0.7l-1.4-1.4C20,0.1,19.7,0,19.5,0  c-0.3,0-0.5,0.1-0.7,0.3l-7.5,7.5c-0.2,0.2-0.5,0.2-0.7,0L3.1,0.3C2.9,0.1,2.6,0,2.4,0S1.9,0.1,1.7,0.3L0.3,1.7C0.1,1.9,0,2.2,0,2.4  s0.1,0.5,0.3,0.7l7.5,7.5c0.2,0.2,0.2,0.5,0,0.7l-7.5,7.5C0.1,19,0,19.3,0,19.5s0.1,0.5,0.3,0.7l1.4,1.4c0.2,0.2,0.5,0.3,0.7,0.3  s0.5-0.1,0.7-0.3l7.5-7.5c0.2-0.2,0.5-0.2,0.7,0l7.5,7.5c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l1.4-1.4c0.2-0.2,0.3-0.5,0.3-0.7  s-0.1-0.5-0.3-0.7L14.1,11.3z'/></svg>\");\n}\n.fa-cog:before {\n  content: url(\"data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='0 0 489.7 489.7' style='enable-background:new 0 0 489.7 489.7;'>  <g>  <g>  <path d='M60.6,461.95c0,6.8,5.5,12.3,12.3,12.3s12.3-5.5,12.3-12.3v-301.6c34.4-5.9,60.8-35.8,60.8-71.9c0-40.3-32.8-73-73-73  s-73,32.7-73,73c0,36.1,26.3,66,60.8,71.9v301.6H60.6z M24.3,88.45c0-26.7,21.8-48.5,48.5-48.5s48.5,21.8,48.5,48.5  s-21.8,48.5-48.5,48.5S24.3,115.25,24.3,88.45z'/>  <path d='M317.1,401.25c0-36.1-26.3-66-60.8-71.9V27.75c0-6.8-5.5-12.3-12.3-12.3s-12.3,5.5-12.3,12.3v301.6  c-34.4,5.9-60.8,35.8-60.8,71.9c0,40.3,32.8,73,73,73S317.1,441.45,317.1,401.25z M195.6,401.25c0-26.7,21.8-48.5,48.5-48.5  s48.5,21.8,48.5,48.5s-21.8,48.5-48.5,48.5S195.6,427.95,195.6,401.25z'/>  <path d='M416.6,474.25c6.8,0,12.3-5.5,12.3-12.3v-301.6c34.4-5.9,60.8-35.8,60.8-71.9c0-40.3-32.8-73-73-73s-73,32.7-73,73  c0,36.1,26.3,66,60.8,71.9v301.6C404.3,468.75,409.8,474.25,416.6,474.25z M368.1,88.45c0-26.7,21.8-48.5,48.5-48.5  s48.5,21.8,48.5,48.5s-21.8,48.5-48.5,48.5C389.8,136.95,368.1,115.25,368.1,88.45z'/>  </g>  </g>  </svg>  \");\n}\n.fa-window-minimize:before {\n  content: url(\"data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='0 0 489.3 489.3' style='enable-background:new 0 0 489.3 489.3;'><g>\t<g>\t\t<path d='M0,12.251v464.7c0,6.8,5.5,12.3,12.3,12.3h224c6.8,0,12.3-5.5,12.3-12.3s-5.5-12.3-12.3-12.3H24.5v-440.2h440.2v210.5\t\t\tc0,6.8,5.5,12.2,12.3,12.2s12.3-5.5,12.3-12.2v-222.7c0-6.8-5.5-12.2-12.3-12.2H12.3C5.5-0.049,0,5.451,0,12.251z'/>\t\t<path d='M476.9,489.151c6.8,0,12.3-5.5,12.3-12.3v-170.3c0-6.8-5.5-12.3-12.3-12.3H306.6c-6.8,0-12.3,5.5-12.3,12.3v170.4\t\t\tc0,6.8,5.5,12.3,12.3,12.3h170.3V489.151z M318.8,318.751h145.9v145.9H318.8V318.751z'/>\t\t<path d='M135.9,257.651c0,6.8,5.5,12.3,12.3,12.3h109.5c6.8,0,12.3-5.5,12.3-12.3v-109.5c0-6.8-5.5-12.3-12.3-12.3\t\t\ts-12.3,5.5-12.3,12.3v79.9l-138.7-138.7c-4.8-4.8-12.5-4.8-17.3,0c-4.8,4.8-4.8,12.5,0,17.3l138.7,138.7h-79.9\t\t\tC141.4,245.351,135.9,250.851,135.9,257.651z'/>\t</g></g></svg>\");\n}\n"; });
-define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n\n\n  <input ref=\"input\" autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"blurSuggestions($event)\"\n         keydown.delegate=\"keypressed($event)\"\n         placeholder.bind=\"placeholder\" focus.trigger=\"focusSuggestions()\">\n\n  <div ref=\"results\" show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\" class=\"result-card\">\n\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <div class=\"result-card-body\">\n          <span repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n\n            <div class=\"result-card-item\"><button class=\"result-card-item-label w3-button w3-padding-0\" click.trigger=\"clicked(doclistRec.value)\" >${doclistRec.value}</button> <span class=\"result-card-item-count\">(${doclistRec.num_pdb_entries})</span></div>\n          </span>\n\n        </div>\n        <footer class=\"result-card-footer\">\n\n          <a class=\"result-card-item-label\" href=\"#\" click.delegate=\"searchMore(resultGroup.doclist.docs[0].var_name)\">More...</a>\n        </footer>\n\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">No hints.</div>\n  </div>\n</div>\n\n</template>\n"; });
+define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n\n\n  <input ref=\"input\" autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"blurSuggestions($event)\"\n         keydown.delegate=\"keypressed($event)\"\n         placeholder.bind=\"placeholder\" focus.trigger=\"focusSuggestions()\"\n         size.bind=\"size\">\n\n  <div ref=\"results\" show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\" class=\"result-card\">\n\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <div class=\"result-card-body\">\n          <span repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n\n            <div class=\"result-card-item\"><button class=\"result-card-item-label w3-button w3-padding-0\" click.trigger=\"clicked(doclistRec.value)\" >${doclistRec.value}</button> <span class=\"result-card-item-count\">(${doclistRec.num_pdb_entries})</span></div>\n          </span>\n\n        </div>\n        <footer class=\"result-card-footer\">\n\n          <a class=\"result-card-item-label\" href=\"#\" click.delegate=\"searchMore(resultGroup.doclist.docs[0].var_name)\">More...</a>\n        </footer>\n\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">No hints.</div>\n  </div>\n</div>\n\n</template>\n"; });
 define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-sand w3-hover-shadow w3-round-large\">\n      <h3>${heading}</h3>\n      <p>ONEDRIVE is a commercial data store and exchange service.\n        West-life portal can use your ONEDRIVE account to access and download your data files. </p>            <!-- form is showed only if the b2drop is not connected -->\n      <form show.bind=\"dialogstateentry\">\n        <p>You need to have existing ONEDRIVE account. </p>\n        <a show.bind=\"showonedrivebutton\" class=\"w3-btn w3-round-large\" href=\"${oneDriveAuthUrl}\" id=\"authlink\">Connect to ONEDRIVE</a>\n        <hr/>Status: <span>${status}</span>\n      </form>\n      <!-- if it is connected, then status info is showed and option to reconnect is showed-->\n      <form show.bind=\"dialogstateconnected\" submit.trigger=\"reconnect()\">\n        <span>ONEDRIVE service connected.</span>\n        <button class=\"w3-btn w3-round-large\" type=\"submit\">reconnect</button>\n      </form>\n\n      <div show.bind=\"dialogstateconnecting\">\n        <span>ONEDRIVE connecting ...</span>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
@@ -5715,8 +5724,8 @@ define('text!filemanager2/panel.html', ['module'], function(module) { module.exp
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"w3-css/w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n"; });
-define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"w3-css/w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"! itemPDBEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"! itemPDBEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div id=\"pdblinks-${item}\" if.bind=\"showitem\">\n    <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n    <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n    <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n    <hideable title=\"PDB 3D complex\">\n      <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n    </hideable>\n    <hr/>\n    Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n    <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n    <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n  </div>\n\n  <div id=\"uniprot-${item}\" if.bind=\"showuniprotitem\">\n    <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n  </div>\n\n</template>\n"; });
-define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    PDB or related item to add:\n    <vf-autocomplete-search submit.call=\"additem(item)\"></vf-autocomplete-search>\n  </form>\n\n\n\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n  dataset name:\n  <input value.bind=\"name\" change.trigger=\"changename()\"/>\n  <br/>\n  <button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n\n</div>\n</template>\n"; });
+define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"w3-css/w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <hideable title=\"PDB Redo\"><pdb-redo pdb-id=\"${item}\"></pdb-redo></hideable>\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n      <hideable title=\"PDB 3D complex\">\n        <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n      </hideable>\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n  </div>\n\n</template>\n"; });
+define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n<div class=\"w3-card w3-pale-blue\">\n\n  <h1>Dataset demo</h1>\n  <form>\n    PDB or related item to add:<br/>\n    <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1csb (PDB entry) or P077050 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n  </form>\n\n\n\n<hr/>\n  <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n<br/>\n  <ul>\n    <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n      <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n      <dataitem item=\"${item}\"></dataitem>\n    </li>\n  </ul>\n\n  dataset name:\n  <input value.bind=\"name\" change.trigger=\"changename()\"/>\n  <br/>\n\n  <!-- will be enabled after backend service is available\n  button click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button\n  -->\n\n</div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <button class=\"w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title}</button>\n    <span show.bind=\"showit\">\n      <slot></slot>\n    </span>\n</template>\n"; });
 define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'4ika'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });

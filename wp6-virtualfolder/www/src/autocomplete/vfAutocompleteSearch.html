@@ -5,7 +5,8 @@
   <input ref="input" autocomplete="off" value.bind="value & debounce:750"
          blur.trigger="blurSuggestions($event)"
          keydown.delegate="keypressed($event)"
-         placeholder.bind="placeholder" focus.trigger="focusSuggestions()">
+         placeholder.bind="placeholder" focus.trigger="focusSuggestions()"
+         size.bind="size">
 
   <div ref="results" show.bind="showing" class="result-container">
     <div repeat.for="resultGroup of resultGroups" class="result-card">
