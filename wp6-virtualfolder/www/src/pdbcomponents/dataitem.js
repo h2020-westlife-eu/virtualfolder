@@ -12,7 +12,7 @@ export class Dataitem {
   constructor(httpclient) {
     //console.log('dataitem()')
     //console.log(this.item);
-    this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
+    this.serviceurl = "//www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
     this.client = httpclient;
 
     this.entityids = [1];
