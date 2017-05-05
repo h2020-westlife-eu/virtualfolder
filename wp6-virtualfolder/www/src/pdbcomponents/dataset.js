@@ -40,6 +40,7 @@ export class Dataset {
 
   additem(item){
     console.log("additem()");
+    console.log(item);
     this.pdbdataset.unshift(item);
 
     //this.canSubmit = this.pdbdataset.length>0?true:false;

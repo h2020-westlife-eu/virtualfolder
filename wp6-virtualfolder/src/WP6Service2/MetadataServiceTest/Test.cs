@@ -109,9 +109,11 @@ namespace MetadataServiceTest
 	    [Test()]
 	    public void DatasetTestCase()
 	    {
-/*	        var client = new JsonServiceClient(BaseUri);
+	        var client = new JsonServiceClient(BaseUri);
 	        var all = client.Get(new DatasetsDTO() {});
-	        Assert.That(all.ToString(), Is.StringStarting("{}")); // asserts that the json is empty
+		    Assert.True(all.Count >= 0);
+
+		    //    Is.StringStarting("[")); // asserts that the json is array
 	        var mydto = new DatasetDTO()
 	        {
 	            Name="testdataset",
@@ -120,15 +122,16 @@ namespace MetadataServiceTest
 	        };
 	        client.Put(mydto);
 	        var all2 = client.Get(new DatasetsDTO() { });//gets all
-	        var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
-	        var all3 = client.Get(new DatasetDTO() {Name = testdto.DatasetNames[0]});
-	        var firstdto = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
-	        Assert.True(firstdto.Name == mydto.Name);
-	        Assert.True(firstdto.Entries.Count==mydto.Entries.Count);
-	        Assert.True(firstdto.Entries[0]==mydto.Entries[0]);
-	        Assert.True(firstdto.Urls.Count==mydto.Urls.Count);
-	        Assert.True(firstdto.Urls[0]==mydto.Urls[0]);
-*/	    }
+	        //var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
+	        var all3 = client.Get(new DatasetDTO() {Name = all2[0]});
+	        //var all3 = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
+	        Assert.True(all3.Name == mydto.Name);
+	        //Assert.True(all3.Entries.Count==mydto.Entries.Count);
+	        //Assert.True(all3.Entries[0]==mydto.Entries[0]);
+	        //Assert.True(all3.Urls.Count==mydto.Urls.Count);
+	        //Assert.True(all3.Urls[0]==mydto.Urls[0]);
+
+	    }
 
 	    /*[Test()]
 	    public void ApacheIntegrationServiceTestCase()

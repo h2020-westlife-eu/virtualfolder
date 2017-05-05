@@ -16,8 +16,8 @@ export class PdbIdsCustomAttribute {
      when the value is bind - before attached()
   */
   valueChanged(newValue,oldValue) {
-    console.log('pdbids.valueChanged() element:'+this.element.tagName+" newvalue:"+newValue+' this.value:'+this.value+' current.attribute.pdb-ids:'+ this.element.getAttribute('pdb-ids'));
-    console.log(this.value); // pdb-ids separated by coma -
+    //console.log('pdbids.valueChanged() element:'+this.element.tagName+" newvalue:"+newValue+' this.value:'+this.value+' current.attribute.pdb-ids:'+ this.element.getAttribute('pdb-ids'));
+    //console.log(this.value); // pdb-ids separated by coma -
     // "2hhd,1r6a,4yg0"
     if (this.value.length>0) {
 
@@ -34,8 +34,8 @@ export class PdbIdsCustomAttribute {
         if (this.bootstrapped) { //replace the angularized element with clean clone
           //create clone from stem clone
           var myclone = this.elementclone.cloneNode();
-          console.log('angular element');
-          console.log(this.element);
+          //console.log('angular element');
+          //console.log(this.element);
           this.parent = this.element.parentNode;
           //remove the element - angular
           this.parent.removeChild(this.element);

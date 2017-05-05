@@ -43,7 +43,7 @@ namespace WP6Service2.Services.Dataset
 
     /* DTO for API*/
     [Route("/dataset/{Name}")]
-    public class DatasetDTO : IReturn<object>
+    public class DatasetDTO : IReturn<DatasetDTO>
     {
         public long Id { get; set; }
         public string Name { get; set; }
@@ -53,7 +53,7 @@ namespace WP6Service2.Services.Dataset
     }
 
     [Route("/dataset")]
-    public class DatasetsDTO : IReturn<object>
+    public class DatasetsDTO : IReturn<List<string>>
     {
         public List<string> DatasetNames { get; set; }
     }
@@ -65,14 +65,14 @@ namespace WP6Service2.Services.Dataset
         /**
 returns all entries belonging to this dataset
 */
-        public object Get(DatasetsDTO dtos)
+        public List<string> Get(DatasetsDTO dtos)
         {
             var owner = (string) base.Request.Items["userid"];
-            var result =Db.Where<Dataset>(x => x.Owner == owner).Select(x=> x.Name);
+            var result =Db.Where<Dataset>(x => x.Owner == owner).Select(x=> x.Name).ToList();
             return result;
         }
 
-        public object Get(DatasetDTO dto)
+        public DatasetDTO Get(DatasetDTO dto)
         {
             var mydataset = Db.First<Dataset>(x =>  x.Name == dto.Name );
             dto.Name = mydataset.Name;

@@ -10,8 +10,8 @@ export class Dataitem {
   @bindable item = "";
 
   constructor(httpclient) {
-    console.log('dataitem()')
-    console.log(this.item);
+    //console.log('dataitem()')
+    //console.log(this.item);
     this.serviceurl = "http://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/"
     this.client = httpclient;
 
@@ -30,8 +30,8 @@ export class Dataitem {
         .then(response => response.json())
         .then(data => {
 
-          console.log("ENTRY ID Fetch, data:");
-          console.log(data)
+          //console.log("ENTRY ID Fetch, data:");
+          //console.log(data)
           this.entityids=[];
           for (var entryname in data) {  //data.2hhd data.4yg0 data.1cbs data.{ }   for (var ... in ...) { } //enumeration
             for (let item of data[entryname]) { //data[{}] == data[2hhd] == data.2hhd, for (let ... of ...)  [ ]  //array
@@ -44,7 +44,7 @@ export class Dataitem {
 
         }).catch(error => {
 
-        console.log('Error');
+        console.log('Error dataitem() fetch()');
         console.log(error);
       });
     }
