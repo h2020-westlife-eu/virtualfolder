@@ -44,7 +44,7 @@ export class Dataitem {
 
         }).catch(error => {
 
-        console.log('Error dataitem() fetch()');
+        console.log('Error dataitem().fetch() of "'+this.serviceurl + this.item+'"');
         console.log(error);
       });
     }

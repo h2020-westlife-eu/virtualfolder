@@ -1095,7 +1095,7 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
           _this.selectedid = _this.entityids[0];
         }).catch(function (error) {
 
-          console.log('Error dataitem() fetch()');
+          console.log('Error dataitem().fetch() of "' + _this.serviceurl + _this.item + '"');
           console.log(error);
         });
       }
