@@ -45,80 +45,90 @@ namespace MetadataService
 	                //drops table
 	                //db.DropTable<DBSettings> ();
 	                db.CreateTableIfNotExists<DBSettings>();
-	                try
-	                {
-		                CreateTablesV1705(db);
-	                    var dbsettings = SettingsStorageInDB.getDBSettings(db);
-	                    var version = new Version(dbsettings.VirtualFolderVersion);
-                        Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
-	                    var keyHash = dbsettings.KeyHash;
-	                    try
-	                    {
-	                        if (SettingsStorageInDB.compareHash(dbsettings.KeyHash))
-	                        {
-	                            //hash are same, OK
-	                        }
-	                        else
-	                        {
-	                            if (SettingsStorageInDB.compareDefaultHash(dbsettings.KeyHash))
-	                            {
-	                                Console.WriteLine("Warning: database is encrypted with default key. Currently using new key. Replacing.");
-	                                SettingsStorageInDB.storeSetting(db);
-	                                SettingsStorageInDB.swapfromdefaultkey(db);
-	                            }
-	                            else
-	                            {
-	                                Console.WriteLine("Warning: database is encrypted with different key. Encrypted items will not be accessible.");
-	                                //SettingsStorageInDB.storeSetting(db);
-	                            }
-	                            //throw new SecurityException("database is encrypted with different key");
-	                        }
-	                    }
-	                    catch (FormatException e)
-	                    {
-	                        //hash not stored
-	                        Console.WriteLine("Warning: Missing hash. Cannot validate encryption.");
-	                    }
+		            try
+		            {
+			            var dbsettings = SettingsStorageInDB.getDBSettings(db);
+			            var version = new Version(dbsettings.VirtualFolderVersion);
+			            Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
+			            var keyHash = dbsettings.KeyHash;
+			            try
+			            {
+				            if (SettingsStorageInDB.compareHash(dbsettings.KeyHash))
+				            {
+					            //hash are same, OK
+				            }
+				            else
+				            {
+					            if (SettingsStorageInDB.compareDefaultHash(dbsettings.KeyHash))
+					            {
+						            Console.WriteLine(
+							            "Warning: database is encrypted with default key. Currently using new key. Replacing.");
+						            SettingsStorageInDB.storeSetting(db);
+						            SettingsStorageInDB.swapfromdefaultkey(db);
+					            }
+					            else
+					            {
+						            Console.WriteLine(
+							            "Warning: database is encrypted with different key. Encrypted items will not be accessible.");
+						            //SettingsStorageInDB.storeSetting(db);
+					            }
+					            //throw new SecurityException("database is encrypted with different key");
+				            }
+			            }
+			            catch (FormatException e)
+			            {
+				            //hash not stored
+				            Console.WriteLine("Warning: Missing hash. Cannot validate encryption.");
+			            }
 
-	                }
-	                catch (InvalidOperationException e)
-	                {
-	                    //not version stored - version <= 17.02 or new database
-	                    Console.WriteLine("Database not versioned. Applying patch. Encrypting selected items.");
-	                    SettingsStorageInDB.storeSetting(db);
+		            }
+		            catch (InvalidOperationException e)
+		            {
+			            //not version stored - version <= 17.02 or new database
+			            Console.WriteLine("Database not versioned. Applying patch. Encrypting selected items.");
+			            SettingsStorageInDB.storeSetting(db);
+		            }
+		            //create tables
+		            CreateTablesV1702(db);
 
-	                    //create table
-	                    db.CreateTableIfNotExists<PDBArtifact>();
-
-                        //db.DropTable<SBService> ();
-	                    String [][] services = {new string[]
-	                            {"b2drop", "/bin/sudo","/home/vagrant/scripts/mountb2drop.sh"},
-	                        new string[]{"ccp4suite","/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-	                        new string[]{"scipion", "/bin/sh","/home/vagrant/scripts/startScipionWeb.sh"},
-	                        new string[]{"virtuoso", "/bin/sh","/home/vagrant/scripts/startVirtuoso.sh"}
-	                    };
-
-	                    //create table
-	                    db.CreateTableIfNotExists<SBService>();
-
-	                    foreach (var service in services) {
-	                        var p = new SBService { Name = service [0], Shell=service[1],TriggerScript = service [2] };
-	                        db.Insert (p);
-	                    }
-
-	                    db.CreateTableIfNotExists<ProviderItem>();
-	                    //encrypt secure keys in DB
-	                    var items = db.Select<ProviderItem>();
-	                    foreach (var item in items)
-	                    {
-	                        var b = item;
-	                        SettingsStorageInDB.encrypt(ref b);
-	                        db.Update<ProviderItem>(b);
-	                    }
-	                }
+		            CreateTablesV1705(db);
 
 	            }
 	        }
+
+		    private static void CreateTablesV1702(IDbConnection db)
+		    {
+			    db.CreateTableIfNotExists<PDBArtifact>();
+
+			    //db.DropTable<SBService> ();
+			    String[][] services =
+			    {
+				    new string[]
+					    {"b2drop", "/bin/sudo", "/home/vagrant/scripts/mountb2drop.sh"},
+				    new string[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
+				    new string[] {"scipion", "/bin/sh", "/home/vagrant/scripts/startScipionWeb.sh"},
+				    new string[] {"virtuoso", "/bin/sh", "/home/vagrant/scripts/startVirtuoso.sh"}
+			    };
+
+			    //create table
+			    db.CreateTableIfNotExists<SBService>();
+
+			    foreach (var service in services)
+			    {
+				    var p = new SBService {Name = service[0], Shell = service[1], TriggerScript = service[2]};
+				    db.Insert(p);
+			    }
+
+			    db.CreateTableIfNotExists<ProviderItem>();
+			    //encrypt secure keys in DB
+			    var items = db.Select<ProviderItem>();
+			    foreach (var item in items)
+			    {
+				    var b = item;
+				    SettingsStorageInDB.encrypt(ref b);
+				    db.Update<ProviderItem>(b);
+			    }
+		    }
 
 		    private void CreateTablesV1705(IDbConnection db)
 		    {

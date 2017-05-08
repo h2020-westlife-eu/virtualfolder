@@ -1,6 +1,6 @@
 <template>
   <require from="w3-css/w3.css"></require>
-  <div class="w3-half w3-sand w3-padding">
+  <div class="w3-sand w3-padding w3-margin">
 
     <form submit.trigger="addProvider()">
 
@@ -17,9 +17,9 @@
             West-life portal uses B2DROP TO store, upload and download AND share the data files.</p>
           <p>You need to create B2DROP account first at <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">b2drop.eudat.eu/pwm/public/NewUser?</a>
             Fill in the existing B2DROP username and password here:</p>
-          Username:<input type="text" name="username" size="15" maxlength="1024" value.bind="username"/><br/>
-          Password:<input type="password" name="securetoken" size="30" maxlength="1024" value.bind="password"/><br/>
-          Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+          Username:<input  class="w3-bar" type="text" name="username"  maxlength="1024" value.bind="username"/><br/>
+          Password:<input  class="w3-bar" type="password" name="securetoken" maxlength="1024" value.bind="password"/><br/>
+          Alias (optional):<input type="text" name="alias"  class="w3-bar" maxlength="1024" value.bind="alias"/><br/>
           <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
           <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
         </div>
@@ -34,9 +34,9 @@
             <a class="w3-btn w3-round-large" href="${dropboxauthurl}" id="authlink">Connect to DROPBOX</a>
           </div>
           <div show.bind="knowntoken">Secure token:
-            <input type="text" name="securetoken" size="30" maxlength="1024" value.bind="securetoken"
+            <input  class="w3-bar" type="text" name="securetoken" maxlength="1024" value.bind="securetoken"
                    readonly.bind="!editing"/><br/>
-            Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+            Alias (optional):<input class="w3-bar" type="text" name="alias" maxlength="1024" value.bind="alias"/><br/>
             <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
             <button class="w3-btn w3-round-large" type="submit">Add</button>
 
@@ -46,8 +46,8 @@
 
         <div show.bind="selectedFileSystem">
           Internal path to be linked:
-          <input type="text" name="securetoken" size="30" maxlength="1024" value.bind="filesystempath"/><br/>
-          Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+          <input  class="w3-bar" type="text" name="securetoken" maxlength="1024" value.bind="filesystempath"/><br/>
+          Alias (optional):<input  class="w3-bar" type="text" name="alias" maxlength="1024" value.bind="alias"/><br/>
           <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
           <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
         </div>
@@ -55,10 +55,10 @@
         <div show.bind="selectedWebDav">
           <p>WEBDAV is standard protocol to access content via web technologies. If you have address (WebDAV url) of a
             service, you can add it to West-life virtual folder directly.</p>
-          WebDAV URL:<input type="text" name="accessurl" size="15" maxlength="1024" value.bind="accessurl"/><br/>
-          Username:<input type="text" name="username" size="15" maxlength="1024" value.bind="username"/><br/>
-          Password:<input type="password" name="securetoken" size="30" maxlength="1024" value.bind="password"/><br/>
-          Alias (optional):<input type="text" name="alias" size="15" maxlength="1024" value.bind="alias"/><br/>
+          WebDAV URL:<input class="w3-bar" type="text" name="accessurl" maxlength="1024" value.bind="accessurl"/><br/>
+          Username:<input  class="w3-bar" type="text" name="username" maxlength="1024" value.bind="username"/><br/>
+          Password:<input  class="w3-bar" type="password" name="securetoken" maxlength="1024" value.bind="password"/><br/>
+          Alias (optional):<input  class="w3-bar" type="text" name="alias"  maxlength="1024" value.bind="alias"/><br/>
           <span class="w3-tiny">Alias is a unique name of the 'folder' under which the provider wil be 'mounted' and accessible.</span>
           <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
         </div>

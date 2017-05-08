@@ -42,7 +42,8 @@ namespace WP6Service2.Services.Dataset
     }
 
     /* DTO for API*/
-    [Route("/dataset/{Name}")]
+    [Route("/dataset/{Id}", "GET,PUT,DELETE")]
+    [Route("/dataset", "POST")]
     public class DatasetDTO : IReturn<DatasetDTO>
     {
         public long Id { get; set; }
@@ -52,10 +53,13 @@ namespace WP6Service2.Services.Dataset
 
     }
 
-    [Route("/dataset")]
-    public class DatasetsDTO : IReturn<List<string>>
+    [Route("/dataset", "GET")]
+    public class GetDatasets : IReturn<List<GetDatasetsResponse>> {}
+
+    public class GetDatasetsResponse
     {
-        public List<string> DatasetNames { get; set; }
+        public long Id { get; set; }
+        public string Name { get; set; }
     }
 
     [VreCookieRequestFilter]
@@ -65,16 +69,17 @@ namespace WP6Service2.Services.Dataset
         /**
 returns all entries belonging to this dataset
 */
-        public List<string> Get(DatasetsDTO dtos)
+        public List<GetDatasetsResponse> Get(GetDatasets dtos)
         {
             var owner = (string) base.Request.Items["userid"];
-            var result =Db.Where<Dataset>(x => x.Owner == owner).Select(x=> x.Name).ToList();
+            var result =Db.Where<Dataset>(x => x.Owner == owner).
+                Select(x=> new GetDatasetsResponse(){Id=x.Id, Name= x.Name}).ToList();
             return result;
         }
 
         public DatasetDTO Get(DatasetDTO dto)
         {
-            var mydataset = Db.First<Dataset>(x =>  x.Name == dto.Name );
+            var mydataset = Db.Where<Dataset>(x =>  x.Id == dto.Id ).First();
             dto.Name = mydataset.Name;
             dto.Entries = new List<string>();
             var myentries = Db.Select<DatasetEntries>(x => x.DatasetId == dto.Id);
@@ -88,7 +93,12 @@ returns all entries belonging to this dataset
 
         /** will store DatasetDTO as tables per DB schema
 */
-        public object Put(DatasetDTO dto)
+        public DatasetDTO Put(DatasetDTO dto)
+        {
+            return Post(dto);
+        }
+
+        public DatasetDTO Post(DatasetDTO dto)
         {
             try
             {
@@ -98,8 +108,8 @@ returns all entries belonging to this dataset
                 dto.Id = mydataset.Id;
                 for (var i =0;i<dto.Entries.Count;i++) //each (var myentry in dto.Entries)
                 {
-                    var mydatasetEntry = new DatasetEntry() {Entry = dto.Entries[i], Type = EntryType.OTHER,Url=dto.Urls[i]};
-                    var dbentry = Db.Select<DatasetEntry>(x => (x.Entry == dto.Entries[i]) && (x.Url == dto.Urls[i]));
+                    var mydatasetEntry = new DatasetEntry() {Entry = dto.Entries[i], Type = EntryType.OTHER,Url=(dto.Urls!=null)?dto.Urls[i]:""};
+                    var dbentry = Db.Select<DatasetEntry>(x => (x.Entry == dto.Entries[i]) && (x.Url == ((dto.Urls!=null)?dto.Urls[i]:"")));
                     if (dbentry.Count > 0)
                     {
                         mydatasetEntry.Id = dbentry[0].Id;
