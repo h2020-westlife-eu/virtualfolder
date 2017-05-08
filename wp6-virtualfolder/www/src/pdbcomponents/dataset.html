@@ -7,31 +7,40 @@
   <require from="./hideable"></require>
   <require from="../autocomplete/vfAutocompleteSearch"></require>
 
-<div class="w3-card w3-pale-blue">
+  <div class="w3-card w3-pale-blue">
 
-  <h1>Dataset demo</h1>
-  <form>
-    PDB or related item to add:<br/>
-    <vf-autocomplete-search submit.call="additem(item)" placeholder="1csb (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>
-  </form>
+    <h1>Dataset demo</h1>
+    <div show.bind="showlist">
+      <ul class="w3-ul w3-card-4">
+        <li class="w3-display-container" repeat.for="item of datasetlist"><span class=" w3-hover-amber" click.delegate="selectdataset(item)">${item.Name}</span>
+          <span click.delegate="removedataset(item)"
+                class="w3-button w3-display-right">&times;</span>
+        </li>
+      </ul>
+    </div>
+    <div show.bind="!showlist">
+      <form>
+        PDB or related item to add:<br/>
+        <vf-autocomplete-search submit.call="additem(item)" placeholder="1csb (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>
+      </form>
 
-<hr/>
-  <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
-<br/>
-  <ul>
-    <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item}</span>
-      <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
-      <dataitem item="${item}"></dataitem>
-    </li>
-  </ul>
+      <hr/>
+      <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
+      <br/>
+      <ul>
+        <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item}</span>
+          <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
+          <dataitem item="${item}"></dataitem>
+        </li>
+      </ul>
 
-  dataset name:
-  <input value.bind="name" change.trigger="changename()"/>
-  <br/>
+      dataset name:
+      <input value.bind="name" change.trigger="changename()"/>
+      <br/>
 
-  <!-- will be enabled after backend service is available -->
-  <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
+      <!-- will be enabled after backend service is available -->
+      <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
+    </div>
 
-
-</div>
+  </div>
 </template>
