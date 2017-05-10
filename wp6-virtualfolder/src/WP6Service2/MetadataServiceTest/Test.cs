@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,12 +109,13 @@ namespace MetadataServiceTest
 	    }
 
 	    [Test()]
-	    public void DatasetTestCase()
+	    public void Dataset1TestCase()
 	    {
 	        var client = new JsonServiceClient(BaseUri);
 	        var all = client.Get(new GetDatasets() );
+		    var firstcount = all.Count;
+		    Console.WriteLine(" DatasetTestCase() firstcount:"+firstcount);
 		    Assert.True(all.Count >= 0);
-
 		    //    Is.StringStarting("[")); // asserts that the json is array
 	        var mydto = new DatasetDTO()
 	        {
@@ -122,25 +123,76 @@ namespace MetadataServiceTest
 	            Entries=new string[]{"2hhd","3csb","4yg0"}.ToList(),
 	            Urls=new string[]{"http://www.pdb.org/2hhd","http://www.pdb.org/3csb","http://www.pdb.org/4yg0"}.ToList()
 	        };
-	        client.Put(mydto);
+
+	        var mydto2=client.Post(mydto);
+
+		    all = client.Get(new GetDatasets() );
+		    Console.WriteLine(" DatasetTestCase() all.count:"+all.Count);
+		    Assert.True(all.Count == (firstcount+1));
+
 	        var all2 = client.Get(new GetDatasets());//gets all
 	        //var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
-	        var all3 = client.Get(new DatasetDTO() {Id = all2[0].Id});
+	        var all3 = client.Get(new DatasetDTO() {Id = mydto2.Id});
 	        //var all3 = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
+		    Console.WriteLine(" DatasetTestCase() all3.name:"+all3.Name+" mydto.Name"+mydto.Name);
 	        Assert.True(all3.Name == mydto.Name);
 	        //Assert.True(all3.Entries.Count==mydto.Entries.Count);
 	        //Assert.True(all3.Entries[0]==mydto.Entries[0]);
 	        //Assert.True(all3.Urls.Count==mydto.Urls.Count);
 	        //Assert.True(all3.Urls[0]==mydto.Urls[0]);
+
+		    client.Delete(new DeleteDataset(){Id = mydto2.Id});
+
+		    all = client.Get(new GetDatasets() );
+		    Assert.True(all.Count == firstcount);
+
 	    }
 
-	    /*[Test()]
-	    public void ApacheIntegrationServiceTestCase()
-	    {
-	        var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
-	        var response = client.Get<string>("");
-	        Assert.True(response.Length>0);
-	    }*/
+		[Test()]
+		public void Dataset2TestCase()
+		{
+			//check no entries 2hh1,3csa,4yg1, get entries relation to dataset - put dataset, check whether entries present
+			//check whether number of relation increased by 3, then delete
+			var client = new JsonServiceClient(BaseUri);
+			var entries = client.Get(new GetEntries());
+			Assert.False(entries.Select(x => x.Name).Contains("2hh1"));
+			Assert.False(entries.Select(x => x.Name).Contains("3csa"));
+			Assert.False(entries.Select(x => x.Name).Contains("4yg1"));
+
+			var datasetentries = client.Get(new GetDatasetEntries());
+			int DErelations = datasetentries.Count;
+			var mydto = new DatasetDTO()
+			{
+				Name="testdataset2",
+				Entries=new string[]{"2hh1","3csa","4yg1"}.ToList(),
+				Urls=new string[]{"http://www.pdb.org/2hh1","http://www.pdb.org/3csa","http://www.pdb.org/4yg1"}.ToList()
+			};
+			var mydto2=client.Post(mydto);
+
+			entries = client.Get(new GetEntries());
+			Assert.True(entries.Select(x => x.Name).Contains("2hh1"));
+			Assert.True(entries.Select(x => x.Name).Contains("3csa"));
+			Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
+			datasetentries = client.Get(new GetDatasetEntries());
+			Assert.True(datasetentries.Count>DErelations);
+			Assert.True(datasetentries.Count==(DErelations+3));
+
+			client.Delete(new DeleteDataset(){Id = mydto2.Id});
+
+			datasetentries = client.Get(new GetDatasetEntries());
+			Assert.True(datasetentries.Count==DErelations);
+
+
+		}
+
+
+		/*[Test()]
+		public void ApacheIntegrationServiceTestCase()
+		{
+		    var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
+		    var response = client.Get<string>("");
+		    Assert.True(response.Length>0);
+		}*/
 	    //TODO tune up test for providers
 	    /*[Test()]
 	    public void GetListOfProvidersTestCase()

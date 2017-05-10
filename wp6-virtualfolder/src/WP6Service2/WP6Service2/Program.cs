@@ -29,8 +29,8 @@ namespace MetadataService
 	            : base("HttpListener Self-Host", typeof(SBService).Assembly) {}
 
 	        public override void Configure(Funq.Container container) {
-	            var connectionString = Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)!=null?
-	                Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR):"db.sqlite";
+	            var connectionString = "data source="+(Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)!=null?
+	                Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR):"db.sqlite")+";foreign key=True;";
 
 	            container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
 	                connectionString, SqliteDialect.Provider)); //added db.sqlite as a file name of DB - fixes sqlite errors on in memory db not populated
@@ -44,6 +44,10 @@ namespace MetadataService
 	            using (var db = container.Resolve<IDbConnectionFactory> ().Open ()) {
 	                //drops table
 	                //db.DropTable<DBSettings> ();
+		            var fk = db.SqlScalar<int>("PRAGMA foreign_keys=ON;"); //enable foreign keys and cascade delete
+		            //Console.WriteLine("foreign keys:"+fk);
+		            fk = db.SqlScalar<int>("PRAGMA foreign_keys;");
+		            Console.WriteLine("foreign keys:"+fk);
 	                db.CreateTableIfNotExists<DBSettings>();
 		            try
 		            {

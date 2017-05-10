@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 echo release-build
 MYCD=`pwd`
-WP6SRC=/home/vagrant/west-life-wp6-master/wp6-virtualfolder
 cd $WP6SRC/www
 npm install
 au build
