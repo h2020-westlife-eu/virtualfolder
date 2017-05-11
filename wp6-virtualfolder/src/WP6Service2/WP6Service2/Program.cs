@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Security;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
-using Microsoft.OneDrive.Sdk;
-using ServiceStack;
 using Mono.Unix;
 using Mono.Unix.Native;
-//using ServiceStack.Data;
-//using ServiceStack.Web;
 
 using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.Sqlite;
 using ServiceStack.WebHost.Endpoints;
 using WP6Service2.Services.Dataset;
 

@@ -44,7 +44,7 @@ export class Aliastable {
             console.log("redirecting");
             window.location = "/login?next=" + window.location.pathname;
             //window.location =
-          }
+          } else
         alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
   }
