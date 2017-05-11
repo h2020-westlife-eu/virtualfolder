@@ -23,23 +23,19 @@
 <script>
 var popup;
 var target;
-  //opens popup window in defined location
-/*function openwindow(href) {
-  popup=window.open(href, 'newwindow', 'width=640, height=480');
-}
-*/
 
 function openfilepickerwindow(_target){
-  openwindow("filepickercomponent.html",_target)
+  openwindow(_target,"filepickercomponent.html",_target)
 }
 function openuploaddirpickerwindow(_target){
-  openwindow("uploaddirpickercomponent.html",_target)
+  openwindow(_target,"uploaddirpickercomponent.html",_target)
 }
-function openwindow(href,_target) {
+//opens popup window in defined location, sets the target element id.
+function openwindow(_target,href) {
   target = _target;
   popup=window.open(href, 'newwindow', 'width=640, height=480');
 }
-//receives message from popup window
+//receives message from popup window, fills target element with the data received
   function receiveMessage(event)
   {
       document.getElementById(target).innerHTML=event.data;
