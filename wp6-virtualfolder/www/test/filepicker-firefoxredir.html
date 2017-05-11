@@ -9,11 +9,11 @@
 <!--#include virtual="../header.html" -->
 <div class="w3-sand w3-card w3-round-large w3-margin w3-padding">
 <h1>File picker</h1>
-<a href="filepickercomponent.html" onclick="openwindow('filepickercomponent.html'); return false;"> Open File Picker Component in a pop-up window.</a>
+<a href="enablejavascript" onclick="openfilepickerwindow('file'); return false;"> Open File Picker Component in a pop-up window.</a>
   <br/>After choosing the file and receiving it's url the pop-up window will be closed.
 <p>File:<a id="file" href=""></a></p>
 <h1>Upload-dir picker</h1>
-  <a href="uploaddirpickercomponent.html" onclick="openwindow('uploaddirpickercomponent.html'); return false;"> Open File Picker Component in a pop-up window.</a>
+  <a href="enablejavascript" onclick="openuploaddirpickerwindow('uploaddir'); return false;"> Open File Picker Component in a pop-up window.</a>
   <br/>After choosing the file and receiving it's url the pop-up window will be closed.
   <p>File:<a id="uploaddir" href=""></a></p>
 </div>
@@ -22,23 +22,28 @@
 <!--#include virtual="../footer.html" -->
 <script>
 var popup;
-
+var target;
   //opens popup window in defined location
-function openwindow(href) {
+/*function openwindow(href) {
   popup=window.open(href, 'newwindow', 'width=640, height=480');
+}
+*/
 
+function openfilepickerwindow(_target){
+  openwindow("filepickercomponent.html",_target)
+}
+function openuploaddirpickerwindow(_target){
+  openwindow("uploaddirpickercomponent.html",_target)
+}
+function openwindow(href,_target) {
+  target = _target;
+  popup=window.open(href, 'newwindow', 'width=640, height=480');
 }
 //receives message from popup window
   function receiveMessage(event)
   {
-    //directory upload distinguished by '#D' at the end
-    if (event.data.endsWith('#D')) {
-      document.getElementById("uploaddir").innerHTML=event.data;
-      document.getElementById("uploaddir").setAttribute("href",event.data);
-    } else {
-      document.getElementById("file").innerHTML = event.data;
-      document.getElementById("file").setAttribute("href", event.data);
-    }
+      document.getElementById(target).innerHTML=event.data;
+      document.getElementById(target).setAttribute("href",event.data);
   }
 
 window.addEventListener("message", receiveMessage, false);
