@@ -60,6 +60,12 @@ namespace WP6Service2.Services.Dataset
         public long Id { get; set; }
     }
 
+    [Route("/datasetnofk/{Id}", ",DELETE")]
+    public class DeleteDatasetNoFk : IReturnVoid
+    {
+        public long Id { get; set; }
+    }
+
     [Route("/dataset", "GET")]
     public class GetDatasets : IReturn<List<GetResponse>> {}
 
@@ -208,10 +214,37 @@ returns all entries belonging to this dataset
         {
 
             var fk = Db.SqlScalar<int>("PRAGMA foreign_keys=ON;"); //enable foreign keys and cascade delete
-            //Console.WriteLine("foreign keys:"+fk);
-            //fk = Db.SqlScalar<int>("PRAGMA foreign_keys;");
-            //Console.WriteLine("foreign keys:"+fk);
- //FOREIGN KEYS for CASCADE DELETE must be set for each connection
+
+            try
+            {
+                var owner = (string) base.Request.Items["userid"];
+                if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
+                {
+                    Db.DeleteById<Dataset>(dto.Id);
+                    //cascade delete?
+
+                    //workaround for cascade delete
+                    /*var deids= Db.Where<DatasetEntries>(x => x.DatasetId == dto.Id).Select(x => x.Id);
+                    Db.DeleteByIds<DatasetEntries>(deids);
+*/
+                }
+                else
+                    throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);
+
+            }
+            catch (KeyNotFoundException e) //in case Request.Item["userid"] is not set - unauthorized
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+        }
+
+        //for testing purposes
+        public void Delete(DeleteDatasetNoFk dto)
+        {
+
+            //var fk = Db.SqlScalar<int>("PRAGMA foreign_keys=ON;"); //enable foreign keys and cascade delete
+
             try
             {
                 var owner = (string) base.Request.Items["userid"];

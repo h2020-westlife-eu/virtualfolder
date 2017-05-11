@@ -102,7 +102,7 @@ namespace MetadataService.Services.Files
             }
             catch (Exception e)
             {
-                Console.WriteLine("error during getting authproxy info of sessionid "+sessionid+" domaon "+ domain+" \n"+ e.Message+e.StackTrace);
+                Console.WriteLine("error during getting authproxy info of sessionid "+sessionid+" domain "+ domain+" \n"+ e.Message+e.StackTrace);
                 return "";
             }
         }

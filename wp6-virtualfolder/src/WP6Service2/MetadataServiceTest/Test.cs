@@ -1,18 +1,12 @@
-﻿﻿using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.Policy;
 using System.Threading;
-using System.Threading.Tasks;
-using ServiceStack.Common.Web;
 using ServiceStack.ServiceClient.Web;
-using ServiceStack.Text;
 using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
-using ServiceStack.Common.Extensions;
 using WP6Service2.Services.Dataset;
 
 namespace MetadataServiceTest
@@ -181,8 +175,37 @@ namespace MetadataServiceTest
 
 			datasetentries = client.Get(new GetDatasetEntries());
 			Assert.True(datasetentries.Count==DErelations);
+		}
 
+		[Test()]
+		public void Dataset3TestCase()
+		{
+			var client = new JsonServiceClient(BaseUri);
+			var entries = client.Get(new GetEntries());
 
+			var datasetentries = client.Get(new GetDatasetEntries());
+			int DErelations = datasetentries.Count;
+			var mydto = new DatasetDTO()
+			{
+				Name="testdataset2",
+				Entries=new string[]{"2hh1","3csa","4yg1"}.ToList(),
+				Urls=new string[]{"http://www.pdb.org/2hh1","http://www.pdb.org/3csa","http://www.pdb.org/4yg1"}.ToList()
+			};
+			var mydto2=client.Post(mydto);
+
+			entries = client.Get(new GetEntries());
+			Assert.True(entries.Select(x => x.Name).Contains("2hh1"));
+			Assert.True(entries.Select(x => x.Name).Contains("3csa"));
+			Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
+			datasetentries = client.Get(new GetDatasetEntries());
+			Assert.True(datasetentries.Count>DErelations);
+			Assert.True(datasetentries.Count==(DErelations+3));
+
+			client.Delete(new DeleteDatasetNoFk(){Id = mydto2.Id});
+
+			datasetentries = client.Get(new GetDatasetEntries());
+			if (datasetentries.Count!=DErelations)
+				Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
 		}
 
 
