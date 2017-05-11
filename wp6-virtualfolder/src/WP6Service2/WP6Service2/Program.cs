@@ -120,6 +120,8 @@ namespace MetadataService
 				    //store in db
 				    db.Update<ProviderItem>(b);
 			    }
+			    SettingsStorageInDB.storeSetting(db);
+			    Console.WriteLine("Database patched, version updated.");
 		    }
 
 		    private static void CreateTablesV1702(IDbConnection db)

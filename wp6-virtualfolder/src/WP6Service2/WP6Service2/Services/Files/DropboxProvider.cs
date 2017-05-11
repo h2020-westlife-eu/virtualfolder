@@ -69,7 +69,6 @@ namespace MetadataService.Services.Files
             return isOk;
         }
 
-
         public async Task Initialize(){
             //TODO change access token to user specific
             try

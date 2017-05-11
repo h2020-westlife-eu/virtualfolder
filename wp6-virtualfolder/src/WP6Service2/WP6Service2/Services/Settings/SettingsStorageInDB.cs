@@ -154,8 +154,13 @@ namespace MetadataService.Services.Settings
                 VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 KeyHash = getHash()
             };
-            if (db.Select<DBSettings>().Count >0)
-                db.Update<DBSettings>(dbsettings);
+            //db.Where<DBSettings>(p => true);//var currentsetting=db.Select<DBSettings>();
+            if (db.Select<DBSettings>().Count > 0)
+            {
+
+                db.DeleteAll<DBSettings>();
+                db.Insert<DBSettings>(dbsettings);
+            }
             else
                 db.Insert<DBSettings>(dbsettings);
         }
