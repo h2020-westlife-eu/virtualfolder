@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -96,7 +97,8 @@ namespace MetadataService.Services.Settings
         {
             var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, key,
                 Encoding.UTF8.GetBytes(item.loggeduser).Length);
-            item.securetoken = dectoken;
+            if (dectoken==null) throw new WarningException("not decrypted");
+                item.securetoken = dectoken;
         }
 
 

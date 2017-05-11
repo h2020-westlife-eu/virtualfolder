@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Reflection;
 using MetadataService.Services.Files;
@@ -46,6 +47,7 @@ namespace MetadataService
 			            var dbsettings = SettingsStorageInDB.getDBSettings(db);
 			            var version = new Version(dbsettings.VirtualFolderVersion);
 			            Console.WriteLine("Database version:" + dbsettings.VirtualFolderVersion);
+			            if (version.Build < 6340) FixTablesV1705(db);
 			            var keyHash = dbsettings.KeyHash;
 			            try
 			            {
@@ -83,14 +85,42 @@ namespace MetadataService
 			            //not version stored - version <= 17.02 or new database
 			            Console.WriteLine("Database not versioned. Applying patch. Encrypting selected items.");
 			            SettingsStorageInDB.storeSetting(db);
+			            CreateTablesV1702(db);
+
 		            }
 		            //create tables
-		            CreateTablesV1702(db);
 
 		            CreateTablesV1705(db);
 
 	            }
 	        }
+
+		    //multiple encryption occurs - revers
+		    private void FixTablesV1705(IDbConnection db)
+		    {
+			    var items = db.Select<ProviderItem>();
+			    foreach (var item in items)
+			    {
+				    var b = item;
+				    var decrypted = true;
+				    //while encrypted, decrypt
+				    do
+				    {
+					    try
+					    {
+						    SettingsStorageInDB.decrypt(ref b);
+						    //decrypted = true;
+					    }
+					    catch (WarningException e) {decrypted = false;}
+					    catch (ArgumentException e) {decrypted = false;}
+					    catch (FormatException e) {decrypted = false;}
+				    } while (decrypted);
+				    //now decrypted - encrypt once
+				    SettingsStorageInDB.encrypt(ref b);
+				    //store in db
+				    db.Update<ProviderItem>(b);
+			    }
+		    }
 
 		    private static void CreateTablesV1702(IDbConnection db)
 		    {

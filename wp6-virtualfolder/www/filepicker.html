@@ -8,6 +8,14 @@
 <!--#include virtual="header.html" -->
 <div class="w3-sand w3-card w3-round-large w3-margin w3-padding">
 <h1>File picker</h1>
+  <a href="enablejavascript"
+
+     onclick="openwindow('fileid',
+   'https://portal.west-life.eu/virtualfolder/filepickercomponent.html'
+   ); return false;">West-life File</a>
+
+  <p>File:<a id="fileid" href=""></a></p>
+
 <a href="enablejavascript.html" onclick="openfilepickerwindow('file'); return false;"> Open File Picker Component in a pop-up window.</a>
   <br/>After choosing the file and receiving it's url the pop-up window will be closed.
 <p>File URL:<a id="file" href=""></a></p>
@@ -24,13 +32,13 @@ var popup;
 var target;
 
 function openfilepickerwindow(_target){
-  openwindow("filepickercomponent.html",_target)
+  openwindow(_target,"filepickercomponent.html")
 }
 function openuploaddirpickerwindow(_target){
-  openwindow("uploaddirpickercomponent.html",_target)
+  openwindow(_target,"uploaddirpickercomponent.html")
 }
   //opens popup window in defined location
-function openwindow(href,_target) {
+function openwindow(_target,href) {
   target=_target;
   popup=window.open(href, 'newwindow', 'width=640, height=480');
 
