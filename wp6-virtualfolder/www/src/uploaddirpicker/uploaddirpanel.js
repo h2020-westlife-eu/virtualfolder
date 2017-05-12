@@ -33,7 +33,7 @@ export class Uploaddirpanel extends Filepanel {
           let mypath = mypath2.signed_url;
           mypath+= this.path.startsWith('/')?this.path.slice(1):this.path;
           let mydir = {};
-          mydir.webdavuri = mypath+"#D";
+          mydir.webdavuri = mypath;
           this.ea.publish(new SelectedFile(mydir, this.panelid));
         }
       });

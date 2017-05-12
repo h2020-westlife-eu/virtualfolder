@@ -233,7 +233,6 @@ namespace MetadataServiceTest
 			//Assert.True(mydto4.Urls.Count==4);
 			Assert.True(mydto4.Entries.Contains("2hhd"));
 			//Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
-
 		}
 
 		/*[Test()]
