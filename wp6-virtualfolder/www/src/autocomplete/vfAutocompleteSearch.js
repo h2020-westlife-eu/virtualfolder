@@ -87,7 +87,8 @@ export class VfAutocompleteSearch {
       */
      console.log("keypressed(): submitting()")
      //this.hideSuggestions();
-     this.submit({item: evt.originalTarget.value})
+     if (evt.originalTarget) this.submit({item: evt.originalTarget.value}) //in Firefox
+     else if (evt.target) this.submit({item: evt.target.value}) //in IE
    } else
      if (key===27) this.hideSuggestions();
 

@@ -168,6 +168,7 @@ returns all entries belonging to this dataset
 
         private void CreateOrUpdateEntries(DatasetDTO dto, Dataset mydataset)
         {
+            var existingre = Db.Where<DatasetEntries>(de => (de.DatasetId==mydataset.Id)).Select(x => x.DatasetEntryId);
             for (var i = 0; i < dto.Entries.Count; i++) //each (var myentry in dto.Entries)
             {
                 var mydatasetEntry = new DatasetEntry()
@@ -177,11 +178,12 @@ returns all entries belonging to this dataset
                     Url = (dto.Urls != null) ? dto.Urls[i] : ""
                 };
                 //check if such entry with url exists
-                var dbentry = Db.Select<DatasetEntry>(x => (x.Entry == dto.Entries[i]) &&
-                                                           (x.Url == ((dto.Urls != null) ? dto.Urls[i] : "")));
-                if (dbentry.Count > 0) //use existing entry
+                var dbentry = Db.Where<DatasetEntry>(x => (x.Entry == dto.Entries[i]));
+                    var dbentryurls =dbentry.Select(x => x.Url);// &&
+                                                           //(x.Url == ((dto.Urls != null) ? dto.Urls[i] : "")));
+                if (dbentryurls.Contains(mydatasetEntry.Url)) //use existing entry
                 {
-                    mydatasetEntry.Id = dbentry[0].Id;
+                    mydatasetEntry.Id = dbentry.First(x => x.Url==mydatasetEntry.Url).Id;
                 }
                 else //insert new entry
                 {
@@ -189,8 +191,13 @@ returns all entries belonging to this dataset
                     mydatasetEntry.Id = Db.GetLastInsertId();
                 }
                 //insert relation Dataset-Entry
-                var mydatasetentries = new DatasetEntries() {DatasetId = mydataset.Id, DatasetEntryId = mydatasetEntry.Id};
-                Db.Insert<DatasetEntries>(mydatasetentries);
+                if (!existingre.Contains(mydatasetEntry.Id))
+                {
+                    var mydatasetentries =
+                        new DatasetEntries() {DatasetId = mydataset.Id, DatasetEntryId = mydatasetEntry.Id};
+
+                    Db.Insert<DatasetEntries>(mydatasetentries);
+                }
             }
         }
 

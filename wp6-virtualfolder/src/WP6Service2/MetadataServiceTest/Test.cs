@@ -180,6 +180,8 @@ namespace MetadataServiceTest
 		[Test()]
 		public void Dataset3TestCase()
 		{
+			//the same as dataset2TestCase - calls NoFK service. Warning released when cascade delete doesnt work =>
+			//foreign key is very probably disabled
 			var client = new JsonServiceClient(BaseUri);
 			var entries = client.Get(new GetEntries());
 
@@ -208,6 +210,31 @@ namespace MetadataServiceTest
 				Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
 		}
 
+		[Test()]
+		public void DatasetUpdateTestCase()
+		{
+			//submit dataset, then update it, check whether only relevant entries were updated - not doubled
+			var client = new JsonServiceClient(BaseUri);
+			var mydto = new DatasetDTO()
+			{
+				Name="testdataset3",
+				Entries=new string[]{"2hh1","3csa","4yg1"}.ToList(),
+				Urls=new string[]{"http://www.pdb.org/2hh1","http://www.pdb.org/3csa","http://www.pdb.org/4yg1"}.ToList()
+			};
+			var mydto2=client.Post(mydto);
+			Assert.True(mydto2.Entries.Count==3);
+			Assert.True(mydto2.Urls.Count==3);
+			mydto2.Entries.Add("2hhd");
+			mydto2.Urls.Add("http://www.pdb.org/2hhd");
+			var mydto3 = client.Put(mydto2);
+			var mydto4 = client.Get(new DatasetDTO(){Id = mydto2.Id});
+
+			Assert.True(mydto4.Entries.Count==4);
+			//Assert.True(mydto4.Urls.Count==4);
+			Assert.True(mydto4.Entries.Contains("2hhd"));
+			//Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
+
+		}
 
 		/*[Test()]
 		public void ApacheIntegrationServiceTestCase()

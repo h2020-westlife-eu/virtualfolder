@@ -7,18 +7,27 @@
   <require from="./hideable"></require>
   <require from="../autocomplete/vfAutocompleteSearch"></require>
 
-  <div class="w3-card w3-pale-blue">
 
-    <h1>Dataset demo</h1>
+    <div class="w3-card-2 w3-sand w3-center">
+      <h3>Virtual Folder - Dataset</h3>
+    </div>
+
+  <div class="w3-card w3-pale-blue">
     <div show.bind="showlist">
       <ul class="w3-ul w3-card-4">
-        <li class="w3-display-container" repeat.for="item of datasetlist"><span class=" w3-hover-amber" click.delegate="selectdataset(item)">${item.Name}</span>
+        <li class="w3-display-container"><div class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</div>
+
+        </li>
+        <li class="w3-display-container" repeat.for="item of datasetlist"><div class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</div>
           <span click.delegate="removedataset(item)"
                 class="w3-button w3-display-right">&times;</span>
         </li>
       </ul>
     </div>
+
     <div show.bind="!showlist">
+      <div class="w3-display-container w3-large w3-hover-green" click.delegate="unselectdataset(item)">${name}</div>
+
       <form>
         PDB or related item to add:<br/>
         <vf-autocomplete-search submit.call="additem(item)" placeholder="1csb (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>

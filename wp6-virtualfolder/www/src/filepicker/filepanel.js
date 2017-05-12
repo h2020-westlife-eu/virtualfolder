@@ -2,6 +2,7 @@
  * created by Tomas Kulhanek on 9/28/16.
  */
 
+import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';

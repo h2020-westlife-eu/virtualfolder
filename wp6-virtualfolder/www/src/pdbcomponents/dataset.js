@@ -2,6 +2,7 @@
  * created by Tomas Kulhanek on 2/21/17.
  */
 
+import 'whatwg-fetch';
 import {HttpClient} from "aurelia-http-client";
 import {computedFrom} from 'aurelia-framework';
 
@@ -12,13 +13,6 @@ export class Dataset {
   static inject = [HttpClient];
 
   constructor (httpclient) {
-    this.pdbdataset = [];
-    this.pdbdataitem = "";
-    this.pdblinkset = [];
-    this.pdbdataitem = "";
-    this.submitdisabled2 = true;
-    let date = new Date();
-    this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
     this.client = httpclient;
     this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
@@ -26,7 +20,24 @@ export class Dataset {
     });
     this.showitem=true;
     this.showlist=true;
+    this.pdbdataset = [];
+    this.pdbdataitem = "";
+    this.pdblinkset = [];
+    this.pdbdataitem = "";
+    this.submitdisabled2 = true;
+    this.id=0;
+  }
+
+  createnewdataset(){
+    this.pdbdataset = [];
+    this.pdbdataitem = "";
+    this.pdblinkset = [];
+    this.pdbdataitem = "";
+    this.submitdisabled2 = true;
+    let date = new Date();
+    this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
     this.id = 0;
+    this.showlist=false;
   }
 
 
@@ -48,6 +59,10 @@ export class Dataset {
       this.datasetlist = JSON.parse(data.response);
       console.log(this.datasetlist)
     })
+  }
+
+  unselectdataset(item){
+    this.showlist=true;
   }
 
   selectdataset(item){
@@ -96,20 +111,38 @@ export class Dataset {
   submit(){
     console.log("submitting data:");
     this.submitdataset = {};
+    this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
     //this.submitdataset.Urls =
     console.log(this.submitdataset);
     console.log(JSON.stringify(this.submitdataset));
     //PUT = UPDATE, POST = create new
-    this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
-      .then(data =>{
-        console.log("data response");
-        console.log(data);
-      })
-      .catch(error =>{
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-      });
+    if (this.id>0)
+      this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          console.log("data response");
+          console.log(data);
+          let myitem = JSON.parse(data.response);
+          //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
+    else
+      this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          console.log("data response");
+          console.log(data);
+          let myitem = JSON.parse(data.response);
+          this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
   }
 }
