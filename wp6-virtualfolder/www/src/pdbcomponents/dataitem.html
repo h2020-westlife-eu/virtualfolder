@@ -6,7 +6,8 @@
   <require from="w3-css/w3.css"></require>
   <require from="../icons.css"></require>
 
-  <i class="fa fa-window-minimize" click.delegate="hideitem()"></i>
+  <i if.bind="showitem" class="fa fa-window-minimize" click.delegate="hideitem()"></i>
+  <i if.bind="!showitem" class="fa fa-window-maximize" click.delegate="hideitem()"></i>
 
   <span class="w3-right" show.bind="itemPDBEntry">recognized as PDB entry</span>
   <span class="w3-right" show.bind="itemUniprotEntry">recognized as UniProt entry</span>

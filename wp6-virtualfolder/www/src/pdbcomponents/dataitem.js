@@ -17,7 +17,7 @@ export class Dataitem {
 
     this.entityids = [1];
     this.selectedid = this.entityids[0];
-    this.showitem = true;
+    this.showitem = false;
   }
 
   bind() {
@@ -52,14 +52,15 @@ export class Dataitem {
   }
 
   attached() {
-    //create stem clones of element
-    if (this.itemPDBEntry) {
-      this.stemel1 = this.el1.cloneNode(); //pure <pdb-topology
-      this.stemel2 = this.el2.cloneNode(); //pure <pdb-sequence
-    }
   }
 
   selectedValueChanged() {
+    //create stem clones of element
+    if (!this.stemel1 && this.itemPDBEntry) {
+      this.stemel1 = this.el1.cloneNode(); //pure <pdb-topology
+      this.stemel2 = this.el2.cloneNode(); //pure <pdb-sequence
+    }
+
     //replacing first element
     let newel=this.stemel1.cloneNode();
 

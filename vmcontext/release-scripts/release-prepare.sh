@@ -6,8 +6,11 @@ echo conf folder: $2
 echo release version: $3
 export DIRNAME=`dirname $1`
 #remove remaining old dir
+echo removing conf dir
 rm -rf $WP6SRC/wp6-virtualfolder/$2
 #copy from template dir
-cp -R wp6-virtualfolder/$1 /home/vagrant/west-life-wp6-master/wp6-virtualfolder/$2
+echo copying conf-template to conf dir
+cp -R $WP6SRC/wp6-virtualfolder/$1 $WP6SRC/wp6-virtualfolder/$2
 #replace in conf dir the latest by ${version}
+echo replacing latest to $3
 grep -rl virtualfolder\/latest ${WP6SRC}/wp6-virtualfolder/$2 | xargs sed -i s/latest/$3/g
