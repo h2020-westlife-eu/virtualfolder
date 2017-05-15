@@ -16,7 +16,8 @@
     "requirejs": "^2.3.2",
     "text": "github:requirejs/text#latest",
     "codemirror": "^5.23.0",
-    "dropbox": "^2.0.0"
+    "dropbox": "^2.0.0",
+    "whatwg-fetch":"^2.0.3"
   },
   "peerDependencies": {},
   "devDependencies": {
