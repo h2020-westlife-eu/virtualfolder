@@ -18,6 +18,8 @@ export class Dataitem {
     this.entityids = [1];
     this.selectedid = this.entityids[0];
     this.showitem = false;
+    let location = window.location.protocol;
+    this.httpsprotocol=location.startsWith('https'); //used to detect/hide buggy components
   }
 
   bind() {

@@ -8,6 +8,8 @@ export class App {
     this.showprovider = false;
     ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) )
     ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
+    let location = window.location.protocol;
+    this.islocalhost= location.startsWith('http:');
     // wait for assignement this.genericcontrol from children
   }
 

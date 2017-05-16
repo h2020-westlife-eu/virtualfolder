@@ -6,6 +6,7 @@ import {HttpClient} from 'aurelia-http-client';
 
 export class Modulecontrol{
 
+
   constructor () {
     this.httpclient=new HttpClient();
     this.url=window.location.href;

@@ -16,8 +16,12 @@
   <div if.bind="showitem">
     <div id="pdblinks-${item}" if.bind="itemPDBEntry">
       <hideable defaulthide=true title="PDB Litemol Viewer"><div style="position:relative;height:400px;width:600px;"><pdb-lite-mol pdb-id="'${item}'" hide-controls="true" load-ed-maps="true"></pdb-lite-mol></div></hideable>
-      <hideable title="PDB Redo"><pdb-redo pdb-id="${item}"></pdb-redo></hideable>
+      <div if.bind="!httpsprotocol">
+        <hideable title="PDB Redo"><pdb-redo pdb-id="${item}"></pdb-redo></hideable>
+      </div>
+      <div if.bind="!httpsprotocol">
       <hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
+      </div>
       <hideable title="PDB 3D complex">
         <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
       </hideable>

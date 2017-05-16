@@ -1,7 +1,5 @@
 <template>
-  <require from="w3-css/w3.css"></require>
-  <div class="w3-third w3-card-4 w3-sand w3-padding">
-
+  <div class.bind="classin">
     <h4>CCP4 suite</h4>
     <p>The CCP4 (Collaborative Computational Project, Number 4)
       software suite is a collection of programs and associated data
@@ -10,6 +8,5 @@
     <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>
     <p show.bind="!enabled">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href="http://www.ccp4.ac.uk/ccp4license.php">CCP4License</a>.</p>
     <button show.bind="!enabled" class="w3-btn w3-round-large" click.trigger="enable()">Agree & Enable CCP4</button>
-
-</div>
+  </div>
 </template>

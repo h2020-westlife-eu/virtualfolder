@@ -1,6 +1,9 @@
 <template>
   <require from="./genericcontrol"></require>
   <require from="./aliastable"></require>
+  <require from="../virtualfoldermodules/ccp4control"></require>
+  <require from="../virtualfoldermodules/scipioncontrol"></require>
+  <require from="../virtualfoldermodules/virtuosocontrol"></require>
   <require from="w3-css/w3.css"></require>
   <div class="w3-card-2 w3-sand w3-center">
     <h3>Virtual Folder - Settings</h3>
@@ -12,5 +15,14 @@
     </form>
 
     <genericcontrol show.bind="showprovider" class="w3-half"></genericcontrol>
+
+  </div>
+  <div if.bind="islocalhost">
+<div class="w3-card-2 w3-sand w3-center">
+  <h2>Available modules</h2>
+</div>
+    <ccp4control classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></ccp4control>
+    <scipioncontrol classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></scipioncontrol>
+    <virtuosocontrol classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></virtuosocontrol>
   </div>
 </template>
