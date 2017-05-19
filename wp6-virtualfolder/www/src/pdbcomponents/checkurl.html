@@ -1,0 +1,6 @@
+<template>
+  <span show.bind="showit">
+      <slot></slot>
+  </span>
+  <span show.bind="!showit">${message}</span>
+</template>

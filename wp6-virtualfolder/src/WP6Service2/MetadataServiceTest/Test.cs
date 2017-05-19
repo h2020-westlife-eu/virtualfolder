@@ -14,7 +14,7 @@ namespace MetadataServiceTest
 	[TestFixture ()]
 	public class Test
 	{
-	    string BaseUri = "http://localhost:8001/metadataservice/";
+	    string _baseUri = "http://localhost:8001/metadataservice/";
 
 
 	    [TestFixtureSetUp]
@@ -25,7 +25,7 @@ namespace MetadataServiceTest
 	        //wait 1 second
 		    //Environment.SetEnvironmentVariable("VF_STORAGE_PKEY", "xYD+jvVfisbY5Mer1ZfTEuv7KWw/NZN0BJaUoTBSFXw=");
 		    //Environment.SetEnvironmentVariable("VF_DATABASE_FILE", "home/vagrant/.westlife/metadata.sqlite");
-	        Program.StartHost(BaseUri,null);
+	        Program.StartHost(_baseUri,null);
 	        Thread.Sleep(1000);
 	    }
 
@@ -37,9 +37,9 @@ namespace MetadataServiceTest
 	    }
 
 	    [Test()]
-	    public void SBServiceTestCase()
+	    public void SbServiceTestCase()
 	    {
-	        var client = new JsonServiceClient(BaseUri);
+	        var client = new JsonServiceClient(_baseUri);
 	        var all = client.Get(new SBService() {Name = "scipion"});
 	        Assert.That(all.ToString(), Is.StringStarting("{Id"));
 	    }
@@ -49,13 +49,13 @@ namespace MetadataServiceTest
 	    [Test()]
 	    public void RawMetadataServiceTestCase()
 	    {
-	        var client = new JsonServiceClient(BaseUri);
+	        var client = new JsonServiceClient(_baseUri);
 	        var response = client.Get<string>("");
 	        Assert.True(response.Length>0);
 	    }
 
 	    [Test()]
-	    public void RefTestCase()
+	    public void EncryptingChangeContentOfSecureItemTestCase()
 	    {
 	        ProviderItem item;
 	        ProviderItem item2;
@@ -82,7 +82,7 @@ namespace MetadataServiceTest
 	    }
 
 	    [Test()]
-	    public void Encrypt2TestCase()
+	    public void EncryptingAndDecriptingListOfItemsTestCase()
 	    {
 	        ProviderItem item,item2;
 	        string testmessage,testpassword;
@@ -103,9 +103,9 @@ namespace MetadataServiceTest
 	    }
 
 	    [Test()]
-	    public void Dataset1TestCase()
+	    public void PostingDeletingDatasetTestCase()
 	    {
-	        var client = new JsonServiceClient(BaseUri);
+	        var client = new JsonServiceClient(_baseUri);
 	        var all = client.Get(new GetDatasets() );
 		    var firstcount = all.Count;
 		    Console.WriteLine(" DatasetTestCase() firstcount:"+firstcount);
@@ -143,18 +143,18 @@ namespace MetadataServiceTest
 	    }
 
 		[Test()]
-		public void Dataset2TestCase()
+		public void PostingDeletingDatasetShouldIncreaseDecreaseEntriesTestCase()
 		{
 			//check no entries 2hh1,3csa,4yg1, get entries relation to dataset - put dataset, check whether entries present
 			//check whether number of relation increased by 3, then delete
-			var client = new JsonServiceClient(BaseUri);
+			var client = new JsonServiceClient(_baseUri);
 			var entries = client.Get(new GetEntries());
 			Assert.False(entries.Select(x => x.Name).Contains("2hh1"));
 			Assert.False(entries.Select(x => x.Name).Contains("3csa"));
 			Assert.False(entries.Select(x => x.Name).Contains("4yg1"));
 
 			var datasetentries = client.Get(new GetDatasetEntries());
-			int DErelations = datasetentries.Count;
+			int dErelations = datasetentries.Count;
 			var mydto = new DatasetDTO()
 			{
 				Name="testdataset2",
@@ -168,25 +168,25 @@ namespace MetadataServiceTest
 			Assert.True(entries.Select(x => x.Name).Contains("3csa"));
 			Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
 			datasetentries = client.Get(new GetDatasetEntries());
-			Assert.True(datasetentries.Count>DErelations);
-			Assert.True(datasetentries.Count==(DErelations+3));
+			Assert.True(datasetentries.Count>dErelations);
+			Assert.True(datasetentries.Count==(dErelations+3));
 
 			client.Delete(new DeleteDataset(){Id = mydto2.Id});
 
 			datasetentries = client.Get(new GetDatasetEntries());
-			Assert.True(datasetentries.Count==DErelations);
+			Assert.True(datasetentries.Count==dErelations);
 		}
 
 		[Test()]
-		public void Dataset3TestCase()
+		public void CheckDeletingDatasetWithForeignKeyDisablesTestCase()
 		{
 			//the same as dataset2TestCase - calls NoFK service. Warning released when cascade delete doesnt work =>
 			//foreign key is very probably disabled
-			var client = new JsonServiceClient(BaseUri);
+			var client = new JsonServiceClient(_baseUri);
 			var entries = client.Get(new GetEntries());
 
 			var datasetentries = client.Get(new GetDatasetEntries());
-			int DErelations = datasetentries.Count;
+			int dErelations = datasetentries.Count;
 			var mydto = new DatasetDTO()
 			{
 				Name="testdataset2",
@@ -200,21 +200,21 @@ namespace MetadataServiceTest
 			Assert.True(entries.Select(x => x.Name).Contains("3csa"));
 			Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
 			datasetentries = client.Get(new GetDatasetEntries());
-			Assert.True(datasetentries.Count>DErelations);
-			Assert.True(datasetentries.Count==(DErelations+3));
+			Assert.True(datasetentries.Count>dErelations);
+			Assert.True(datasetentries.Count==(dErelations+3));
 
 			client.Delete(new DeleteDatasetNoFk(){Id = mydto2.Id});
 
 			datasetentries = client.Get(new GetDatasetEntries());
-			if (datasetentries.Count!=DErelations)
+			if (datasetentries.Count!=dErelations)
 				Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
 		}
 
 		[Test()]
-		public void DatasetUpdateTestCase()
+		public void DatasetUpdateShouldAddOnlyNewEntriesTestCase()
 		{
 			//submit dataset, then update it, check whether only relevant entries were updated - not doubled
-			var client = new JsonServiceClient(BaseUri);
+			var client = new JsonServiceClient(_baseUri);
 			var mydto = new DatasetDTO()
 			{
 				Name="testdataset3",
@@ -235,29 +235,6 @@ namespace MetadataServiceTest
 			//Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
 		}
 
-		/*[Test()]
-		public void ApacheIntegrationServiceTestCase()
-		{
-		    var client = new JsonServiceClient("http://localhost/metadataservice/metadata");
-		    var response = client.Get<string>("");
-		    Assert.True(response.Length>0);
-		}*/
-	    //TODO tune up test for providers
-	    /*[Test()]
-	    public void GetListOfProvidersTestCase()
-	    {
-	        var client = new JsonServiceClient(BaseUri);
-	        var response = client.Get<List<string>>("/providers");//new Providers(){});
-	        //response must contain dropbox, b2drop, optionally filesystem
-	        Assert.True(response.Contains("Dropbox"));
-	        Assert.True(response.Contains("B2drop"));
-	        //filesystem is available only when it is allowed by environment variable
-	        if (Environment.GetEnvironmentVariable(ProviderFactory.ALLOW_FILESYSTEM_VAR)=="true")
-	            Assert.True(response.Contains("FileSystem"));
-	        else
-	            Assert.False(response.Contains("FileSystem"));
-
-	    }*/
 	}
 }
 

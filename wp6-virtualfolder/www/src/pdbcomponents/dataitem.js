@@ -19,7 +19,7 @@ export class Dataitem {
     this.selectedid = this.entityids[0];
     this.showitem = false;
     let location = window.location.protocol;
-    this.httpsprotocol=location.startsWith('https'); //used to detect/hide buggy components
+//    this.httpsprotocol=location.startsWith('https'); //used to detect/hide buggy components
   }
 
   bind() {
@@ -28,6 +28,7 @@ export class Dataitem {
     //this.showuniprotitem = !this.itemPDBEntry;
     this.itemUniprotEntry = this.isUniprotEntry(this.item);
     if (this.itemPDBEntry) {
+
       this.client.fetch(this.serviceurl + this.item)
         .then(response => response.json())
         .then(data => {

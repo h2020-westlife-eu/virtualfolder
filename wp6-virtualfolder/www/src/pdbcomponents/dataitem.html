@@ -3,6 +3,7 @@
   <require from="./pdb-ids"></require>
   <require from="./entry-id"></require>
   <require from="./hideable"></require>
+  <require from="./checkurl"></require>
   <require from="w3-css/w3.css"></require>
   <require from="../icons.css"></require>
 
@@ -16,15 +17,18 @@
   <div if.bind="showitem">
     <div id="pdblinks-${item}" if.bind="itemPDBEntry">
       <hideable defaulthide=true title="PDB Litemol Viewer"><div style="position:relative;height:400px;width:600px;"><pdb-lite-mol pdb-id="'${item}'" hide-controls="true" load-ed-maps="true"></pdb-lite-mol></div></hideable>
-      <div if.bind="!httpsprotocol">
-        <hideable title="PDB Redo"><pdb-redo pdb-id="${item}"></pdb-redo></hideable>
-      </div>
-      <div if.bind="!httpsprotocol">
-      <hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
-      </div>
-      <hideable title="PDB 3D complex">
-        <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
+      <hideable title="PDB Redo">
+        <!--checkurl url="//pdb-redo.eu/db/${item}/pdbe.json" failmessage="No PDB-REDO data available for this structure."-->
+          <pdb-redo pdb-id="${item}"></pdb-redo>
+        <!--/checkurl-->
       </hideable>
+      <hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
+      <hideable title="PDB 3D complex">
+        <checkurl url="//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item}.json" failmessage="No 3D-complex data available for this structure.">
+          <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>
+        </checkurl>
+      </hideable>
+
       <hr/>
       Showing entity-id:<select name="entityids" value.bind="selectedid" change.delegate="selectedValueChanged()"><option repeat.for="entityid of entityids" value="${entityid}">${entityid}</option></select>
       <hideable title="PDB Topology Viewer"><pdb-topology-viewer ref="el1" entry-id="${item}" entity-id="1"></pdb-topology-viewer></hideable>

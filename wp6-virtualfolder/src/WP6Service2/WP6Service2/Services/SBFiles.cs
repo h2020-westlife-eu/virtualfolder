@@ -8,11 +8,12 @@ using ServiceStack.Text;
 namespace MetadataService.Services
 {
 
-	[Flags] public enum FileType {
+	[Flags]
+	public enum FileType {
 		None= 0,
-		Directory = 1,
-		Read = 2,
-		Write = 4
+		Directory = 2^0,
+		Read = 2^1,
+		Write = 2^2
 	}
 
 

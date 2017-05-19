@@ -136,6 +136,7 @@ namespace MetadataService
 				    new string[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
 				    new string[] {"scipion", "/bin/sh", "/home/vagrant/scripts/startScipionWeb.sh"},
 				    new string[] {"virtuoso", "/bin/sh", "/home/vagrant/scripts/startVirtuoso.sh"}
+				    //new string[] {"cloudinstance","/bin/sh",""}
 			    };
 
 			    //create table
