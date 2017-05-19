@@ -17,12 +17,16 @@
   <div if.bind="showitem">
     <div id="pdblinks-${item}" if.bind="itemPDBEntry">
       <hideable defaulthide=true title="PDB Litemol Viewer"><div style="position:relative;height:400px;width:600px;"><pdb-lite-mol pdb-id="'${item}'" hide-controls="true" load-ed-maps="true"></pdb-lite-mol></div></hideable>
+      <checkurl url="//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item}/pdbe.json" failmessage="">
       <hideable title="PDB Redo">
         <!--checkurl url="//pdb-redo.eu/db/${item}/pdbe.json" failmessage="No PDB-REDO data available for this structure."-->
           <pdb-redo pdb-id="${item}"></pdb-redo>
         <!--/checkurl-->
       </hideable>
+      </checkurl>
+      <checkurl url="//www.mrc-lmb.cam.ac.uk/rajini/api/${item}" failmessage="">
       <hideable title="PDB Residue interaction"><pdb-residue-interactions pdb-id="${item}"></pdb-residue-interactions></hideable>
+      </checkurl>
       <hideable title="PDB 3D complex">
         <checkurl url="//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item}.json" failmessage="No 3D-complex data available for this structure.">
           <pdb-3d-complex pdb-id="${item}" assembly-id="1"></pdb-3d-complex>

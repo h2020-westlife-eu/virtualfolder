@@ -19,11 +19,14 @@ export class Dataitem {
     this.selectedid = this.entityids[0];
     this.showitem = false;
     let location = window.location.protocol;
+    this.pdbred="cc";
 //    this.httpsprotocol=location.startsWith('https'); //used to detect/hide buggy components
   }
 
   bind() {
     this.itemPDBEntry = this.isPDBEntry(this.item);
+    this.pdbredo = this.item[1]+this.item[2]; //2nd and 3rd character
+    console.log(this.pdbredo);
     //this.showitem = this.itemPDBEntry;
     //this.showuniprotitem = !this.itemPDBEntry;
     this.itemUniprotEntry = this.isUniprotEntry(this.item);

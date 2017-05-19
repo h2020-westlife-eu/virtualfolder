@@ -11,7 +11,7 @@ export class Checkurl {
   constructor(httpclient){
     this.client = httpclient;
     this.showit=false;
-    this.message="Loading";
+    //this.message="";
   }
 
   attached(){
@@ -22,12 +22,12 @@ export class Checkurl {
         console.log("checkurl response:");
         console.log(response);
         if (response.status==200) this.showit=true;
-        this.message = this.failmessage;
+        //this.message = this.failmessage;
       })
       .catch(error =>{
         this.showit=false;
         console.log('checkurl error:'+error);
-        this.message = this.failmessage;
+        //this.message = this.failmessage;
       });
   }
 
