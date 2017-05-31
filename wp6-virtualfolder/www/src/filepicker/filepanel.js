@@ -117,16 +117,21 @@ export class Filepanel{
 
         this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
-        if (this.path.length>0) {//non root path
-            this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
-        }
         this.files.forEach (function (item,index,arr){
           if(!arr[index].name && arr[index].alias) {
             arr[index].name=arr[index].alias;
             arr[index].attributes = 16;
             arr[index].date="";
           }
-          if (arr[index].attributes & 16) arr[index].size="DIR"});
+          if (arr[index].attributes & 16) arr[index].size="DIR";
+          else
+            //convert to 4GB or 30MB or 20kB or 100b
+            arr[index].size=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
+        });
+      if (this.path.length>0) {//non root path
+        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+      }
+
     }
 
     selectFile(file){

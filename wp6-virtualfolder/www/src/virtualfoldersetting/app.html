@@ -1,28 +1,20 @@
 <template>
-  <require from="./genericcontrol"></require>
-  <require from="./aliastable"></require>
-  <require from="../virtualfoldermodules/ccp4control"></require>
-  <require from="../virtualfoldermodules/scipioncontrol"></require>
-  <require from="../virtualfoldermodules/virtuosocontrol"></require>
+  <require from="./storageprovider"></require>
+  <require from="../virtualfoldermodules/modulesetting"></require>
+  <require from="./clouddeployment"></require>
   <require from="w3-css/w3.css"></require>
+
   <div class="w3-card-2 w3-sand w3-center">
     <h3>Virtual Folder - Settings</h3>
   </div>
 
-  <div class="w3-container">
-    <form submit.trigger="newProvider()" class="w3-half">
-    <aliastable></aliastable>
-    </form>
+  <storageprovider></storageprovider>
 
-    <genericcontrol show.bind="showprovider" class="w3-half"></genericcontrol>
-
-  </div>
   <div if.bind="islocalhost">
-<div class="w3-card-2 w3-sand w3-center">
-  <h2>Available modules</h2>
-</div>
-    <ccp4control classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></ccp4control>
-    <scipioncontrol classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></scipioncontrol>
-    <virtuosocontrol classin="w3-card-4 w3-sand w3-padding w3-margin w3-round"></virtuosocontrol>
+    <modulesetting></modulesetting>
+  </div>
+
+  <div if.bind="islocalhost">
+    <clouddeployment></clouddeployment>
   </div>
 </template>

@@ -7,6 +7,9 @@ import {bindable} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
 import {computedFrom} from 'aurelia-framework';
 
+/** Virtual Folder Autocomplete Search client web component to work with API at abi.ac.uk
+ *
+ */
 export class VfAutocompleteSearch {
   @bindable value = ""; // value of input
   @bindable placeholder = "";
@@ -89,8 +92,11 @@ export class VfAutocompleteSearch {
      //this.hideSuggestions();
      if (evt.originalTarget) this.submit({item: evt.originalTarget.value}) //in Firefox
      else if (evt.target) this.submit({item: evt.target.value}) //in IE
+     this.hideSuggestions();
    } else
      if (key===27) this.hideSuggestions();
+   else
+     this.showSuggestions();
 
    return true;
  }

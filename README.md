@@ -1,4 +1,5 @@
 # Virtual folder
+
 ## Introduction
 West-Life is a H2020 Virtual Research Environment project that will provide the application level services specific to uses cases in structural biology. 
 Data management work package WP6 build on existing infrastructure for storing and accessing data. It provides application level service usable for structural biology use cases and follows structural biology data lifecycle (Report ...).
@@ -6,9 +7,10 @@ The WP6 is distributed as a vagrant package. Configuration files and scripts whi
 
 ## Installation
 
-To install the West-Life virtual folder you have several options:
-  1) To prepare testing and development environment, follow instruction at the meta repository to prepare the copy of West-Life VM with virtual folder https://github.com/h2020-westlife-eu/wp6-vm.git.
-  2) To prepare testing & production environment, import the released OVA image into preferred virtual machine monitor - cloud computing environment. 
+Virtual Folder is available at West-Life portal https://portal.west-life.eu.
+To install your private Virtual Folder you have several options:
+  1) To prepare testing and development environment, follow instruction at the meta repository to prepare the copy of West-Life VM with virtual folder https://github.com/h2020-westlife-eu/wp6-vm.git or at .
+  2) To prepare testing & production environment, import the released OVA image into preferred virtual machine monitor - cloud computing environment.
   3) To prepare production environment in scientific cloud infrastructure, deploy the image released at https://appdb.egi.eu/store/vappliance/d6.1.virtualfoldervm for OVA compatible or https://appdb.egi.eu/store/vappliance/west.life.vm for OpenStack
   
 ## Usage

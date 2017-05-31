@@ -1,0 +1,41 @@
+<template>
+  <require from="../pdbcomponents/hideable"></require>
+
+  <hideable title="Cloud deployment" defaulthide="true">
+    <div class="w3-card-4 w3-sand">
+      <h3>Available virtual machines</h3>
+      <table class="w3-table w3-striped w3-hoverable">
+        <thead>
+        <tr>
+          <th>name</th>
+          <th>location</th>
+          <th>capacity</th>
+          <th>mounted VF</th>
+          <th>task status</th>
+        </tr>
+        </thead>
+
+        <tr>
+          <td>West-Life VF 17.05</td>
+          <td>EGI FedCloud, CESNET</td>
+          <td>8GB RAM, 50GB scratch disc</td>
+          <td>mounted - all (b2drop,dropbox,pcloud)</td>
+          <td class="w3-pale-green">OK, CPU utilization 50%</td>
+          <td><a href="#">Connect to console</a></td>
+        </tr>
+
+        <tr>
+          <td>West-Life VF 17.05</td>
+          <td>EGI FedCloud, INFN</td>
+          <td>16GB RAM, 50GB scratch disc</td>
+          <td>mounted - all (b2drop,dropbox,pcloud)</td>
+          <td class="w3-pale-red">halted</td>
+        </tr>
+        <tr>
+          <td><button class="w3-button">Create new VM</button></td>
+        </tr>
+      </table>
+    </div>
+  </hideable>
+
+</template>

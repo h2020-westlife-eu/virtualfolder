@@ -1,0 +1,17 @@
+<template>
+  <require from="./genericcontrol"></require>
+  <require from="./aliastable"></require>
+  <require from="../pdbcomponents/hideable"></require>
+
+  <hideable title="Storage providers">
+    <div class="w3-container">
+      <form submit.trigger="newProvider()" class="w3-half">
+        <aliastable></aliastable>
+      </form>
+
+      <genericcontrol show.bind="showprovider" class="w3-half"></genericcontrol>
+
+    </div>
+  </hideable>
+
+</template>
