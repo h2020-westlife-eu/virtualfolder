@@ -100,7 +100,7 @@ export class Dataitem {
     return /^[0-9][A-Za-z0-9]{3}$/.test(entry);
   }
   isUniprotEntry(entry) {
-    return /^[P][0-9]{5}-?[0-9]*$/.test(entry);
+    return /^[A-Z][0-9][A-Z0-9]{4}$/.test(entry);
   }
 
 }
