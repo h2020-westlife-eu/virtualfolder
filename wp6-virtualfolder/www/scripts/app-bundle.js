@@ -1244,7 +1244,7 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
     };
 
     Dataitem.prototype.isUniprotEntry = function isUniprotEntry(entry) {
-      return (/^[A-Z][0-9][A-Z0-9]{4}$/.test(entry)
+      return (/^[A-Z][0-9][A-Z0-9]{4}[A-Z0-9]*$/.test(entry)
       );
     };
 
