@@ -2,34 +2,38 @@
 
 ## Introduction
 West-Life is a H2020 Virtual Research Environment project that between years 2015-2018 develops the application level services specific to uses cases in structural biology.
-Data management work package WP6 build on existing infrastructure for storing and accessing data. It provides application level service usable for structural biology use cases and follows structural biology data lifecycle (Report ...).
-The WP6 is distributed as a vagrant package. Configuration files and scripts which initiates self deployment, installation and configuration of prototype virtual machine.
-
+Data management work package WP6 build on existing infrastructure for storing and accessing data. Working name - Virtual Folder. It provides application level service usable for structural biology use cases and follows structural biology data lifecycle (Report ...).
+Virtual Folder is distributed as a vagrant package. Configuration files and scripts which initiates self deployment, installation and configuration of prototype virtual machine.
 
 ## Usage
-Virtual Folder is available at West-Life portal https://portal.west-life.eu
-
+Public Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
+Private Virtual Folder can be installed on local cluster or workstation.
 Follow [User's guide](doc/users-guide.md) for further details.
 
 ## Installation
 
-To have a quick private deployment of the virtual folder, follow the instruction at https://github.com/h2020-westlife-eu/wp6-vm.git.
+Hardware configuration for private deployment of virtual machine:
+* Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
+* Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
+* Cloud system: tested on OpenNebula, OpenStack
+* Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS)
+* Desktop, Server Software: VirtualBox 5.1.6+, Vagrant 1.8.6+ (optional)
+For installation, follow the instruction at https://github.com/h2020-westlife-eu/wp6-vm.git.
 
 After installation, the new virtual machine can be accessed via web browser `http://[vm.ip.address]:[port]/`
-By default, vagrant tool forwards the port 8080 to the virtual machine 80, thus you can access `http://localhost:8080`
+By default, `http://localhost:8080`
 Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g. `http://localhost:8080/webdav`
 
-Files of the current working directory of host are mounted into <code>/vagrant</code>
-
-Repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
+Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
+and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
 
 Follow [Installation guide](doc/installation-guide.md) fo further details.
 
 ## Integration
 
-Virtual Folder can be integrated into any other portal or web application as linked or embeded component.
-The typical usages is to pick a file from Virtual Folder by - File Picker component returns unique URL, which
-can be used to access the file - download, upload, change.
+Functionality of Virtual Folder can be integrated into other portal or web application.
+Recommended is linking existing component using cross-document messaging mechanism - e.g.
+for picking a file from Virtual Folder by - File Picker component.
 
 Follow [Integration guide](doc/integration-guide.md) for further details.
 
