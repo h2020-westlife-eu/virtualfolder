@@ -7,7 +7,7 @@ There are 2 options
 
 You may download the latest West-life VM in the OVA compatible format from 
 https://appdb.egi.eu/store/vappliance/d6.1.virtualfoldervm
-![](/assets/DownloadAppDB.gif)
+![](/doc/assets/DownloadAppDB.gif)
 
 Alternatively you may use the RAW image for deployment into OpenStack at https://appdb.egi.eu/store/vappliance/west.life.vm
 
@@ -17,10 +17,10 @@ This OVA can be used to deploy the West-life VM e.g. in OpenNebula environment, 
 ### Deployment to local VirtualBox
 For testing purposes you may import the image into local installation of VirtualBox.
 
-![](/assets/ImportVM2.gif)
+![](/doc/assets/ImportVM2.gif)
 
 The OVA image initially 18 MB bootstraps operating system and additional software by downloadin about 100-200 MB, the initial bootstrap can take about several minutes. You can access the desktop directly.
-![](/assets/VMDesktop.gif)
+![](/doc/assets/VMDesktop.gif)
 
 
 ## Local Installation using Vagrant
@@ -35,7 +35,7 @@ vagrant up
 ```
 This will clone repository with scripts, get an initial VM image and starts the image with provisioning.
 
-![](/assets/VMVagrantUp.gif)
+![](/doc/assets/VMVagrantUp.gif)
 
 After succesfull installation, there should be message 'BOOSTRAP FINISHED, VM prepared to use'.
 
