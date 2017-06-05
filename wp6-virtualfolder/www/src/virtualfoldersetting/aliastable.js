@@ -29,8 +29,8 @@ export class Aliastable {
     //gets the status of the b2drop connection
     this.client.get(this.serviceurl)
       .then(data => {
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
@@ -52,8 +52,8 @@ export class Aliastable {
   submitSettings(settings) {
     this.client.put(this.serviceurl,JSON.stringify(settings))
       .then(data =>{
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
@@ -72,11 +72,16 @@ export class Aliastable {
       return;
     this.client.delete(this.serviceurl+"/"+settings.alias)
       .then(data =>{
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
+      })
+      .catch(error =>{
+        console.log(error);
+
+        alert('Sorry. Settings not deleted at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
   }
 

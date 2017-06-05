@@ -7,21 +7,20 @@
 
   <tabs tabs.bind="paneltabs"></tabs>
     <div show.bind="selectedList">
-        <filepanel panelid.bind="uid"></filepanel>
+        <filepanel panelid.bind="pid"></filepanel>
     </div>
 
-    <div if.bind="selectedView">
-        <fileeditor></fileeditor>
+    <div show.bind="selectedView">
+        <fileeditor pid.bind="pid"></fileeditor>
     </div>
 
     <div show.bind="selectedVisual">
-        <viewpanel panelid.bind="uid"></viewpanel>
+        <viewpanel pid.bind="pid"></viewpanel>
     </div>
 
-
-  <div show.bind="selectedDataset">
-    <dataset></dataset>
-  </div>
+    <div show.bind="selectedDataset">
+      <dataset></dataset>
+    </div>
 
 
 </template>

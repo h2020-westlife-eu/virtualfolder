@@ -14,7 +14,7 @@ namespace MetadataServiceTest
 	[TestFixture ()]
 	public class Test
 	{
-	    string _baseUri = "http://localhost:8001/metadataservice/";
+	    string _baseUri = "http://localhost:8002/metadataservice/";
 
 
 	    [TestFixtureSetUp]
@@ -149,24 +149,24 @@ namespace MetadataServiceTest
 			//check whether number of relation increased by 3, then delete
 			var client = new JsonServiceClient(_baseUri);
 			var entries = client.Get(new GetEntries());
-			Assert.False(entries.Select(x => x.Name).Contains("2hh1"));
-			Assert.False(entries.Select(x => x.Name).Contains("3csa"));
-			Assert.False(entries.Select(x => x.Name).Contains("4yg1"));
+			Assert.False(entries.Select(x => x.Name).Contains("2hh4"));
+			Assert.False(entries.Select(x => x.Name).Contains("3csb"));
+			Assert.False(entries.Select(x => x.Name).Contains("4ygg"));
 
 			var datasetentries = client.Get(new GetDatasetEntries());
 			int dErelations = datasetentries.Count;
 			var mydto = new DatasetDTO()
 			{
 				Name="testdataset2",
-				Entries=new string[]{"2hh1","3csa","4yg1"}.ToList(),
+				Entries=new string[]{"2hh4","3csb","4ygg"}.ToList(),
 				Urls=new string[]{"http://www.pdb.org/2hh1","http://www.pdb.org/3csa","http://www.pdb.org/4yg1"}.ToList()
 			};
 			var mydto2=client.Post(mydto);
 
 			entries = client.Get(new GetEntries());
-			Assert.True(entries.Select(x => x.Name).Contains("2hh1"));
-			Assert.True(entries.Select(x => x.Name).Contains("3csa"));
-			Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
+			Assert.True(entries.Select(x => x.Name).Contains("2hh4"));
+			Assert.True(entries.Select(x => x.Name).Contains("3csb"));
+			Assert.True(entries.Select(x => x.Name).Contains("4ygg"));
 			datasetentries = client.Get(new GetDatasetEntries());
 			Assert.True(datasetentries.Count>dErelations);
 			Assert.True(datasetentries.Count==(dErelations+3));

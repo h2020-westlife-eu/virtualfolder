@@ -7,22 +7,18 @@
   <require from="./hideable"></require>
   <require from="../autocomplete/vfAutocompleteSearch"></require>
 
+  <div class="w3-card-2 w3-pale-blue">
 
-    <div class="w3-card-2 w3-sand w3-center">
-      <h3>Virtual Folder - Dataset</h3>
-    </div>
-
-  <div class="w3-card w3-pale-blue">
     <div show.bind="showlist">
-      <ul class="w3-ul w3-card-4">
-        <li class="w3-display-container"><div class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</div>
+      <table class="w3-table">
+        <tr ><td class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</td>
 
-        </li>
-        <li class="w3-display-container" repeat.for="item of datasetlist"><div class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</div>
-          <span click.delegate="removedataset(item)"
-                class="w3-button w3-display-right">&times;</span>
-        </li>
-      </ul>
+        </tr>
+        <tr repeat.for="item of datasetlist"><td class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</td>
+          <td click.delegate="removedataset(item)"
+                class="w3-button w3-btn">&times;</td>
+        </tr>
+      </table>
     </div>
 
     <div show.bind="!showlist">

@@ -114,17 +114,14 @@
           "whatwg-fetch",
           "aurelia-fetch-client",
           {
-            "name":"w3-css",
-            "path": "../css/",
-            "main": "w3.css",
-            "resources": [
-              "w3.css"
-            ]
-          },
-          {
             "name":"dropbox",
             "path": "../node_modules/dropbox/dist",
             "main": "Dropbox-sdk.min.js"
+          },
+          {
+            "name": "aurelia-dialog",
+            "path": "../node_modules/aurelia-dialog/dist/amd",
+            "main": "aurelia-dialog"
           },
           "text",
           {
