@@ -417,6 +417,7 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
       if (editor == null) this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
         lineNumbers: true,
         mode: "text/x-less",
+        lineWrapping: true,
         theme: "eclipse"
       });
     };
@@ -1795,15 +1796,6 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     initializer: null
   })), _class);
 });
-define('resources/index',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-  function configure(config) {}
-});
 define('tabs/messages',["exports"], function (exports) {
   "use strict";
 
@@ -1910,6 +1902,15 @@ define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
             return null;
         }
     })), _class);
+});
+define('resources/index',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {}
 });
 define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages'], function (exports, _aureliaEventAggregator, _messages) {
   'use strict';

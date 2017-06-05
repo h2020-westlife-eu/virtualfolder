@@ -25,11 +25,12 @@ export class Fileeditor {
   }
 
   attached() {
-    var editor = this.el.querySelector(".Codemirror");
+    let editor = this.el.querySelector(".Codemirror");
     //prevent blured render if not shown before
     if (editor==null) this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
       lineNumbers: true,
       mode: "text/x-less",
+      lineWrapping: true,
       theme: "eclipse"
     });
   }
