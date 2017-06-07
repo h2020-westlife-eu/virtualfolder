@@ -4,7 +4,7 @@
         <img class="logo" style="height:60px" src="img/westlife-logo.png" alt="brand logo">
     </a>
 
-    <ul class="w3-card-4 w3-right w3-navbar w3-round-large w3-margin-top25"  style="font-family:Helvetica;font-weight:700;margin-top: 15px">
+    <ul class="w3-card-4 w3-right w3-navbar w3-round-large w3-margin-top25 w3-black"  style="font-family:Helvetica;font-weight:700;margin-top: 15px">
       <li class="w3-dropdown-hover">
         <a href="#">Virtual Folder</a>
         <div class="w3-dropdown-content w3-white w3-card-4">
@@ -14,31 +14,32 @@
           <a href="filepicker.html">File Picker</a>
           <a href="index-dataset.html">Dataset</a>
           <button onclick="document.getElementById('id01').style.display='block'" class="w3-button">About</button>
-
-          <div id="id01" class="w3-modal">
-            <div class="w3-modal-content w3-animate-opacity w3-card-2">
-              <header class="w3-container w3-sand">
-        <span onclick="document.getElementById('id01').style.display='none'"
-              class="w3-button w3-display-topright">&times;</span>
-                <h3>West-Life Virtual Folder</h3>
-              </header>
-              <div class="w3-container w3-clear">
-                <p>Version:17.05</p>
-                <p>Source codes: https://github.com/h2020-westlife-eu</p>
-                <p>Authors: Tomas Kulhanek (STFC), Chris Morris (STFC), Nurul Nadzirin (EBI), Matthieu Riviere (LUNA), ...</p>
-                <p>Based on: Aurelia framework, W3.CSS, Icons made by Freepik from www.flaticon.com</p>
-              </div>
-              <footer class="w3-container w3-sand">
-                <p>CC (BY)</p>
-              </footer>
-            </div>
-          </div>
-
         </div>
       </li>
-        <li><a href="https://about.west-life.eu">Documentation</a></li>
-        <li><a href="tools/index.html">Services</a></li>
+        <li><a href="http://about.west-life.eu/network/west-life/documentation">Documentation</a></li>
+        <li><a href="http://about.west-life.eu/network/west-life/services">Services</a></li>
         <li><a href="https://www.west-life.eu">About us</a></li>
         <li class="w3-sign"><a href="/logout/">Logout</a></li>
     </ul>
+
+  <div id="id01" class="w3-modal">
+    <div class="w3-modal-content w3-card-2">
+      <header class="w3-container w3-sand">
+        <span onclick="document.getElementById('id01').style.display='none'"
+              class="w3-button w3-display-topright">&times;</span>
+        <h3>West-Life Virtual Folder</h3>
+      </header>
+      <div class="w3-container w3-white">
+        <table>
+        <tr><td style="text-align: right">Version:</td><td>17.05</td></tr>
+        <tr><td style="text-align: right">Source codes:</td><td><a href="https://github.com/h2020-westlife-eu">github.com/h2020-westlife-eu</a></td></tr>
+        <tr><td style="text-align: right">Authors:</td><td><a href="https://west-life.eu">West-Life consortium</a>, namely: Tomas Kulhanek (STFC), Chris Morris (STFC), Nurul Nadzirin (EBI), Matthieu Riviere (LUNA), and others</td></tr>
+        <tr><td style="text-align: right">Acknowledgment:</td><td>Frontend: Aurelia framework, W3.CSS, Icons made by Freepik from www.flaticon.com, Backend: ServiceStack.NET V3</td></tr>
+        </table>
+      </div>
+      <footer class="w3-container w3-sand">
+        <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+      </footer>
+    </div>
+  </div>
 </nav>
