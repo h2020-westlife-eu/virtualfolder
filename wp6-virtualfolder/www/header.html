@@ -1,25 +1,155 @@
+<div class="w3-black">
+<a href="/">
+  <img class="logo" style="height:60px" src="img/westlife-logo.png" alt="brand logo">
+</a>
+<nav class="w3-black w3-card-0 w3-right w3-round-large" style="font-family:Helvetica;font-weight:700;margin-top: 15px">
 
-<nav class="w3-black">
-    <a href="/">
-        <img class="logo" style="height:60px" src="img/westlife-logo.png" alt="brand logo">
-    </a>
-
-    <ul class="w3-card-4 w3-right w3-navbar w3-round-large w3-margin-top25 w3-black"  style="font-family:Helvetica;font-weight:700;margin-top: 15px">
-      <li class="w3-dropdown-hover">
+  <ul>
+      <li>
+      <!--<li class="w3-dropdown-hover">-->
         <a href="#">Virtual Folder</a>
-        <div class="w3-dropdown-content w3-white w3-card-4">
-          <a href="index.html">Settings</a>
-          <a href="index-modules.html">Optional Modules</a>
-          <a href="filemanager.html">File Manager</a>
-          <a href="filepicker.html">File Picker</a>
-          <a href="index-dataset.html">Dataset</a>
-          <button onclick="document.getElementById('id01').style.display='block'" class="w3-button">About</button>
-        </div>
+        <ul><!-- class="w3-dropdown-content w3-white w3-card-4">-->
+          <li><a href="index.html">Settings</a></li>
+          <li><a href="index-modules.html">Optional Modules</a></li>
+          <li><a href="filemanager.html">File Manager</a></li>
+          <li><a href="filepicker.html">File Picker</a></li>
+          <li><a href="index-dataset.html">Dataset</a></li>
+          <li><button onclick="document.getElementById('id01').style.display='block'" class="w3-button">About</button></li>
+        </ul>
       </li>
-        <li><a href="http://about.west-life.eu/network/west-life/documentation">Documentation</a></li>
-        <li><a href="http://about.west-life.eu/network/west-life/services">Services</a></li>
-        <li><a href="https://www.west-life.eu">About us</a></li>
-        <li class="w3-sign"><a href="/logout/">Logout</a></li>
+          <li class="nav-item active">
+            <a href="/network/west-life/west-life">Home</a>
+          </li>                        <li class="nav-item">
+          <a href="/network/west-life/services">Services</a>
+          <ul>                        <li class="nav-item">
+            <a href="/network/west-life/integrative-modelling">Integrative Modelling</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/services/mx">Crystallography</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/services/em">Electron Microscopy</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/services/nmr">NMR</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/services/vm">Virtual Machines</a>
+          </li>                        <li class="nav-item">
+            <a href="https://portal.west-life.eu/virtualfolder/">Virtual Folder Portal</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/services/3rd-party-services">3rd Party Services</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/toolbox">Search Services</a>
+          </ul></li>                        <li class="nav-item">
+          <a href="/network/west-life/search-support">Support</a>
+          <ul>                        <li class="nav-item">
+            <a href="https://www.structuralbiology.eu/network/west-life/forums/">Forums</a>
+            <ul>                        <li class="nav-item">
+              <a href="https://www.structuralbiology.eu/network/west-life/forums">West-Life Forum</a>
+            </li>                        <li class="nav-item">
+              <a href="http://ask.bioexcel.eu/c/haddock">Haddock</a>
+            </li>                        <li class="nav-item">
+              <a href="http://ask.bioexcel.eu/c/disvis">DisVis</a>
+            </li>                        <li class="nav-item">
+              <a href="http://ask.bioexcel.eu/c/powerfit">PowerFit</a>
+            </li>                        <li class="nav-item">
+              <a href="https://sourceforge.net/p/scipion/mailman/scipion-users/">Scipion</a>
+            </ul></li>                        <li class="nav-item">
+            <a href="/network/west-life/documentation">Documentation</a>
+            <ul>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/xia2-workflow">XIA2 Workflow</a>
+            </li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/pdbe">PDBe</a>
+              <ul>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/pdbe/pdbe-rest-api">PDBe REST API</a>
+              </ul></li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/ccp4">CCP4</a>
+              <ul>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/ccp4/ccp4-online">CCP4-Online</a>
+              </ul></li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/ccp-em">CCP4-EM</a>
+            </li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/wenmr">WeNMR</a>
+              <ul>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/gromacs">GROMACS</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/haddock">HADDOCK</a>
+                <ul>                        <li class="nav-item">
+                  <a href="/network/west-life/documentation/wenmr/haddock/haddock--supported-co-factors-and-modified-amino-acids">HADDOCK – supported co-factors and modified amino acids</a>
+                </li>                        <li class="nav-item">
+                  <a href="/network/west-life/documentation/wenmr/haddock/haddock-22--default-settings">HADDOCK 2.2 – Default settings</a>
+                </li>                        <li class="nav-item">
+                  <a href="/network/west-life/documentation/wenmr/haddock/haddock--review">HADDOCK - Review</a>
+                </ul></li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/cs-rosetta3">CS-Rosetta3</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/unio">UNIO</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/disvis">DISVIS</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/xplor-nih">XPLOR-NIH</a>
+              </li>                        <li class="nav-item">
+                <a href="http://ask.bioexcel.eu/c/powerfit">PowerFit</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/anisofit">ANISOFIT</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/fanten">FANTEN</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/amber">AMBER</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/wenmr/antechamber">ANTECHAMBER</a>
+              </ul></li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/scipion-web-tools">Scipion Web Tools</a>
+              <ul>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/scipion-web-tools/my-movie-alignment">My Movie Alignment</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/scipion-web-tools/my-first-map">My First Map</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/scipion-web-tools/my-res-map">My Res Map</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/scipion-web-tools/my-reliability-tool">My Reliability Tool</a>
+              </ul></li>                        <li class="nav-item">
+              <a href="https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs">Virtual Folder</a>
+            </li>                        <li class="nav-item">
+              <a href="/network/west-life/documentation/egi-platforms">EGI Platforms</a>
+              <ul>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/egi-platforms/htc-platform">HTC Platform</a>
+                <ul>                        <li class="nav-item">
+                  <a href="/network/west-life/documentation/egi-platforms/registering-with-enmreu-vo">Registration with ENMR.EU VO</a>
+                </li>                        <li class="nav-item">
+                  <a href="/network/west-life/documentation/egi-platforms/vo-registration-troubleshooting">VO registration troubleshooting</a>
+                </li>                        <li class="nav-item">
+                  <a href="https://github.com/DIRACGrid/DIRAC/wiki/DIRAC-Tutorials">Job submission using DIRAC system</a>
+                </ul></li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/egi-platforms/federated-cloud">Federated Cloud</a>
+              </li>                        <li class="nav-item">
+                <a href="/network/west-life/documentation/egi-platforms/accelerated-computing-platforms">Accelerated Computing Platforms</a>
+                <ul>                        <li class="nav-item">
+                  <a href="/network/west-life/htc-ac">HTC-AC</a>
+                </li>                        <li class="nav-item">
+                  <a href="/network/west-life/cloud-ac">Cloud-AC</a>
+                </ul></li></ul></li></ul></li>                        <li class="nav-item">
+            <a href="/network/west-life/support/tutorials">Tutorials</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/support/webinars">Webinars</a>
+          </ul></li>                        <li class="nav-item">
+          <a href="/network/west-life/news">News</a>
+        </li>                        <li class="nav-item">
+          <a href="#x">About</a>
+          <ul>                        <li class="nav-item">
+            <a href="/network/west-life/about/project">Project</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/about/partners">Partners</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/about/advisoryboard">Advisory Board</a>
+          </li>                        <li class="nav-item">
+            <a href="/network/west-life/about/work-packages">Work Packages</a>
+            <ul>                        <li class="nav-item">
+              <a href="/network/west-life/about/work-packages/deliverables">Deliverables</a>
+            </li>                        <li class="nav-item">
+              <a href="/network/west-life/about/work-packages/milestones">Milestones</a>
+            </ul></li>                        <li class="nav-item">
+            <a href="http://internal-wiki.west-life.eu/">Internal Wiki</a>
+          </ul></li>
+          <li><a href="/network/west-life/contact">Contact</a></li>
+      <li class="w3-sign"><a href="/logout/">Logout</a></li>
     </ul>
 
   <div id="id01" class="w3-modal">
@@ -43,3 +173,4 @@
     </div>
   </div>
 </nav>
+</div>
