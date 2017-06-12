@@ -1,0 +1,56 @@
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav a:link,
+nav a:visited {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+nav a {
+  display: block;
+  padding: 6px 8px;
+}
+
+nav li {
+  float: left;
+  background-color: #000000;
+  margin-right: 1px;
+  position: relative;
+}
+
+nav li li{
+  width: 160px;
+  background-color: #333333;
+}
+
+nav li:hover {
+  background-color: #555555;
+}
+nav li li:hover {
+  background-color: #757575;
+}
+
+
+nav ul ul  {
+  position: absolute;
+  visibility: hidden;
+}
+
+nav ul ul ul{
+  position: absolute;
+  right: 100%;
+  top: -2px;
+  border: solid 1px transparent;
+}
+
+nav li:hover > ul {
+  visibility: visible;
+}
+
+.right-arrow {
+  float: right;
+}
