@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Installation script for EGI FedCloud client
+# Installation script for EGI FedCloud client, Added support for RHEL 7 and derivatives (SL7, Centos 7)
 # installs and configures VOMS for fedcloud.egi.eu and training.egi.eu VOs
 # installs occi-cli
 #
