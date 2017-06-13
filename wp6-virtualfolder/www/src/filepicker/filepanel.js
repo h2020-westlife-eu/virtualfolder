@@ -138,6 +138,15 @@ export class Filepanel{
       console.log("filepanel tableid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
       else {
+        //HEAD the file - so it can be obtained - cached by metadata service, fix #45
+        let fileurl=this.serviceurl + this.path + '/' + file.name
+        this.client.head(fileurl)
+          .then( response =>{
+            console.log('file head'+fileurl);
+            console.log(response);
+          }
+        );
+        //reconstructs public url
         this.client.get(this.getpublicwebdavurl)
           .then(data => {
             if (data.response) {

@@ -36,7 +36,7 @@ namespace MetadataService.Services.Files
         public string accessurl { get; set; } //(mandatory for type webdav), not used by other providers
     }
 
-    [Route("/files/{Providerpath}/{Path*}", "GET")]
+    [Route("/files/{Providerpath}/{Path*}", "GET,HEAD")]
     public class ProviderFileList //: IReturn<List<SBFile>>
     {
         public string Providerpath { get; set; }
@@ -132,6 +132,22 @@ namespace MetadataService.Services.Files
         {
             //delegate to provider
             return getUserProviders().GetFileList(request);
+        }
+
+        public void Head(ProviderFileList request)
+        {
+            //delegate to provider
+            try
+            {
+                getUserProviders().GetFileList(request);
+                base.Response.StatusCode = 200;
+            }
+            catch (Exception e)
+            {
+                base.Response.StatusDescription = e.Message;
+                base.Response.StatusCode = 404;
+            }
+            
         }
 
     }

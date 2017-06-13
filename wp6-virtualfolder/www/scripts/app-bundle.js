@@ -901,6 +901,12 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
 
             console.log("filepanel tableid:" + this.panelid);
             if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);else {
+                var fileurl = this.serviceurl + this.path + '/' + file.name;
+                this.client.head(fileurl).then(function (response) {
+                    console.log('file head' + fileurl);
+                    console.log(response);
+                });
+
                 this.client.get(this.getpublicwebdavurl).then(function (data) {
                     if (data.response) {
                         var mypath2 = JSON.parse(data.response);
