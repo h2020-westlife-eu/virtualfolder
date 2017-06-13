@@ -5,7 +5,37 @@ Prerequisites:
  1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
  2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
 
-Download this metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) and unzip it into some [wp6-vm directory] or clone this repository https://github.com/h2020-westlife-eu/wp6-vm.git.
+## Brief instruction using Vagrant
+
+The Vagrant tool with connection to Virtualbox is used to prepare virtual machine, the supplied scripts prepare local environment, get the source codes, automate port forwarding, shared folders settings etc.   
+Brief instructions are:
+
+```
+git clone https://github.com/h2020-westlife-eu/wp6-vm.git
+
+cd wp6-vm
+
+vagrant up
+```
+
+This will clone repository with scripts, get an initial VM image and starts the image with provisioning.
+
+![](/doc/assets/VMVagrantUp.gif)
+
+After succesfull installation, there should be message 'BOOSTRAP FINISHED, VM prepared to use'.
+
+After 'vagrant up' finished, the new virtual machine can be accessed via web browser \(port 8081 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number\)
+
+```
+http://localhost:8081/
+```
+
+You can access the desktop of the VM by going into VirtualBox.
+
+## Detailed instruction
+
+
+Download or clone metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) unzip it into some [wp6-vm directory] or clone the main repository https://github.com/h2020-westlife-eu/wp6-vm.git.
 
 *1.* Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
      
