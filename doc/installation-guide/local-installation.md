@@ -12,10 +12,6 @@ You may download the latest West-life VM in the OVA compatible format from
 
 Alternatively you may use the RAW image for deployment into OpenStack at [https://appdb.egi.eu/store/vappliance/west.life.vm](https://appdb.egi.eu/store/vappliance/west.life.vm)
 
-### Deployment to cloud provider
-
-This OVA can be used to deploy the West-life VM e.g. in OpenNebula environment, or in a VirtualBox.
-
 ### Deployment to local VirtualBox
 
 For testing purposes you may import the image into local installation of VirtualBox.
