@@ -6,7 +6,7 @@
   * [File Manager](doc/users-guide/file-manager.md)
   * [File Picker](doc/users-guide/file-picker.md)
 * [Installation guide](doc/installation-guide.md)
-  * Cloud installation
+  * [Cloud installation](doc/installation-guide/cloud-installation.md)
   * [Local installation](doc/installation-guide/local-installation.md)
   * [Development installation](doc/installation-guide/development-installation.md)
 * [Integration guide](doc/integration-guide.md)
