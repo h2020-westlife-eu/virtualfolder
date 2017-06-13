@@ -10,4 +10,6 @@ You may download the latest West-life VM in the OVA compatible format from
 
 Alternatively you may use the RAW image for deployment into OpenStack at [https://appdb.egi.eu/store/vappliance/west.life.vm](https://appdb.egi.eu/store/vappliance/west.life.vm)
 
+Use the downloaded image to deploy it to preffered provider. You may deploy the image in EGI resources - follow EGI documentation
+
 
