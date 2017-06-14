@@ -144,6 +144,7 @@ namespace MetadataService.Services.Files
             }
             catch (Exception e)
             {
+                Console.WriteLine("Error: HEAD to resource:{0}\nmessage:{1}\nstacktrace:{2}",request.Providerpath+"/"+request.Path,e.Message,e.StackTrace);
                 base.Response.StatusDescription = e.Message;
                 base.Response.StatusCode = 404;
             }
