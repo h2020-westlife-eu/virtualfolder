@@ -1,13 +1,13 @@
 # Virtual folder
 
 ## Introduction
-West-Life is a H2020 Virtual Research Environment project that between years 2015-2018 develops the application level services specific to uses cases in structural biology.
-Data management work package WP6 build on existing infrastructure for storing and accessing data. Working name - Virtual Folder. It provides application level service usable for structural biology use cases and follows structural biology data lifecycle (Report ...).
-Virtual Folder is distributed as a vagrant package. Configuration files and scripts which initiates self deployment, installation and configuration of prototype virtual machine.
+West-Life is a H2020 project running from 2015 to 2018. It develops a Virtual Research Environment for structural biology: the application level services specific to uses cases in structural biology.
+Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". It provides application level services usable for structural biology use cases and follows the structural biology data lifecycle (Report ...).
+Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
 
 ## Usage
-Public Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
-Private Virtual Folder can be installed on local cluster or workstation.
+A public installation of the  Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
+A private Virtual Folder can be installed on local cluster or workstation.
 Follow [User's guide](doc/users-guide.md) for further details.
 
 ## Installation
@@ -27,13 +27,13 @@ Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g
 Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
 and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
 
-Follow [Installation guide](doc/installation-guide.md) fo further details.
+Follow [Installation guide](doc/installation-guide.md) for further details.
 
 ## Integration
 
-Functionality of Virtual Folder can be integrated into other portal or web application.
-Recommended is linking existing component using cross-document messaging mechanism - e.g.
-for picking a file from Virtual Folder by - File Picker component.
+The functionality of the Virtual Folder can be integrated into other portal or web application.
+The recommended method is to link the existing component using cross-document messaging mechanism - e.g.
+for picking a file from Virtual Folder by using the File Picker component.
 
 Follow [Integration guide](doc/integration-guide.md) for further details.
 
