@@ -1,9 +1,13 @@
 # Virtual folder
 
 ## Introduction
-West-Life is a H2020 project running from 2015 to 2018. It develops a Virtual Research Environment for structural biology: the application level services specific to uses cases in structural biology.
-Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". It provides application level services usable for structural biology use cases and follows the structural biology data lifecycle (Report ...).
-Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
+This "Virtual Folder" provides a unified access mechanism to files stored in a variety of locations including the local file system, and B2DROP and other cloud storage facilities.
+
+This is part of a Virtual Research Environment for structural biology: the application level services specific to uses cases in structural biology. 
+
+The Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
+
+This is developed by the West-Life H2020 project, which is running from 2015 to 2018. It provides application level services usable for structural biology use cases and follows [the structural biology data lifecycle](http://internal-wiki.west-life.eu/w/images/9/9c/Assessment_of_the_life_cycle_of_structural_data_and_comparison_with_other_scientific_data.docx). Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". 
 
 ## Usage
 A public installation of the  Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
