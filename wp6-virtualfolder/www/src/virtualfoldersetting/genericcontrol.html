@@ -1,5 +1,5 @@
 <template>
-  <require from="w3-css/w3.css"></require>
+  <require from="../w3.css"></require>
   <div class="w3-sand w3-padding w3-margin">
 
     <form submit.trigger="addProvider()">
@@ -58,7 +58,7 @@
         </div>
 
         <div show.bind="selectedWebDav">
-          <p>WEBDAV is s tandard protocol to access files via the web. If you have address (WebDAV url) of a
+          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a
             service, you can add it to West-life virtual folder directly.</p>
           WebDAV URL:<input class="w3-bar" type="text" name="accessurl" maxlength="1024" value.bind="accessurl" 
 	  placeholder="https://..." /><br/>
