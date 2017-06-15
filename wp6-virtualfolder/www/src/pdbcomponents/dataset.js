@@ -5,12 +5,14 @@
 import 'whatwg-fetch';
 import {HttpClient} from "aurelia-http-client";
 import {computedFrom} from 'aurelia-framework';
+import {bindable} from 'aurelia-framework';
 
 //Model view controller
 //Model view viewmodel
 
 export class Dataset {
   static inject = [HttpClient];
+  @bindable panelid;
 
   constructor (httpclient) {
     this.client = httpclient;

@@ -10,7 +10,6 @@ import {bindable} from 'aurelia-framework';
 
 export class  Viewpanel {
     static inject = [Element,EventAggregator, HttpClient];
-    @bindable panelid;
 
     constructor(el,ea, httpclient) {
         this.element = el;
@@ -28,9 +27,8 @@ export class  Viewpanel {
     }
 
     viewfile(file,senderid) {
-      //view files only in my panel, ignore other panels
-        console.log("viewfile "+file.webdavuri);
-        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="'+ file.webdavuri+'" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+        console.log("viewfile " + file.webdavuri);
+        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
         this.replacepdblitemol(pdblitemol);
     }
 

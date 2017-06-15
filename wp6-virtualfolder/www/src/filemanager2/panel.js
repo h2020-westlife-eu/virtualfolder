@@ -5,9 +5,11 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile,VisualizeFile,EditFile} from '../filepicker/messages';
 import {SelectedTab} from '../tabs/messages';
 import {computedFrom} from 'aurelia-framework';
+import {bindable} from 'aurelia-framework';
 
 export class Panel {
     static inject = [EventAggregator];
+    @bindable pid;
 
     constructor(ea) {
         this.ea = ea;
@@ -15,18 +17,21 @@ export class Panel {
         this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
         this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
         //generate unique id from time
-        this.uid = new Date().valueOf();
-        this.ids=[this.uid+'.list',this.uid+'.view',this.uid+'.visual',this.uid+'.analyse',this.uid+'.dataset']; //prefix uid to tab ids
-
-        this.selectedTab= this.ids[0];
-        this.paneltabs = [
-            { id: this.ids[0], label: 'File List'},
-            { id: this.ids[1], label: 'View/Edit' },
-            { id: this.ids[2], label: 'Visualize' },
-          { id: this.ids[3], label: 'Dataset' }
-        ];
+        //this.pid = new Date().valueOf();
         this.selectedView=this.selectedVisual=this.selectedDataset=false;
         this.selectedList=true;
+    }
+
+    bind(){
+      this.ids=[this.pid+'.list',this.pid+'.view',this.pid+'.visual',this.pid+'.analyse',this.pid+'.dataset']; //prefix uid to tab ids
+
+      this.selectedTab= this.ids[0];
+      this.paneltabs = [
+        { id: this.ids[0], label: 'File List'},
+        { id: this.ids[1], label: 'View/Edit' },
+        { id: this.ids[2], label: 'Visualize' },
+        { id: this.ids[3], label: 'Dataset' }
+      ];
     }
 
     /*@computedFrom('selectedTab')
@@ -46,7 +51,7 @@ export class Panel {
     */
     selectTab(tabid){
         //if uid belongs to mine - change tab, otherwise ignore this message
-        if (tabid.startsWith(this.uid)) {
+        if (tabid.startsWith(this.pid)) {
             this.selectedTab = tabid;
             this.selectedList = this.selectedTab == this.ids[0];
             this.selectedView = this.selectedTab == this.ids[1];
@@ -57,7 +62,7 @@ export class Panel {
 
     selectFile(file,senderid) {
       //default action, visualize pdb, change tab
-      if (senderid==this.uid) {
+      if (senderid!=this.pid) {
         if (file.webdavuri.endsWith('pdb')) {
           //visualize
           this.selectTab(this.ids[2]);
