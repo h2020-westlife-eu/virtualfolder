@@ -7,7 +7,7 @@ Prerequisites:
 
 ## Brief instruction using Vagrant
 
-The Vagrant tool with connection to Virtualbox is used to prepare virtual machine, the supplied scripts prepare local environment, get the source codes, automate port forwarding, shared folders settings etc.   
+The Vagrant tool with connection to Virtualbox is used to prepare a virtual machine. Scripts are supplied to prepare the local environment, get the source codes, and to set up port forwarding and shared folders settings etc.   
 Brief instructions are:
 
 ```
@@ -24,7 +24,7 @@ This will clone repository with scripts, get an initial VM image and starts the 
 
 After succesfull installation, there should be message 'BOOSTRAP FINISHED, VM prepared to use'.
 
-After 'vagrant up' finished, the new virtual machine can be accessed via web browser \(port 8081 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number\)
+After 'vagrant up' has finished, the new virtual machine can be accessed via web browser \(port 8081 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number\)
 
 ```
 http://localhost:8081/
@@ -88,7 +88,7 @@ or access GUI in virtualbox (username/password: vagrant/vagrant).
    
     vagrant halt
     
-*7.* If you'll not use the VM anymore, you can delete (destroy) the VM:
+*7.* If you will not use the VM anymore, you can delete (destroy) the VM:
     
     vagrant destroy
 
