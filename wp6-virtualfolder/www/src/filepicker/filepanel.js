@@ -135,7 +135,7 @@ export class Filepanel{
     }
 
     selectFile(file){
-      console.log("filepanel tableid:"+this.panelid);
+      console.log("selectFile("+file+") panelid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
       else {
         //HEAD the file - so it can be obtained - cached by metadata service, fix #45
