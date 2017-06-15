@@ -67,30 +67,6 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
-define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Onedrivecontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var client = new _aureliaHttpClient.HttpClient();
-
-  var Onedrivecontrol = exports.Onedrivecontrol = function Onedrivecontrol() {
-    _classCallCheck(this, Onedrivecontrol);
-
-    this.heading = "ONEDRIVE connector";
-    this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
-    this.servicecontext = "onedriveconnector";
-  };
-});
 define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
   'use strict';
 
@@ -294,6 +270,30 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     enumerable: true,
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
+});
+define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Onedrivecontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var client = new _aureliaHttpClient.HttpClient();
+
+  var Onedrivecontrol = exports.Onedrivecontrol = function Onedrivecontrol() {
+    _classCallCheck(this, Onedrivecontrol);
+
+    this.heading = "ONEDRIVE connector";
+    this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
+    this.servicecontext = "onedriveconnector";
+  };
 });
 define('dataset/app',["exports"], function (exports) {
   "use strict";
