@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Dropbox.Api;
 using MetadataService.Services.Settings;
@@ -150,19 +151,55 @@ namespace MetadataService.Services.Files
             }
         }
 
+        public static bool IsFileReady(String sFilename)
+        {
+            // If the file can be opened for exclusive access it means that the file
+            // is no longer locked by another process.
+            try
+            {
+                using (FileStream inputStream = File.Open(sFilename, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    if (inputStream.Length > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
 
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         private async Task<object> DownloadFile(string dropboxpath)
         {
-
+            
             var filename = FILESYSTEMFOLDER + dropboxpath;
+            //checks if it exists - downloaded by other process
+            if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
             using (var response = await dbx.Files.DownloadAsync(dropboxpath))
             {
                 var stream = await response.GetContentAsStreamAsync();
-                using (Stream file = File.Create(filename))
+                try
                 {
-                    Utils.CopyStream(stream, file);
+                    using (Stream file = new FileStream(filename, FileMode.CreateNew, FileAccess.ReadWrite,
+                        FileShare.None))
+                    {
+                        Utils.CopyStream(stream, file);
+                    }
+                }
+                catch (IOException e)
+                {
+                    //waits until the file is downloaded by other process, usefull for big files
+                    while (!IsFileReady(filename)) {Thread.Sleep(200);} //polls every 200 ms until the file is ready                    
+                    if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
+                    else throw e;
                 }
             }
             return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);

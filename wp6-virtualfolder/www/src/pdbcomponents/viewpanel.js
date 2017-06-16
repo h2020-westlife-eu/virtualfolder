@@ -19,7 +19,7 @@ export class  Viewpanel {
         //this.uid = new Date().valueOf().toString();
         this.sourceurl="";
         this.sourceformat="pdb";
-      this.pdbentry = "1r6a";
+      this.pdbentry = "";
     }
 
     attached() {
@@ -27,13 +27,13 @@ export class  Viewpanel {
     }
 
     viewfile(file,senderid) {
-        console.log("viewfile " + file.webdavuri);
+        //console.log("viewfile " + file.webdavuri);
         var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
         this.replacepdblitemol(pdblitemol);
     }
 
   loadpdb() {
-    console.log("loadpdb "+this.pdbentry);
+    //console.log("loadpdb "+this.pdbentry);
     var pdblitemol = '<pdb-lite-mol load-ed-maps="true" pdb-id="\''+this.pdbentry+'\'"></pdb-lite-mol>'
     this.replacepdblitemol(pdblitemol);
   }

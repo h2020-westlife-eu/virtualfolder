@@ -17,9 +17,9 @@ export class App {
   }
 
   selectFile(file,senderid){
-    console.log("selectFile()")
-    console.log(file);
-    console.log(senderid);
+    //console.log("selectFile()")
+    //console.log(file);
+    //console.log(senderid);
     //window.opener.postMessage(window.location.protocol+"//"+window.location.hostname+file.webdavuri, "*");
     //window.close();
   }
@@ -32,9 +32,9 @@ export class App {
       //console.log(response);
 
       if (!response.wasCancelled) {
-        console.log('dialog OK');
+        //console.log('dialog OK');
       } else {
-        console.log('dialog cancelled');
+        //console.log('dialog cancelled');
       }
       //console.log(response.output);
     });

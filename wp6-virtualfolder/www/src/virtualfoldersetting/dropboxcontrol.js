@@ -23,7 +23,7 @@ export class DropboxControl {
     this.urlutils = urlutils;
     this.accesstoken=this.urlutils.parseQueryString(window.location.hash).access_token;
     this.isAuthenticated = !!this.accesstoken;
-    console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
+    //console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
 
     //instantiate dropboxclient - needed for getting URL to redirect
     this.CLIENTIDENC = "o\"csb%'{{{ze'ya";

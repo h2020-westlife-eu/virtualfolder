@@ -40,7 +40,7 @@ export class Fileeditor {
   selectFile(file,senderid) {
     this.httpclient.get(file.webdavuri).then(
       data =>{
-        console.log("obtained data:");
+        //console.log("obtained data:");
         //console.log(data);
         this.codemirror.setValue(data.response);
 

@@ -12,13 +12,13 @@ export class Prompt {
     this.controller = controller;
     this.answer = null;
     this.visualizepdb = (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true": true : true;
-    console.log("constructor visualizepdb:"+this.visualizepdb);
+    //console.log("constructor visualizepdb:"+this.visualizepdb);
     controller.settings.centerHorizontalOnly = true;
   }
 
   activate(message) {
     this.visualizepdb = (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true": true : true;
-    console.log("active visualizepdb:"+this.visualizepdb);
+    //console.log("active visualizepdb:"+this.visualizepdb);
     this.message = message;
   }
 
@@ -27,8 +27,8 @@ export class Prompt {
     if (typeof(Storage) !== "undefined") {
       localStorage.setItem("visualizepdb",this.visualizepdb);
     }
-    console.log(this.visualizepdb);
-    console.log(localStorage.getItem("visualizepdb"));
+    //console.log(this.visualizepdb);
+    //console.log(localStorage.getItem("visualizepdb"));
     this.controller.ok()
   }
 }

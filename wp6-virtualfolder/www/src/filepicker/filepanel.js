@@ -26,7 +26,7 @@ export class Filepanel{
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
-        console.log("filepanel tableid:"+this.panelid);
+        //console.log("filepanel tableid:"+this.panelid);
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
     }
 
@@ -52,7 +52,7 @@ export class Filepanel{
                   //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
                 }
             });
-      console.log("filepanel tableid:"+this.panelid);
+      //console.log("filepanel tableid:"+this.panelid);
     }
 
     //parse .NET encoded Date in JSON
@@ -135,15 +135,15 @@ export class Filepanel{
     }
 
     selectFile(file){
-      console.log("selectFile("+file+") panelid:"+this.panelid);
+      //console.log("selectFile("+file+") panelid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
       else {
         //HEAD the file - so it can be obtained - cached by metadata service, fix #45
         let fileurl=this.serviceurl + this.path + '/' + file.name
         this.client.head(fileurl)
           .then( response =>{
-            console.log('file head'+fileurl);
-            console.log(response);
+            //console.log('file head'+fileurl);
+            //console.log(response);
           }
         );
         //reconstructs public url

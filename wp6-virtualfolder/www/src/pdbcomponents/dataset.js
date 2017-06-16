@@ -56,10 +56,10 @@ export class Dataset {
   attached(){
     this.client.get(this.dataseturl).then(data=>
     {
-      console.log("dataset.attached(), data:")
-      console.log(data)
+      //console.log("dataset.attached(), data:")
+      //console.log(data)
       this.datasetlist = JSON.parse(data.response);
-      console.log(this.datasetlist)
+      //console.log(this.datasetlist)
     })
   }
 
@@ -68,14 +68,14 @@ export class Dataset {
   }
 
   selectdataset(item){
-    console.log("selectdataset()");
-    console.log(item)
+    //console.log("selectdataset()");
+    //console.log(item)
     this.client.get(this.dataseturl+"/"+item.Id).then(data=>
     {
-      console.log("selecteddataset(), data:")
-      console.log(data)
+      //console.log("selecteddataset(), data:")
+      //console.log(data)
       this.submitdataset=JSON.parse(data.response)
-      console.log(this.submitdataset)
+      //console.log(this.submitdataset)
       this.pdbdataset = this.submitdataset.Entries
       this.name = this.submitdataset.Name
       this.id = this.submitdataset.Id
@@ -84,9 +84,8 @@ export class Dataset {
   }
 
   removedataset(item){
-    console.log("removedataset()");
+    console.log("removedataset() not implemented");
     console.log(item)
-
   }
 
   additem(item){
@@ -101,12 +100,10 @@ export class Dataset {
     this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
   }
 
-
   //model-view -viewmodel
   hideitem() {
     this.showitem = ! this.showitem;
   }
-
 
   dataseturl = "/metadataservice/dataset";
 
