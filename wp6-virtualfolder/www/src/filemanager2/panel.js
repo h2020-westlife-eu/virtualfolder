@@ -34,21 +34,6 @@ export class Panel {
       ];
     }
 
-    /*@computedFrom('selectedTab')
-    get selectedList() {
-        return this.selectedTab=='list';
-    }
-
-    @computedFrom('selectedTab')
-    get selectedView() {
-        return this.selectedTab=='view';
-    }
-
-    @computedFrom('selectedTab')
-    get selectedVisual() {
-        return this.selectedProvider=='visual';
-    }
-    */
     selectTab(tabid){
         //if uid belongs to mine - change tab, otherwise ignore this message
         if (tabid.startsWith(this.pid)) {
@@ -61,9 +46,10 @@ export class Panel {
     }
 
     selectFile(file,senderid) {
-      //default action, visualize pdb, change tab
+      //default action, visualize pdb, if localStorage.getItem("visualizepdb") is defined then it needs to be true,
+      let showpdb = file.webdavuri.endsWith('pdb') ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
       if (senderid!=this.pid) {
-        if (file.webdavuri.endsWith('pdb')) {
+        if (showpdb) {
           //visualize
           this.selectTab(this.ids[2]);
           this.ea.publish(new VisualizeFile(file,senderid));

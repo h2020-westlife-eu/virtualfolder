@@ -1,0 +1,19 @@
+<template>
+  <div class="w3-card w3-sand">
+  <ai-dialog>
+    <ai-dialog-body>
+      <h3>${message}</h3>
+      <form>
+      <input class="w3-check" type="checkbox" checked.bind="visualizepdb">
+      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>
+      <p></p>
+      </form>
+    </ai-dialog-body>
+
+    <ai-dialog-footer>
+      <button class="w3-btn" click.trigger = "close()">Close</button>
+    </ai-dialog-footer>
+
+  </ai-dialog>
+  </div>
+</template>
