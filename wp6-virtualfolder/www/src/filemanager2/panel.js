@@ -28,9 +28,9 @@ export class Panel {
       this.selectedTab= this.ids[0];
       this.paneltabs = [
         { id: this.ids[0], label: 'File List'},
-        { id: this.ids[1], label: 'View/Edit' },
-        { id: this.ids[2], label: 'Visualize' },
-        { id: this.ids[3], label: 'Dataset' }
+        { id: this.ids[1], label: 'View/Edit'},
+        { id: this.ids[2], label: 'Visualize'},
+        { id: this.ids[3], label: 'Dataset'}
       ];
     }
 
@@ -41,7 +41,7 @@ export class Panel {
             this.selectedList = this.selectedTab == this.ids[0];
             this.selectedView = this.selectedTab == this.ids[1];
             this.selectedVisual = this.selectedTab == this.ids[2];
-          this.selectedDataset = this.selectedTab == this.ids[3];
+            this.selectedDataset = this.selectedTab == this.ids[3];
         }
     }
 

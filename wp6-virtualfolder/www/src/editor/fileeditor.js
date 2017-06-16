@@ -17,13 +17,14 @@ import {bindable} from 'aurelia-framework';
 
 export class Fileeditor {
   static inject = [Element,EventAggregator, HttpClient];
+  @bindable pid;
 
   constructor(el,ea,httpclient) {
     this.el = el;
     this.ea = ea;
     this.httpclient = httpclient;
     this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
-
+    this.fileurl="";
   }
 
   attached() {
@@ -38,9 +39,11 @@ export class Fileeditor {
   }
 
   selectFile(file,senderid) {
+    if (senderid!=this.pid)
     this.httpclient.get(file.webdavuri).then(
       data =>{
-        //console.log("obtained data:");
+        this.fileurl=file.webdavuri;
+        console.log("fileeditor.selectfile() loading:"+file.webdavuri);
         //console.log(data);
         this.codemirror.setValue(data.response);
 

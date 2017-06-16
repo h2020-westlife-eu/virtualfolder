@@ -20,6 +20,7 @@ nav li {
   background-color: #000000;
   margin-right: 1px;
   position: relative;
+  z-index:1;
 }
 
 nav li li{

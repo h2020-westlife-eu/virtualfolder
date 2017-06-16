@@ -389,19 +389,64 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     }
   }
 
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  var _class, _temp;
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
 
-  var Fileeditor = exports.Fileeditor = (_temp = _class = function () {
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _class2, _temp;
+
+  var Fileeditor = exports.Fileeditor = (_class = (_temp = _class2 = function () {
     function Fileeditor(el, ea, httpclient) {
       var _this = this;
 
       _classCallCheck(this, Fileeditor);
+
+      _initDefineProp(this, "pid", _descriptor, this);
 
       this.el = el;
       this.ea = ea;
@@ -409,6 +454,7 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
       this.ea.subscribe(_messages.EditFile, function (msg) {
         return _this.selectFile(msg.file, msg.senderid);
       });
+      this.fileurl = "";
     }
 
     Fileeditor.prototype.attached = function attached() {
@@ -425,7 +471,10 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     Fileeditor.prototype.selectFile = function selectFile(file, senderid) {
       var _this2 = this;
 
-      this.httpclient.get(file.webdavuri).then(function (data) {
+      if (senderid != this.pid) this.httpclient.get(file.webdavuri).then(function (data) {
+        _this2.fileurl = file.webdavuri;
+        console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+
         _this2.codemirror.setValue(data.response);
       }).catch(function (error) {
         alert('Error retrieving content from ' + file.webdavuri);
@@ -433,7 +482,10 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     };
 
     return Fileeditor;
-  }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "pid", [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
 });
 define('filemanager2/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', 'aurelia-dialog', './fmsettings'], function (exports, _aureliaEventAggregator, _messages, _aureliaFramework, _aureliaDialog, _fmsettings) {
   'use strict';
@@ -1833,19 +1885,64 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
   });
   exports.Viewpanel = undefined;
 
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  var _class, _temp;
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
 
-  var Viewpanel = exports.Viewpanel = (_temp = _class = function () {
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _class2, _temp;
+
+  var Viewpanel = exports.Viewpanel = (_class = (_temp = _class2 = function () {
     function Viewpanel(el, ea, httpclient) {
       var _this = this;
 
       _classCallCheck(this, Viewpanel);
+
+      _initDefineProp(this, 'pid', _descriptor, this);
 
       this.element = el;
       this.ea = ea;
@@ -1857,6 +1954,8 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
       this.sourceurl = "";
       this.sourceformat = "pdb";
       this.pdbentry = "";
+      this.pdbredoentry = "";
+      this.pdburl = "";
     }
 
     Viewpanel.prototype.attached = function attached() {
@@ -1864,11 +1963,22 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     };
 
     Viewpanel.prototype.viewfile = function viewfile(file, senderid) {
-      var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+      if (senderid != this.pid) {
+        console.log("viewfile " + file.webdavuri);
+        this.pdburl = file.webdavuri;
+        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+        this.replacepdblitemol(pdblitemol);
+      }
+    };
+
+    Viewpanel.prototype.loadfromredo = function loadfromredo() {
+      this.pdburl = "//pdb-redo.eu/db/" + this.pdbredoentry + "/" + this.pdbredoentry + "_final.pdb";
+      var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
       this.replacepdblitemol(pdblitemol);
     };
 
     Viewpanel.prototype.loadpdb = function loadpdb() {
+      this.pdburl = this.pdbentry;
       var pdblitemol = '<pdb-lite-mol load-ed-maps="true" pdb-id="\'' + this.pdbentry + '\'"></pdb-lite-mol>';
       this.replacepdblitemol(pdblitemol);
     };
@@ -1884,7 +1994,10 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     };
 
     return Viewpanel;
-  }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'pid', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
 });
 define('resources/index',["exports"], function (exports) {
   "use strict";
@@ -1985,13 +2098,18 @@ define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
         }
 
         Tabs.prototype.attached = function attached() {
-            ;
+            this.activeid = this.tabs[0];
+            this.activeid.active = true;
         };
 
         Tabs.prototype.opentab = function opentab(tabid) {
-            this.activeid = tabid.id;
+            this.activeid.active = false;
 
-            this.ea.publish(new _messages.SelectedTab(this.activeid));
+            this.activeid = tabid;
+
+            this.activeid.active = true;
+
+            this.ea.publish(new _messages.SelectedTab(this.activeid.id));
         };
 
         return Tabs;
@@ -7010,19 +7128,19 @@ define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) {
 define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!filemanager2/app.css', ['module'], function(module) { module.exports = "ux-dialog-overlay.active {background-color: black;opacity: .5;}\n"; });
-define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue w3-code-2\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
+define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${fileurl}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"left\"></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"right\"></panel>\n    </div>\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
 define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\">\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <p></p>\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td class=\"w3-right\">${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n  </div>\n\n</template>\n"; });
-define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n\n    <div class=\"w3-card-2 w3-sand w3-center\">\n      <h3>Virtual Folder - Dataset</h3>\n    </div>\n\n  <div class=\"w3-card w3-pale-blue\">\n\n    <div show.bind=\"showlist\">\n      <table class=\"w3-table\">\n        <tr ><td class=\"w3-large w3-hover-green\" click.delegate=\"createnewdataset()\">Create New Dataset</td>\n\n        </tr>\n        <tr repeat.for=\"item of datasetlist\"><td class=\"w3-large w3-hover-green\" click.delegate=\"selectdataset(item)\">${item.Name}</td>\n          <td click.delegate=\"removedataset(item)\"\n                class=\"w3-button w3-btn\">&times;</td>\n        </tr>\n      </table>\n    </div>\n\n    <div show.bind=\"!showlist\">\n      <div class=\"w3-display-container w3-large w3-hover-green\" click.delegate=\"unselectdataset(item)\">${name}</div>\n\n      <form>\n        PDB or related item to add:<br/>\n        <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1cbs (PDB entry) or P12355 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n      </form>\n\n      <hr/>\n      <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n      <br/>\n      <ul>\n        <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n          <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n          <dataitem item=\"${item}\"></dataitem>\n        </li>\n      </ul>\n\n      dataset name:\n      <input value.bind=\"name\" change.trigger=\"changename()\"/>\n      <br/>\n\n      <!-- will be enabled after backend service is available -->\n      <button type=\"button\" click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n    </div>\n\n  </div>\n</template>\n"; });
+define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n  <div class=\"w3-card-2 w3-pale-blue\">\n\n    <div show.bind=\"showlist\">\n      <table class=\"w3-table\">\n        <tr ><td class=\"w3-large w3-hover-green\" click.delegate=\"createnewdataset()\">Create New Dataset</td>\n\n        </tr>\n        <tr repeat.for=\"item of datasetlist\"><td class=\"w3-large w3-hover-green\" click.delegate=\"selectdataset(item)\">${item.Name}</td>\n          <td click.delegate=\"removedataset(item)\"\n                class=\"w3-button w3-btn\">&times;</td>\n        </tr>\n      </table>\n    </div>\n\n    <div show.bind=\"!showlist\">\n      <div class=\"w3-display-container w3-large w3-hover-green\" click.delegate=\"unselectdataset(item)\">${name}</div>\n\n      <form>\n        PDB or related item to add:<br/>\n        <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1cbs (PDB entry) or P12355 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n      </form>\n\n      <hr/>\n      <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n      <br/>\n      <ul>\n        <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n          <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n          <dataitem item=\"${item}\"></dataitem>\n        </li>\n      </ul>\n\n      dataset name:\n      <input value.bind=\"name\" change.trigger=\"changename()\"/>\n      <br/>\n\n      <!-- will be enabled after backend service is available -->\n      <button type=\"button\" click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n    </div>\n\n  </div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../icons.css\"></require>\n    <button class=\"w3-bold w3-sand w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title} <i class=\"fa fa-caret-down\"></i></button>\n    <span show.bind=\"showit\" class=\"vf-transition\">\n      <slot></slot>\n    </span>\n</template>\n"; });
-define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n\n    <p><b>EMBL EBI PDB Viewer: </b><span id=\"pdbid\"></span></p>\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input>\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'110d'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n\n</template>\n"; });
-define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-light-grey w3-hover-blue\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>"; });
+define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-pale-blue w3-card-2 w3-padding w3-margin-right\">\n    Viewing: <i class=\"w3-tiny\">${pdburl}</i>\n    <br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input><br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbredoentry\"\n           change.delegate='loadfromredo()'/>from PDB-REDO database</input>\n  </div>\n\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'110d'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n</template>\n"; });
+define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-hover-blue\" class.bind=\"tab.active ? 'w3-border-top w3-border-right w3-border-left w3-pale-blue': 'w3-grey'\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>\n"; });
 define('text!uploaddirpicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filepicker/filepanel\"></require>\n  <require from=\"./uploaddirpanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - Upload-dir Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <uploaddirpanel></uploaddirpanel>\n</div>\n</template>\n"; });
 define('text!uploaddirpicker/uploaddirpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n    <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button> <button click.delegate=\"selectThisDir()\">Select this as UPLOAD dir</button></span>\n    <table id=\"${panelid}\">\n      <thead>\n      <tr>\n        <th style=\"text-align:left\">name</th>\n        <th style=\"text-align:right\">size</th>\n        <th style=\"text-align:center\">date</th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n        <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n      </tr>\n      </tbody>\n    </table>\n  </div>\n</template>\n"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
