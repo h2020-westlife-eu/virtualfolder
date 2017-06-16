@@ -118,6 +118,11 @@
             "path": "../node_modules/dropbox/dist",
             "main": "Dropbox-sdk.min.js"
           },
+          {
+            "name": "aurelia-dialog",
+            "path": "../node_modules/aurelia-dialog/dist/amd",
+            "main": "aurelia-dialog"
+          },
           "text",
           {
             "name": "codemirror",
