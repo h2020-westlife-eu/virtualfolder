@@ -1,13 +1,20 @@
-<template bindable="panelid">
-
-    <p><b>EMBL EBI PDB Viewer: </b><span id="pdbid"></span></p>
+<template>
+  <div class="w3-pale-blue">
+    Viewing: <i class="w3-tiny">${pdburl}</i>
+    <br/>
+    Load Entry
     <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
            maxlength="4" size="4" value.bind="pdbentry"
-           change.delegate='loadpdb()'/>from PDB database</input>
+           change.delegate='loadpdb()'/>from PDB database</input><br/>
+    Load Entry
+    <input id="pdbid" title="type PDB id and press enter" placeholder="1r6a"
+           maxlength="4" size="4" value.bind="pdbredoentry"
+           change.delegate='loadfromredo()'/>from PDB-REDO database</input>
+  </div>
+
     <div id="pdbwrapper">
         <div style="position:relative;height:600px;width:800px;" id="pdbviewer">
             <pdb-lite-mol pdb-id="'110d'" load-ed-maps="true"></pdb-lite-mol>
         </div>
     </div>
-
 </template>

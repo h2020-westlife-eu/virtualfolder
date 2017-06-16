@@ -18,14 +18,20 @@ export class Tabs {
 
     attached() {
         //console.log("tabs.atached() tabs: "+this.tabs);
-;
-
+      this.activeid=this.tabs[0];
+      this.activeid.active = true;
+      //this.tabs[]
     }
 
     opentab(tabid){
-        this.activeid=tabid.id;
+      //old active tab is not active anymore
+      this.activeid.active = false;
+
+      this.activeid=tabid;
+      //new active tab is active
+      this.activeid.active=true;
         //console.log("Tabs selected:"+this.activeid);
-        this.ea.publish(new SelectedTab(this.activeid));
+        this.ea.publish(new SelectedTab(this.activeid.id));
     }
 
 }
