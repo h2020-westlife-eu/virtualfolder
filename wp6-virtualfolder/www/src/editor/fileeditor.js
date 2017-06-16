@@ -24,7 +24,7 @@ export class Fileeditor {
     this.ea = ea;
     this.httpclient = httpclient;
     this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
-
+    this.fileurl="";
   }
 
   attached() {
@@ -42,7 +42,7 @@ export class Fileeditor {
     if (senderid!=this.pid)
     this.httpclient.get(file.webdavuri).then(
       data =>{
-
+        this.fileurl=file.webdavuri;
         console.log("fileeditor.selectfile() loading:"+file.webdavuri);
         //console.log(data);
         this.codemirror.setValue(data.response);
