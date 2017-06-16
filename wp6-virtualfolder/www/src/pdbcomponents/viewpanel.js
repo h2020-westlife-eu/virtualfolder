@@ -10,6 +10,7 @@ import {bindable} from 'aurelia-framework';
 
 export class  Viewpanel {
     static inject = [Element,EventAggregator, HttpClient];
+    @bindable pid;
 
     constructor(el,ea, httpclient) {
         this.element = el;
@@ -27,9 +28,11 @@ export class  Viewpanel {
     }
 
     viewfile(file,senderid) {
-        //console.log("viewfile " + file.webdavuri);
-        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
-        this.replacepdblitemol(pdblitemol);
+        if (senderid!=this.pid) {
+          console.log("viewfile " + file.webdavuri);
+          var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+          this.replacepdblitemol(pdblitemol);
+        }
     }
 
   loadpdb() {

@@ -389,19 +389,64 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     }
   }
 
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  var _class, _temp;
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
 
-  var Fileeditor = exports.Fileeditor = (_temp = _class = function () {
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _class2, _temp;
+
+  var Fileeditor = exports.Fileeditor = (_class = (_temp = _class2 = function () {
     function Fileeditor(el, ea, httpclient) {
       var _this = this;
 
       _classCallCheck(this, Fileeditor);
+
+      _initDefineProp(this, "pid", _descriptor, this);
 
       this.el = el;
       this.ea = ea;
@@ -425,7 +470,10 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     Fileeditor.prototype.selectFile = function selectFile(file, senderid) {
       var _this2 = this;
 
-      this.httpclient.get(file.webdavuri).then(function (data) {
+      if (senderid != this.pid) this.httpclient.get(file.webdavuri).then(function (data) {
+
+        console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+
         _this2.codemirror.setValue(data.response);
       }).catch(function (error) {
         alert('Error retrieving content from ' + file.webdavuri);
@@ -433,7 +481,10 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     };
 
     return Fileeditor;
-  }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "pid", [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
 });
 define('filemanager2/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', 'aurelia-dialog', './fmsettings'], function (exports, _aureliaEventAggregator, _messages, _aureliaFramework, _aureliaDialog, _fmsettings) {
   'use strict';
@@ -1833,19 +1884,64 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
   });
   exports.Viewpanel = undefined;
 
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  var _class, _temp;
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
 
-  var Viewpanel = exports.Viewpanel = (_temp = _class = function () {
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _class2, _temp;
+
+  var Viewpanel = exports.Viewpanel = (_class = (_temp = _class2 = function () {
     function Viewpanel(el, ea, httpclient) {
       var _this = this;
 
       _classCallCheck(this, Viewpanel);
+
+      _initDefineProp(this, 'pid', _descriptor, this);
 
       this.element = el;
       this.ea = ea;
@@ -1864,8 +1960,11 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     };
 
     Viewpanel.prototype.viewfile = function viewfile(file, senderid) {
-      var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
-      this.replacepdblitemol(pdblitemol);
+      if (senderid != this.pid) {
+        console.log("viewfile " + file.webdavuri);
+        var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + file.webdavuri + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+        this.replacepdblitemol(pdblitemol);
+      }
     };
 
     Viewpanel.prototype.loadpdb = function loadpdb() {
@@ -1884,7 +1983,10 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     };
 
     return Viewpanel;
-  }(), _class.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'pid', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
 });
 define('resources/index',["exports"], function (exports) {
   "use strict";
@@ -7013,7 +7115,7 @@ define('text!filemanager2/app.css', ['module'], function(module) { module.export
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card w3-pale-blue w3-code-2\">\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"left\"></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"right\"></panel>\n    </div>\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
 define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\">\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <p></p>\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
-define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
+define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
 define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td class=\"w3-right\">${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
