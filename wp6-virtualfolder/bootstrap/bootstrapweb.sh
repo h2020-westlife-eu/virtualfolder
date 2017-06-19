@@ -22,7 +22,8 @@
 #firewall-cmd --reload
 
 # prepare and restart apache, rewrite configuration
-cp -R $WP6SRC/etc/httpd/conf.d/* /etc/httpd/conf.d
+# copy all system config to etc
+cp -R $WP6SRC/conf-template/* /
 # copy web app pages
 cp $WP6SRC/www/* /var/www/html
 cp -R $WP6SRC/www/css /var/www/html
