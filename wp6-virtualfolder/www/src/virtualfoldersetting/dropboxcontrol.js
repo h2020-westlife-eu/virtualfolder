@@ -8,6 +8,7 @@
 import {UrlUtils} from './urlutils';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSelected} from './messages';
+import 'dropbox';
 
 //let client = new HttpClient();
 
@@ -22,21 +23,33 @@ export class DropboxControl {
     this.urlutils = urlutils;
     this.accesstoken=this.urlutils.parseQueryString(window.location.hash).access_token;
     this.isAuthenticated = !!this.accesstoken;
-    console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
+    //console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
 
     //instantiate dropboxclient - needed for getting URL to redirect
     this.CLIENTIDENC = "o\"csb%'{{{ze'ya";
-    var dbx = new Dropbox({clientId: this.CLIENTIDENC.split('').map( function(c) {
-      return String.fromCharCode( 23 ^ c.charCodeAt() );
-    }).join("")});
+    try {
+      var Dropbox = require("dropbox");
+      //console.log(mdb)
+      var dbx = new Dropbox({
+        clientId: this.CLIENTIDENC.split('').map(function (c) {
+          return String.fromCharCode(23 ^ c.charCodeAt());
+        }).join("")
+      });
+      var currentUrl = window.location.href;
+      //console.log('dropboxcontrol() current url:' + currentUrl);
+      this.authurl = dbx.getAuthenticationUrl(currentUrl);
+      //console.log('dropboxcontrol() auth url:' + this.authurl);
+      //console.log(this.dropBoxAuthUrl);
+    } catch(e){
+      console.log("exception:")
+      console.log(e)
+    }
 
-    var currentUrl = window.location.href;
-    console.log('dropboxcontrol() current url:' + currentUrl);
-    this.authurl = dbx.getAuthenticationUrl(currentUrl);
-    console.log(this.dropBoxAuthUrl);
     this.id="Dropbox";
-  }
 
+
+  }
+  
   initialize(){
     if (this.isAuthenticated) {
       var settings = {};

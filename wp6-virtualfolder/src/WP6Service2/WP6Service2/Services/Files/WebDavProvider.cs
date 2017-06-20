@@ -10,9 +10,9 @@ namespace MetadataService.Services.Files
     public class WebDavProviderCreator : IProviderCreator
     {
 
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
         {
-            return new WebDavProvider(item,storage,connection);
+            return new WebDavProvider(item,storage,connection,authproxy);
         }
     }
     public class WebDavProvider : AFileProvider
@@ -23,11 +23,11 @@ namespace MetadataService.Services.Files
 
 
         /** default constructor */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection):this( item, storage, connection,item.accessurl)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy):this( item, storage, connection,item.accessurl,authproxy)
         { }
 
         /** constructor for subclasses, where accessurl is known */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string accessurl): base(item, storage, connection)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string accessurl,string authproxy): base(item, storage, connection,authproxy)
         {
             _providerurl = accessurl;
             var task = Initialize(item);
@@ -42,7 +42,7 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVURL,path);
+            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVURL,PUBLICWEBDAVURL,path);
         }
 
         public override bool DeleteSettings()

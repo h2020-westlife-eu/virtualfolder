@@ -111,6 +111,18 @@
           "aurelia-templating",
           "aurelia-templating-binding",
           "aurelia-http-client",
+          "whatwg-fetch",
+          "aurelia-fetch-client",
+          {
+            "name":"dropbox",
+            "path": "../node_modules/dropbox/dist",
+            "main": "Dropbox-sdk.min.js"
+          },
+          {
+            "name": "aurelia-dialog",
+            "path": "../node_modules/aurelia-dialog/dist/amd",
+            "main": "aurelia-dialog"
+          },
           "text",
           {
             "name": "codemirror",

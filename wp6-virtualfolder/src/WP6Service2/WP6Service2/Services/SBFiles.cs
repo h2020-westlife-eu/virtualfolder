@@ -8,11 +8,12 @@ using ServiceStack.Text;
 namespace MetadataService.Services
 {
 
-	[Flags] public enum FileType {
+	[Flags]
+	public enum FileType {
 		None= 0,
-		Directory = 1,
-		Read = 2,
-		Write = 4
+		Directory = 2^0,
+		Read = 2^1,
+		Write = 2^2
 	}
 
 
@@ -29,6 +30,7 @@ namespace MetadataService.Services
 		public String path { get; set; }
 		public FileType filetype {get;set;}
 		public String webdavuri { get; set; }
+	    public String publicwebdavuri { get; set; }
 	}
 
     public interface IProviderContext

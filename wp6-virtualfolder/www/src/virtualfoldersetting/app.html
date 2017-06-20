@@ -1,16 +1,20 @@
 <template>
-  <require from="./genericcontrol"></require>
-  <require from="./aliastable"></require>
+  <require from="./storageprovider"></require>
+  <require from="../virtualfoldermodules/modulesetting"></require>
+  <require from="./clouddeployment"></require>
+  <require from="../w3.css"></require>
+
   <div class="w3-card-2 w3-sand w3-center">
     <h3>Virtual Folder - Settings</h3>
   </div>
 
+  <storageprovider></storageprovider>
 
-     <form submit.trigger="newProvider()">
-    <aliastable></aliastable>
-    </form>
+  <div if.bind="islocalhost">
+    <modulesetting></modulesetting>
+  </div>
 
-    <genericcontrol show.bind="showprovider"></genericcontrol>
-
-
+  <div if.bind="islocalhost">
+    <clouddeployment></clouddeployment>
+  </div>
 </template>

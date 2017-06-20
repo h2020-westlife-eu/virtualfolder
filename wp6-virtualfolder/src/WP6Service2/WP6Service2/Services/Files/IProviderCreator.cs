@@ -5,6 +5,6 @@ namespace MetadataService.Services.Files
 {
     public interface IProviderCreator
     {
-        AFileProvider CreateProvider(ProviderItem item,ISettingsStorage storage,IDbConnection connection);
+        AFileProvider CreateProvider(ProviderItem item,ISettingsStorage storage,IDbConnection connection,string authproxy);
     }
 }

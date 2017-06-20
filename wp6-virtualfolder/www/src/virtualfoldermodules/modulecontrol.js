@@ -3,9 +3,11 @@
  */
 
 import {HttpClient} from 'aurelia-http-client';
+//import {bindable} from 'aurelia-framework';
+
 
 export class Modulecontrol{
-
+//  @bindable classin = "w3-card-4 w3-sand w3-padding w3-margin w3-round";
   constructor () {
     this.httpclient=new HttpClient();
     this.url=window.location.href;
@@ -18,16 +20,16 @@ export class Modulecontrol{
   }
 
   attached(){
-    console.log("attached() url:"+this.url);
+    //console.log("attached() url:"+this.url);
     this.httpclient.get(this.url)
       .then(response => this.okcallback(response))
       .catch(error => this.failcallback(error))
   }
 
   okcallback(response){
-    console.log("okcallback()");
+    //console.log("okcallback()");
     var res= JSON.parse(response.response);
-    console.log(res.enabled);
+    //console.log(res.enabled);
     this.enabled= res.enabled;
   }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.Serialization;
 using MetadataService.Services.Settings;
 using ServiceStack.DataAnnotations;
 using ServiceStack.ServiceHost;
@@ -30,10 +31,12 @@ namespace MetadataService.Services.Files
         public string username { get; set; } //(mandatory for some types e.g. webdav,b2drop)
         public string output { get; set; } //output property debug output from scripts
         public string loggeduser { get; set; } //internal field, filled by service
+        [IgnoreDataMember] [Ignore]
+        public string loggeduserhash { get; set; } //internal field, filled by service
         public string accessurl { get; set; } //(mandatory for type webdav), not used by other providers
     }
 
-    [Route("/files/{Providerpath}/{Path*}", "GET")]
+    [Route("/files/{Providerpath}/{Path*}", "GET,HEAD")]
     public class ProviderFileList //: IReturn<List<SBFile>>
     {
         public string Providerpath { get; set; }
@@ -51,6 +54,11 @@ namespace MetadataService.Services.Files
     {
         public string username { get; set; }
         public string email { get; set; }
+    }
+
+    public class DjangoAuthproxyInfo
+    {
+        public string signed_url { get; set; }
     }
 
     [VreCookieRequestFilter]
@@ -79,9 +87,17 @@ namespace MetadataService.Services.Files
         /** determining which configured provider belongs to the user logged within this request */
         private UserProvider getUserProviders()
         {
-            var userid = (string) base.Request.Items["userid"];
-            if (userid.Length == 0) throw new UnauthorizedAccessException();
-            return UserProvider.GetInstance(userid,storage,Db);
+            try
+            {
+                var userid = (string) base.Request.Items["userid"];
+                var userauthproxy = (string) base.Request.Items["authproxy"];
+                if (userid.Length == 0) throw new UnauthorizedAccessException();
+                return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
+            }
+            catch (KeyNotFoundException e)
+            {
+                throw new UnauthorizedAccessException();
+            }
         }
 
         /** returns list of configured file providers */
@@ -98,7 +114,6 @@ namespace MetadataService.Services.Files
         }
 
         //registers new alias and provider which serve it
-
         public ProviderList Put(ProviderItem request)
         {
             getUserProviders().Add(request,storage,Db);
@@ -117,6 +132,23 @@ namespace MetadataService.Services.Files
         {
             //delegate to provider
             return getUserProviders().GetFileList(request);
+        }
+
+        public void Head(ProviderFileList request)
+        {
+            //delegate to provider
+            try
+            {
+                getUserProviders().GetFileList(request);
+                base.Response.StatusCode = 200;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: HEAD to resource:{0}\nmessage:{1}\nstacktrace:{2}",request.Providerpath+"/"+request.Path,e.Message,e.StackTrace);
+                base.Response.StatusDescription = e.Message;
+                base.Response.StatusCode = 404;
+            }
+            
         }
 
     }

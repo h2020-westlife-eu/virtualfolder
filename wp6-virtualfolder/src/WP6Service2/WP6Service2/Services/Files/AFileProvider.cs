@@ -17,6 +17,7 @@ namespace MetadataService.Services.Files
         protected string username;
         protected string FILESYSTEMFOLDER;
         protected string WEBDAVURL;
+        protected string PUBLICWEBDAVURL;
         private ISettingsStorage SettingsStorage;
         private IDbConnection Db;
         private const string Vfstoragevariable = "VF_STORAGE_DIR";
@@ -28,7 +29,7 @@ namespace MetadataService.Services.Files
             //if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
         //rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
 
-        public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection)
+        public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection, string authproxy)
         {
             SettingsStorage = settingsStorage;
             alias = provider.alias;
@@ -37,6 +38,7 @@ namespace MetadataService.Services.Files
 
             FILESYSTEMFOLDER = Path.Combine(_rootdir,provider.loggeduser,provider.alias);
             WEBDAVURL = Webdavroot+provider.loggeduser+"/"+provider.alias+"/";
+            PUBLICWEBDAVURL = authproxy+provider.alias;
         }
 
         /** default settings storage is in file */

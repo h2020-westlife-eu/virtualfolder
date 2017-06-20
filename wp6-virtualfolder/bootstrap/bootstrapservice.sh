@@ -9,26 +9,20 @@
 #wget https://nuget.org/nuget.exe
 #/bin/sh
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
-rm -rf /home/vagrant/build
+rm -rf /home/vagrant/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
 for i in {1..3}; do 
     echo attemp $i
-    if [ ! -f /home/vagrant/build/MetadataService/MetadataService.exe ]
+    if [ ! -f /home/vagrant/MetadataService/MetadataService.exe ]
     then
        echo Building MetadataService
 	#clean from previous try
-	rm -rf /home/vagrant/build
+	rm -rf /home/vagrant/MetadataService
 	rm -rf /home/vagrant/src
 	# build metadataservice
 	cp -R $WP6SRC/src /home/vagrant
-	if [ -f certdata.txt ]
-	then
-	    echo certdata.txt exists
-	else
-	    echo downloading certdata.txt
-	    wget --quiet -O certdata.txt http://mxr.mozilla.org/seamonkey/source/security/nss/lib/ckfw/builtins/certdata.txt?raw=1
-	fi
-	mozroots --import --sync --file certdata.txt
+
+    cert-sync /etc/pki/tls/certs/ca-bundle.crt
 	#certmgr -ssl -m https://go.microsoft.com
 	#certmgr -ssl -m https://nugetgallery.blob.core.windows.net
 	#certmgr -ssl -m https://nuget.org
@@ -41,10 +35,11 @@ done
 mkdir -p /home/vagrant/logs
 chmod -R ugo+rwx /home/vagrant/logs
 #generate random key
-if [ -f randomkey.txt ]
+if [ -f /home/vagrant/.westlife/metadata.key ]
 then
-   export VF_STORAGE_PKEY=`cat randomkey.txt`
+   `cat /home/vagrant/.westlife/metadata.key`
+   export VF_STORAGE_PKEY
 else
-   export VF_STORAGE_PKEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-   echo $VF_STORAGE_PKEY > randomkey.txt
+   export VF_STORAGE_PKEY=`openssl rand -base64 32`
+   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
 fi

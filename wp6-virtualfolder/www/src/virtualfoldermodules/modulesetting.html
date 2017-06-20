@@ -2,11 +2,11 @@
   <require from="./scipioncontrol"></require>
   <require from="./virtuosocontrol"></require>
   <require from="./ccp4control"></require>
-  <div class="w3-card-2 w3-sand">
-    <h3 align="center">Virtual Folder Modules</h3>
-  </div>
-  <scipioncontrol></scipioncontrol>
-  <virtuosocontrol></virtuosocontrol>
-  <ccp4control></ccp4control>
-  <div class="w3-padding w3-margin w3-clear"></div>
+  <require from="../pdbcomponents/hideable"></require>
+
+  <hideable title="Available modules" defaulthide="true">
+    <scipioncontrol></scipioncontrol>
+    <ccp4control></ccp4control>
+    <virtuosocontrol></virtuosocontrol>
+  </hideable>
 </template>

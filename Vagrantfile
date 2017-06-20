@@ -52,7 +52,7 @@ Vagrant.configure(2) do |config|
     vb.cpus = "2"
     vb.customize ["modifyvm", :id, "--vram", "16"]
   end
-  config.vm.synced_folder ".", "/home/vagrant/work/local", nfs: false
+  config.vm.synced_folder ".", "/vagrant", nfs: false
   config.vm.boot_timeout = 1200
   config.vm.network "private_network", type: "dhcp", auto_config: false
   config.vm.provision "shell",  path: "bootstrap.sh"

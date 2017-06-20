@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -96,7 +97,8 @@ namespace MetadataService.Services.Settings
         {
             var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, key,
                 Encoding.UTF8.GetBytes(item.loggeduser).Length);
-            item.securetoken = dectoken;
+            if (dectoken==null) throw new WarningException("not decrypted");
+                item.securetoken = dectoken;
         }
 
 
@@ -152,7 +154,15 @@ namespace MetadataService.Services.Settings
                 VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 KeyHash = getHash()
             };
-            db.Insert<DBSettings>(dbsettings);
+            //db.Where<DBSettings>(p => true);//var currentsetting=db.Select<DBSettings>();
+            if (db.Select<DBSettings>().Count > 0)
+            {
+
+                db.DeleteAll<DBSettings>();
+                db.Insert<DBSettings>(dbsettings);
+            }
+            else
+                db.Insert<DBSettings>(dbsettings);
         }
 
         public static DBSettings getDBSettings(IDbConnection db)

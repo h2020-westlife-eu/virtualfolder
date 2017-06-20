@@ -6,6 +6,7 @@ cd VRE
 git checkout dev
 cd ..
 mv VRE VRE-master
+cp $WP6SRC/VRE-master/rundevvre.sh /home/vagrant/VRE-master
 
 #wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
 #unzip -q master.zip

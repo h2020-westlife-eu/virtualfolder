@@ -5,30 +5,47 @@
   <require from="./entry-id"></require>
   <require from="./dataitem"></require>
   <require from="./hideable"></require>
+  <require from="../autocomplete/vfAutocompleteSearch"></require>
 
-<div class="w3-card w3-pale-blue">
+  <div class="w3-card-2 w3-pale-blue">
 
-  <h1>Dataset demo</h1>
-  <form>
-    dataset name:
-    <input value.bind="name" change.trigger="changename()"/>
-    <br/>
-    pdb or uniprot item to add:
-    <input value.bind="pdbdataitem" change.delegate="additem()"  placeholder="4yg0"/><br/>
-  </form>
+    <div show.bind="showlist">
+      <table class="w3-table">
+        <tr ><td class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</td>
 
-  <button click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
+        </tr>
+        <tr repeat.for="item of datasetlist"><td class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</td>
+          <td click.delegate="removedataset(item)"
+                class="w3-button w3-btn">&times;</td>
+        </tr>
+      </table>
+    </div>
 
-  <!--<pdb-autocomplete-search></pdb-autocomplete-search>-->
-<hr/>
-  <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
-<br/>
-  <ul>
-    <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item}</span>
-      <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
-      <dataitem item="${item}"></dataitem>
-    </li>
-  </ul>
+    <div show.bind="!showlist">
+      <div class="w3-display-container w3-large w3-hover-green" click.delegate="unselectdataset(item)">${name}</div>
 
-</div>
+      <form>
+        PDB or related item to add:<br/>
+        <vf-autocomplete-search submit.call="additem(item)" placeholder="1cbs (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>
+      </form>
+
+      <hr/>
+      <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
+      <br/>
+      <ul>
+        <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item}</span>
+          <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
+          <dataitem item="${item}"></dataitem>
+        </li>
+      </ul>
+
+      dataset name:
+      <input value.bind="name" change.trigger="changename()"/>
+      <br/>
+
+      <!-- will be enabled after backend service is available -->
+      <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
+    </div>
+
+  </div>
 </template>

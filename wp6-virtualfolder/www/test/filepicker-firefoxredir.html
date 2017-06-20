@@ -1,0 +1,50 @@
+<html>
+<head>
+  <base href=".."/>
+  <!--#include virtual="../heads.html" -->
+  <link rel="stylesheet" href="css/w3.css"/>
+</head>
+
+<body>
+<!--#include virtual="../header.html" -->
+<div class="w3-sand w3-card w3-round-large w3-margin w3-padding">
+<h1>File picker</h1>
+<a href="enablejavascript" onclick="openfilepickerwindow('file'); return false;"> Open File Picker Component in a pop-up window.</a>
+  <br/>After choosing the file and receiving it's url the pop-up window will be closed.
+<p>File:<a id="file" href=""></a></p>
+<h1>Upload-dir picker</h1>
+  <a href="enablejavascript" onclick="openuploaddirpickerwindow('uploaddir'); return false;"> Open File Picker Component in a pop-up window.</a>
+  <br/>After choosing the file and receiving it's url the pop-up window will be closed.
+  <p>File:<a id="uploaddir" href=""></a></p>
+</div>
+<!-- content -->
+
+<!--#include virtual="../footer.html" -->
+<script>
+var popup;
+var target;
+
+function openfilepickerwindow(_target){
+  openwindow(_target,"filepickercomponent.html",_target)
+}
+function openuploaddirpickerwindow(_target){
+  openwindow(_target,"uploaddirpickercomponent.html",_target)
+}
+//opens popup window in defined location, sets the target element id.
+function openwindow(_target,href) {
+  target = _target;
+  popup=window.open(href, 'newwindow', 'width=640, height=480');
+}
+//receives message from popup window, fills target element with the data received
+  function receiveMessage(event)
+  {
+      document.getElementById(target).innerHTML=event.data;
+      document.getElementById(target).setAttribute("href",event.data);
+  }
+
+window.addEventListener("message", receiveMessage, false);
+
+</script>
+</body>
+</html>
+L

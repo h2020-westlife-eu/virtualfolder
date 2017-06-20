@@ -1,0 +1,31 @@
+<template>
+  <require from="./vfAutocompleteSearch.css"></require>
+
+
+  <input ref="input" autocomplete="off" value.bind="value & debounce:750"
+         blur.trigger="blurSuggestions($event)"
+         keydown.delegate="keypressed($event)"
+         placeholder.bind="placeholder" focus.trigger="focusSuggestions()"
+         size.bind="size">
+
+  <div ref="results" show.bind="showing" class="result-container">
+    <div repeat.for="resultGroup of resultGroups" class="result-card">
+
+        <header class="result-card-heading">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>
+        <div class="result-card-body">
+          <span repeat.for="doclistRec of resultGroup.doclist.docs">
+
+            <div class="result-card-item"><button type="button" class="result-card-item-label w3-button w3-padding-0" click.trigger="clicked(doclistRec.value)" >${doclistRec.value}</button> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
+          </span>
+
+        </div>
+        <footer class="result-card-footer">
+
+          <a class="result-card-item-label" href="#" click.delegate="searchMore(resultGroup.doclist.docs[0].var_name)">More...</a>
+        </footer>
+
+    </div>
+    <div show.bind="resultGroupsEmpty">Enter PDB or UnitProt accession code, protein name or related terms.</div>
+  </div>
+</div>
+</template>

@@ -1,26 +1,36 @@
 /**
  * created by Tomas Kulhanek on 2/21/17.
  */
-/*
-<script type="text/javascript" src="/scripts/autocomplete/build/inline.bundle.js"></script>
-  <script type="text/javascript" src="/scripts/autocomplete/build/vendor.bundle.js"></script>
-  <script type="text/javascript" src="/scripts/autocomplete/build/main.bundle.js"></script>
-*/
 
-//import "autocomplete";
-
-//import "autocomplete";
+import 'whatwg-fetch';
 import {HttpClient} from "aurelia-http-client";
 import {computedFrom} from 'aurelia-framework';
+import {bindable} from 'aurelia-framework';
 
 //Model view controller
 //Model view viewmodel
 
 export class Dataset {
-  static inject = [Element,HttpClient];
+  static inject = [HttpClient];
+  @bindable panelid;
 
-  constructor (element,httpclient) {
-    this.element = element;
+  constructor (httpclient) {
+    this.client = httpclient;
+    this.client.configure(config=> {
+      config.withHeader('Accept', 'application/json');
+      config.withHeader('Content-Type', 'application/json');
+    });
+    this.showitem=true;
+    this.showlist=true;
+    this.pdbdataset = [];
+    this.pdbdataitem = "";
+    this.pdblinkset = [];
+    this.pdbdataitem = "";
+    this.submitdisabled2 = true;
+    this.id=0;
+  }
+
+  createnewdataset(){
     this.pdbdataset = [];
     this.pdbdataitem = "";
     this.pdblinkset = [];
@@ -28,13 +38,10 @@ export class Dataset {
     this.submitdisabled2 = true;
     let date = new Date();
     this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
-    this.client = httpclient;
-    this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
-    this.showitem=true;
+    this.id = 0;
+    this.showlist=false;
   }
+
 
   //@computedFrom('submitdisabled2')
   //TODO check,test to trigger only when pdbdataset is changed
@@ -44,42 +51,47 @@ export class Dataset {
       return true;
     else
       return false;
-
   }
 
-  /*bootstrapPdbeAutocomplete(){
-    console.log("pdb-autocomplete bootstrap()");
-    var event;
-    if (typeof MouseEvent == 'function') {
-      event = new MouseEvent('PDBeWebComponentsReady', { 'view': window, 'bubbles': true, 'cancelable': true });
-    } else if (typeof document.createEvent == 'function') {
-      event = document.createEvent('MouseEvents');
-      event.initEvent('PDBeWebComponentsReady', true, true );
-    }
-    //Dispatch
-    document.dispatchEvent(event);
+  attached(){
+    this.client.get(this.dataseturl).then(data=>
+    {
+      //console.log("dataset.attached(), data:")
+      //console.log(data)
+      this.datasetlist = JSON.parse(data.response);
+      //console.log(this.datasetlist)
+    })
   }
 
-  attached() {
-    console.log("Dataset attached(), calling bootstrap.")
-    var PdbeAutocompleteSearchConfig = {
-      resultBoxAlign: 'left',
-      redirectOnClick: false,
-      searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
-      fields: 'value,num_pdb_entries,var_name',
-      group: 'group=true&group.field=category',
-      groupLimit: '25',
-      sort: 'category+asc,num_pdb_entries+desc',
-      searchParams: 'rows=20000&json.nl=map&wt=json'
-    }
-    document.addEventListener('PDBe.autocomplete.click', function(e){ console.log(e.eventData) })
-
-    //this.bootstrapPdbeAutocomplete();
+  unselectdataset(item){
+    this.showlist=true;
   }
-*/
-  additem(){
+
+  selectdataset(item){
+    //console.log("selectdataset()");
+    //console.log(item)
+    this.client.get(this.dataseturl+"/"+item.Id).then(data=>
+    {
+      //console.log("selecteddataset(), data:")
+      //console.log(data)
+      this.submitdataset=JSON.parse(data.response)
+      //console.log(this.submitdataset)
+      this.pdbdataset = this.submitdataset.Entries
+      this.name = this.submitdataset.Name
+      this.id = this.submitdataset.Id
+      this.showlist = false
+    })
+  }
+
+  removedataset(item){
+    console.log("removedataset() not implemented");
+    console.log(item)
+  }
+
+  additem(item){
     console.log("additem()");
-    this.pdbdataset.unshift(this.pdbdataitem);
+    console.log(item);
+    this.pdbdataset.unshift(item);
 
     //this.canSubmit = this.pdbdataset.length>0?true:false;
   }
@@ -88,22 +100,48 @@ export class Dataset {
     this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
   }
 
-
   //model-view -viewmodel
   hideitem() {
     this.showitem = ! this.showitem;
   }
 
+  dataseturl = "/metadataservice/dataset";
 
   submit(){
-    this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
-      .then(data =>{
-        console.log("data response");
-        console.log(data);9
-      })
-      .catch(error =>{
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-      });
+    console.log("submitting data:");
+    this.submitdataset = {};
+    this.submitdataset.Id = this.id;
+    this.submitdataset.Name = this.name;
+    this.submitdataset.Entries = this.pdbdataset;
+    //this.submitdataset.Urls =
+    console.log(this.submitdataset);
+    console.log(JSON.stringify(this.submitdataset));
+    //PUT = UPDATE, POST = create new
+    if (this.id>0)
+      this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          console.log("data response");
+          console.log(data);
+          let myitem = JSON.parse(data.response);
+          //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
+    else
+      this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          console.log("data response");
+          console.log(data);
+          let myitem = JSON.parse(data.response);
+          this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
   }
 }

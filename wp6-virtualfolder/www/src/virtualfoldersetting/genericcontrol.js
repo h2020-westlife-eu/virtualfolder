@@ -23,7 +23,7 @@ export class Genericcontrol {
     this.dropboxauthurl = "";
     this.providers = [];
     this.selectedProvider="";
-    console.log('genericcontrol()');
+    //console.log('genericcontrol()');
     this.client=httpclient;
     this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
@@ -65,20 +65,32 @@ export class Genericcontrol {
   }
 
   attached() {
-    console.log('genericcontrol.attached()');
-    console.log("dialogstate:"+this.dialogstate);
+    //console.log('genericcontrol.attached()');
+    //console.log("dialogstate:"+this.dialogstate);
     //attach parent with the instance
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
     this.client.get("/metadataservice/"+this.servicecontext)
       .then(data => {
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
-      });
+      }).catch(error => {
+      //handle 403 unauthorized
+      if (error.statusCode == 403) {
+        //try to login
+        console.log("redirecting");
+        window.location = "/login?next=" + window.location.pathname;
+        //window.location =
+      } else {
+        console.log('Error');
+        console.log(error);
+        //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
+      }
+    });;
     this.dropboxcontrol.initialize();
   }
 
@@ -97,7 +109,7 @@ export class Genericcontrol {
        settings.securetoken = this.password;
        settings.username = this.username;
      }
-     console.log("publishing");
+     //console.log("publishing");
      this.ea.publish(new SettingsSubmitted(settings));
       this.clear();
   }

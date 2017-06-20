@@ -22,7 +22,8 @@
 #firewall-cmd --reload
 
 # prepare and restart apache, rewrite configuration
-cp -R $WP6SRC/apache2/sites-available/* /etc/httpd/conf.d
+# copy all system config to etc
+cp -R $WP6SRC/conf-template/* /
 # copy web app pages
 cp $WP6SRC/www/* /var/www/html
 cp -R $WP6SRC/www/css /var/www/html
@@ -77,10 +78,8 @@ usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
-# TODO will be done by dokuwiki plugin
 
 # mount b2drop
-# TODO optional will be done by dokuwiki plugin - if needed
 #mkdir /home/vagrant/.davfs
 #copy script for mounting B2DROP and setting root SetUID bit
 #fromdos /home/vagrant/mountb2drop.sh

@@ -2,6 +2,7 @@
  * created by Tomas Kulhanek on 9/28/16.
  */
 
+import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
@@ -25,7 +26,8 @@ export class Filepanel{
             config.withHeader('Accept','application/json');
             config.withHeader('Content-Type','application/json');
         });
-        console.log("filepanel tableid:"+this.panelid);
+        //console.log("filepanel tableid:"+this.panelid);
+        this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
     }
 
     //triggered after this object is placed to DOM
@@ -38,12 +40,19 @@ export class Filepanel{
                     this.populateFiles(data.response);
                 }
             }).catch(error => {
-
-                console.log('Error');
-                console.log(error);
-                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl);
+                //handle 403 unauthorized
+                if (error.statusCode == 403) {
+                  //try to login
+                  console.log("redirecting");
+                  window.location = "/login?next=" + window.location.pathname;
+                  //window.location =
+                } else {
+                  console.log('Error');
+                  console.log(error);
+                  //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
+                }
             });
-      console.log("filepanel tableid:"+this.panelid);
+      //console.log("filepanel tableid:"+this.panelid);
     }
 
     //parse .NET encoded Date in JSON
@@ -108,22 +117,49 @@ export class Filepanel{
 
         this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
-        if (this.path.length>0) {//non root path
-            this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
-        }
         this.files.forEach (function (item,index,arr){
           if(!arr[index].name && arr[index].alias) {
             arr[index].name=arr[index].alias;
             arr[index].attributes = 16;
             arr[index].date="";
           }
-          if (arr[index].attributes & 16) arr[index].size="DIR"});
+          if (arr[index].attributes & 16) arr[index].size="DIR";
+          else
+            //convert to 4GB or 30MB or 20kB or 100b
+            arr[index].size=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
+        });
+      if (this.path.length>0) {//non root path
+        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+      }
+
     }
 
     selectFile(file){
-      console.log("filepanel tableid:"+this.panelid);
+      //console.log("selectFile("+file+") panelid:"+this.panelid);
       if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
-      else this.ea.publish(new SelectedFile(file,this.panelid));
+      else {
+        //HEAD the file - so it can be obtained - cached by metadata service, fix #45
+        let fileurl=this.serviceurl + this.path + '/' + file.name
+        this.client.head(fileurl)
+          .then( response =>{
+            //console.log('file head'+fileurl);
+            //console.log(response);
+          }
+        );
+        //reconstructs public url
+        this.client.get(this.getpublicwebdavurl)
+          .then(data => {
+            if (data.response) {
+              let mypath2=JSON.parse(data.response);
+              let mypath = mypath2.signed_url;
+              mypath+= this.path.startsWith('/')?this.path.slice(1):this.path;
+              file.publicwebdavuri=mypath+"/"+file.name;
+              this.ea.publish(new SelectedFile(file, this.panelid));
+              //this.ea.publish(new SelectedFile(file,this.panelid));
+            }
+          });
+
+      }
     }
 
 }

@@ -21,6 +21,6 @@ Global
 		{8E5C5D26-0DDA-4529-B45F-1FBEB0906988}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		outputpath = ..\..\build
+		outputpath = ..\..\
 	EndGlobalSection
 EndGlobal

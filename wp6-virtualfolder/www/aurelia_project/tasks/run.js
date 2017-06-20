@@ -25,6 +25,8 @@ function reload(done) {
 var ssi = require('browsersync-ssi');
 var metadataserviceproxy = require('http-proxy-middleware');
 var webdavproxy = require('http-proxy-middleware');
+var loginproxy = require('http-proxy-middleware');
+var apiproxy = require('http-proxy-middleware');
 
 let serve = gulp.series(
   build,
@@ -46,7 +48,9 @@ let serve = gulp.series(
           ext: '.html'
           }),
           metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'}),
-          webdavproxy('/webdav',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'})
+          webdavproxy('/webdav',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'}),
+          loginproxy('/login',{target: 'http://localhost/login', changeOrigin: true,logLevel:'debug'}),
+          apiproxy('/api',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'})
         ]
       }
     }, function(err, bs) {
