@@ -7,7 +7,7 @@ git checkout dev
 cd ..
 mv VRE VRE-master
 cp $WP6SRC/VRE-master/rundevvre.sh /home/vagrant/VRE-master
-cp $WP6SRC/VRE-master/addvagrantuser.sh /home/vagrant/VRE-master
+cp $WP6SRC/VRE-master/addvagrantuser.py /home/vagrant/VRE-master
 
 #wget -q https://github.com/h2020-westlife-eu/VRE/archive/master.zip
 #unzip -q master.zip
@@ -21,6 +21,7 @@ yum -y install python-virtualenv python-pip python-redis nodejs-supervisor pytho
 # Prepares development version of VRE
 cd /home/vagrant/VRE-master
 bash make_venv.sh
+cd /home/vagrant/VRE-master
 source rc.sh
 python manage.py migrate
 python addvagrantuser.py
