@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 using MetadataService.Services.Settings;
@@ -19,20 +18,30 @@ namespace MetadataService.Services.Files
     /files/dropbox/ -- sets dropbox configuration
     /files/dropbox/connection
   */
-    [Route("/files","GET,PUT")]
+    [Route("/files", "GET,PUT")]
     [Route("/files/{alias}", "DELETE")]
     public class ProviderItem : IReturn<ProviderList>
     {
         [AutoIncrement]
         public int Id { get; set; }
-        public string alias { get; set; } //(optional - will be generated) alias used to distinguish between multiple providers per user /files/{alias}/{path}
-        public string type{ get; set; } //(mandatory) type of provider to distinguish available implementation
-        public string securetoken { get;set;} //(mandatory), accesstoken or password used to transfer tokens to store
+
+        public string
+            alias
+        {
+            get;
+            set;
+        } //(optional - will be generated) alias used to distinguish between multiple providers per user /files/{alias}/{path}
+
+        public string type { get; set; } //(mandatory) type of provider to distinguish available implementation
+        public string securetoken { get; set; } //(mandatory), accesstoken or password used to transfer tokens to store
         public string username { get; set; } //(mandatory for some types e.g. webdav,b2drop)
         public string output { get; set; } //output property debug output from scripts
         public string loggeduser { get; set; } //internal field, filled by service
-        [IgnoreDataMember] [Ignore]
+
+        [IgnoreDataMember]
+        [Ignore]
         public string loggeduserhash { get; set; } //internal field, filled by service
+
         public string accessurl { get; set; } //(mandatory for type webdav), not used by other providers
     }
 
@@ -64,7 +73,7 @@ namespace MetadataService.Services.Files
     [VreCookieRequestFilter]
     public class ProviderService : Service
     {
-        private ISettingsStorage storage;
+        private readonly ISettingsStorage storage;
 
 
         //configures the storage
@@ -72,16 +81,15 @@ namespace MetadataService.Services.Files
         {
             storage = SettingsStorageInDB.GetInstance();
             //storage = SettingsStorageInFile.GetInstance();
-
         }
 
         //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
-     //   private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
+        //   private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
 
         /*gets providers associated to the user, initialize object when needed */
         private List<ProviderItem> getUserProviderItems()
         {
-           return getUserProviders().getProviderItems();
+            return getUserProviders().getProviderItems();
         }
 
         /** determining which configured provider belongs to the user logged within this request */
@@ -89,8 +97,8 @@ namespace MetadataService.Services.Files
         {
             try
             {
-                var userid = (string) base.Request.Items["userid"];
-                var userauthproxy = (string) base.Request.Items["authproxy"];
+                var userid = (string) Request.Items["userid"];
+                var userauthproxy = (string) Request.Items["authproxy"];
                 if (userid.Length == 0) throw new UnauthorizedAccessException();
                 return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
             }
@@ -104,7 +112,6 @@ namespace MetadataService.Services.Files
         public ProviderList Get(ProviderItem request)
         {
             return getUserProviderItems();
-
         }
 
         /** returns list of available providers, which can be configured by the user */
@@ -116,7 +123,7 @@ namespace MetadataService.Services.Files
         //registers new alias and provider which serve it
         public ProviderList Put(ProviderItem request)
         {
-            getUserProviders().Add(request,storage,Db);
+            getUserProviders().Add(request, storage, Db);
             return getUserProviderItems();
         }
 
@@ -140,16 +147,15 @@ namespace MetadataService.Services.Files
             try
             {
                 getUserProviders().GetFileList(request);
-                base.Response.StatusCode = 200;
+                Response.StatusCode = 200;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error: HEAD to resource:{0}\nmessage:{1}\nstacktrace:{2}",request.Providerpath+"/"+request.Path,e.Message,e.StackTrace);
-                base.Response.StatusDescription = e.Message;
-                base.Response.StatusCode = 404;
+                Console.WriteLine("Error: HEAD to resource:{0}\nmessage:{1}\nstacktrace:{2}",
+                    request.Providerpath + "/" + request.Path, e.Message, e.StackTrace);
+                Response.StatusDescription = e.Message;
+                Response.StatusCode = 404;
             }
-            
         }
-
     }
 }

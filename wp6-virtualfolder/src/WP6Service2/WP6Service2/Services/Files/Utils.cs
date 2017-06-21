@@ -1,27 +1,24 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Security.AccessControl;
 
 namespace MetadataService.Services.Files
 {
     public class Utils
     {
         /// <summary>
-        /// Executes Shell command or script
+        ///     Executes Shell command or script
         /// </summary>
         public static string ExecuteShell(string shellcommand, string[] args, out int exitcode)
         {
-            ProcessStartInfo psi = new ProcessStartInfo();
+            var psi = new ProcessStartInfo();
             psi.FileName = shellcommand;
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
             foreach (var arg in args)
-            {
                 psi.Arguments += arg + " ";
-            }
-            Process p = Process.Start(psi);
-            string output = p.StandardOutput.ReadToEnd();
+            var p = Process.Start(psi);
+            var output = p.StandardOutput.ReadToEnd();
             output += p.StandardError.ReadToEnd();
             p.WaitForExit();
             exitcode = p.ExitCode;
@@ -37,16 +34,14 @@ namespace MetadataService.Services.Files
         }
 
         /// <summary>
-        /// Copies the contents of input to output. Doesn't close either stream.
+        ///     Copies the contents of input to output. Doesn't close either stream.
         /// </summary>
         public static void CopyStream(Stream input, Stream output)
         {
-            byte[] buffer = new byte[8 * 1024];
+            var buffer = new byte[8 * 1024];
             int len;
-            while ( (len = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
                 output.Write(buffer, 0, len);
-            }
         }
 
         public static void CreateSystemSubFolder(string folder)
@@ -56,7 +51,6 @@ namespace MetadataService.Services.Files
             //DirectorySecurity securityRules = new DirectorySecurity();
             //securityRules.AddAccessRule(new FileSystemAccessRule("vagrant", FileSystemRights.FullControl, AccessControlType.Allow));
             Directory.CreateDirectory(subdir);
-
         }
     }
 }

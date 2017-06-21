@@ -6,66 +6,70 @@ using MetadataService.Services.Settings;
 
 namespace MetadataService.Services.Files
 {
-
     public class WebDavProviderCreator : IProviderCreator
     {
-
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
+            string authproxy)
         {
-            return new WebDavProvider(item,storage,connection,authproxy);
+            return new WebDavProvider(item, storage, connection, authproxy);
         }
     }
+
     public class WebDavProvider : AFileProvider
     {
-        private readonly string _providerurl = "";//"https://b2drop.eudat.eu/remote.php/webdav"
-        private static HashSet<string> initializedproviders = new HashSet<string>();
-        private static object initlock = new object();
+        private static readonly HashSet<string> initializedproviders = new HashSet<string>();
+        private static readonly object initlock = new object();
+        private readonly string _providerurl = ""; //"https://b2drop.eudat.eu/remote.php/webdav"
 
 
         /** default constructor */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy):this( item, storage, connection,item.accessurl,authproxy)
-        { }
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy) :
+            this(item, storage, connection, item.accessurl, authproxy)
+        {
+        }
 
         /** constructor for subclasses, where accessurl is known */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string accessurl,string authproxy): base(item, storage, connection,authproxy)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string accessurl,
+            string authproxy) : base(item, storage, connection, authproxy)
         {
             _providerurl = accessurl;
-            var task = Initialize(item);
+            //var task = Initialize(item);
+            Initialize(item);
             //task.Start();
         }
 
         public override object GetFileOrList(string Path)
         {
-            string path = (Path != null) ? Path : "";
+            var path = Path != null ? Path : "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER,WEBDAVURL,PUBLICWEBDAVURL,path);
+            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, path);
         }
 
         public override bool DeleteSettings()
         {
-            var task = DeInitialize();
+            DeInitialize();
             return base.DeleteSettings();
         }
 
 
         //TODO sudo as 'vagrant' here or sudo whole 'metadataservice'?
-        private async Task Initialize(ProviderItem request)
+        private void Initialize(ProviderItem request)
         {
             lock (initlock)
             {
                 if (initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
-                    Console.WriteLine("provider at "+FILESYSTEMFOLDER+"already initialized for " + username);
+                    Console.WriteLine("provider at " + FILESYSTEMFOLDER + "already initialized for " + username);
                     return;
                 }
                 //else
                 initializedproviders.Add(FILESYSTEMFOLDER);
                 int exitcode;
-                request.output = Utils.ExecuteShell("/bin/bash", new string[]
+                request.output = Utils.ExecuteShell("/bin/bash", new[]
                 {
                     //"-H -u vagrant",
                     "/home/vagrant/scripts/mountb2drop.sh",
@@ -80,7 +84,7 @@ namespace MetadataService.Services.Files
             }
         }
 
-        private async Task DeInitialize()
+        private void DeInitialize()
         {
             lock (initlock)
             {
@@ -92,7 +96,7 @@ namespace MetadataService.Services.Files
                 //else
                 initializedproviders.Remove(FILESYSTEMFOLDER);
                 int exitcode;
-                var output = Utils.ExecuteShell("/bin/bash", new string[]
+                var output = Utils.ExecuteShell("/bin/bash", new[]
                 {
                     "/home/vagrant/scripts/mountb2drop.sh",
                     "remove",
@@ -103,10 +107,6 @@ namespace MetadataService.Services.Files
                 }, out exitcode);
                 Console.WriteLine(output);
             }
-            //request.securetoken = ""; //just remove secure token, as it is not needed anymore
-
-            //request.connected = GetB2DropStatus();
-            //return request;
         }
     }
 }

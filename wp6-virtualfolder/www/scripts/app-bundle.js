@@ -455,6 +455,7 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
         return _this.selectFile(msg.file, msg.senderid);
       });
       this.fileurl = "";
+      this.isimage = false;
     }
 
     Fileeditor.prototype.attached = function attached() {
@@ -471,14 +472,17 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     Fileeditor.prototype.selectFile = function selectFile(file, senderid) {
       var _this2 = this;
 
-      if (senderid != this.pid) this.httpclient.get(file.webdavuri).then(function (data) {
-        _this2.fileurl = file.webdavuri;
-        console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+      if (senderid != this.pid) {
+        this.isimage = file.name.endsWith('.JPG') || file.name.endsWith('.jpg') || file.name.endsWith('.PNG') || file.name.endsWith('.png') || file.name.endsWith('.GIF') || file.name.endsWith('.gif') || file.name.endsWith('.BMP') || file.name.endsWith('.bmp') || file.name.endsWith('.SVG') || file.name.endsWith('.svg');
+        if (!this.isimage) this.httpclient.get(file.webdavuri).then(function (data) {
+          _this2.fileurl = file.webdavuri;
+          console.log("fileeditor.selectfile() loading:" + file.webdavuri);
 
-        _this2.codemirror.setValue(data.response);
-      }).catch(function (error) {
-        alert('Error retrieving content from ' + file.webdavuri);
-      });
+          _this2.codemirror.setValue(data.response);
+        }).catch(function (error) {
+          alert('Error retrieving content from ' + file.webdavuri);
+        });
+      }
     };
 
     return Fileeditor;
@@ -1491,8 +1495,6 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
 
       _initDefineProp(this, 'panelid', _descriptor, this);
 
-      this.dataseturl = "/metadataservice/dataset";
-
       this.client = httpclient;
       this.client.configure(function (config) {
         config.withHeader('Accept', 'application/json');
@@ -1569,30 +1571,9 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.submit = function submit() {
       var _this3 = this;
 
-      console.log("submitting data:");
-      this.submitdataset = {};
-      this.submitdataset.Id = this.id;
-      this.submitdataset.Name = this.name;
-      this.submitdataset.Entries = this.pdbdataset;
-
-      console.log(this.submitdataset);
-      console.log(JSON.stringify(this.submitdataset));
-
-      if (this.id > 0) this.client.put(this.dataseturl + "/" + this.id, JSON.stringify(this.submitdataset)).then(function (data) {
+      this.client.put("/metadataservice/dataset", JSON.stringify(this.pdbdataset)).then(function (data) {
         console.log("data response");
-        console.log(data);
-        var myitem = JSON.parse(data.response);
-
-        _this3.showlist = true;
-      }).catch(function (error) {
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });else this.client.post(this.dataseturl, JSON.stringify(this.submitdataset)).then(function (data) {
-        console.log("data response");
-        console.log(data);
-        var myitem = JSON.parse(data.response);
-        _this3.datasetlist.push({ Id: myitem.Id, Name: myitem.Name });
-        _this3.showlist = true;
+        console.log(data);9;
       }).catch(function (error) {
         console.log(error);
         alert('Sorry. Dataset not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
@@ -7128,7 +7109,7 @@ define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) {
 define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!filemanager2/app.css', ['module'], function(module) { module.exports = "ux-dialog-overlay.active {background-color: black;opacity: .5;}\n"; });
-define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${fileurl}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n</template>\n"; });
+define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div show.bind=\"!isimage\" class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${fileurl}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n  <div if.bind=\"isimage\" class=\"w3-card-2 w3-black w3-code-2\">\n    <img src.bind=\"imageurl\"/>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"left\"></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"right\"></panel>\n    </div>\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
 define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\">\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <p></p>\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
