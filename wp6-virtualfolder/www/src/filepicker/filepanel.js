@@ -145,7 +145,10 @@ export class Filepanel{
             //console.log('file head'+fileurl);
             //console.log(response);
           }
-        );
+        ).catch(error => {
+          console.log("Error when geting metadata information about file:")
+          console.log(error);
+        });
         //reconstructs public url
         this.client.get(this.getpublicwebdavurl)
           .then(data => {

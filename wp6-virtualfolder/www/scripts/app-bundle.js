@@ -454,7 +454,7 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
       this.ea.subscribe(_messages.EditFile, function (msg) {
         return _this.selectFile(msg.file, msg.senderid);
       });
-      this.fileurl = "";
+      this.imageurl = "";
       this.isimage = false;
     }
 
@@ -473,9 +473,10 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
       var _this2 = this;
 
       if (senderid != this.pid) {
+        this.imageurl = file.webdavuri;
         this.isimage = file.name.endsWith('.JPG') || file.name.endsWith('.jpg') || file.name.endsWith('.PNG') || file.name.endsWith('.png') || file.name.endsWith('.GIF') || file.name.endsWith('.gif') || file.name.endsWith('.BMP') || file.name.endsWith('.bmp') || file.name.endsWith('.SVG') || file.name.endsWith('.svg');
         if (!this.isimage) this.httpclient.get(file.webdavuri).then(function (data) {
-          _this2.fileurl = file.webdavuri;
+
           console.log("fileeditor.selectfile() loading:" + file.webdavuri);
 
           _this2.codemirror.setValue(data.response);
@@ -1054,7 +1055,10 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
 
             if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);else {
                 var fileurl = this.serviceurl + this.path + '/' + file.name;
-                this.client.head(fileurl).then(function (response) {});
+                this.client.head(fileurl).then(function (response) {}).catch(function (error) {
+                    console.log("Error when geting metadata information about file:");
+                    console.log(error);
+                });
 
                 this.client.get(this.getpublicwebdavurl).then(function (data) {
                     if (data.response) {

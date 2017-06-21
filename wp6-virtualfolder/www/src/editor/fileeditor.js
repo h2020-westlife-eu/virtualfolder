@@ -24,7 +24,7 @@ export class Fileeditor {
     this.ea = ea;
     this.httpclient = httpclient;
     this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
-    this.fileurl="";
+    this.imageurl="";
     this.isimage=false;
   }
 
@@ -41,19 +41,21 @@ export class Fileeditor {
 
   selectFile(file,senderid) {
     if (senderid!=this.pid) {
+      this.imageurl = file.webdavuri;
       this.isimage= (file.name.endsWith('.JPG'))||(file.name.endsWith('.jpg'))||(file.name.endsWith('.PNG'))||(file.name.endsWith('.png'))||(file.name.endsWith('.GIF'))||(file.name.endsWith('.gif'))||(file.name.endsWith('.BMP'))||(file.name.endsWith('.bmp'))||(file.name.endsWith('.SVG'))||(file.name.endsWith('.svg'))
       if (!this.isimage)
-      this.httpclient.get(file.webdavuri).then(
-        data => {
-          this.fileurl = file.webdavuri;
-          console.log("fileeditor.selectfile() loading:" + file.webdavuri);
-          //console.log(data);
-          this.codemirror.setValue(data.response);
+        this.httpclient.get(file.webdavuri).then(
+          data => {
 
-        }
-      ).catch(error => {
-        alert('Error retrieving content from ' + file.webdavuri);
-      });
+            console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+            //console.log(data);
+            this.codemirror.setValue(data.response);
+
+          }
+        ).catch(error => {
+          alert('Error retrieving content from ' + file.webdavuri);
+        });
+
     }
   }
 }
