@@ -22,6 +22,6 @@ yum -y install python-virtualenv python-pip python-redis nodejs-supervisor pytho
 cd /home/vagrant/VRE-master
 bash make_venv.sh
 cd /home/vagrant/VRE-master
-source rc.sh
+source ./rc.sh
 python manage.py migrate
 python addvagrantuser.py
