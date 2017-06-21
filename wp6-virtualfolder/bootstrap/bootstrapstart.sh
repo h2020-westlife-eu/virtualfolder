@@ -6,8 +6,9 @@
 #chmod +x /etc/rc.local
 #start the processes at first time - after that it will be started at boot
 #/etc/rc.local
-sed -i -e "s/\#ExecStart.*$/ExecStart=\/bin\/mono \/home\/vagrant\/MetadataService\/MetadataService.exe /g" /etc/systemd/system/westlife-metadata.service
-sed -i -e "s/\#ExecStart.*$/ExecStart=\/home\/vagrant\/VRE-master\/runddevvre.sh/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/\ExecStart.*$/ExecStart=\/home\/vagrant\/VRE-master\/runddevvre.sh/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/home\/vagrant\/MetadataService\/MetadataService.exe /g" /etc/systemd/system/westlife-metadata.service
+chown -R vagrant:vagrant /home/vagrant/.westlife
 service westlife-metadata start
 service westlife-vre start
 

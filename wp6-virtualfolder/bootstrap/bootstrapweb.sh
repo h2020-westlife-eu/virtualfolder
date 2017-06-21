@@ -24,14 +24,16 @@
 # prepare and restart apache, rewrite configuration
 # copy all system config to etc
 cp -R $WP6SRC/conf-template/* /
+sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/virtualfolder\/latest\/www/${WP6SRC}\/www/g" /etc/httpd/conf.d/000-default.conf
+
 # copy web app pages
-cp $WP6SRC/www/* /var/www/html
-cp -R $WP6SRC/www/css /var/www/html
-cp -R $WP6SRC/www/img /var/www/html
-cp -R $WP6SRC/www/scripts /var/www/html
-cp -R $WP6SRC/www/services2 /var/www/html
-cp -R $WP6SRC/www/src /var/www/html
-cp -R $WP6SRC/www/tools /var/www/html
+#cp $WP6SRC/www/* /var/www/html
+#cp -R $WP6SRC/www/css /var/www/html
+#cp -R $WP6SRC/www/img /var/www/html
+#cp -R $WP6SRC/www/scripts /var/www/html
+#cp -R $WP6SRC/www/services2 /var/www/html
+#cp -R $WP6SRC/www/src /var/www/html
+#cp -R $WP6SRC/www/tools /var/www/html
 
 
 #unzip $WP6SRC/thirdparty/ngl.zip -d /var/www
@@ -40,7 +42,6 @@ cp -R $WP6SRC/www/tools /var/www/html
 chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
-
 
 #add +x permission on all html files which has include directive
 chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
