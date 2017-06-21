@@ -43,8 +43,8 @@ Follow [Integration guide](doc/integration-guide.md) for further details.
 
 ## Development
 
-Clone this git repository or follow [Development installation](doc/installation-guide/development-installation.md)
-to prepare complete virtual machine environment with source codes.
+In order to test, contribute to source codes and prepare  virtual machine environment with source codes, 
+follow [Development installation](doc/installation-guide/development-installation.md)
 
 ## Release Notes
 
