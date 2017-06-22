@@ -5,24 +5,41 @@ This "Virtual Folder" provides a unified access mechanism to files stored in a v
 
 This is part of a Virtual Research Environment for structural biology: the application level services specific to uses cases in structural biology. 
 
-The Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
-
 This is developed by the West-Life H2020 project, which is running from 2015 to 2018. It provides application level services usable for structural biology use cases and follows [the structural biology data lifecycle](http://internal-wiki.west-life.eu/w/images/9/9c/Assessment_of_the_life_cycle_of_structural_data_and_comparison_with_other_scientific_data.docx). Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". 
 
 ## Usage
 A public installation of the  Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
-A private Virtual Folder can be installed on local cluster or workstation.
-Follow [User's guide](doc/users-guide.md) for further details.
+Follow [User's guide](doc/users-guide.md) for further details how to use it.
 
 ## Installation
 
-Hardware configuration for private deployment of virtual machine:
+There is option to install the Virtual Folder in privately on your workstation. The Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
+
+Recommended configuration for private deployment of virtual machine:
 * Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
 * Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
-* Cloud system: tested on OpenNebula, OpenStack
 * Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS)
-* Desktop, Server Software: VirtualBox 5.1.6+, Vagrant 1.8.6+ (optional)
-For installation, follow the instruction at https://github.com/h2020-westlife-eu/wp6-vm.git.
+* Desktop, Server Software: VirtualBox 5.1.6+, Vagrant 1.8.6+
+
+Installation from binaries:
+
+```bash
+git clone https://github.com/h2020-westlife-eu/wp6-vm.git
+
+cd wp6-vm
+
+vagrant up
+```
+
+Installation from sources:
+
+```bash
+git clone https://github.com/h2020-westlife-eu/west-life-wp6
+
+cd wp6-vm
+
+vagrant up
+```
 
 After installation, the new virtual machine can be accessed via web browser `http://[vm.ip.address]:[port]/`
 By default, `http://localhost:8080`
@@ -31,7 +48,7 @@ Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g
 Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
 and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
 
-Follow [Installation guide](doc/installation-guide.md) for further details.
+For other installation options or detailed instructions follow: [Installation guide](doc/installation-guide.md).
 
 ## Integration
 
