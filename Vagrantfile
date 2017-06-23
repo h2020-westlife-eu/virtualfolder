@@ -23,17 +23,32 @@
 #end
 
 Vagrant.configure(2) do |config|
-  if ENV["http_proxy"]
-    config.vm.box = "westlife-eu/wp6-cernvm-dlproxy"
-  else
-    config.vm.box = "westlife-eu/wp6-cernvm"
-  end
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 8000, host: 8000
+  config.vm.box = "westlife-eu/wp6-cernvm"
 #  config.ssh.username = "vagrant"
 #  config.ssh.password = "vagrant"
+  if Vagrant::VERSION =~ /^1.9.3/
+    puts "vagrant version 1.9.3, fixing host_ip configuration "
+    # forward standard web
+    config.vm.network "forwarded_port", host_ip: "127.0.0.1", guest: 80, host: 8080
+    # forward depended tool (SCIPION)
+    config.vm.network "forwarded_port",host_ip: "127.0.0.1", guest: 8000, host: 8000
+  
+  else
+    if Vagrant::VERSION =~ /^1.9.4/
+      puts "vagrant version 1.9.4 detected. Upgrade to version 1.9.5+ or downgrade to version 1.9.3 or bellow"
+      exit
+    else
+      puts "vagrant version:"
+      puts Vagrant::VERSION
+      # forward standard web
+      config.vm.network "forwarded_port", guest: 80, host: 8080
+      # forward depended tool (SCIPION)
+      config.vm.network "forwarded_port", guest: 8000, host: 8000    
+    end
+  end
   if Vagrant.has_plugin?("vagrant-proxyconf")
     if ENV["http_proxy"]
+      puts "Warning: Proxy environment detected, base VM may need manual contextualization to set proxy."
       config.proxy.http     =  ENV["http_proxy"] #"http://wwwcache.dl.ac.uk:8080"
     end
     if ENV["https_proxy"]
@@ -44,10 +59,9 @@ Vagrant.configure(2) do |config|
     end
   end
   config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-    vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
+  #   Display the VirtualBox GUI when booting the machine
+    vb.gui = false  
+  #   Customize the amount of memory on the VM:
     vb.memory = "2048"
     vb.cpus = "2"
     vb.customize ["modifyvm", :id, "--vram", "16"]
