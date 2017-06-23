@@ -20,16 +20,16 @@ Recommended configuration for private deployment of virtual machine:
 * Desktop, Server Software: VirtualBox 5.1.6+, Vagrant 1.8.6+
 
 Virtual Folder can be installed: 
-1. installation from source codes
-2. installation from binaries distributed via cernvm-fs
-3. installaiton from cloud template, contextualized to binaries at cernvm-fs
+1. from source codes
+2. from binaries at cernvm-fs
+3. from cloud template, contextualized to binaries at cernvm-fs
 
 Brief installation from sources:
 
 ```bash
 git clone https://github.com/h2020-westlife-eu/west-life-wp6
 
-cd wp6-vm
+cd west-life-wp6
 
 vagrant up
 ```
