@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using MetadataService.Services.Files;
 using ServiceStack.OrmLite;
@@ -19,15 +18,13 @@ namespace MetadataService.Services.Settings
 
     public class SettingsStorageInDB : ISettingsStorage
     {
-
         private static readonly SettingsStorageInDB _instance = new SettingsStorageInDB();
 
+        private static readonly string nonsecurepkey = "sMhM8zRVjY0v";
 
-        /** Singleton, retrieve instance by this method */
-        public static SettingsStorageInDB GetInstance()
-        {
-            return _instance;
-        }
+        private static readonly string pkey = Environment.GetEnvironmentVariable("VF_STORAGE_PKEY") != null
+            ? Environment.GetEnvironmentVariable("VF_STORAGE_PKEY")
+            : nonsecurepkey;
 
 
         public void StoreSettings(ProviderItem request, IDbConnection Db)
@@ -35,7 +32,6 @@ namespace MetadataService.Services.Settings
             Db.Open();
             encrypt(ref request);
             Db.Insert(request);
-
         }
 
         public bool DeleteSettings(string username, string alias, IDbConnection Db)
@@ -55,50 +51,51 @@ namespace MetadataService.Services.Settings
             return selected;
         }
 
-        private static readonly string nonsecurepkey = "sMhM8zRVjY0v";
-        private static readonly string pkey = Environment.GetEnvironmentVariable("VF_STORAGE_PKEY") != null
-            ? Environment.GetEnvironmentVariable("VF_STORAGE_PKEY")
-            : nonsecurepkey;
+
+        /** Singleton, retrieve instance by this method */
+        public static SettingsStorageInDB GetInstance()
+        {
+            return _instance;
+        }
 
         //TODO test
-        public static void decrypt( ref List<ProviderItem> enclist, string key)
+        public static void decrypt(ref List<ProviderItem> enclist, string key)
         {
             var newlist = new List<ProviderItem>();
             foreach (var item in enclist)
-            {
                 try
                 {
                     var providerItem = item;
-                    decrypt(ref providerItem,key);
+                    decrypt(ref providerItem, key);
                     newlist.Add(providerItem);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Exception during decryption for item:"+item.alias+" error:"+e.Message+e.StackTrace);
+                    Console.WriteLine("Exception during decryption for item:" + item.alias + " error:" + e.Message +
+                                      e.StackTrace);
                 }
-            }
             enclist = newlist;
         }
 
-        public static void decrypt( ref List<ProviderItem> enclist)
+        public static void decrypt(ref List<ProviderItem> enclist)
         {
-            decrypt(ref enclist,pkey);
+            decrypt(ref enclist, pkey);
         }
 
         public static void decrypt(ref ProviderItem item)
         {
-            decrypt(ref item,pkey);
+            decrypt(ref item, pkey);
             //var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, pkey,
 //                Encoding.UTF8.GetBytes(item.loggeduser).Length);
-  //          item.securetoken = dectoken;
+            //          item.securetoken = dectoken;
         }
 
-        public static void decrypt(ref ProviderItem item,string key)
+        public static void decrypt(ref ProviderItem item, string key)
         {
             var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, key,
                 Encoding.UTF8.GetBytes(item.loggeduser).Length);
-            if (dectoken==null) throw new WarningException("not decrypted");
-                item.securetoken = dectoken;
+            if (dectoken == null) throw new WarningException("not decrypted");
+            item.securetoken = dectoken;
         }
 
 
@@ -107,21 +104,22 @@ namespace MetadataService.Services.Settings
             encrypt(ref item, pkey);
             //item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, pkey, Encoding.UTF8.GetBytes(item.loggeduser));
         }
+
         public static void encrypt(ref ProviderItem item, string key)
         {
-            item.securetoken = AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, key, Encoding.UTF8.GetBytes(item.loggeduser));
+            item.securetoken =
+                AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, key, Encoding.UTF8.GetBytes(item.loggeduser));
         }
 
-        public static void swapkeys(IDbConnection Db,string key1, string key2)
+        public static void swapkeys(IDbConnection Db, string key1, string key2)
         {
             var items = Db.Select<ProviderItem>();
-            List<ProviderItem> newitems=new List<ProviderItem>();
+            var newitems = new List<ProviderItem>();
             foreach (var item in items)
             {
-
                 var providerItem = item;
-                decrypt(ref providerItem,key1);
-                encrypt(ref providerItem,key2);
+                decrypt(ref providerItem, key1);
+                encrypt(ref providerItem, key2);
                 newitems.Add(providerItem);
             }
             Db.UpdateAll(items);
@@ -129,7 +127,7 @@ namespace MetadataService.Services.Settings
 
         public static void swapfromdefaultkey(IDbConnection Db)
         {
-            swapkeys(Db,nonsecurepkey,pkey);
+            swapkeys(Db, nonsecurepkey, pkey);
         }
 
         public static bool compareHash(string keyHash)
@@ -147,9 +145,9 @@ namespace MetadataService.Services.Settings
             return SimpleHash.ComputeHash(pkey);
         }
 
-        public static void storeSetting( IDbConnection db)
+        public static void storeSetting(IDbConnection db)
         {
-            var dbsettings = new DBSettings()
+            var dbsettings = new DBSettings
             {
                 VirtualFolderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 KeyHash = getHash()
@@ -157,12 +155,13 @@ namespace MetadataService.Services.Settings
             //db.Where<DBSettings>(p => true);//var currentsetting=db.Select<DBSettings>();
             if (db.Select<DBSettings>().Count > 0)
             {
-
                 db.DeleteAll<DBSettings>();
-                db.Insert<DBSettings>(dbsettings);
+                db.Insert(dbsettings);
             }
             else
-                db.Insert<DBSettings>(dbsettings);
+            {
+                db.Insert(dbsettings);
+            }
         }
 
         public static DBSettings getDBSettings(IDbConnection db)

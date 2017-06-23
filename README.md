@@ -1,13 +1,11 @@
 # Virtual folder
 
 ## Introduction
-This "Virtual Folder" provides a unified access mechanism to files stored in a variety of locations including the local file system, and B2DROP and other cloud storage facilities.
-
-This is part of a Virtual Research Environment for structural biology: the application level services specific to uses cases in structural biology. 
-
-This is developed by the West-Life H2020 project, which is running from 2015 to 2018. It provides application level services usable for structural biology use cases and follows [the structural biology data lifecycle](http://internal-wiki.west-life.eu/w/images/9/9c/Assessment_of_the_life_cycle_of_structural_data_and_comparison_with_other_scientific_data.docx). Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". 
+This "Virtual Folder" provides a unified access mechanism to files stored in a variety of locations including the local file system, and B2DROP and other cloud storage facilities. It is developed by the [West-Life H2020 project](https://west-life.eu), which is running from 2015 to 2018. It provides application level services usable for structural biology use cases and follows [the structural biology data lifecycle](http://internal-wiki.west-life.eu/w/images/9/9c/Assessment_of_the_life_cycle_of_structural_data_and_comparison_with_other_scientific_data.docx). Data management work package WP6 build on existing infrastructure for storing and accessing data to create a "Virtual Folder". 
+Full documentation is rendered in [HTML docs](https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs/content/) or [PDF docs](https://www.gitbook.com/download/pdf/book/h2020-westlife-eu/virtual-folder-docs)
 
 ## Usage
+
 A public installation of the  Virtual Folder is available at West-Life portal https://portal.west-life.eu/virtualfolder
 Follow [User's guide](doc/users-guide.md) for further details how to use it.
 
@@ -54,9 +52,10 @@ Follow [Integration guide](doc/integration-guide.md) for further details.
 
 ## Development
 
-In order to test, contribute to source codes and prepare  virtual machine environment with source codes, follow [Development installation](doc/installation-guide/development-installation.md)
+In order to test, contribute to source codes and prepare  virtual machine environment with source codes, follow [Development installation](doc/installation-guide/development-installation.md). Documents are maintained inside /docs folder and built from dev-docs branch, occasionally merged to master branch; in sync with [Gitbook](https://www.gitbook.com/book/h2020-westlife-eu/virtual-folder-docs/details)
 
 ## Release Notes
+  * 28/06/2017 - UI improvement, docs in sync with gitbook and /doc folder in dev-docs branch
   * 23/06/2017 - added support for source code installation/binary installation
   * 01/05/2017 - Added Dataset demo integrates some web PDB components to visualize features of PDB and UniProt entries
   * 01/04/2017 - Added Upload Dir Picker component and updated integration guide

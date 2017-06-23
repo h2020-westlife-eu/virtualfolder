@@ -6,9 +6,8 @@ namespace MetadataService.Services.Files
 {
     public static class ProviderFactory
     {
-        public static Dictionary<string, IProviderCreator> AvailableProviders;
-
         public const string ALLOW_FILESYSTEM_VAR = "VF_ALLOW_FILESYSTEM";
+        public static Dictionary<string, IProviderCreator> AvailableProviders;
 
         static ProviderFactory()
         {
@@ -21,20 +20,14 @@ namespace MetadataService.Services.Files
             AvailableProviders = new Dictionary<string, IProviderCreator>(types.Count());
             //register each instance of provider creator - factory method
             foreach (var creatortype in types)
-            {
                 if (creatortype.IsClass)
-                {
-                    //e.g. gets the type name from class name, e.g. 'Dropbox' from name 'DropboxProviderCreator'
-                    //disable filesystem provider until it is explicitly allowed
-                    //Console.WriteLine("vf_allow_filesystem:"+Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR));
-                    if ((creatortype != typeof (FileSystemProviderCreator))|| Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR)=="true"){
-
+                    if (creatortype != typeof(FileSystemProviderCreator) ||
+                        Environment.GetEnvironmentVariable(ALLOW_FILESYSTEM_VAR) == "true")
+                    {
                         var typename = creatortype.Name.Substring(0, creatortype.Name.IndexOf("Provider"));
                         var obj = (IProviderCreator) Activator.CreateInstance(creatortype);
                         AvailableProviders.Add(typename, obj);
                     }
-                }
-            }
         }
 
 

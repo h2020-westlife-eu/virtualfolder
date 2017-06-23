@@ -6,8 +6,8 @@ namespace MetadataService.Services.Settings
 {
     public interface ISettingsStorage
     {
-        void StoreSettings(ProviderItem request,IDbConnection Db);
-        bool DeleteSettings(string username, string alias,IDbConnection Db);
-        List<ProviderItem> GetAllConfigs(string userid,IDbConnection Db);
+        void StoreSettings(ProviderItem request, IDbConnection Db);
+        bool DeleteSettings(string username, string alias, IDbConnection Db);
+        List<ProviderItem> GetAllConfigs(string userid, IDbConnection Db);
     }
 }

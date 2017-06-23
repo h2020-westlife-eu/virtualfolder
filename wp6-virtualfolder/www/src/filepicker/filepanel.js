@@ -17,8 +17,9 @@ export class Filepanel{
         this.client = httpclient;
         this.files = [];
         this.filescount = this.files.length;
+        if (localStorage && (localStorage.filepanel))
         this.path= "";
-        this.lastpath="";
+        this.lastpath=this.path;
         this.dynatable = {};
         this.serviceurl = "/metadataservice/files";
         //http to accept json
@@ -30,11 +31,16 @@ export class Filepanel{
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
     }
 
+    bind(){
+      this.path = localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
+      this.lastpath="";
+    }
+
     //triggered after this object is placed to DOM
     attached() {
 
         //read the directory infos
-        this.client.get(this.serviceurl)
+        this.client.get(this.serviceurl+this.path)
             .then(data => {
                 if (data.response) {
                     this.populateFiles(data.response);
@@ -47,10 +53,23 @@ export class Filepanel{
                   window.location = "/login?next=" + window.location.pathname;
                   //window.location =
                 } else {
-                  console.log('Error');
+                  console.log('Filepanel Error retrieving from "'+this.path+'":');
                   console.log(error);
+                  //try empty path
+                  if (this.path.length>0){
+                    this.path="";
+                    this.client.get(this.serviceurl+this.path)
+                      .then(data => {
+                        if (data.response) {
+                          this.populateFiles(data.response);
+                        }
+                      }).catch(error => {
+                      console.log('Filepanel Error retrieving from "'+this.path+'":');
+                      console.log(error);
+                    });
+                    }
+                  }
                   //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
-                }
             });
       //console.log("filepanel tableid:"+this.panelid);
     }
@@ -114,7 +133,7 @@ export class Filepanel{
 
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
-
+      if (localStorage) localStorage.setItem("filepanel" + this.panelid,this.path);
         this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
         this.files.forEach (function (item,index,arr){
@@ -145,7 +164,10 @@ export class Filepanel{
             //console.log('file head'+fileurl);
             //console.log(response);
           }
-        );
+        ).catch(error => {
+          console.log("Error when geting metadata information about file:")
+          console.log(error);
+        });
         //reconstructs public url
         this.client.get(this.getpublicwebdavurl)
           .then(data => {
@@ -158,10 +180,8 @@ export class Filepanel{
               //this.ea.publish(new SelectedFile(file,this.panelid));
             }
           });
-
       }
     }
-
 }
 
 

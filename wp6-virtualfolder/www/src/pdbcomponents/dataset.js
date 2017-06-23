@@ -100,48 +100,22 @@ export class Dataset {
     this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
   }
 
+
   //model-view -viewmodel
   hideitem() {
     this.showitem = ! this.showitem;
   }
 
-  dataseturl = "/metadataservice/dataset";
 
   submit(){
-    console.log("submitting data:");
-    this.submitdataset = {};
-    this.submitdataset.Id = this.id;
-    this.submitdataset.Name = this.name;
-    this.submitdataset.Entries = this.pdbdataset;
-    //this.submitdataset.Urls =
-    console.log(this.submitdataset);
-    console.log(JSON.stringify(this.submitdataset));
-    //PUT = UPDATE, POST = create new
-    if (this.id>0)
-      this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
-        .then(data =>{
-          console.log("data response");
-          console.log(data);
-          let myitem = JSON.parse(data.response);
-          //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
-          this.showlist=true;
-        })
-        .catch(error =>{
-          console.log(error);
-          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-        });
-    else
-      this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
-        .then(data =>{
-          console.log("data response");
-          console.log(data);
-          let myitem = JSON.parse(data.response);
-          this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
-          this.showlist=true;
-        })
-        .catch(error =>{
-          console.log(error);
-          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-        });
+    this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
+      .then(data =>{
+        console.log("data response");
+        console.log(data);9
+      })
+      .catch(error =>{
+        console.log(error);
+        alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+      });
   }
 }
