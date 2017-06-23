@@ -13,25 +13,18 @@ Follow [User's guide](doc/users-guide.md) for further details how to use it.
 
 ## Installation
 
-There is option to install the Virtual Folder in privately on your workstation. The Virtual Folder is distributed as a Vagrant package with configuration files and scripts which initiates self deployment, installation and configuration of the virtual machine prototype.
-
 Recommended configuration for private deployment of virtual machine:
 * Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
 * Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
 * Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS)
 * Desktop, Server Software: VirtualBox 5.1.6+, Vagrant 1.8.6+
 
-Installation from binaries:
+Virtual Folder can be installed: 
+1. installation from source codes
+2. installation from binaries distributed via cernvm-fs
+3. installaiton from cloud template, contextualized to binaries at cernvm-fs
 
-```bash
-git clone https://github.com/h2020-westlife-eu/wp6-vm.git
-
-cd wp6-vm
-
-vagrant up
-```
-
-Installation from sources:
+Brief installation from sources:
 
 ```bash
 git clone https://github.com/h2020-westlife-eu/west-life-wp6
@@ -41,14 +34,15 @@ cd wp6-vm
 vagrant up
 ```
 
-After installation, the new virtual machine can be accessed via web browser `http://[vm.ip.address]:[port]/`
+The new virtual machine can be accessed via web browser `http://[vm.ip.address]:[port]/`
 By default, `http://localhost:8080`
 Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g. `http://localhost:8080/webdav`
 
 Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
 and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
 
-For other installation options or detailed instructions follow: [Installation guide](doc/installation-guide.md).
+For further installation options follow: [Installation guide](doc/installation-guide.md).
+
 
 ## Integration
 
@@ -60,11 +54,10 @@ Follow [Integration guide](doc/integration-guide.md) for further details.
 
 ## Development
 
-In order to test, contribute to source codes and prepare  virtual machine environment with source codes, 
-follow [Development installation](doc/installation-guide/development-installation.md)
+In order to test, contribute to source codes and prepare  virtual machine environment with source codes, follow [Development installation](doc/installation-guide/development-installation.md)
 
 ## Release Notes
-
+  * 23/06/2017 - added support for source code installation/binary installation
   * 01/05/2017 - Added Dataset demo integrates some web PDB components to visualize features of PDB and UniProt entries
   * 01/04/2017 - Added Upload Dir Picker component and updated integration guide
   * 07/03/2017 - public deployment integrated with SSO authentication ARIA at www.structuralbiology.eu
@@ -72,6 +65,3 @@ follow [Development installation](doc/installation-guide/development-installatio
   * 26/10/2016 - moved VagrantFile to new repository https://github.com/h2020-westlife-eu/wp6-vm, updated base box with uCernVM2.7.4 bootloader for CernVM 4 fixes security bug 'dirty COW' and aufs bug in kernel, https://atlas.hashicorp.com/westlife-eu, 
   * tested on Windows 7 64 bit, vagrant 1.8.6 + VirtualBox 5.1.6, vagrant 1.8.1, 1.8.4 + VirtualBox 5.0.26, note vagrant < 1.8.6 requires VirtualBox 5.0.x, doesn't require VirtualBox extension pack, download from https://www.virtualbox.org/wiki/Download_Old_Builds_5_0
   * tested on  Ubuntu 14.04 LTS, default vagrant 1.4.3 needs to be updated to 1.8.6), default VirtualBox 4.3.36 works
-
-## Further doc
-http://internal-wiki.west-life.eu/w/index.php?title=D6.1
