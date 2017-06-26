@@ -102,7 +102,7 @@ namespace MetadataService.Services.Files
                 if (userid.Length == 0) throw new UnauthorizedAccessException();
                 return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
             }
-            catch (KeyNotFoundException e)
+            catch (KeyNotFoundException)
             {
                 throw new UnauthorizedAccessException();
             }

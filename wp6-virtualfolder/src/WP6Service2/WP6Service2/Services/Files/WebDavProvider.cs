@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using MetadataService.Services.Settings;
+using ServiceStack.Common.Web;
+using ServiceStack.ServiceClient.Web;
+using HttpMethod = System.Net.Http.HttpMethod;
 
 namespace MetadataService.Services.Files
 {
@@ -34,8 +41,35 @@ namespace MetadataService.Services.Files
         {
             _providerurl = accessurl;
             //var task = Initialize(item);
-            Initialize(item);
+            var response = CheckProvider(accessurl, item);
+            if (response.StatusCode==HttpStatusCode.OK) Initialize(item);
+            else
+                throw new ApplicationException(
+                    "Cannot register WebDAV provider, check credentials. Status code of provider:" +
+                    response.StatusCode+" "+response.Content);
             //task.Start();
+        }
+
+        private HttpResponseMessage CheckProvider(string accessurl, ProviderItem request)
+        {
+            var client = new HttpClient(); //JsonServiceClient(accessurl);
+            /*client.Headers["Authorization"] = "Basic " + Convert.ToBase64String(
+                                                  Encoding.UTF8.GetBytes(request.username+":"+request.securetoken)
+                                              );
+            */
+            //client.Head(new Headers{"Authorization", 
+            //client.BaseAddress = accessurl;
+            var req = new HttpRequestMessage() {
+                RequestUri = new Uri(accessurl),
+                Method = HttpMethod.Get,
+            };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(
+                Encoding.UTF8.GetBytes(request.username + ":" + request.securetoken)));
+                                      
+            var response = client.SendAsync(req);
+            response.Wait();
+            return response.Result;
+
         }
 
         public override object GetFileOrList(string Path)

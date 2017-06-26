@@ -1,7 +1,7 @@
 /**
  * Created by Tomas Kulhanek on 1/5/17.
  */
-import {HttpClient} from 'aurelia-http-client';
+import {HttpClient} from 'aurelia-fetch-client';
 import {computedFrom} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
@@ -25,10 +25,10 @@ export class Genericcontrol {
     this.selectedProvider="";
     //console.log('genericcontrol()');
     this.client=httpclient;
-    this.client.configure(config=> {
+    /*this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
       config.withHeader('Content-Type', 'application/json');
-    });
+    });*/
     this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
   }
 
@@ -71,12 +71,16 @@ export class Genericcontrol {
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
-    this.client.get("/metadataservice/"+this.servicecontext)
-      .then(data => {
-        //console.log("data response");
-        //console.log(data);
-        if (data.response) {
-          this.providers = JSON.parse(data.response);
+    let myHeaders = new Headers();
+    myHeaders.append('Accept', 'application/json');
+    myHeaders.append('Content-Type', 'application/json');
+    this.client.fetch("/metadataservice/"+this.servicecontext,{headers:myHeaders})
+      .then(response => response.json())
+      .then(data=> {
+        console.log("data response");
+        console.log(data);
+        if (data) {
+          this.providers = data;
         }
       }).catch(error => {
       //handle 403 unauthorized
@@ -90,28 +94,55 @@ export class Genericcontrol {
         console.log(error);
         //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
       }
-    });;
+    });
     this.dropboxcontrol.initialize();
   }
 
   addProvider() {
-     var settings = {};
+     let settings = {};
      settings.type=this.selectedProvider;
      settings.alias = this.alias;
      if (this.selectedDropbox) settings.securetoken = this.securetoken;
+     //TODO check validity of filesystem path on server
      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
+     //TODO check b2drop and webdav username and password
      if (this.selectedB2Drop) {
        settings.securetoken = this.password;
        settings.username = this.username;
-     }
-     if (this.selectedWebDav){
+       //check HTTP 200
+       //this.checkWebdav("https://b2drop.eudat.eu/remote.php/webdav",settings);
+     } else if (this.selectedWebDav){
        settings.accessurl=this.accessurl;
        settings.securetoken = this.password;
        settings.username = this.username;
+       //this.checkWebdav(this.accessurl,settings)
      }
-     //console.log("publishing");
-     this.ea.publish(new SettingsSubmitted(settings));
+     this.doneCallback(settings);
+  }
+
+  checkWebdav(url,settings){
+    this.client.fetch(url,{method:'HEAD'})
+      .catch(error => {
+        let myHeaders = new Headers();
+        myHeaders.append('Authorization','Basic '+btoa(settings.username+":"+settings.securetoken))
+        this.client.fetch(url,{method:'HEAD', headers:myHeaders})
+        .then(data => this.doneCallback(settings))
+        .catch(error => this.errorCallback(error))
+      })
+
+  }
+
+  doneCallback(settings){
+    {
+      //console.log("publishing");
+      this.ea.publish(new SettingsSubmitted(settings));
       this.clear();
+    }
+  }
+
+  errorCallback(error){
+    console.log("GenericControl: Error retrieved:");
+    console.log(error);
   }
 
   selectSettings(settings){
