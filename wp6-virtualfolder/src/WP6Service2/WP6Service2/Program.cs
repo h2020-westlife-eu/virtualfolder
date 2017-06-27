@@ -89,10 +89,6 @@ namespace MetadataService
 
             public override void Configure(Container container)
             {
-                //
-                ServicePointManager
-                        .ServerCertificateValidationCallback += 
-                    (sender, cert, chain, sslPolicyErrors) => true;
                 var connectionString = "Data Source=" +
                                        (Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR) != null
                                            ? Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)

@@ -3098,8 +3098,9 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
         if (Array.isArray(data)) {
           _this4.doneCallback(data);
         } else {
-          console.log(data.ResponseStatus);
-          alert('Sorry.' + data.ResponseStatus.ErrorCode + "\n" + data.ResponseStatus.Message);
+
+          console.log(data);
+          if (data.ResponseStatus) alert('Sorry.' + data.ResponseStatus.ErrorCode + "\n" + data.ResponseStatus.Message + "\nSubmit correct username and/or password again.");else alert('Sorry. Settings not submitted. Check all items are correct and submit again.');
         }
       }).catch(function (error) {
         console.log(error);

@@ -26,6 +26,7 @@ namespace MetadataService.Services.Files
 
         static VreCookieRequestFilterAttribute()
         {
+           
             ServicePointManager.ServerCertificateValidationCallback +=
                 ValidateRemoteCertificate;
         }
@@ -110,8 +111,12 @@ namespace MetadataService.Services.Files
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors policyErrors)
         {
-            //check subject for portal.west-life.eu 
-            return false || cert.Subject.ToLower().Contains("portal.west-life.eu");
+            //check subject for portal.west-life.eu
+            if (cert.Subject.Equals("CN=portal.west-life.eu"))
+                return true;
+            else
+                return policyErrors == SslPolicyErrors.None; 
+            
         }
     }
 }
