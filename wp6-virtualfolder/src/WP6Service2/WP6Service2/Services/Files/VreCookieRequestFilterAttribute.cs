@@ -111,8 +111,9 @@ namespace MetadataService.Services.Files
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors policyErrors)
         {
-            //check subject for portal.west-life.eu
-            if (cert.Subject.Equals("CN=portal.west-life.eu"))
+            //check subject for portal.west-life.eu on portal deployment it raises SslPolicyError
+            if (cert.Subject.Contains("portal.west-life.eu"))
+                //Console.WriteLine(policyErrors);
                 return true;
             else
                 return policyErrors == SslPolicyErrors.None; 
