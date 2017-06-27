@@ -1,7 +1,7 @@
 /**
  * Created by Tomas Kulhanek on 1/5/17.
  */
-import {HttpClient} from 'aurelia-fetch-client';
+import {HttpClient,json} from 'aurelia-fetch-client';
 import {computedFrom} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
@@ -18,7 +18,8 @@ export class Genericcontrol {
     this.ea= ea;
     this.dropboxcontrol=dropboxcontrol;
     this.editing=true;
-    this.servicecontext = "providers";
+    this.providerspath = "providers";
+    this.filespath = "files";
     this.knowtoken=false;
     this.dropboxauthurl = "";
     this.providers = [];
@@ -30,6 +31,10 @@ export class Genericcontrol {
       config.withHeader('Content-Type', 'application/json');
     });*/
     this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
+    this.myHeaders = new Headers();
+    this.myHeaders.append('Accept', 'application/json');
+    this.myHeaders.append('Content-Type', 'application/json');
+
   }
 
   @computedFrom('selectedProvider')
@@ -71,10 +76,7 @@ export class Genericcontrol {
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
-    let myHeaders = new Headers();
-    myHeaders.append('Accept', 'application/json');
-    myHeaders.append('Content-Type', 'application/json');
-    this.client.fetch("/metadataservice/"+this.servicecontext,{headers:myHeaders})
+    this.client.fetch("/metadataservice/"+this.providerspath,{headers:this.myHeaders})
       .then(response => response.json())
       .then(data=> {
         console.log("data response");
@@ -117,9 +119,10 @@ export class Genericcontrol {
        settings.username = this.username;
        //this.checkWebdav(this.accessurl,settings)
      }
-     this.doneCallback(settings);
+    this.submitSettings(settings)
   }
 
+  //DO NOT WORK as CORS pre-flight OPTION is triggered by browser which results in HTTP 401 returned by b2drop
   checkWebdav(url,settings){
     this.client.fetch(url,{method:'HEAD'})
       .catch(error => {
@@ -129,13 +132,38 @@ export class Genericcontrol {
         .then(data => this.doneCallback(settings))
         .catch(error => this.errorCallback(error))
       })
+  }
+
+  submitSettings(settings) {
+    this.client.fetch("/metadataservice/"+this.filespath,{
+      method: 'put',
+      body: json(settings),
+      headers:this.myHeaders
+    })
+      .then(response => response.json())
+      .then(data =>{
+        console.log("genericcontrol: data response:");
+        console.log(data);
+        if (Array.isArray(data)) {
+          this.doneCallback(data);
+          //this.providers = data;
+        } else {
+          console.log(data.ResponseStatus);
+          alert('Sorry.'+data.ResponseStatus.ErrorCode+"\n"+ data.ResponseStatus.Message);
+        }
+
+    })
+      .catch(error =>{
+        console.log(error);
+        alert('Sorry. Settings not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+      });
 
   }
 
-  doneCallback(settings){
+  doneCallback(data){
     {
       //console.log("publishing");
-      this.ea.publish(new SettingsSubmitted(settings));
+      this.ea.publish(new SettingsSubmitted(data));
       this.clear();
     }
   }

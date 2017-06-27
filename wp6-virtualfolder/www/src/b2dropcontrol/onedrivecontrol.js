@@ -11,6 +11,6 @@ export class Onedrivecontrol {
     //super();
     this.heading = "ONEDRIVE connector";
     this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
-    this.servicecontext= "onedriveconnector";
+    this.providerspath= "onedriveconnector";
   }
 }

@@ -292,7 +292,7 @@ define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], funct
 
     this.heading = "ONEDRIVE connector";
     this.clientid = "xUfizTokQv6mAiZ9sgzQnm0";
-    this.servicecontext = "onedriveconnector";
+    this.providerspath = "onedriveconnector";
   };
 });
 define('dataset/app',["exports"], function (exports) {
@@ -2812,31 +2812,21 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
     };
 
     Aliastable.prototype.submitSettings = function submitSettings(settings) {
+      this.providers = settings;
+    };
+
+    Aliastable.prototype.removeProvider = function removeProvider(settings) {
       var _this3 = this;
 
-      this.client.put(this.serviceurl, JSON.stringify(settings)).then(function (data) {
+      if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
+      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
         if (data.response) {
           _this3.providers = JSON.parse(data.response);
         }
       }).catch(function (error) {
         console.log(error);
 
-        alert('Sorry. Settings not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });
-    };
-
-    Aliastable.prototype.removeProvider = function removeProvider(settings) {
-      var _this4 = this;
-
-      if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
-      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
-        if (data.response) {
-          _this4.providers = JSON.parse(data.response);
-        }
-      }).catch(function (error) {
-        console.log(error);
-
-        alert('Sorry. Settings not deleted at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+        alert('Sorry. Settings not deleted at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
     };
 
@@ -3010,7 +3000,8 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       this.ea = ea;
       this.dropboxcontrol = dropboxcontrol;
       this.editing = true;
-      this.servicecontext = "providers";
+      this.providerspath = "providers";
+      this.filespath = "files";
       this.knowtoken = false;
       this.dropboxauthurl = "";
       this.providers = [];
@@ -3021,6 +3012,9 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       this.ea.subscribe(_messages.SettingsSelected, function (msg) {
         return _this.selectSettings(msg.settings);
       });
+      this.myHeaders = new Headers();
+      this.myHeaders.append('Accept', 'application/json');
+      this.myHeaders.append('Content-Type', 'application/json');
     }
 
     Genericcontrol.prototype.clear = function clear() {
@@ -3036,10 +3030,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       var _this2 = this;
 
       this.dropboxauthurl = this.dropboxcontrol.authurl;
-      var myHeaders = new Headers();
-      myHeaders.append('Accept', 'application/json');
-      myHeaders.append('Content-Type', 'application/json');
-      this.client.fetch("/metadataservice/" + this.servicecontext, { headers: myHeaders }).then(function (response) {
+      this.client.fetch("/metadataservice/" + this.providerspath, { headers: this.myHeaders }).then(function (response) {
         return response.json();
       }).then(function (data) {
         console.log("data response");
@@ -3075,7 +3066,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
         settings.securetoken = this.password;
         settings.username = this.username;
       }
-      this.doneCallback(settings);
+      this.submitSettings(settings);
     };
 
     Genericcontrol.prototype.checkWebdav = function checkWebdav(url, settings) {
@@ -3092,9 +3083,33 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       });
     };
 
-    Genericcontrol.prototype.doneCallback = function doneCallback(settings) {
+    Genericcontrol.prototype.submitSettings = function submitSettings(settings) {
+      var _this4 = this;
+
+      this.client.fetch("/metadataservice/" + this.filespath, {
+        method: 'put',
+        body: (0, _aureliaFetchClient.json)(settings),
+        headers: this.myHeaders
+      }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        console.log("genericcontrol: data response:");
+        console.log(data);
+        if (Array.isArray(data)) {
+          _this4.doneCallback(data);
+        } else {
+          console.log(data.ResponseStatus);
+          alert('Sorry.' + data.ResponseStatus.ErrorCode + "\n" + data.ResponseStatus.Message);
+        }
+      }).catch(function (error) {
+        console.log(error);
+        alert('Sorry. Settings not submitted  at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+      });
+    };
+
+    Genericcontrol.prototype.doneCallback = function doneCallback(data) {
       {
-        this.ea.publish(new _messages.SettingsSubmitted(settings));
+        this.ea.publish(new _messages.SettingsSubmitted(data));
         this.clear();
       }
     };
