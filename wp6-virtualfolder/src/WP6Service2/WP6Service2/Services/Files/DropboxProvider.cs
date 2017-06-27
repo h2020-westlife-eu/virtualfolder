@@ -17,77 +17,79 @@ using ServiceStack.Text;
 
 namespace MetadataService.Services.Files
 {
-
     public class DropboxProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
+            string authproxy)
         {
-            return new DropboxProvider(item,storage,connection,authproxy);//.securetoken,item.alias);
+            return new DropboxProvider(item, storage, connection, authproxy); //.securetoken,item.alias);
         }
     }
 
     public class DropboxProvider : AFileProvider
     {
+        private readonly string accesstoken = "";
 
         private DropboxClient dbx;
-        private bool initialized = false;
-        private string accesstoken = "";
-        private string DROPBOXURIROOT;// = "/metadataservice/files/"+alias;
-        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,string authproxy) :base(item,storage,connection,authproxy)
+        private readonly string DROPBOXURIROOT; // = "/metadataservice/files/"+alias;
+        private bool initialized;
+
+        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
+            : base(item, storage, connection, authproxy)
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
 
-            DROPBOXURIROOT = "/metadataservice/files/"+alias;
+            DROPBOXURIROOT = "/metadataservice/files/" + alias;
         }
 
         public override object GetFileOrList(string Path)
         {
-            string path = (Path != null) ? Path : "";
+            var path = Path != null ? Path : "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             return ListOfFiles(path);
         }
 
-        public bool MyRemoteCertificateValidationCallback(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-            bool isOk = true;
+        public bool MyRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain,
+            SslPolicyErrors sslPolicyErrors)
+        {
+            var isOk = true;
             // If there are errors in the certificate chain, look at each error to determine the cause.
-            if (sslPolicyErrors != SslPolicyErrors.None) {
-                for (int i=0; i<chain.ChainStatus.Length; i++) {
-                    if (chain.ChainStatus [i].Status != X509ChainStatusFlags.RevocationStatusUnknown) {
+            if (sslPolicyErrors != SslPolicyErrors.None)
+                for (var i = 0; i < chain.ChainStatus.Length; i++)
+                    if (chain.ChainStatus[i].Status != X509ChainStatusFlags.RevocationStatusUnknown)
+                    {
                         chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
                         chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-                        chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan (0, 1, 0);
+                        chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 1, 0);
                         chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
-                        bool chainIsValid = chain.Build ((X509Certificate2)certificate);
-                        if (!chainIsValid) {
-                            isOk = false;
-                        }
+                        var chainIsValid = chain.Build((X509Certificate2) certificate);
+                        if (!chainIsValid) isOk = false;
                     }
-                }
-            }
             return isOk;
         }
 
-        public async Task Initialize(){
+        public async Task Initialize()
+        {
             //TODO change access token to user specific
             try
             {
-                if ((accesstoken==null) || (accesstoken.Length==0)) return;
+                if (accesstoken == null || accesstoken.Length == 0) return;
                 //setting proxy if it is defined in environment
-                var environmentVariable = System.Environment.GetEnvironmentVariable("http_proxy");
+                var environmentVariable = Environment.GetEnvironmentVariable("http_proxy");
                 ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
                 if (!string.IsNullOrEmpty(environmentVariable))
                 {
                     Console.WriteLine("Setting proxy for dropboxclient:" +
-                                      System.Environment.GetEnvironmentVariable("http_proxy"));
-                    WebProxy proxy = new WebProxy(System.Environment.GetEnvironmentVariable("http_proxy"), false);
-                    var drconfig = new DropboxClientConfig()
+                                      Environment.GetEnvironmentVariable("http_proxy"));
+                    var proxy = new WebProxy(Environment.GetEnvironmentVariable("http_proxy"), false);
+                    var drconfig = new DropboxClientConfig
                     {
                         HttpClient = null
                     };
-                    HttpClientHandler httpClientHandler = new HttpClientHandler()
+                    var httpClientHandler = new HttpClientHandler
                     {
                         Proxy = proxy
                     };
@@ -116,16 +118,15 @@ namespace MetadataService.Services.Files
             }
         }
 
-        public object ListOfFiles(String path)
+        public object ListOfFiles(string path)
         {
-
             //Console.WriteLine("ListOfFiles( "+path+" )");
             var mytask = ListOfFilesAsync(path);
             mytask.Wait();
             return mytask.Result;
         }
 
-        private async Task<object> ListOfFilesAsync(String path)
+        private async Task<object> ListOfFilesAsync(string path)
         {
             if (!initialized)
             {
@@ -133,7 +134,7 @@ namespace MetadataService.Services.Files
                 if (!initialized) throw new ApplicationException("Dropbox not initiailized.");
             }
             //Console.WriteLine("ListOfFilesAsync("+path+")");
-            var dropboxpath = path.Length > 0 ? "/" + path : String.Empty; //leading slash otherwise empty
+            var dropboxpath = path.Length > 0 ? "/" + path : string.Empty; //leading slash otherwise empty
             //Console.WriteLine("ListOfFilesAsync("+dropboxpath+")");
             try
             {
@@ -142,32 +143,26 @@ namespace MetadataService.Services.Files
                 //gets metadata -- if it is file or folder
                 var metadata = await dbx.Files.GetMetadataAsync(dropboxpath);
                 if (metadata.IsFolder) return await ListFolder(path, dropboxpath);
-                else return await DownloadFile(dropboxpath);
+                return await DownloadFile(dropboxpath);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message+" "+e.StackTrace);
+                Console.WriteLine(e.Message + " " + e.StackTrace);
                 throw e;
             }
         }
 
-        public static bool IsFileReady(String sFilename)
+        public static bool IsFileReady(string sFilename)
         {
             // If the file can be opened for exclusive access it means that the file
             // is no longer locked by another process.
             try
             {
-                using (FileStream inputStream = File.Open(sFilename, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (var inputStream = File.Open(sFilename, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
                     if (inputStream.Length > 0)
-                    {
                         return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
+                    return false;
                 }
             }
             catch (Exception)
@@ -178,10 +173,9 @@ namespace MetadataService.Services.Files
 
         private async Task<object> DownloadFile(string dropboxpath)
         {
-            
             var filename = FILESYSTEMFOLDER + dropboxpath;
             //checks if it exists - downloaded by other process
-            if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
+            if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
             using (var response = await dbx.Files.DownloadAsync(dropboxpath))
             {
@@ -197,12 +191,12 @@ namespace MetadataService.Services.Files
                 catch (IOException e)
                 {
                     //waits until the file is downloaded by other process, usefull for big files
-                    while (!IsFileReady(filename)) {Thread.Sleep(200);} //polls every 200 ms until the file is ready                    
-                    if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
-                    else throw e;
+                    while (!IsFileReady(filename)) Thread.Sleep(200);
+                    if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
+                    throw e;
                 }
             }
-            return HttpResult.Redirect(WEBDAVURL.TrimEnd('/')+dropboxpath);
+            return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
         }
 
         private async Task<object> ListFolder(string path, string dropboxpath)
@@ -210,19 +204,18 @@ namespace MetadataService.Services.Files
 //if (metadata.IsFolder)
             //gets folder information
             var list = await dbx.Files.ListFolderAsync(dropboxpath);
-            bool hasmoreresults = false;
-            List<SBFile> listOfFiles = new List<SBFile>();
+            var hasmoreresults = false;
+            var listOfFiles = new List<SBFile>();
             do
             {
                 //Console.WriteLine("ListOfFilesAsync(), result.Count: " + list.Entries.Count);
                 //wrap path with slashes '/path/' if needed
-                var mypath = path.StartsWith("/") ? path : ("/" + path);
+                var mypath = path.StartsWith("/") ? path : "/" + path;
                 if (!mypath.EndsWith("/")) mypath += "/";
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
-                {
                     //Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
-                    listOfFiles.Add(new SBFile()
+                    listOfFiles.Add(new SBFile
                     {
                         path = path,
                         name = fi.Name,
@@ -231,16 +224,13 @@ namespace MetadataService.Services.Files
                         date = DateTime.Now,
                         filetype = FileType.Directory & FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT+mypath+fi.Name,
+                        webdavuri = DROPBOXURIROOT + mypath + fi.Name
                         //publicwebdavuri = PUBLICDROPBOXURIROOT+mypath+fi.Name,
-
                     });
-                }
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
-                {
                     //Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
-                    listOfFiles.Add(new SBFile()
+                    listOfFiles.Add(new SBFile
                     {
                         path = path,
                         name = fi.Name,
@@ -249,16 +239,12 @@ namespace MetadataService.Services.Files
                         date = fi.AsFile.ServerModified,
                         filetype = FileType.Read & FileType.Write,
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = LocalOrRemote(DROPBOXURIROOT+ mypath+ fi.Name),
-                        publicwebdavuri = PUBLICWEBDAVURL+mypath+fi.Name,
+                        webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
+                        publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
                     });
-                }
 
                 if (list.HasMore)
-                {
                     hasmoreresults = false; //true
-                    //list = await dbx.Files.ListFolderContinueAsync(ListFolderContinueArg);
-                }
                 else
                     hasmoreresults = false;
             } while (hasmoreresults);
@@ -271,10 +257,9 @@ namespace MetadataService.Services.Files
         private string LocalOrRemote(string s)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
-            if (File.Exists(s.Replace(DROPBOXURIROOT,FILESYSTEMFOLDER)))
-                return s.Replace(DROPBOXURIROOT+"/",WEBDAVURL);
-            else
-                return s;
+            if (File.Exists(s.Replace(DROPBOXURIROOT, FILESYSTEMFOLDER)))
+                return s.Replace(DROPBOXURIROOT + "/", WEBDAVURL);
+            return s;
         }
     }
 }

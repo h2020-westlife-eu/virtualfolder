@@ -18,15 +18,17 @@ namespace MetadataService.Services.Settings
 
         //Preconfigured Encryption Parameters
         public static readonly int BlockBitSize = 128;
+
         public static readonly int KeyBitSize = 256;
 
         //Preconfigured Password Key Derivation Parameters
         public static readonly int SaltBitSize = 64;
+
         public static readonly int Iterations = 10000;
         public static readonly int MinPasswordLength = 12;
 
         /// <summary>
-        /// Helper that generates a random key on each call.
+        ///     Helper that generates a random key on each call.
         /// </summary>
         /// <returns></returns>
         public static byte[] NewKey()
@@ -37,18 +39,18 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Encryption (AES) then Authentication (HMAC) for a UTF8 Message.
+        ///     Simple Encryption (AES) then Authentication (HMAC) for a UTF8 Message.
         /// </summary>
         /// <param name="secretMessage">The secret message.</param>
         /// <param name="cryptKey">The crypt key.</param>
         /// <param name="authKey">The auth key.</param>
         /// <param name="nonSecretPayload">(Optional) Non-Secret Payload.</param>
         /// <returns>
-        /// Encrypted Message
+        ///     Encrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">Secret Message Required!;secretMessage</exception>
         /// <remarks>
-        /// Adds overhead of (Optional-Payload + BlockSize(16) + Message-Padded-To-Blocksize +  HMac-Tag(32)) * 1.33 Base64
+        ///     Adds overhead of (Optional-Payload + BlockSize(16) + Message-Padded-To-Blocksize +  HMac-Tag(32)) * 1.33 Base64
         /// </remarks>
         public static string SimpleEncrypt(string secretMessage, byte[] cryptKey, byte[] authKey,
             byte[] nonSecretPayload = null)
@@ -62,14 +64,14 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
+        ///     Simple Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
         /// </summary>
         /// <param name="encryptedMessage">The encrypted message.</param>
         /// <param name="cryptKey">The crypt key.</param>
         /// <param name="authKey">The auth key.</param>
         /// <param name="nonSecretPayloadLength">Length of the non secret payload.</param>
         /// <returns>
-        /// Decrypted Message
+        ///     Decrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">Encrypted Message Required!;encryptedMessage</exception>
         public static string SimpleDecrypt(string encryptedMessage, byte[] cryptKey, byte[] authKey,
@@ -84,19 +86,19 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Encryption (AES) then Authentication (HMAC) of a UTF8 message
-        /// using Keys derived from a Password (PBKDF2).
+        ///     Simple Encryption (AES) then Authentication (HMAC) of a UTF8 message
+        ///     using Keys derived from a Password (PBKDF2).
         /// </summary>
         /// <param name="secretMessage">The secret message.</param>
         /// <param name="password">The password.</param>
         /// <param name="nonSecretPayload">The non secret payload.</param>
         /// <returns>
-        /// Encrypted Message
+        ///     Encrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">password</exception>
         /// <remarks>
-        /// Significantly less secure than using random binary keys.
-        /// Adds additional non secret payload for key generation parameters.
+        ///     Significantly less secure than using random binary keys.
+        ///     Adds additional non secret payload for key generation parameters.
         /// </remarks>
         public static string SimpleEncryptWithPassword(string secretMessage, string password,
             byte[] nonSecretPayload = null)
@@ -110,18 +112,18 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Authentication (HMAC) and then Descryption (AES) of a UTF8 Message
-        /// using keys derived from a password (PBKDF2).
+        ///     Simple Authentication (HMAC) and then Descryption (AES) of a UTF8 Message
+        ///     using keys derived from a password (PBKDF2).
         /// </summary>
         /// <param name="encryptedMessage">The encrypted message.</param>
         /// <param name="password">The password.</param>
         /// <param name="nonSecretPayloadLength">Length of the non secret payload.</param>
         /// <returns>
-        /// Decrypted Message
+        ///     Decrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">Encrypted Message Required!;encryptedMessage</exception>
         /// <remarks>
-        /// Significantly less secure than using random binary keys.
+        ///     Significantly less secure than using random binary keys.
         /// </remarks>
         public static string SimpleDecryptWithPassword(string encryptedMessage, string password,
             int nonSecretPayloadLength = 0)
@@ -135,26 +137,27 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Encryption(AES) then Authentication (HMAC) for a UTF8 Message.
+        ///     Simple Encryption(AES) then Authentication (HMAC) for a UTF8 Message.
         /// </summary>
         /// <param name="secretMessage">The secret message.</param>
         /// <param name="cryptKey">The crypt key.</param>
         /// <param name="authKey">The auth key.</param>
         /// <param name="nonSecretPayload">(Optional) Non-Secret Payload.</param>
         /// <returns>
-        /// Encrypted Message
+        ///     Encrypted Message
         /// </returns>
         /// <remarks>
-        /// Adds overhead of (Optional-Payload + BlockSize(16) + Message-Padded-To-Blocksize +  HMac-Tag(32)) * 1.33 Base64
+        ///     Adds overhead of (Optional-Payload + BlockSize(16) + Message-Padded-To-Blocksize +  HMac-Tag(32)) * 1.33 Base64
         /// </remarks>
-        public static byte[] SimpleEncrypt(byte[] secretMessage, byte[] cryptKey, byte[] authKey, byte[] nonSecretPayload = null)
+        public static byte[] SimpleEncrypt(byte[] secretMessage, byte[] cryptKey, byte[] authKey,
+            byte[] nonSecretPayload = null)
         {
             //User Error Checks
             if (cryptKey == null || cryptKey.Length != KeyBitSize / 8)
-                throw new ArgumentException(String.Format("Key needs to be {0} bit!", KeyBitSize), "cryptKey");
+                throw new ArgumentException(string.Format("Key needs to be {0} bit!", KeyBitSize), "cryptKey");
 
             if (authKey == null || authKey.Length != KeyBitSize / 8)
-                throw new ArgumentException(String.Format("Key needs to be {0} bit!", KeyBitSize), "authKey");
+                throw new ArgumentException(string.Format("Key needs to be {0} bit!", KeyBitSize), "authKey");
 
             if (secretMessage == null || secretMessage.Length < 1)
                 throw new ArgumentException("Secret Message Required!", "secretMessage");
@@ -173,7 +176,6 @@ namespace MetadataService.Services.Settings
                 Padding = PaddingMode.PKCS7
             })
             {
-
                 //Use random IV
                 aes.GenerateIV();
                 iv = aes.IV;
@@ -190,7 +192,6 @@ namespace MetadataService.Services.Settings
 
                     cipherText = cipherStream.ToArray();
                 }
-
             }
 
             //Assemble encrypted message and add authentication
@@ -214,26 +215,25 @@ namespace MetadataService.Services.Settings
                 }
                 return encryptedStream.ToArray();
             }
-
         }
 
         /// <summary>
-        /// Simple Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
+        ///     Simple Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
         /// </summary>
         /// <param name="encryptedMessage">The encrypted message.</param>
         /// <param name="cryptKey">The crypt key.</param>
         /// <param name="authKey">The auth key.</param>
         /// <param name="nonSecretPayloadLength">Length of the non secret payload.</param>
         /// <returns>Decrypted Message</returns>
-        public static byte[] SimpleDecrypt(byte[] encryptedMessage, byte[] cryptKey, byte[] authKey, int nonSecretPayloadLength = 0)
+        public static byte[] SimpleDecrypt(byte[] encryptedMessage, byte[] cryptKey, byte[] authKey,
+            int nonSecretPayloadLength = 0)
         {
-
             //Basic Usage Error Checks
             if (cryptKey == null || cryptKey.Length != KeyBitSize / 8)
-                throw new ArgumentException(String.Format("CryptKey needs to be {0} bit!", KeyBitSize), "cryptKey");
+                throw new ArgumentException(string.Format("CryptKey needs to be {0} bit!", KeyBitSize), "cryptKey");
 
             if (authKey == null || authKey.Length != KeyBitSize / 8)
-                throw new ArgumentException(String.Format("AuthKey needs to be {0} bit!", KeyBitSize), "authKey");
+                throw new ArgumentException(string.Format("AuthKey needs to be {0} bit!", KeyBitSize), "authKey");
 
             if (encryptedMessage == null || encryptedMessage.Length == 0)
                 throw new ArgumentException("Encrypted Message Required!", "encryptedMessage");
@@ -243,7 +243,7 @@ namespace MetadataService.Services.Settings
                 var sentTag = new byte[hmac.HashSize / 8];
                 //Calculate Tag
                 var calcTag = hmac.ComputeHash(encryptedMessage, 0, encryptedMessage.Length - sentTag.Length);
-                var ivLength = (BlockBitSize / 8);
+                var ivLength = BlockBitSize / 8;
 
                 //if message length is to small just return null
                 if (encryptedMessage.Length < sentTag.Length + nonSecretPayloadLength + ivLength)
@@ -269,7 +269,6 @@ namespace MetadataService.Services.Settings
                     Padding = PaddingMode.PKCS7
                 })
                 {
-
                     //Grab IV from message
                     var iv = new byte[ivLength];
                     Array.Copy(encryptedMessage, nonSecretPayloadLength, iv, 0, iv.Length);
@@ -277,7 +276,8 @@ namespace MetadataService.Services.Settings
                     using (var decrypter = aes.CreateDecryptor(cryptKey, iv))
                     using (var plainTextStream = new MemoryStream())
                     {
-                        using (var decrypterStream = new CryptoStream(plainTextStream, decrypter, CryptoStreamMode.Write))
+                        using (var decrypterStream =
+                            new CryptoStream(plainTextStream, decrypter, CryptoStreamMode.Write))
                         using (var binaryWriter = new BinaryWriter(decrypterStream))
                         {
                             //Decrypt Cipher Text from Message
@@ -295,35 +295,37 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Encryption (AES) then Authentication (HMAC) of a UTF8 message
-        /// using Keys derived from a Password (PBKDF2)
+        ///     Simple Encryption (AES) then Authentication (HMAC) of a UTF8 message
+        ///     using Keys derived from a Password (PBKDF2)
         /// </summary>
         /// <param name="secretMessage">The secret message.</param>
         /// <param name="password">The password.</param>
         /// <param name="nonSecretPayload">The non secret payload.</param>
         /// <returns>
-        /// Encrypted Message
+        ///     Encrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">Must have a password of minimum length;password</exception>
         /// <remarks>
-        /// Significantly less secure than using random binary keys.
-        /// Adds additional non secret payload for key generation parameters.
+        ///     Significantly less secure than using random binary keys.
+        ///     Adds additional non secret payload for key generation parameters.
         /// </remarks>
-        public static byte[] SimpleEncryptWithPassword(byte[] secretMessage, string password, byte[] nonSecretPayload = null)
+        public static byte[] SimpleEncryptWithPassword(byte[] secretMessage, string password,
+            byte[] nonSecretPayload = null)
         {
-            nonSecretPayload = nonSecretPayload ?? new byte[] {};
+            nonSecretPayload = nonSecretPayload ?? new byte[] { };
 
             //User Error Checks
             if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
-                throw new ArgumentException(String.Format("Must have a password of at least {0} characters!", MinPasswordLength), "password");
+                throw new ArgumentException(
+                    string.Format("Must have a password of at least {0} characters!", MinPasswordLength), "password");
 
-            if (secretMessage == null || secretMessage.Length ==0)
+            if (secretMessage == null || secretMessage.Length == 0)
                 throw new ArgumentException("Secret Message Required!", "secretMessage");
 
-            var payload = new byte[((SaltBitSize / 8) * 2) + nonSecretPayload.Length];
+            var payload = new byte[SaltBitSize / 8 * 2 + nonSecretPayload.Length];
 
             Array.Copy(nonSecretPayload, payload, nonSecretPayload.Length);
-            int payloadIndex = nonSecretPayload.Length;
+            var payloadIndex = nonSecretPayload.Length;
 
             byte[] cryptKey;
             byte[] authKey;
@@ -357,24 +359,26 @@ namespace MetadataService.Services.Settings
         }
 
         /// <summary>
-        /// Simple Authentication (HMAC) and then Descryption (AES) of a UTF8 Message
-        /// using keys derived from a password (PBKDF2).
+        ///     Simple Authentication (HMAC) and then Descryption (AES) of a UTF8 Message
+        ///     using keys derived from a password (PBKDF2).
         /// </summary>
         /// <param name="encryptedMessage">The encrypted message.</param>
         /// <param name="password">The password.</param>
         /// <param name="nonSecretPayloadLength">Length of the non secret payload.</param>
         /// <returns>
-        /// Decrypted Message
+        ///     Decrypted Message
         /// </returns>
         /// <exception cref="System.ArgumentException">Must have a password of minimum length;password</exception>
         /// <remarks>
-        /// Significantly less secure than using random binary keys.
+        ///     Significantly less secure than using random binary keys.
         /// </remarks>
-        public static byte[] SimpleDecryptWithPassword(byte[] encryptedMessage, string password, int nonSecretPayloadLength = 0)
+        public static byte[] SimpleDecryptWithPassword(byte[] encryptedMessage, string password,
+            int nonSecretPayloadLength = 0)
         {
             //User Error Checks
             if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
-                throw new ArgumentException(String.Format("Must have a password of at least {0} characters!", MinPasswordLength), "password");
+                throw new ArgumentException(
+                    string.Format("Must have a password of at least {0} characters!", MinPasswordLength), "password");
 
             if (encryptedMessage == null || encryptedMessage.Length == 0)
                 throw new ArgumentException("Encrypted Message Required!", "encryptedMessage");
@@ -400,8 +404,8 @@ namespace MetadataService.Services.Settings
                 authKey = generator.GetBytes(KeyBitSize / 8);
             }
 
-            return SimpleDecrypt(encryptedMessage, cryptKey, authKey, cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
+            return SimpleDecrypt(encryptedMessage, cryptKey, authKey,
+                cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
         }
-
     }
 }

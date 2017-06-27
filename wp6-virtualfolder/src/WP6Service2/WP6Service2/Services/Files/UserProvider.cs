@@ -8,21 +8,15 @@ namespace MetadataService.Services.Files
 {
     public class UserProvider
     {
-        private string userid;
-        private string userauthproxy;
+        private static readonly Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
+
+        private static readonly object userlock = new object();
         private readonly List<ProviderItem> _providers; //list of configured providers
-        private Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
+        private readonly Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
+        private readonly string userauthproxy;
+        private readonly string userid;
 
-        private static Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
-
-        public static UserProvider GetInstance(string _userid,string _userauthproxy, ISettingsStorage storage, IDbConnection db)
-        {
-            if (!_instances.ContainsKey(_userid)) _instances[_userid]= new UserProvider(_userid,_userauthproxy,storage,db);
-                return _instances[_userid];
-        }
-
-        private static object userlock = new object();
-        private UserProvider(string _userid, string _userauthproxy,ISettingsStorage storage,IDbConnection db)
+        private UserProvider(string _userid, string _userauthproxy, ISettingsStorage storage, IDbConnection db)
         {
             userid = _userid;
             userauthproxy = _userauthproxy;
@@ -37,23 +31,32 @@ namespace MetadataService.Services.Files
 
                     IProviderCreator impl;
                     foreach (var pf in providers)
-                    {
                         try
                         {
                             if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                             {
                                 _providers.Add(pf);
-                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db,userauthproxy));
+                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db, userauthproxy));
                             }
-                            else Console.WriteLine("the provider type has not registered creator:" + pf.type);
+                            else
+                            {
+                                Console.WriteLine("the provider type has not registered creator:" + pf.type);
+                            }
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e.Message + e.StackTrace);
                         }
-                    }
                 }
             }
+        }
+
+        public static UserProvider GetInstance(string _userid, string _userauthproxy, ISettingsStorage storage,
+            IDbConnection db)
+        {
+            if (!_instances.ContainsKey(_userid))
+                _instances[_userid] = new UserProvider(_userid, _userauthproxy, storage, db);
+            return _instances[_userid];
         }
 
         /** generates automatic unique alias based on prefix, checks whether it already exists and adds numbered suffix up to 1024 _####
@@ -61,35 +64,38 @@ namespace MetadataService.Services.Files
         //returns first available alias e.g. dropbox or dropbox_2, dropbox_3
         private string firstempty(string prefix)
         {
-            return !linkedimpl.Keys.Contains(prefix) ? prefix : firstempty1(prefix,1);
+            return !linkedimpl.Keys.Contains(prefix) ? prefix : firstempty1(prefix, 1);
         }
 
         private string firstempty1(string prefix, int index)
         {
-
-            while(index++<1024)
+            while (index++ < 1024)
             {
                 var mykey = prefix + "_" + index;
                 if (!linkedimpl.Keys.Contains(mykey)) return mykey;
-
             }
-            throw  new ApplicationException("Too many registered providers:"+prefix+" index:");
+            throw new ApplicationException("Too many registered providers:" + prefix + " index:");
         }
 
 
-        public void Add(ProviderItem provideritem, ISettingsStorage storage, IDbConnection connection)//, AFileProvider aprovider)
+        public void Add(ProviderItem provideritem, ISettingsStorage storage,
+            IDbConnection connection) //, AFileProvider aprovider)
         {
-            IProviderCreator impl=null;
+            IProviderCreator impl = null;
             if (ProviderFactory.AvailableProviders.TryGetValue(provideritem.type, out impl))
             {
-                if (string.IsNullOrEmpty(provideritem.alias)) provideritem.alias = firstempty(provideritem.type.ToLower());
-                var aprovider = impl.CreateProvider(provideritem,storage,connection,userauthproxy);
+                if (string.IsNullOrEmpty(provideritem.alias))
+                    provideritem.alias = firstempty(provideritem.type.ToLower());
+                var aprovider = impl.CreateProvider(provideritem, storage, connection, userauthproxy);
 
                 _providers.Add(provideritem);
-                linkedimpl.Add(provideritem.alias,aprovider);
+                linkedimpl.Add(provideritem.alias, aprovider);
                 aprovider.StoreSettings(provideritem);
-            } else throw new ApplicationException("the provider type has not registered creator:"+provideritem.type);
-
+            }
+            else
+            {
+                throw new ApplicationException("the provider type has not registered creator:" + provideritem.type);
+            }
         }
 
         //deregister the alias and provider which serve it
@@ -103,15 +109,15 @@ namespace MetadataService.Services.Files
                 //destroy provider
                 linkedimpl.Remove(request.alias);
                 return _providers;
-            } else
-                throw new ApplicationException("cannot delete alias '"+request.alias+"', not found.");
+            }
+            throw new ApplicationException("cannot delete alias '" + request.alias + "', not found.");
         }
 
         public List<ProviderItem> getProviderItems()
         {
             //returns list only with non-sensitive information
             return _providers.Select(x => new ProviderItem
-            {alias=x.alias,Id=x.Id,output=x.output,type=x.type,username=x.username}).ToList();
+                {alias = x.alias, Id = x.Id, output = x.output, type = x.type, username = x.username}).ToList();
         }
 
         public Dictionary<string, AFileProvider>.KeyCollection getAliases()
@@ -124,10 +130,7 @@ namespace MetadataService.Services.Files
             AFileProvider provider = null;
             if (linkedimpl.TryGetValue(request.Providerpath, out provider))
                 return provider.GetFileOrList(request.Path);
-            else
-            {
-                throw new ApplicationException("provider implementation not found for path:"+request.Providerpath);
-            }
+            throw new ApplicationException("provider implementation not found for path:" + request.Providerpath);
         }
     }
 }

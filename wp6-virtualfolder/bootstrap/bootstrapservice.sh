@@ -9,15 +9,15 @@
 #wget https://nuget.org/nuget.exe
 #/bin/sh
 source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
-rm -rf /home/vagrant/build
+rm -rf /home/vagrant/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
 for i in {1..3}; do 
     echo attemp $i
-    if [ ! -f /home/vagrant/build/MetadataService/MetadataService.exe ]
+    if [ ! -f /home/vagrant/MetadataService/MetadataService.exe ]
     then
        echo Building MetadataService
 	#clean from previous try
-	rm -rf /home/vagrant/build
+	rm -rf /home/vagrant/MetadataService
 	rm -rf /home/vagrant/src
 	# build metadataservice
 	cp -R $WP6SRC/src /home/vagrant

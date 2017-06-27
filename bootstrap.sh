@@ -20,15 +20,12 @@
 # or use wp6 sources from vagrant shared folder #
 #################################################
 
-export WP6SRC=/home/vagrant/work/local/wp6-virtualfolder
+export WP6SRC=/vagrant/wp6-virtualfolder
 
 ###########################
 # launch bootstrap script #
 ###########################
 
-mkdir -p /home/vagrant/bootstrap
-cp -R $WP6SRC/bootstrap/* /home/vagrant/bootstrap
-dos2unix /home/vagrant/bootstrap/*
-chmod ugo+x /home/vagrant/bootstrap/*.sh
-chown -R vagrant:vagrant /home/vagrant/bootstrap
-/home/vagrant/bootstrap/bootstrap.sh
+dos2unix $WP6SRC/bootstrap/*
+chmod ugo+x $WP6SRC/bootstrap/*.sh
+$WP6SRC/bootstrap/bootstrap.sh

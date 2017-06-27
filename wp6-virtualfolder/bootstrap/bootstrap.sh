@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-/home/vagrant/bootstrap/bootstrapweb.sh
-/home/vagrant/bootstrap/bootstrapservice.sh
-/home/vagrant/bootstrap/bootstrapvre.sh
-/home/vagrant/bootstrap/bootstrapscipion.sh
-/home/vagrant/bootstrap/bootstrapvirtuoso.sh
-/home/vagrant/bootstrap/bootstrapstart.sh
+# expect WP6SRC is set
+$WP6SRC/bootstrap/bootstrapweb.sh
+$WP6SRC/bootstrap/bootstrapvre.sh
+$WP6SRC/bootstrap/bootstrapservice.sh
+$WP6SRC/bootstrap/bootstrapscipion.sh
+$WP6SRC/bootstrap/bootstrapvirtuoso.sh
+$WP6SRC/bootstrap/bootstrapstart.sh
+echo "BOOTSTRAP FINISHED, VM prepared to use"
