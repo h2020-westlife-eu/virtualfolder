@@ -76,7 +76,7 @@ export class Genericcontrol {
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
-    this.client.fetch("/metadataservice/"+this.providerspath,{headers:this.myHeaders})
+    this.client.fetch("/metadataservice/"+this.providerspath,{headers:this.myHeaders,credentials:'include'})
       .then(response => response.json())
       .then(data=> {
         console.log("data response");
@@ -124,7 +124,7 @@ export class Genericcontrol {
 
   //DO NOT WORK as CORS pre-flight OPTION is triggered by browser which results in HTTP 401 returned by b2drop
   checkWebdav(url,settings){
-    this.client.fetch(url,{method:'HEAD'})
+    this.client.fetch(url,{method:'HEAD',credentials:'include'})
       .catch(error => {
         let myHeaders = new Headers();
         myHeaders.append('Authorization','Basic '+btoa(settings.username+":"+settings.securetoken))
@@ -138,7 +138,8 @@ export class Genericcontrol {
     this.client.fetch("/metadataservice/"+this.filespath,{
       method: 'put',
       body: json(settings),
-      headers:this.myHeaders
+      headers:this.myHeaders,
+      credentials:'include'
     })
       .then(response => response.json())
       .then(data =>{
