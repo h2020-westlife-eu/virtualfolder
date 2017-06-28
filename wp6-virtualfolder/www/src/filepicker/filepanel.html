@@ -4,14 +4,15 @@
         <table id="${panelid}">
             <thead>
             <tr>
-                <th style="text-align:left">name</th>
-                <th style="text-align:right">size</th>
-                <th style="text-align:center">date</th>
+                <th style="text-align:left" click.delegate="sortByName()">name</th>
+                <th style="text-align:left" click.delegate="sortByExt()">ext</th>
+                <th style="text-align:right" click.delegate="sortBySize()">size</th>
+                <th style="text-align:center" click.delegate="sortByDate()">date</th>
             </tr>
             </thead>
             <tbody>
             <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
-              <td>${file.name}</td><td class="w3-right">${file.size}</td><td align="center">${file.date}</td>
+              <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td>
             </tr>
             </tbody>
         </table>

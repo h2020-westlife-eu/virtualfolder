@@ -963,11 +963,68 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
       });
 
       this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
+      this.sorted = { none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16 };
+      this.wassorted = this.sorted.none;
     }
 
     Filepanel.prototype.bind = function bind() {
       this.path = localStorage && localStorage.getItem("filepanel" + this.panelid) ? localStorage.getItem("filepanel" + this.panelid) : "";
       this.lastpath = "";
+    };
+
+    Filepanel.prototype.sortByX = function sortByX(sortflag, sortfunction) {
+      console.log("Filepanel sort");
+      console.log(this.files);
+      if (this.path.length > 0) {
+        this.files.shift();
+      }
+
+      if (!(this.wassorted & sortflag)) {
+        this.files.sort(sortfunction);
+        this.wassorted = sortflag;
+      } else {
+        if (this.wassorted & this.sorted.reverse) {
+          this.files.reverse();
+          this.wassorted = sortflag;
+        } else {
+          this.files.reverse();
+          this.wassorted = this.wassorted | this.sorted.reverse;
+        }
+      }
+      if (this.path.length > 0) {
+        this.files.unshift({ name: "..", nicesize: "UP DIR", date: "" });
+      }
+
+      console.log(this.files);
+    };
+
+    Filepanel.prototype.sortByName = function sortByName() {
+      this.sortByX(this.sorted.byname, function (a, b) {
+        return a.name > b.name ? 1 : -1;
+      });
+    };
+
+    Filepanel.prototype.sortBySize = function sortBySize() {
+      this.sortByX(this.sorted.bysize, function (a, b) {
+        return a.size - b.size;
+      });
+    };
+
+    Filepanel.prototype.sortByDate = function sortByDate() {
+      this.sortByX(this.sorted.bydate, function (a, b) {
+        return a.date > b.date ? 1 : -1;
+      });
+    };
+
+    Filepanel.prototype.extension = function extension(filename) {
+      var re = /(?:\.([^.]+))?$/;
+      return re.exec(filename)[1];
+    };
+
+    Filepanel.prototype.sortByExt = function sortByExt() {
+      this.sortByX(this.sorted.byext, function (a, b) {
+        return a.ext > b.ext ? 1 : -1;
+      });
     };
 
     Filepanel.prototype.attached = function attached() {
@@ -992,7 +1049,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
                 _this.populateFiles(data.response);
               }
             }).catch(function (error) {
-              console.log('Filepanel Error retrieving from "' + _this.path + '":');
+              console.log('Filepanel Error retrieving file info from "' + _this.path + '":');
               console.log(error);
             });
           }
@@ -1005,7 +1062,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
       if (typeof value === 'string') {
         a = /\/Date\(([\d\+]*)\)\//.exec(value);
         if (a) {
-          return new Date(parseInt(a[1])).toLocaleDateString('en-GB');
+          return new Date(parseInt(a[1])).toLocaleDateString(navigator.language ? navigator.language : "en-GB");
         }
       }
       return value;
@@ -1052,25 +1109,30 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
 
     Filepanel.prototype.populateFiles = function populateFiles(dataresponse) {
       if (localStorage) localStorage.setItem("filepanel" + this.panelid, this.path);
-      this.files = JSON.parse(dataresponse, this.dateTimeReviver);
+      this.files = JSON.parse(dataresponse);
       this.filescount = this.files.length;
+      var that = this;
       this.files.forEach(function (item, index, arr) {
         if (!arr[index].name && arr[index].alias) {
           arr[index].name = arr[index].alias;
           arr[index].attributes = 16;
           arr[index].date = "";
         }
-        if (arr[index].attributes & 16) arr[index].size = "DIR";else arr[index].size = ~~(arr[index].size / 1000000000) > 0 ? ~~(arr[index].size / 1000000000) + "GB" : ~~(arr[index].size / 1000000) > 0 ? ~~(arr[index].size / 1000000) + "MB" : ~~(arr[index].size / 1000) > 0 ? ~~(arr[index].size / 1000) + "kB" : arr[index].size + " b";
+        arr[index].ext = that.extension(arr[index].name);
+        arr[index].nicedate = that.dateTimeReviver(null, arr[index].date);
+        if (!arr[index].ext) arr[index].ext = "";
+
+        if (arr[index].attributes & 16) arr[index].nicesize = "DIR";else arr[index].nicesize = ~~(arr[index].size / 1000000000) > 0 ? ~~(arr[index].size / 1000000000) + "GB" : ~~(arr[index].size / 1000000) > 0 ? ~~(arr[index].size / 1000000) + "MB" : ~~(arr[index].size / 1000) > 0 ? ~~(arr[index].size / 1000) + "kB" : arr[index].size + " b";
       });
       if (this.path.length > 0) {
-        this.files.unshift({ name: "..", size: "UP DIR", date: "" });
+        this.files.unshift({ name: "..", nicesize: "UP DIR", date: "" });
       }
     };
 
     Filepanel.prototype.selectFile = function selectFile(file) {
       var _this3 = this;
 
-      if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);else {
+      if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);else {
         var fileurl = this.serviceurl + this.path + '/' + file.name;
         this.client.head(fileurl).then(function (response) {}).catch(function (error) {
           console.log("Error when geting metadata information about file:");
@@ -1522,6 +1584,7 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
         config.withHeader('Content-Type', 'application/json');
       });
       this.showitem = true;
+      this.dataseturl = "/metadataservice/dataset";
       this.showlist = true;
       this.pdbdataset = [];
       this.pdbdataitem = "";
@@ -1592,9 +1655,30 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.submit = function submit() {
       var _this3 = this;
 
-      this.client.put("/metadataservice/dataset", JSON.stringify(this.pdbdataset)).then(function (data) {
+      console.log("submitting data:");
+      this.submitdataset = {};
+      this.submitdataset.Id = this.id;
+      this.submitdataset.Name = this.name;
+      this.submitdataset.Entries = this.pdbdataset;
+
+      console.log(this.submitdataset);
+      console.log(JSON.stringify(this.submitdataset));
+
+      if (this.id > 0) this.client.put(this.dataseturl + "/" + this.id, JSON.stringify(this.submitdataset)).then(function (data) {
         console.log("data response");
-        console.log(data);9;
+        console.log(data);
+        var myitem = JSON.parse(data.response);
+
+        _this3.showlist = true;
+      }).catch(function (error) {
+        console.log(error);
+        alert('Sorry. Dataset not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+      });else this.client.post(this.dataseturl, JSON.stringify(this.submitdataset)).then(function (data) {
+        console.log("data response");
+        console.log(data);
+        var myitem = JSON.parse(data.response);
+        _this3.datasetlist.push({ Id: myitem.Id, Name: myitem.Name });
+        _this3.showlist = true;
       }).catch(function (error) {
         console.log(error);
         alert('Sorry. Dataset not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
@@ -7182,7 +7266,7 @@ define('text!filemanager2/fmsettings.html', ['module'], function(module) { modul
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset></dataset>\n    </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\">name</th>\n                <th style=\"text-align:right\">size</th>\n                <th style=\"text-align:center\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td class=\"w3-right\">${file.size}</td><td align=\"center\">${file.date}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item}\">${item}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item}\">${item}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n  <div class=\"w3-card-2 w3-pale-blue\">\n\n    <div show.bind=\"showlist\">\n      <table class=\"w3-table\">\n        <tr ><td class=\"w3-large w3-hover-green\" click.delegate=\"createnewdataset()\">Create New Dataset</td>\n\n        </tr>\n        <tr repeat.for=\"item of datasetlist\"><td class=\"w3-large w3-hover-green\" click.delegate=\"selectdataset(item)\">${item.Name}</td>\n          <td click.delegate=\"removedataset(item)\"\n                class=\"w3-button w3-btn\">&times;</td>\n        </tr>\n      </table>\n    </div>\n\n    <div show.bind=\"!showlist\">\n      <div class=\"w3-display-container w3-large w3-hover-green\" click.delegate=\"unselectdataset(item)\">${name}</div>\n\n      <form>\n        PDB or related item to add:<br/>\n        <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1cbs (PDB entry) or P12355 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n      </form>\n\n      <hr/>\n      <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n      <br/>\n      <ul>\n        <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item}</span>\n          <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n          <dataitem item=\"${item}\"></dataitem>\n        </li>\n      </ul>\n\n      dataset name:\n      <input value.bind=\"name\" change.trigger=\"changename()\"/>\n      <br/>\n\n      <!-- will be enabled after backend service is available -->\n      <button type=\"button\" click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n    </div>\n\n  </div>\n</template>\n"; });

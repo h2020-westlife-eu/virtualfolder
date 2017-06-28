@@ -29,11 +29,61 @@ export class Filepanel{
         });
         //console.log("filepanel tableid:"+this.panelid);
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
+    this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
+    this.wassorted=this.sorted.none;
     }
 
     bind(){
       this.path = localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
       this.lastpath="";
+    }
+
+    sortByX(sortflag,sortfunction){
+      console.log("Filepanel sort");
+      console.log(this.files);
+      if (this.path.length>0) {//non root path
+        this.files.shift(); //take the first '..'
+      }
+
+      //sort by name if previously not this.sorted by name
+      if (!(this.wassorted & sortflag)) {
+        this.files.sort(sortfunction)
+        this.wassorted = sortflag;
+      } else {
+        //if previously reversed
+        if (this.wassorted & this.sorted.reverse) {
+          this.files.reverse(); //reverse again
+          this.wassorted = sortflag;
+        } else { //not reversed - reverse and set flag
+          this.files.reverse();
+          this.wassorted = this.wassorted | this.sorted.reverse;
+        }
+      }//sort(function(a,b){return a.name>b.name?-1:1;})
+      if (this.path.length>0) {//non root path add the first '..'
+        this.files.unshift({name: "..", nicesize: "UP DIR",date:""}); //up dir item
+      }
+      //this.wassorted = this.wassorted | sortflag;
+      console.log(this.files);
+    }
+
+    sortByName(){
+      this.sortByX(this.sorted.byname,function(a,b){return a.name>b.name?1:-1;})
+    }
+
+    sortBySize(){
+      this.sortByX(this.sorted.bysize,function(a,b){return a.size-b.size})
+    }
+    sortByDate(){
+      this.sortByX(this.sorted.bydate,function(a,b){return a.date>b.date?1:-1;})
+    }
+
+    extension(filename){
+      var re = /(?:\.([^.]+))?$/;
+      return re.exec(filename)[1];
+    }
+
+    sortByExt(){
+      this.sortByX(this.sorted.byext,function(a,b){return a.ext>b.ext?1:-1;})
     }
 
     //triggered after this object is placed to DOM
@@ -64,7 +114,7 @@ export class Filepanel{
                           this.populateFiles(data.response);
                         }
                       }).catch(error => {
-                      console.log('Filepanel Error retrieving from "'+this.path+'":');
+                      console.log('Filepanel Error retrieving file info from "'+this.path+'":');
                       console.log(error);
                     });
                     }
@@ -80,7 +130,7 @@ export class Filepanel{
         if (typeof value === 'string') {
             a = /\/Date\(([\d\+]*)\)\//.exec(value);
             if (a) {
-                return new Date(parseInt(a[1])).toLocaleDateString('en-GB');
+                return new Date(parseInt(a[1])).toLocaleDateString(navigator.language?navigator.language:"en-GB");
             }
         }
         return value;
@@ -134,28 +184,33 @@ export class Filepanel{
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
       if (localStorage) localStorage.setItem("filepanel" + this.panelid,this.path);
-        this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
+        this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
+        let that = this;
         this.files.forEach (function (item,index,arr){
           if(!arr[index].name && arr[index].alias) {
             arr[index].name=arr[index].alias;
             arr[index].attributes = 16;
             arr[index].date="";
           }
-          if (arr[index].attributes & 16) arr[index].size="DIR";
+          arr[index].ext=that.extension(arr[index].name); //may return undefined
+          arr[index].nicedate=that.dateTimeReviver(null,arr[index].date);
+          if (!arr[index].ext) arr[index].ext="";
+
+          if (arr[index].attributes & 16) arr[index].nicesize="DIR";
           else
             //convert to 4GB or 30MB or 20kB or 100b
-            arr[index].size=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
+            arr[index].nicesize=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
         });
       if (this.path.length>0) {//non root path
-        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+        this.files.unshift({name: "..", nicesize: "UP DIR",date:""}); //up dir item
       }
 
     }
 
     selectFile(file){
       //console.log("selectFile("+file+") panelid:"+this.panelid);
-      if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
+      if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
       else {
         //HEAD the file - so it can be obtained - cached by metadata service, fix #45
         let fileurl=this.serviceurl + this.path + '/' + file.name
