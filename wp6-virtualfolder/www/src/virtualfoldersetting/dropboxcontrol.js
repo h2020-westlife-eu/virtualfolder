@@ -41,7 +41,7 @@ export class DropboxControl {
       //console.log('dropboxcontrol() auth url:' + this.authurl);
       //console.log(this.dropBoxAuthUrl);
     } catch(e){
-      console.log("exception:")
+      console.log("Dropboxcontrol() exception:")
       console.log(e)
     }
 

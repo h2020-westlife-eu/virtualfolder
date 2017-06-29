@@ -79,8 +79,8 @@ export class Genericcontrol {
     this.client.fetch("/metadataservice/"+this.providerspath,{headers:this.myHeaders,credentials:'include'})
       .then(response => response.json())
       .then(data=> {
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data) {
           this.providers = data;
         }
@@ -88,12 +88,12 @@ export class Genericcontrol {
       //handle 403 unauthorized
       if (error.statusCode == 403) {
         //try to login
-        console.log("redirecting");
+        console.log("genericcontrol.attached() redirecting");
         window.location = "/login?next=" + window.location.pathname;
         //window.location =
       } else {
-        console.log('Error');
-        console.log(error);
+        //console.log('Error');
+        //console.log(error);
         //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
       }
     });
@@ -143,14 +143,14 @@ export class Genericcontrol {
     })
       .then(response => response.json())
       .then(data =>{
-        console.log("genericcontrol: data response:");
-        console.log(data);
+        //console.log("genericcontrol: data response:");
+        //console.log(data);
         if (Array.isArray(data)) {
           this.doneCallback(data);
           //this.providers = data;
         } else {
 
-          console.log(data);
+          //console.log(data);
           if (data.ResponseStatus) alert('Sorry.'+data.ResponseStatus.ErrorCode+"\n"+ data.ResponseStatus.Message+"\nSubmit correct username and/or password again.");
           else alert ('Sorry. Settings not submitted. Check all items are correct and submit again.')
         }

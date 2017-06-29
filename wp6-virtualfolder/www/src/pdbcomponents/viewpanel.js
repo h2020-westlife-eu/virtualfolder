@@ -31,7 +31,7 @@ export class  Viewpanel {
 
     viewfile(file,senderid) {
         if (senderid!=this.pid) {
-          console.log("viewfile " + file.webdavuri);
+          //console.log("viewfile " + file.webdavuri);
           this.pdburl=file.webdavuri;
           var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
           this.replacepdblitemol(pdblitemol);

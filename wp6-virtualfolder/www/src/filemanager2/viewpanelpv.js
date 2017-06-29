@@ -16,9 +16,9 @@ export class  Viewpanelpv {
     }
 
     attached(){
-        console.log('viewpanel.attached()')
+        //console.log('viewpanel.attached()')
       this.viewerdom = $(".fileviewer")[0];
-      console.log(this.viewerdom);
+      //console.log(this.viewerdom);
       var options = {
         width: '1200',
         height: '600',

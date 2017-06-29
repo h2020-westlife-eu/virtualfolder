@@ -15,12 +15,12 @@ export class Checkurl {
   }
 
   attached(){
-    console.log("Checkurl component:"+this.url+" message:"+this.failmessage);
+    //console.log("Checkurl component:"+this.url+" message:"+this.failmessage);
 
     this.client.fetch(this.url, {method: 'HEAD'})
       .then(response => {
-        console.log("checkurl response:");
-        console.log(response);
+        //console.log("checkurl response:");
+        //console.log(response);
         if (response.status==200) this.showit=true;
         //this.message = this.failmessage;
       })

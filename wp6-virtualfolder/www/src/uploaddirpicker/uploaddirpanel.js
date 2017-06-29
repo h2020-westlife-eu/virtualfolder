@@ -17,13 +17,13 @@ export class Uploaddirpanel extends Filepanel {
   }
 
   selectFile(file){
-    console.log("filepanel tableid:"+this.panelid);
+    //console.log("filepanel tableid:"+this.panelid);
     if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
   }
 
 
   selectThisDir() {
-    console.log("selected:"+this.path);
+    //console.log("selected:"+this.path);
     let myfile= {};
     myfile.name = this.path;
     this.client.get(this.getpublicwebdavurl)

@@ -47,7 +47,7 @@ export class Fileeditor {
         this.httpclient.get(file.webdavuri).then(
           data => {
 
-            console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+            //console.log("fileeditor.selectfile() loading:" + file.webdavuri);
             //console.log(data);
             this.codemirror.setValue(data.response);
 

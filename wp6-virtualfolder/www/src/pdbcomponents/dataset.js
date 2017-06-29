@@ -61,11 +61,11 @@ export class Dataset {
   attached(){
     this.client.get(this.dataseturl).then(data=>
     {
-      console.log("dataset.attached(), data:")
-      console.log(data)
+      //console.log("dataset.attached(), data:")
+      //console.log(data)
       this.datasetlist = JSON.parse(data.response);
-      console.log('Dataset().datasetlist:')
-      console.log(this.datasetlist)
+      //console.log('Dataset().datasetlist:')
+      //console.log(this.datasetlist)
     })
   }
 
@@ -90,22 +90,22 @@ export class Dataset {
   }
 
   removedataset(item){
-    console.log("removedataset() not implemented");
-    console.log(item)
+    alert("Remove dataset not yet implemented.");
+    //console.log(item)
   }
 
   additem(item){
-    console.log("additem()");
-    console.log(item);
+    //console.log("additem()");
+    //console.log(item);
     this.pdbdataset.unshift(item);
-    console.log(this.pdbdataset);
+    //console.log(this.pdbdataset);
     //this.canSubmit = this.pdbdataset.length>0?true:false;
   }
 
   addDatasetFile(file,senderid) {
     if (senderid!== this.panelid) {
-      console.log("dataset.adddatasetfile()");
-      console.log(file);
+      //console.log("dataset.adddatasetfile()");
+      //console.log(file);
       if (window.confirm("The file " + file.name + " will be added to dataset.")) {
         let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"}
         this.pdbdataset.unshift(item);
@@ -125,20 +125,20 @@ export class Dataset {
 
 
   submit(){
-    console.log("submitting data:");
+    //console.log("submitting data:");
     this.submitdataset = {};
     this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
     //this.submitdataset.Urls =
-    console.log(this.submitdataset);
-    console.log(JSON.stringify(this.submitdataset));
+    //console.log(this.submitdataset);
+    //console.log(JSON.stringify(this.submitdataset));
     //PUT = UPDATE, POST = create new
     if (this.id>0)
       this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
         .then(data =>{
-          console.log("data response");
-          console.log(data);
+          //console.log("data response");
+          //console.log(data);
           let myitem = JSON.parse(data.response);
           //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
           this.showlist=true;
@@ -150,8 +150,8 @@ export class Dataset {
     else
       this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
         .then(data =>{
-          console.log("data response");
-          console.log(data);
+          //console.log("data response");
+          //console.log(data);
           let myitem = JSON.parse(data.response);
           this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
           this.showlist=true;

@@ -39,8 +39,8 @@ export class Filepanel{
     }
 
     sortByX(sortflag,sortfunction){
-      console.log("Filepanel sort");
-      console.log(this.files);
+      //console.log("Filepanel sort");
+      //console.log(this.files);
       if (this.path.length>0) {//non root path
         this.files.shift(); //take the first '..'
       }
@@ -63,7 +63,7 @@ export class Filepanel{
         this.files.unshift({name: "..", nicesize: "UP DIR",date:""}); //up dir item
       }
       //this.wassorted = this.wassorted | sortflag;
-      console.log(this.files);
+      //console.log(this.files);
     }
 
     sortByName(){
@@ -99,12 +99,12 @@ export class Filepanel{
                 //handle 403 unauthorized
                 if (error.statusCode == 403) {
                   //try to login
-                  console.log("redirecting");
+                  //console.log("redirecting");
                   window.location = "/login?next=" + window.location.pathname;
                   //window.location =
                 } else {
-                  console.log('Filepanel Error retrieving from "'+this.path+'":');
-                  console.log(error);
+                  //console.log('Filepanel Error retrieving from "'+this.path+'":');
+                  //console.log(error);
                   //try empty path
                   if (this.path.length>0){
                     this.path="";

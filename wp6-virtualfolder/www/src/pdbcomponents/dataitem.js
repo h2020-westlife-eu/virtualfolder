@@ -24,8 +24,8 @@ export class Dataitem {
   }
 
   bind() {
-    console.log("dataitem.bind()");
-    console.log(this.item);
+    //console.log("dataitem.bind()");
+    //console.log(this.item);
     this.itemPDBEntry = this.isPDBEntry();
     //this.pdbredo = this.item[1]+this.item[2]; //2nd and 3rd character
     //console.log(this.pdbredo);
@@ -60,8 +60,8 @@ export class Dataitem {
   }
 
   attached() {
-    console.log("dataitem.attached()");
-    console.log(this.item);
+    //console.log("dataitem.attached()");
+    //console.log(this.item);
   }
 
   selectedValueChanged() {
@@ -101,9 +101,9 @@ export class Dataitem {
   }
 
   isPDBEntry() {
-    console.log("dataitem.ispdbentry()")
-    console.log(this.item.Type==="pdb_id");
-    console.log(/^[0-9][A-Za-z0-9]{3}$/.test(this.item.Name));
+    //console.log("dataitem.ispdbentry()")
+    //console.log(this.item.Type==="pdb_id");
+    //console.log(/^[0-9][A-Za-z0-9]{3}$/.test(this.item.Name));
     return (this.item.Type==="pdb_id") || (/^[0-9][A-Za-z0-9]{3}$/.test(this.item.Name));
   }
 
