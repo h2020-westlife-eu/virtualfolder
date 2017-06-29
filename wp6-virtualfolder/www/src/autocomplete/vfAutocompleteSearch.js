@@ -90,8 +90,8 @@ export class VfAutocompleteSearch {
       */
      console.log("keypressed(): submitting()")
      //this.hideSuggestions();
-     if (evt.originalTarget) this.submit({item: evt.originalTarget.value}) //in Firefox
-     else if (evt.target) this.submit({item: evt.target.value}) //in IE
+     if (evt.originalTarget) this.submit({item: {Name:evt.originalTarget.value}}) //in Firefox
+     else if (evt.target) this.submit({item: {Name:evt.target.value}}) //in IE
      this.hideSuggestions();
    } else
      if (key===27) this.hideSuggestions();
@@ -107,8 +107,9 @@ export class VfAutocompleteSearch {
    * @param {clickvalue} value which was clicked and will be submitted */
   clicked(clickvalue) {
     console.log("clicked(): submitting()")
-    this.value = clickvalue;
-    this.submit({item:clickvalue});
+    console.log(clickvalue);
+    this.value = clickvalue.value;
+    this.submit({item:{Name:clickvalue.value,Type:clickvalue.var_name}});
     this.hideSuggestions();
   }
 

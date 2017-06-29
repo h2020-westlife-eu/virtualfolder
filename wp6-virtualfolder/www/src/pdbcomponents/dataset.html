@@ -33,9 +33,9 @@
       <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
       <br/>
       <ul>
-        <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item}</span>
+        <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item.Name}</span>
           <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
-          <dataitem item="${item}"></dataitem>
+          <dataitem item.bind="item"></dataitem>
         </li>
       </ul>
 

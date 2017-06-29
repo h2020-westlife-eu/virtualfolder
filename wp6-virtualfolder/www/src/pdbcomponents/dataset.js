@@ -61,8 +61,8 @@ export class Dataset {
   attached(){
     this.client.get(this.dataseturl).then(data=>
     {
-      //console.log("dataset.attached(), data:")
-      //console.log(data)
+      console.log("dataset.attached(), data:")
+      console.log(data)
       this.datasetlist = JSON.parse(data.response);
       console.log('Dataset().datasetlist:')
       console.log(this.datasetlist)
@@ -103,8 +103,14 @@ export class Dataset {
   }
 
   addDatasetFile(file,senderid) {
-    if (window.confirm("The file "+file.name+" will be added to dataset."))
-      this.pdbdataset.shift(file);
+    if (senderid!== this.panelid) {
+      console.log("dataset.adddatasetfile()");
+      console.log(file);
+      if (window.confirm("The file " + file.name + " will be added to dataset.")) {
+        let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"}
+        this.pdbdataset.unshift(item);
+      }
+    }
   }
 
   removeitem(itemtodelete){

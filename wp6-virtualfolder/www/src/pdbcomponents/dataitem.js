@@ -19,20 +19,22 @@ export class Dataitem {
     this.selectedid = this.entityids[0];
     this.showitem = false;
     let location = window.location.protocol;
-    this.pdbred="cc";
+    //this.pdbred="cc";
 //    this.httpsprotocol=location.startsWith('https'); //used to detect/hide buggy components
   }
 
   bind() {
-    this.itemPDBEntry = this.isPDBEntry(this.item);
-    this.pdbredo = this.item[1]+this.item[2]; //2nd and 3rd character
-    console.log(this.pdbredo);
+    console.log("dataitem.bind()");
+    console.log(this.item);
+    this.itemPDBEntry = this.isPDBEntry();
+    //this.pdbredo = this.item[1]+this.item[2]; //2nd and 3rd character
+    //console.log(this.pdbredo);
     //this.showitem = this.itemPDBEntry;
     //this.showuniprotitem = !this.itemPDBEntry;
-    this.itemUniprotEntry = this.isUniprotEntry(this.item);
+    this.itemUniprotEntry = this.isUniprotEntry();
     if (this.itemPDBEntry) {
 
-      this.client.fetch(this.serviceurl + this.item)
+      this.client.fetch(this.serviceurl + this.item.Name)
         .then(response => response.json())
         .then(data => {
 
@@ -50,7 +52,7 @@ export class Dataitem {
 
         }).catch(error => {
 
-        console.log('Error dataitem().fetch() of "'+this.serviceurl + this.item+'"');
+        console.log('Error dataitem().fetch() of "'+this.serviceurl + this.item.Name+'"');
         console.log(error);
       });
     }
@@ -58,6 +60,8 @@ export class Dataitem {
   }
 
   attached() {
+    console.log("dataitem.attached()");
+    console.log(this.item);
   }
 
   selectedValueChanged() {
@@ -96,11 +100,15 @@ export class Dataitem {
       this.showitem = !this.showitem;
   }
 
-  isPDBEntry(entry) {
-    return /^[0-9][A-Za-z0-9]{3}$/.test(entry);
+  isPDBEntry() {
+    console.log("dataitem.ispdbentry()")
+    console.log(this.item.Type==="pdb_id");
+    console.log(/^[0-9][A-Za-z0-9]{3}$/.test(this.item.Name));
+    return (this.item.Type==="pdb_id") || (/^[0-9][A-Za-z0-9]{3}$/.test(this.item.Name));
   }
+
   isUniprotEntry(entry) {
-    return /^[A-Z][0-9][A-Z0-9]{4}[A-Z0-9]*$/.test(entry);
+    return (this.item.Type==="uniprot_accession") || (/^[A-Z][0-9][A-Z0-9]{4}[A-Z0-9]*$/.test(this.item.Name));
   }
 
 }

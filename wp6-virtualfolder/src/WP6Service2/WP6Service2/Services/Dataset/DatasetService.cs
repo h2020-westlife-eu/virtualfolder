@@ -19,14 +19,6 @@ namespace WP6Service2.Services.Dataset
         public string Name { get; set; }
     }
 
-    /** enumeration of structural biology entry types, currently pdb, uniprot and other */
-    public enum EntryType
-    {
-        OTHER,
-        PDB,
-        UNIPROT
-    }
-
     public class DatasetEntry //entry of a dataset, consist of entryname (2hhd), type (PDB), url (http://pdb.org/2hhd.pdb)
     {
         [AutoIncrement]
@@ -34,6 +26,7 @@ namespace WP6Service2.Services.Dataset
 
         public string Type { get; set; }
         public string Url { get; set; }
+        [Alias("Entry")]
         public string Name { get; set; }
     }
 
