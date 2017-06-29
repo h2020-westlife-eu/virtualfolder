@@ -37,6 +37,7 @@ export class Fileeditor {
       lineWrapping: true,
       theme: "eclipse"
     });
+    this.codemirror.refresh();
   }
 
   selectFile(file,senderid) {
