@@ -32,7 +32,7 @@ namespace WP6Service2.Services.Dataset
         [AutoIncrement]
         public long Id { get; set; }
 
-        public EntryType Type { get; set; }
+        public string Type { get; set; }
         public string Url { get; set; }
         public string Name { get; set; }
     }
