@@ -2,9 +2,8 @@
  * Created by Tomas Kulhanek on 2/10/17.
  */
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile,VisualizeFile,EditFile} from '../filepicker/messages';
+import {SelectedFile,VisualizeFile,EditFile,DatasetFile} from '../filepicker/messages';
 import {SelectedTab} from '../tabs/messages';
-import {computedFrom} from 'aurelia-framework';
 import {bindable} from 'aurelia-framework';
 
 export class Panel {
@@ -49,6 +48,10 @@ export class Panel {
       //default action, visualize pdb, if localStorage.getItem("visualizepdb") is defined then it needs to be true,
       let showpdb = file.webdavuri.endsWith('pdb') ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
       if (senderid!=this.pid) {
+        if (this.selectedDataset) { //add to dataset
+          this.ea.publish(new DatasetFile(file,senderid));
+        }
+        else //visualize/show file
         if (showpdb) {
           //visualize
           this.selectTab(this.ids[2]);

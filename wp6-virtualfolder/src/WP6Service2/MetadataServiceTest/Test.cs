@@ -58,11 +58,14 @@ namespace MetadataServiceTest
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
+            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
+            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
             var mydto = new DatasetDTO
             {
                 Name = "testdataset2",
-                Entries = new[] {"2hh1", "3csa", "4yg1"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
 
@@ -86,24 +89,26 @@ namespace MetadataServiceTest
         {
             //submit dataset, then update it, check whether only relevant entries were updated - not doubled
             var client = new JsonServiceClient(_baseUri);
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
+            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
+            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
             var mydto = new DatasetDTO
             {
                 Name = "testdataset3",
-                Entries = new[] {"2hh1", "3csa", "4yg1"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
             Assert.True(mydto2.Entries.Count == 3);
-            Assert.True(mydto2.Urls.Count == 3);
-            mydto2.Entries.Add("2hhd");
-            mydto2.Urls.Add("http://www.pdb.org/2hhd");
-            //var mydto3 =
+            
+            mydto2.Entries.Add(new DatasetEntry(){Name="2hhd",Url="http://www.pdb.org/2hhd"});
+            
             client.Put(mydto2);
             var mydto4 = client.Get(new DatasetDTO {Id = mydto2.Id});
 
             Assert.True(mydto4.Entries.Count == 4);
             //Assert.True(mydto4.Urls.Count==4);
-            Assert.True(mydto4.Entries.Contains("2hhd"));
+            Assert.True(mydto4.Entries.Select(x=> x.Name).Contains("2hhd"));
             //Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
         }
 
@@ -156,11 +161,15 @@ namespace MetadataServiceTest
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh4",Url = "http://www.pdb.org/2hh4"});
+            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
+            myEntries.Add(new DatasetEntry(){Name="4ygg",Url = "http://www.pdb.org/4ygg"});
+
             var mydto = new DatasetDTO
             {
                 Name = "testdataset2",
-                Entries = new[] {"2hh4", "3csb", "4ygg"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
 
@@ -187,11 +196,15 @@ namespace MetadataServiceTest
             Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
             Assert.True(all.Count >= 0);
             //    Is.StringStarting("[")); // asserts that the json is array
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hhd",Url = "http://www.pdb.org/2hhd"});
+            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
+            myEntries.Add(new DatasetEntry(){Name="4yg0",Url = "http://www.pdb.org/4yg0"});
+
             var mydto = new DatasetDTO
             {
                 Name = "testdataset",
-                Entries = new[] {"2hhd", "3csb", "4yg0"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hhd", "http://www.pdb.org/3csb", "http://www.pdb.org/4yg0"}.ToList()
+                Entries = myEntries
             };
 
             var mydto2 = client.Post(mydto);

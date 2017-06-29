@@ -4,26 +4,30 @@
 
 import 'whatwg-fetch';
 import {HttpClient} from "aurelia-http-client";
-import {computedFrom} from 'aurelia-framework';
 import {bindable} from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {DatasetFile} from '../filepicker/messages';
 
 //Model view controller
 //Model view viewmodel
 
 export class Dataset {
-  static inject = [HttpClient];
+  static inject = [HttpClient,EventAggregator];
   @bindable panelid;
 
-  constructor (httpclient) {
+  constructor (httpclient,ea) {
     this.client = httpclient;
     this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
       config.withHeader('Content-Type', 'application/json');
     });
+    this.ea = ea;
+    this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
+
     this.showitem=true;
     this.dataseturl="/metadataservice/dataset";
     this.showlist=true;
-    this.pdbdataset = [];
+    this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
     this.pdbdataitem = "";
     this.pdblinkset = [];
     this.pdbdataitem = "";
@@ -60,7 +64,8 @@ export class Dataset {
       //console.log("dataset.attached(), data:")
       //console.log(data)
       this.datasetlist = JSON.parse(data.response);
-      //console.log(this.datasetlist)
+      console.log('Dataset().datasetlist:')
+      console.log(this.datasetlist)
     })
   }
 
@@ -93,8 +98,13 @@ export class Dataset {
     console.log("additem()");
     console.log(item);
     this.pdbdataset.unshift(item);
-
+    console.log(this.pdbdataset);
     //this.canSubmit = this.pdbdataset.length>0?true:false;
+  }
+
+  addDatasetFile(file,senderid) {
+    if (window.confirm("The file "+file.name+" will be added to dataset."))
+      this.pdbdataset.shift(file);
   }
 
   removeitem(itemtodelete){
