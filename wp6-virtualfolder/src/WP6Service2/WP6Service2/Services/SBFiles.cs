@@ -8,9 +8,10 @@ namespace MetadataService.Services
     public enum FileType
     {
         None = 0,
-        Directory = 2 ^ 0,
-        Read = 2 ^ 1,
-        Write = 2 ^ 2
+        Directory = 1 << 0,
+        Read = 1 << 1,
+        Write = 1 << 2,
+        Available = 1 << 3
     }
 
 

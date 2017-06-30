@@ -60,10 +60,14 @@ export class Filepanel{
         }
       }//sort(function(a,b){return a.name>b.name?-1:1;})
       if (this.path.length>0) {//non root path add the first '..'
-        this.files.unshift({name: "..", nicesize: "UP-DIR",date:""}); //up dir item
+        this.addUpDir()
       }
       //this.wassorted = this.wassorted | sortflag;
       //console.log(this.files);
+    }
+
+    addUpDir(){
+      this.files.unshift({name: "..", nicesize: "UP-DIR",date:"",available:true}); //up dir item
     }
 
     sortByName(){
@@ -194,7 +198,9 @@ export class Filepanel{
 
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
+      console.log("filepanel.populateFiles()")
       if (localStorage) localStorage.setItem("filepanel" + this.panelid,this.path);
+
         this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
         let that = this;
@@ -203,18 +209,20 @@ export class Filepanel{
             arr[index].name=arr[index].alias;
             arr[index].attributes = 16;
             arr[index].date="";
+            arr[index].filetype=8;
           }
+          console.log(arr[index]);
           arr[index].ext=that.extension(arr[index].name); //may return undefined
           arr[index].nicedate=that.dateTimeReviver(null,arr[index].date);
           if (!arr[index].ext) arr[index].ext="";
-
+          arr[index].available = !!(arr[index].filetype & 8); //available if the filetype attribute contains flag 8
           if (arr[index].attributes & 16) arr[index].nicesize="DIR";
           else
             //convert to 4GB or 30MB or 20kB or 100b
             arr[index].nicesize=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
         });
       if (this.path.length>0) {//non root path
-        this.files.unshift({name: "..", nicesize: "UP-DIR",date:""}); //up dir item
+        this.addUpDir();
       }
 
     }

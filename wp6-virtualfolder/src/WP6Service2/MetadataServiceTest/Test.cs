@@ -247,5 +247,30 @@ namespace MetadataServiceTest
             var all = client.Get(new SBService {Name = "scipion"});
             Assert.That(all.ToString(), Is.StringStarting("{Id"));
         }
+
+        /*[Test]
+        public void RegisterAndDeleteFileSystemProviderTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var fp = new ProviderItem()
+            {
+                alias = "testfilesystem",
+                type = "filesystem",
+                securetoken = "/vagrant",                
+            };
+            try
+            {
+                var pl = client.Put(fp);
+                Assert.True(pl.Count>0);
+                Assert.True(pl.Select(x=> x.alias).Contains("testfilesystem"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("catched exception during test: {0}\nStacktrace:{1}\nInfo:{2}",e.Message, e.StackTrace,e.GetBaseException());
+                //throw e;
+            }
+        }*/
+                
+        
     }
 }
