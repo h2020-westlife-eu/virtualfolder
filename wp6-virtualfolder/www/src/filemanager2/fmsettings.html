@@ -4,9 +4,12 @@
     <ai-dialog-body>
       <h3>${message}</h3>
       <form>
-      <input class="w3-check" type="checkbox" checked.bind="visualizepdb">
+      <input class="w3-check" type="checkbox" checked.bind="visualizepdb"/>
       <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>
-      <p></p>
+      <br/>
+      <input class="w3-check" type="checkbox" checked.bind="visualizeimg"/>
+      <label>click on *.jpg|gif|png|bmp|svg file will show image(unchecked - shaw RAW in Edit tab)</label>
+
       </form>
     </ai-dialog-body>
 

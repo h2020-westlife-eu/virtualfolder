@@ -67,6 +67,207 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
+define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.VfAutocompleteSearch = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _dec, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _class2, _temp;
+
+  var VfAutocompleteSearch = exports.VfAutocompleteSearch = (_dec = (0, _aureliaFramework.computedFrom)('resultGroups'), (_class = (_temp = _class2 = function () {
+    function VfAutocompleteSearch(httpclient) {
+      _classCallCheck(this, VfAutocompleteSearch);
+
+      _initDefineProp(this, 'value', _descriptor, this);
+
+      _initDefineProp(this, 'placeholder', _descriptor2, this);
+
+      _initDefineProp(this, 'size', _descriptor3, this);
+
+      _initDefineProp(this, 'submit', _descriptor4, this);
+
+      this.http = httpclient;
+      this.config = {
+        resultBoxAlign: 'left',
+        redirectOnClick: false,
+        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
+        fields: 'value,num_pdb_entries,var_name',
+        group: 'group=true&group.field=category',
+        groupLimit: '25',
+        sort: 'category+asc,num_pdb_entries+desc',
+        additionalParams: 'rows=20000&json.nl=map&wt=json'
+      };
+    }
+
+    VfAutocompleteSearch.prototype.hideSuggestions = function hideSuggestions() {
+      this.showing = false;
+    };
+
+    VfAutocompleteSearch.prototype.blurSuggestions = function blurSuggestions(evt) {
+      if (evt.relatedTarget && evt.relatedTarget.className.startsWith('result-card-item')) return;
+      this.hideSuggestions();
+    };
+
+    VfAutocompleteSearch.prototype.showSuggestions = function showSuggestions() {
+      this.showing = true;
+    };
+
+    VfAutocompleteSearch.prototype.focusSuggestions = function focusSuggestions() {
+      this.value = "";
+      this.showSuggestions();
+    };
+
+    VfAutocompleteSearch.prototype.search = function search() {
+      var _this = this;
+
+      var term = this.value;
+      var config = this.config;
+      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=' + config.groupLimit + '&q=value:' + term + '*~10';
+      return this.http.fetch(url).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        _this.resultGroups = data.grouped.category.groups;
+      }).catch(function (err) {
+        console.log('error search()');console.log(err);
+      });
+    };
+
+    VfAutocompleteSearch.prototype.keypressed = function keypressed(evt) {
+      var key = evt.keyCode;
+      if (key === 13) {
+        if (evt.originalTarget) this.submit({ item: { Name: evt.originalTarget.value } });else if (evt.target) this.submit({ item: { Name: evt.target.value } });
+        this.hideSuggestions();
+      } else if (key === 27) this.hideSuggestions();else this.showSuggestions();
+
+      return true;
+    };
+
+    VfAutocompleteSearch.prototype.clicked = function clicked(clickvalue) {
+      this.value = clickvalue.value;
+      this.submit({ item: { Name: clickvalue.value, Type: clickvalue.var_name } });
+      this.hideSuggestions();
+    };
+
+    VfAutocompleteSearch.prototype.valueChanged = function valueChanged(newValue, oldValue) {
+      if (this.value && this.value.length > 0) {
+        this.search();
+      }
+    };
+
+    VfAutocompleteSearch.prototype.searchMore = function searchMore(filter) {
+      var _this2 = this;
+
+      var term = this.value;
+      var fqVal = filter;
+      var config = this.config;
+      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=-1&q=value:' + term + '*~10&fq=var_name:' + fqVal;
+      return this.http.fetch(url).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        _this2.resultGroups = data.grouped.category.groups;
+      }).catch(function (err) {
+        console.log('error searchMore()');console.log(err);
+      });
+    };
+
+    _createClass(VfAutocompleteSearch, [{
+      key: 'resultGroupsEmpty',
+      get: function get() {
+        return this.showing && this.resultGroups && this.resultGroups.length == 0;
+      }
+    }]);
+
+    return VfAutocompleteSearch;
+  }(), _class2.inject = [_aureliaFetchClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'value', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "";
+    }
+  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'placeholder', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "";
+    }
+  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'size', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "40";
+    }
+  }), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'submit', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
+});
 define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], function (exports, _aureliaHttpClient) {
   "use strict";
 
@@ -91,7 +292,74 @@ define('b2dropcontrol/onedrivecontrol',["exports", "aurelia-http-client"], funct
     this.providerspath = "onedriveconnector";
   };
 });
-define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator", "aurelia-http-client", "../filepicker/messages", "aurelia-framework", "codemirror/mode/clike/clike", "codemirror/mode/htmlmixed/htmlmixed", "codemirror/mode/javascript/javascript"], function (exports, _codemirror, _aureliaEventAggregator, _aureliaHttpClient, _messages, _aureliaFramework) {
+define('dataset/app',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var App = exports.App = function App() {
+    _classCallCheck(this, App);
+  };
+});
+define('dataset/environment',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    debug: false,
+    testing: false
+  };
+});
+define('dataset/main',['exports', './environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator", "aurelia-http-client", "../filepicker/messages", "aurelia-framework", "../utils/vfstorage", "codemirror/mode/clike/clike", "codemirror/mode/htmlmixed/htmlmixed", "codemirror/mode/javascript/javascript"], function (exports, _codemirror, _aureliaEventAggregator, _aureliaHttpClient, _messages, _aureliaFramework, _vfstorage) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -183,8 +451,8 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
       this.ea.subscribe(_messages.EditFile, function (msg) {
         return _this.selectFile(msg.file, msg.senderid);
       });
-      this.imageurl = "";
       this.isimage = false;
+      this.filename = "";
     }
 
     Fileeditor.prototype.attached = function attached() {
@@ -204,9 +472,17 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
 
       if (senderid != this.pid) {
         this.imageurl = file.webdavuri;
-        this.isimage = file.name.endsWith('.JPG') || file.name.endsWith('.jpg') || file.name.endsWith('.PNG') || file.name.endsWith('.png') || file.name.endsWith('.GIF') || file.name.endsWith('.gif') || file.name.endsWith('.BMP') || file.name.endsWith('.bmp') || file.name.endsWith('.SVG') || file.name.endsWith('.svg');
+
+        console.log("fileeditor.selectfile() visualizeimg: isimage:");
+        console.log(localStorage.getItem("visualizeimg"));
+
+        this.isimage = _vfstorage.Vfstorage.getValue("visualizeimg") == "true" && (file.name.endsWith('.JPG') || file.name.endsWith('.jpg') || file.name.endsWith('.PNG') || file.name.endsWith('.png') || file.name.endsWith('.GIF') || file.name.endsWith('.gif') || file.name.endsWith('.BMP') || file.name.endsWith('.bmp') || file.name.endsWith('.SVG') || file.name.endsWith('.svg'));
+
+        console.log("fileeditor.selectfile() visualizeimg: isimage:");
+        console.log(this.isimage);
         if (!this.isimage) this.httpclient.get(file.webdavuri).then(function (data) {
           _this2.codemirror.setValue(data.response);
+          _this2.filename = file.webdavuri;
         }).catch(function (error) {
           alert('Error retrieving content from ' + file.webdavuri);
         });
@@ -218,73 +494,6 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     enumerable: true,
     initializer: null
   })), _class);
-});
-define('dataset/app',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-  };
-});
-define('dataset/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: false,
-    testing: false
-  };
-});
-define('dataset/main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
 });
 define('filemanager2/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', 'aurelia-dialog', './fmsettings'], function (exports, _aureliaEventAggregator, _messages, _aureliaFramework, _aureliaDialog, _fmsettings) {
   'use strict';
@@ -340,7 +549,7 @@ define('filemanager2/environment',["exports"], function (exports) {
     testing: false
   };
 });
-define('filemanager2/fmsettings',['exports', 'aurelia-framework', 'aurelia-dialog'], function (exports, _aureliaFramework, _aureliaDialog) {
+define('filemanager2/fmsettings',['exports', 'aurelia-framework', 'aurelia-dialog', '../utils/vfstorage'], function (exports, _aureliaFramework, _aureliaDialog, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -362,24 +571,33 @@ define('filemanager2/fmsettings',['exports', 'aurelia-framework', 'aurelia-dialo
 
       this.controller = controller;
       this.answer = null;
-      this.visualizepdb = typeof Storage !== "undefined" ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true;
-
       controller.settings.centerHorizontalOnly = true;
     }
 
     Prompt.prototype.activate = function activate(message) {
-      this.visualizepdb = typeof Storage !== "undefined" ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true;
+
+      this.visualizepdb = _vfstorage.Vfstorage.checkDefault("visualizepdb", "true") == "true";
+      this.visualizeimg = _vfstorage.Vfstorage.checkDefault("visualizeimg", "true") == "true";
 
       this.message = message;
+      this.log("activate.post");
     };
 
     Prompt.prototype.close = function close() {
-
       if (typeof Storage !== "undefined") {
-        localStorage.setItem("visualizepdb", this.visualizepdb);
+        _vfstorage.Vfstorage.setValue("visualizepdb", this.visualizepdb);
+        _vfstorage.Vfstorage.setValue("visualizeimg", this.visualizeimg);
       }
-
+      this.log("close");
       this.controller.ok();
+    };
+
+    Prompt.prototype.log = function log(method) {
+      console.log("Fmsettings." + method + "(), visualizepdb, visualizeimg");
+      console.log(this.visualizepdb);
+      console.log(localStorage.getItem("visualizepdb"));
+      console.log(this.visualizeimg);
+      console.log(localStorage.getItem("visualizeimg"));
     };
 
     return Prompt;
@@ -783,7 +1001,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         }
       }
       if (this.path.length > 0) {
-        this.files.unshift({ name: "..", nicesize: "UP DIR", date: "" });
+        this.files.unshift({ name: "..", nicesize: "UP-DIR", date: "" });
       }
     };
 
@@ -864,13 +1082,22 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
       this.path += '/' + subdir;
     };
 
+    Filepanel.prototype.cdroot = function cdroot() {
+      this.lastpath = this.path;
+      this.path = "";
+    };
+
+    Filepanel.prototype.goroot = function goroot() {
+      this.changefolder("/");
+    };
+
     Filepanel.prototype.changefolder = function changefolder(folder) {
       var _this2 = this;
 
       if (!this.lock) {
         this.lock = true;
         if (folder) {
-          if (folder == '..') this.cdup();else this.cddown(folder);
+          if (folder == '..') this.cdup();else if (folder == '/') this.cdroot();else this.cddown(folder);
         }
 
         this.client.get(this.serviceurl + this.path).then(function (data) {
@@ -910,7 +1137,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         if (arr[index].attributes & 16) arr[index].nicesize = "DIR";else arr[index].nicesize = ~~(arr[index].size / 1000000000) > 0 ? ~~(arr[index].size / 1000000000) + "GB" : ~~(arr[index].size / 1000000) > 0 ? ~~(arr[index].size / 1000000) + "MB" : ~~(arr[index].size / 1000) > 0 ? ~~(arr[index].size / 1000) + "kB" : arr[index].size + " b";
       });
       if (this.path.length > 0) {
-        this.files.unshift({ name: "..", nicesize: "UP DIR", date: "" });
+        this.files.unshift({ name: "..", nicesize: "UP-DIR", date: "" });
       }
     };
 
@@ -1993,207 +2220,6 @@ define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
         }
     })), _class);
 });
-define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.VfAutocompleteSearch = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _dec, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _class2, _temp;
-
-  var VfAutocompleteSearch = exports.VfAutocompleteSearch = (_dec = (0, _aureliaFramework.computedFrom)('resultGroups'), (_class = (_temp = _class2 = function () {
-    function VfAutocompleteSearch(httpclient) {
-      _classCallCheck(this, VfAutocompleteSearch);
-
-      _initDefineProp(this, 'value', _descriptor, this);
-
-      _initDefineProp(this, 'placeholder', _descriptor2, this);
-
-      _initDefineProp(this, 'size', _descriptor3, this);
-
-      _initDefineProp(this, 'submit', _descriptor4, this);
-
-      this.http = httpclient;
-      this.config = {
-        resultBoxAlign: 'left',
-        redirectOnClick: false,
-        searchUrl: '//www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select',
-        fields: 'value,num_pdb_entries,var_name',
-        group: 'group=true&group.field=category',
-        groupLimit: '25',
-        sort: 'category+asc,num_pdb_entries+desc',
-        additionalParams: 'rows=20000&json.nl=map&wt=json'
-      };
-    }
-
-    VfAutocompleteSearch.prototype.hideSuggestions = function hideSuggestions() {
-      this.showing = false;
-    };
-
-    VfAutocompleteSearch.prototype.blurSuggestions = function blurSuggestions(evt) {
-      if (evt.relatedTarget && evt.relatedTarget.className.startsWith('result-card-item')) return;
-      this.hideSuggestions();
-    };
-
-    VfAutocompleteSearch.prototype.showSuggestions = function showSuggestions() {
-      this.showing = true;
-    };
-
-    VfAutocompleteSearch.prototype.focusSuggestions = function focusSuggestions() {
-      this.value = "";
-      this.showSuggestions();
-    };
-
-    VfAutocompleteSearch.prototype.search = function search() {
-      var _this = this;
-
-      var term = this.value;
-      var config = this.config;
-      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=' + config.groupLimit + '&q=value:' + term + '*~10';
-      return this.http.fetch(url).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        _this.resultGroups = data.grouped.category.groups;
-      }).catch(function (err) {
-        console.log('error search()');console.log(err);
-      });
-    };
-
-    VfAutocompleteSearch.prototype.keypressed = function keypressed(evt) {
-      var key = evt.keyCode;
-      if (key === 13) {
-        if (evt.originalTarget) this.submit({ item: { Name: evt.originalTarget.value } });else if (evt.target) this.submit({ item: { Name: evt.target.value } });
-        this.hideSuggestions();
-      } else if (key === 27) this.hideSuggestions();else this.showSuggestions();
-
-      return true;
-    };
-
-    VfAutocompleteSearch.prototype.clicked = function clicked(clickvalue) {
-      this.value = clickvalue.value;
-      this.submit({ item: { Name: clickvalue.value, Type: clickvalue.var_name } });
-      this.hideSuggestions();
-    };
-
-    VfAutocompleteSearch.prototype.valueChanged = function valueChanged(newValue, oldValue) {
-      if (this.value && this.value.length > 0) {
-        this.search();
-      }
-    };
-
-    VfAutocompleteSearch.prototype.searchMore = function searchMore(filter) {
-      var _this2 = this;
-
-      var term = this.value;
-      var fqVal = filter;
-      var config = this.config;
-      var url = config.searchUrl + '?' + config.additionalParams + '&' + config.group + '&fl=' + config.fields + '&sort=' + config.sort + '&group.limit=-1&q=value:' + term + '*~10&fq=var_name:' + fqVal;
-      return this.http.fetch(url).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        _this2.resultGroups = data.grouped.category.groups;
-      }).catch(function (err) {
-        console.log('error searchMore()');console.log(err);
-      });
-    };
-
-    _createClass(VfAutocompleteSearch, [{
-      key: 'resultGroupsEmpty',
-      get: function get() {
-        return this.showing && this.resultGroups && this.resultGroups.length == 0;
-      }
-    }]);
-
-    return VfAutocompleteSearch;
-  }(), _class2.inject = [_aureliaFetchClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'value', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "";
-    }
-  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'placeholder', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "";
-    }
-  }), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'size', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "40";
-    }
-  }), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'submit', [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
-});
 define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages'], function (exports, _aureliaEventAggregator, _messages) {
   'use strict';
 
@@ -2391,6 +2417,492 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
   }(_filepanel.Filepanel), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
+  })), _class);
+});
+define('utils/vfstorage',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Vfstorage = exports.Vfstorage = function () {
+    function Vfstorage() {
+      _classCallCheck(this, Vfstorage);
+    }
+
+    Vfstorage.checkDefault = function checkDefault(propertyName, defaultvalue) {
+      return typeof Storage !== "undefined" ? localStorage.getItem(propertyName) !== "undefined" ? this.getValue(propertyName) : this.setValue(propertyName, defaultvalue) : defaultvalue;
+    };
+
+    Vfstorage.getValue = function getValue(propertyName) {
+      var defaultvalue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "true";
+
+      return typeof Storage !== "undefined" ? localStorage.getItem(propertyName) : defaultvalue;
+    };
+
+    Vfstorage.setValue = function setValue(propertyName, value) {
+      return typeof Storage !== "undefined" ? localStorage.setItem(propertyName, value) : value;
+    };
+
+    return Vfstorage;
+  }();
+});
+define('virtualfoldermodules/app',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var App = exports.App = function App() {
+    _classCallCheck(this, App);
+  };
+});
+define('virtualfoldermodules/ccp4control',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Ccp4control = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor;
+
+  var Ccp4control = exports.Ccp4control = (_class = function (_Modulecontrol) {
+    _inherits(Ccp4control, _Modulecontrol);
+
+    function Ccp4control() {
+      _classCallCheck(this, Ccp4control);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _initDefineProp(_this, "classin", _descriptor, _this);
+
+      _this.posturl = "/metadataservice/sbservice/ccp4suite";
+      _this.url = "/metadataservice/sbservice/ccp4suite";
+      return _this;
+    }
+
+    return Ccp4control;
+  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
+    }
+  })), _class);
+});
+define('virtualfoldermodules/main',['exports', '../environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Modulecontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulecontrol = exports.Modulecontrol = function () {
+    function Modulecontrol() {
+      _classCallCheck(this, Modulecontrol);
+
+      this.httpclient = new _aureliaHttpClient.HttpClient();
+      this.url = window.location.href;
+      this.enabled = false;
+      this.httpclient.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+    }
+
+    Modulecontrol.prototype.attached = function attached() {
+      var _this = this;
+
+      this.httpclient.get(this.url).then(function (response) {
+        return _this.okcallback(response);
+      }).catch(function (error) {
+        return _this.failcallback(error);
+      });
+    };
+
+    Modulecontrol.prototype.okcallback = function okcallback(response) {
+      var res = JSON.parse(response.response);
+
+      this.enabled = res.enabled;
+    };
+
+    Modulecontrol.prototype.failcallback = function failcallback(error) {
+      this.enabled = false;
+      console.log('Sorry, error when connecting backend web service at ' + this.url + ' error:' + error.response + " status:" + error.statusText);
+    };
+
+    Modulecontrol.prototype.enable = function enable() {
+      var _this2 = this;
+
+      this.httpclient.post(this.url).then(function (response) {
+        return _this2.okcallback(response);
+      }).catch(function (error) {
+        return _this2.failcallback(error);
+      });
+    };
+
+    return Modulecontrol;
+  }();
+});
+define('virtualfoldermodules/modulesetting',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Modulesetting = exports.Modulesetting = function Modulesetting() {
+    _classCallCheck(this, Modulesetting);
+  };
+});
+define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Scipioncontrol = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor;
+
+  var Scipioncontrol = exports.Scipioncontrol = (_class = function (_Modulecontrol) {
+    _inherits(Scipioncontrol, _Modulecontrol);
+
+    function Scipioncontrol() {
+      _classCallCheck(this, Scipioncontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _initDefineProp(_this, "classin", _descriptor, _this);
+
+      _this.url = "/metadataservice/sbservice/scipion";
+      _this.posturl = "/metadataservice/sbservice/scipion";
+      return _this;
+    }
+
+    return Scipioncontrol;
+  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
+    }
+  })), _class);
+});
+define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Virtuosocontrol = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor;
+
+  var Virtuosocontrol = exports.Virtuosocontrol = (_class = function (_Modulecontrol) {
+    _inherits(Virtuosocontrol, _Modulecontrol);
+
+    function Virtuosocontrol() {
+      _classCallCheck(this, Virtuosocontrol);
+
+      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
+
+      _initDefineProp(_this, "classin", _descriptor, _this);
+
+      _this.url = "/metadataservice/sbservice/virtuoso";
+      return _this;
+    }
+
+    return Virtuosocontrol;
+  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
+    }
   })), _class);
 });
 define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
@@ -2956,457 +3468,6 @@ define('virtualfoldersetting/urlutils',['exports'], function (exports) {
 
     return UrlUtils;
   }();
-});
-define('virtualfoldermodules/app',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-  };
-});
-define('virtualfoldermodules/ccp4control',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Ccp4control = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor;
-
-  var Ccp4control = exports.Ccp4control = (_class = function (_Modulecontrol) {
-    _inherits(Ccp4control, _Modulecontrol);
-
-    function Ccp4control() {
-      _classCallCheck(this, Ccp4control);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _initDefineProp(_this, "classin", _descriptor, _this);
-
-      _this.posturl = "/metadataservice/sbservice/ccp4suite";
-      _this.url = "/metadataservice/sbservice/ccp4suite";
-      return _this;
-    }
-
-    return Ccp4control;
-  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
-    }
-  })), _class);
-});
-define('virtualfoldermodules/main',['exports', '../environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Modulecontrol = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Modulecontrol = exports.Modulecontrol = function () {
-    function Modulecontrol() {
-      _classCallCheck(this, Modulecontrol);
-
-      this.httpclient = new _aureliaHttpClient.HttpClient();
-      this.url = window.location.href;
-      this.enabled = false;
-      this.httpclient.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-    }
-
-    Modulecontrol.prototype.attached = function attached() {
-      var _this = this;
-
-      this.httpclient.get(this.url).then(function (response) {
-        return _this.okcallback(response);
-      }).catch(function (error) {
-        return _this.failcallback(error);
-      });
-    };
-
-    Modulecontrol.prototype.okcallback = function okcallback(response) {
-      var res = JSON.parse(response.response);
-
-      this.enabled = res.enabled;
-    };
-
-    Modulecontrol.prototype.failcallback = function failcallback(error) {
-      this.enabled = false;
-      console.log('Sorry, error when connecting backend web service at ' + this.url + ' error:' + error.response + " status:" + error.statusText);
-    };
-
-    Modulecontrol.prototype.enable = function enable() {
-      var _this2 = this;
-
-      this.httpclient.post(this.url).then(function (response) {
-        return _this2.okcallback(response);
-      }).catch(function (error) {
-        return _this2.failcallback(error);
-      });
-    };
-
-    return Modulecontrol;
-  }();
-});
-define('virtualfoldermodules/modulesetting',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Modulesetting = exports.Modulesetting = function Modulesetting() {
-    _classCallCheck(this, Modulesetting);
-  };
-});
-define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Scipioncontrol = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor;
-
-  var Scipioncontrol = exports.Scipioncontrol = (_class = function (_Modulecontrol) {
-    _inherits(Scipioncontrol, _Modulecontrol);
-
-    function Scipioncontrol() {
-      _classCallCheck(this, Scipioncontrol);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _initDefineProp(_this, "classin", _descriptor, _this);
-
-      _this.url = "/metadataservice/sbservice/scipion";
-      _this.posturl = "/metadataservice/sbservice/scipion";
-      return _this;
-    }
-
-    return Scipioncontrol;
-  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
-    }
-  })), _class);
-});
-define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "aurelia-framework"], function (exports, _modulecontrol, _aureliaFramework) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Virtuosocontrol = undefined;
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _desc, _value, _class, _descriptor;
-
-  var Virtuosocontrol = exports.Virtuosocontrol = (_class = function (_Modulecontrol) {
-    _inherits(Virtuosocontrol, _Modulecontrol);
-
-    function Virtuosocontrol() {
-      _classCallCheck(this, Virtuosocontrol);
-
-      var _this = _possibleConstructorReturn(this, _Modulecontrol.call(this));
-
-      _initDefineProp(_this, "classin", _descriptor, _this);
-
-      _this.url = "/metadataservice/sbservice/virtuoso";
-      return _this;
-    }
-
-    return Virtuosocontrol;
-  }(_modulecontrol.Modulecontrol), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "classin", [_aureliaFramework.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return "w3-card-4 w3-sand w3-padding w3-margin w3-round";
-    }
-  })), _class);
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -7235,13 +7296,13 @@ define('text!b2dropcontrol/onedrivecontrol.html', ['module'], function(module) {
 define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!dataset/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/dataset\"></require>\n  <dataset></dataset>\n</template>\n"; });
 define('text!filemanager2/app.css', ['module'], function(module) { module.exports = "ux-dialog-overlay.active {background-color: black;opacity: .5;}\n"; });
-define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div show.bind=\"!isimage\" class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${fileurl}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n  <div if.bind=\"isimage\" class=\"w3-card-2 w3-code-2\">\n    <img src.bind=\"imageurl\" class=\"w3-image\"/>\n  </div>\n</template>\n"; });
+define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\" as=\"scoped\"></require>\n  <require from=\"codemirror/theme/eclipse.css\" as=\"scoped\"></require>\n  <div show.bind=\"!isimage\" class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${filename}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n  <div if.bind=\"isimage\" class=\"w3-card-2 w3-code-2\">\n    <img src.bind=\"imageurl\" class=\"w3-image\"/>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n\n    <div class=\"w3-card-2 w3-sand w3-center\">\n        <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"left\"></panel>\n    </div>\n\n    <div class=\"w3-half\">\n        <panel pid=\"right\"></panel>\n    </div>\n\n  <div class=\"w3-clear w3-margin w3-padding\"></div>\n</template>\n"; });
-define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\">\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <p></p>\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
+define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\"/>\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <br/>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizeimg\"/>\n      <label>click on *.jpg|gif|png|bmp|svg file will show image(unchecked - shaw RAW in Edit tab)</label>\n\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset panelid.bind=\"pid\"></dataset>\n    </div>\n\n\n</template>\n"; });
 define('text!filemanager2/viewpanelpv.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-white \">\n    <span>${fileurl}</span>\n    <form fileurl.call=\"viewfile\">\n      Load another entry from:\n      <ul>\n        <li>\n          <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n                 change.trigger=\"loadpdbfile()\"\n          />\n          PDB database\n        </li>\n        <li>\n          <input id=\"pdbid2\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n                 maxlength=\"4\" size=\"4\" value.bind=\"pdbentry2\"\n                 change.trigger=\"loadfromredo()\"\n          />\n          PDB-REDO database\n        </li>\n      </ul>\n    </form>\n    <div class=\"fileviewer\" style=\"height: 100%; width: 100%\">\n    </div>\n  </div>\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button></span>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n    <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n        <span class=\"w3-padding-tiny w3-margin-right\">${path} contains ${filescount} items.</span><button class=\"w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"refresh()\">refresh</button> <button class=\"w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"goroot()\">/</button>\n        <div class=\"w3-clear\"></div>\n        <table id=\"${panelid}\">\n            <thead>\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n            </tr>\n            </thead>\n            <tbody>\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n              <td>${file.name}</td><td>${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td>\n            </tr>\n            </tbody>\n        </table>\n    </div>\n</template>\n\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item.Name}\">${item.Name}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item.Name}\">${item.Name}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item.Name}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item.Name}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item.Name}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item.Name}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item.Name}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item.Name}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item.Name}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item.Name}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item.Name}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item.Name}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item.Name}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item.Name}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item.Name}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n\n    <div id=\"link-${item.Name}\">\n      <a href=\"${item.Url}\">${item.Url}</a>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n  <div class=\"w3-card-2 w3-pale-blue w3-padding w3-margin-right\">\n\n    <div show.bind=\"showlist\">\n      <table class=\"w3-table\">\n        <tr ><td class=\"w3-large w3-hover-green\" click.delegate=\"createnewdataset()\">Create New Dataset</td>\n\n        </tr>\n        <tr repeat.for=\"item of datasetlist\"><td class=\"w3-large w3-hover-green\" click.delegate=\"selectdataset(item)\">${item.Name}</td>\n          <td click.delegate=\"removedataset(item)\"\n                class=\"w3-button w3-btn\">&times;</td>\n        </tr>\n      </table>\n    </div>\n\n    <div show.bind=\"!showlist\">\n      <div class=\"w3-display-container w3-large w3-hover-green\" click.delegate=\"unselectdataset(item)\">${name}</div>\n\n      <form>\n        PDB or related item to add:<br/>\n        <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1cbs (PDB entry) or P12355 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n      </form>\n\n      <hr/>\n      <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n      <br/>\n      <ul>\n        <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item.Name}</span>\n          <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n          <dataitem item.bind=\"item\"></dataitem>\n        </li>\n      </ul>\n\n      dataset name:\n      <input value.bind=\"name\" change.trigger=\"changename()\"/>\n      <br/>\n\n      <!-- will be enabled after backend service is available -->\n      <button type=\"button\" click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n    </div>\n\n  </div>\n</template>\n"; });

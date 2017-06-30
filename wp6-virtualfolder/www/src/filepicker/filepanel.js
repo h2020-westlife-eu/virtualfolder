@@ -60,7 +60,7 @@ export class Filepanel{
         }
       }//sort(function(a,b){return a.name>b.name?-1:1;})
       if (this.path.length>0) {//non root path add the first '..'
-        this.files.unshift({name: "..", nicesize: "UP DIR",date:""}); //up dir item
+        this.files.unshift({name: "..", nicesize: "UP-DIR",date:""}); //up dir item
       }
       //this.wassorted = this.wassorted | sortflag;
       //console.log(this.files);
@@ -149,6 +149,16 @@ export class Filepanel{
         this.path+='/'+subdir;
     }
 
+    cdroot(){
+      this.lastpath= this.path;
+      this.path = "";
+    }
+
+    //goes to the root
+    goroot(){
+      this.changefolder("/");
+    }
+
 
     //change folder, reads the folder content and updates the table structure
     changefolder(folder){
@@ -156,6 +166,7 @@ export class Filepanel{
             this.lock = true;
             if (folder) {
                 if (folder == '..') this.cdup();
+                  else if (folder == '/') this.cdroot();
                 else this.cddown(folder);
             }
 
@@ -203,7 +214,7 @@ export class Filepanel{
             arr[index].nicesize=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
         });
       if (this.path.length>0) {//non root path
-        this.files.unshift({name: "..", nicesize: "UP DIR",date:""}); //up dir item
+        this.files.unshift({name: "..", nicesize: "UP-DIR",date:""}); //up dir item
       }
 
     }
