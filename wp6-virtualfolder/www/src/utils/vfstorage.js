@@ -45,9 +45,9 @@ export class Vfstorage{
    */
 
   static getBaseUrl(){
-    console.log("vfstorage.getbaseurl");
-    console.log(virtualfolderbaseurl);
-    return virtualfolderbaseurl ? virtualfolderbaseurl:"";
+    //console.log("vfstorage.getbaseurl");
+    //console.log(("virtualfolderbaseurl" in window));
+    return ("virtualfolderbaseurl" in window) ? virtualfolderbaseurl : "";
   }
 
   static parseQueryString(str) {

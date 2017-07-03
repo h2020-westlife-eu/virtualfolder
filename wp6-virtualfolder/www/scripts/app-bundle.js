@@ -2348,9 +2348,7 @@ define('utils/vfstorage',["exports"], function (exports) {
     };
 
     Vfstorage.getBaseUrl = function getBaseUrl() {
-      console.log("vfstorage.getbaseurl");
-      console.log(virtualfolderbaseurl);
-      return virtualfolderbaseurl ? virtualfolderbaseurl : "";
+      return "virtualfolderbaseurl" in window ? virtualfolderbaseurl : "";
     };
 
     Vfstorage.parseQueryString = function parseQueryString(str) {
