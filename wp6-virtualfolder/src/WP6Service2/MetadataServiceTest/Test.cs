@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
@@ -270,6 +271,28 @@ namespace MetadataServiceTest
                 //throw e;
             }
         }*/
+        
+        [Test]
+        public void OptionsShouldReturn200OnFileProvidersDatasetTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var response = client.Send<HttpWebResponse>("OPTIONS", "files", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            response = client.Send<HttpWebResponse>("OPTIONS", "files/filesystem", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            response = client.Send<HttpWebResponse>("OPTIONS", "dataset", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            try
+            {
+                response = client.Send<HttpWebResponse>("OPTIONS", "otherservice", null);
+                Assert.Fail();
+            }
+            catch (WebServiceException)
+            {
+                //Assert.Pass();
+            }
+
+        }
                 
         
     }

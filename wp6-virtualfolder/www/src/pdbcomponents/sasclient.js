@@ -5,7 +5,7 @@
 export class Sasclient {
 
   constructor(httpclient){
-    this.httpclient = httpclient;
+    this.client = httpclient;
     this.config = {
       resultBoxAlign: 'left',
       redirectOnClick: false,
@@ -24,7 +24,7 @@ export class Sasclient {
     //http://www.ebi.ac.uk/pdbe/search/pdb-autocomplete/select?rows=20000&json.nl=map&wt=json&fl=value,num_pdb_entries,var_name&group=true&group.field=category&sort=category+asc,num_pdb_entries+desc&group.limit=25&q=value:2hh*~10
     let url = this.config.searchUrl+"?"+this.config.searchParams+"&fl="+this.config.fields+ "&"+this.config.group+"&sort="+this.config.sort+"&group.limit="+this.config.groupLimit+"&q=value:"+term+"*~10";
 
-    this.httpclient.get(url)
+    this.client.get(url)
       .then(data => {
         if (data.response) {
 

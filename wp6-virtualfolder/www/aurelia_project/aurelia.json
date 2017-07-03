@@ -6,6 +6,7 @@
     "displayName": "Web",
     "output": "scripts",
     "index": "index.html"
+
   },
   "transpiler": {
     "id": "babel",
@@ -53,6 +54,7 @@
         "displayName": "Web",
         "output": "scripts",
         "index": "index.html"
+
       }
     ],
     "loader": {

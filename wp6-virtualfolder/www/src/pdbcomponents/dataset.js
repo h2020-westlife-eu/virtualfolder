@@ -7,10 +7,14 @@ import {HttpClient} from "aurelia-http-client";
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {DatasetFile} from '../filepicker/messages';
+import {Vfstorage} from '../utils/vfstorage';
 
 //Model view controller
 //Model view viewmodel
-
+/** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
+ * holds dataset structure and includes dataitems
+ *
+ */
 export class Dataset {
   static inject = [HttpClient,EventAggregator];
   @bindable panelid;
@@ -25,7 +29,8 @@ export class Dataset {
     this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
 
     this.showitem=true;
-    this.dataseturl="/metadataservice/dataset";
+    this.baseurl =
+    this.dataseturl=Vfstorage.getBaseUrl()+"/metadataservice/dataset";
     this.showlist=true;
     this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
     this.pdbdataitem = "";

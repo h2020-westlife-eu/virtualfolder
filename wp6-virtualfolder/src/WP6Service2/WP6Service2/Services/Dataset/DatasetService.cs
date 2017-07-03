@@ -7,6 +7,7 @@ using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using ServiceStack.ServiceInterface.Cors;
 
 namespace WP6Service2.Services.Dataset
 {
@@ -44,7 +45,7 @@ namespace WP6Service2.Services.Dataset
     }
 
     /* DTO for API*/
-    [Route("/dataset/{Id}", "GET,PUT")]
+    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
     [Route("/dataset", "POST")]
     public class DatasetDTO : IReturn<DatasetDTO>
     {
@@ -65,7 +66,7 @@ namespace WP6Service2.Services.Dataset
         public long Id { get; set; }
     }
 
-    [Route("/dataset", "GET")]
+    [Route("/dataset", "GET,OPTIONS")]
     public class GetDatasets : IReturn<List<GetEntriesResponse>>
     {
     }
@@ -78,23 +79,24 @@ namespace WP6Service2.Services.Dataset
     }
 
     //returns list of entries, which exists in some of the dataset
-    [Route("/entry", "GET")]
+    [Route("/entry", "GET,OPTIONS")]
     public class GetEntries : IReturn<List<GetEntriesResponse>>
     {
     }
 
-    [Route("/entry/{Name}", "GET")] //list of urls associated with the entry name
+    [Route("/entry/{Name}", "GET,OPTIONS")] //list of urls associated with the entry name
     public class GetEntry : IReturn<List<DatasetEntry>>
     {
         public string Name { get; set; }
     }
 
-    [Route("/datasetentry", "GET")]
+    [Route("/datasetentry", "GET,OPTIONS")]
     public class GetDatasetEntries : IReturn<List<DatasetEntries>>
     {
     }
 
-    [VreCookieRequestFilter] //filters authenticated users, sets userid item in request 
+    [EnableCors(allowCredentials:true)] //options for CORS    
+    [VreCookieRequestFilter] //filters authenticated users, sets userid item in request
     public class DatasetService : Service
     {
         /**returns all entries belonging to this dataset */
@@ -104,6 +106,10 @@ namespace WP6Service2.Services.Dataset
             var result = Db.Where<Dataset>(x => x.Owner == owner)
                 .Select(x => new GetEntriesResponse {Id = x.Id, Name = x.Name}).ToList();
             return result;
+        }
+
+        public void Options(GetDatasets dtos)
+        {
         }
 
         /**returns dataset details */
@@ -131,22 +137,31 @@ namespace WP6Service2.Services.Dataset
             return dto;
         }
 
+        public void Options(DatasetDTO dto) {}
+
         //returns list of entries, which exists in some of the dataset
         public List<GetEntriesResponse> Get(GetEntries dtos)
         {
             return Db.Select<DatasetEntry>().Select(x => new GetEntriesResponse {Id = x.Id, Name = x.Name}).ToList();
         }
 
+        public void Options(GetEntries dtos)
+        {
+        }
+
         public List<string> Get(GetEntry dto)
         {
             return Db.Where<DatasetEntry>(x => x.Name == dto.Name).Select(x => x.Url).ToList();
         }
+        
+        public void Options(GetEntry dto) {}
 
         public List<DatasetEntries> Get(GetDatasetEntries dtos)
         {
             return Db.Select<DatasetEntries>().ToList();
         }
 
+        public void Options(GetDatasetEntries dtos) {}
         /** will store DatasetDTO as tables per DB schema
 */
         public DatasetDTO Put(DatasetDTO dto)

@@ -125,7 +125,7 @@ namespace MetadataService.Services.Files
             return linkedimpl.Keys;
         }
 
-        public object GetFileList(ProviderFileList request)
+        public object GetFileList(GetFiles request)
         {
             AFileProvider provider = null;
             if (linkedimpl.TryGetValue(request.Providerpath, out provider))

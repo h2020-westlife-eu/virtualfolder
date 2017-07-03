@@ -23,7 +23,7 @@ export class Fileeditor {
   constructor(el,ea,httpclient) {
     this.el = el;
     this.ea = ea;
-    this.httpclient = httpclient;
+    this.client = httpclient;
     this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
     this.isimage=false;
     this.filename="";
@@ -63,7 +63,7 @@ export class Fileeditor {
       console.log("fileeditor.selectfile() visualizeimg: isimage:")
       console.log(this.isimage);
       if (!this.isimage)
-        this.httpclient.get(file.webdavuri).then(
+        this.client.get(file.webdavuri).then(
           data => {
 
             //console.log("fileeditor.selectfile() loading:" + file.webdavuri);

@@ -2,6 +2,10 @@
  * Created by Tomas Kulhanek on 2/27/17.
  */
 
+/**
+ * Custom atrribute pdb-ids contains comma separated set of pdb-id in string,
+ * it is used to integrate with ebi.ac.uk PDB components using pdb-ids
+ */
 export class PdbIdsCustomAttribute {
   static inject = [Element]
 

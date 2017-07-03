@@ -7,6 +7,7 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
 import {bindable} from 'aurelia-framework';
+import {Vfstorage} from '../utils/vfstorage';
 
 export class Filepanel{
   static inject = [EventAggregator,HttpClient];
@@ -17,11 +18,11 @@ export class Filepanel{
         this.client = httpclient;
         this.files = [];
         this.filescount = this.files.length;
-        if (localStorage && (localStorage.filepanel))
         this.path= "";
         this.lastpath=this.path;
         this.dynatable = {};
-        this.serviceurl = "/metadataservice/files";
+
+        this.serviceurl = Vfstorage.getBaseUrl()+ "/metadataservice/files";
         //http to accept json
         this.client.configure(config=>{
             config.withHeader('Accept','application/json');
@@ -29,12 +30,13 @@ export class Filepanel{
         });
         //console.log("filepanel tableid:"+this.panelid);
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
-    this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
-    this.wassorted=this.sorted.none;
+        this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
+        this.wassorted=this.sorted.none;
     }
 
     bind(){
-      this.path = localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
+      this.path = Vfstorage.getValue("filepanel" + this.panelid,"");
+        //localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
       this.lastpath="";
     }
 
@@ -198,8 +200,8 @@ export class Filepanel{
 
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
-      console.log("filepanel.populateFiles()")
-      if (localStorage) localStorage.setItem("filepanel" + this.panelid,this.path);
+      //console.log("filepanel.populateFiles()")
+      Vfstorage.setValue("filepanel" + this.panelid,this.path);
 
         this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
@@ -211,7 +213,7 @@ export class Filepanel{
             arr[index].date="";
             arr[index].filetype=8;
           }
-          console.log(arr[index]);
+          //console.log(arr[index]);
           arr[index].ext=that.extension(arr[index].name); //may return undefined
           arr[index].nicedate=that.dateTimeReviver(null,arr[index].date);
           if (!arr[index].ext) arr[index].ext="";
@@ -231,6 +233,7 @@ export class Filepanel{
       //console.log("selectFile("+file+") panelid:"+this.panelid);
       if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
       else {
+
         //HEAD the file - so it can be obtained - cached by metadata service, fix #45
         let fileurl=this.serviceurl + this.path + '/' + file.name
         this.client.head(fileurl)
@@ -242,7 +245,8 @@ export class Filepanel{
           console.log("Error when geting metadata information about file:")
           console.log(error);
         });
-        //reconstructs public url
+
+        //constructs public url
         this.client.get(this.getpublicwebdavurl)
           .then(data => {
             if (data.response) {

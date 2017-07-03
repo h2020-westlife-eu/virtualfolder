@@ -4,18 +4,19 @@
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
+import {Vfstorage} from '../utils/vfstorage';
 
 //let client = new HttpClient();
 
 /**
  * Aliastable component gets the currently registered aliases for file providers
- * and shows them in a table
+ * and shows them in a table, allows delete the alias or initiate dialog to create one.
  */
 export class Aliastable {
   static inject = [EventAggregator,HttpClient];
 
   constructor(ea,httpclient){
-    this.serviceurl = "/metadataservice/files";
+    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
     ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
     this.client=httpclient;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];

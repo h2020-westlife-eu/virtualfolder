@@ -4,6 +4,10 @@
 import {bindable} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
+/**
+ * Dataitem is specifical integration of PDB, Uniprot or other type of item in a dataset
+ * integrates pdb components of ebi.ac.uk
+ */
 export class Dataitem {
 
   static inject = [HttpClient];
