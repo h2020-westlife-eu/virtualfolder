@@ -22,9 +22,6 @@ namespace MetadataService.Services.Files
         protected string username;
 
         protected string WEBDAVURL;
-        //= "/home/vagrant/work/";
-        //if (Environment.GetEnvironmentVariable("VF_STORAGE_DIR") != null)
-        //rootdir = Environment.GetEnvironmentVariable("VF_STORAGE_DIR");
 
         public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection,
             string authproxy)
@@ -39,12 +36,8 @@ namespace MetadataService.Services.Files
             PUBLICWEBDAVURL = authproxy + provider.alias;
         }
 
-        /** default settings storage is in file */
-        //public AFileProvider(ProviderItem provider) : this(provider, SettingsStorageInFile.GetInstance(),null) {}
-
         public abstract object GetFileOrList(string Path); //List<SBFile>
-
-        //TODO move filesystem setting storage as strategy behaviour pattern to new class
+        
         /** Default store to file in json */
         public virtual void StoreSettings(ProviderItem request)
         {

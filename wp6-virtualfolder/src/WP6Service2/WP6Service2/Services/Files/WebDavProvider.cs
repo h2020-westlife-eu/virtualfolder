@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -102,19 +103,35 @@ namespace MetadataService.Services.Files
                 }
                 //else
                 initializedproviders.Add(FILESYSTEMFOLDER);
-                int exitcode;
-                request.output = Utils.ExecuteShell("/bin/bash", new[]
+                try
                 {
-                    //"-H -u vagrant",
-                    "/home/vagrant/scripts/mountb2drop.sh",
-                    "add",
-                    _providerurl,
-                    FILESYSTEMFOLDER,
-                    request.username,
-                    request.securetoken,
-                    WEBDAVURL
-                }, out exitcode);
-                Console.WriteLine(request.output);
+                    var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
+                                       (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+                    if (dirnotempty)
+                    {
+                        Console.WriteLine("Directory " + FILESYSTEMFOLDER + " not empty, assuming already mounted.");
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Directory empty " + ex.Message+" , trying to mount.");
+                }
+                
+                    int exitcode;
+                    request.output = Utils.ExecuteShell("/bin/bash", new[]
+                    {
+                        //"-H -u vagrant",
+                        "/home/vagrant/scripts/mountb2drop.sh",
+                        "add",
+                        _providerurl,
+                        FILESYSTEMFOLDER,
+                        request.username,
+                        request.securetoken,
+                        WEBDAVURL
+                    }, out exitcode);
+                    Console.WriteLine(request.output);
+                
             }
         }
 

@@ -94,6 +94,7 @@ namespace MetadataService.Services.Files
             }
             else
             {
+                Console.WriteLine("The provider type has not registered creator:" + provideritem.type);
                 throw new ApplicationException("the provider type has not registered creator:" + provideritem.type);
             }
         }
@@ -110,6 +111,7 @@ namespace MetadataService.Services.Files
                 linkedimpl.Remove(request.alias);
                 return _providers;
             }
+            Console.WriteLine("Cannot delete alias '" + request.alias + "', not found.");
             throw new ApplicationException("cannot delete alias '" + request.alias + "', not found.");
         }
 
@@ -130,6 +132,7 @@ namespace MetadataService.Services.Files
             AFileProvider provider = null;
             if (linkedimpl.TryGetValue(request.Providerpath, out provider))
                 return provider.GetFileOrList(request.Path);
+            Console.WriteLine("provider implementation not found for path:" + request.Providerpath);
             throw new ApplicationException("provider implementation not found for path:" + request.Providerpath);
         }
     }

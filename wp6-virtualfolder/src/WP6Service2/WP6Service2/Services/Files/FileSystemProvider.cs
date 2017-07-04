@@ -32,7 +32,7 @@ namespace MetadataService.Services.Files
 
         private void MakeLinkToFolder(string localpath, string link)
         {
-            if (File.Exists(link)) return; //link already exists
+            if (Directory.Exists(link)) return; //link already exists
             Console.WriteLine("FileSystem initializing...");
             //create subsequent directory if not exist
             Utils.CreateSystemSubFolder(FILESYSTEMFOLDER);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -17,17 +19,12 @@ namespace MetadataServiceTest
     {
         private readonly string _baseUri = "http://localhost:8002/metadataservice/";
 
-
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            //sets the dropbox key to parallel task
-            //WP6Service2.Program.StartHost(BaseUri,new string[]{});
-            //wait 1 second
-            //Environment.SetEnvironmentVariable("VF_STORAGE_PKEY", "xYD+jvVfisbY5Mer1ZfTEuv7KWw/NZN0BJaUoTBSFXw=");
-            //Environment.SetEnvironmentVariable("VF_DATABASE_FILE", "home/vagrant/.westlife/metadata.sqlite");
+            System.Environment.SetEnvironmentVariable("VF_ALLOW_FILESYSTEM","true");
             Program.StartHost(_baseUri, null);
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
         }
 
         [TestFixtureTearDown]
@@ -249,31 +246,8 @@ namespace MetadataServiceTest
             Assert.That(all.ToString(), Is.StringStarting("{Id"));
         }
 
-        /*[Test]
-        public void RegisterAndDeleteFileSystemProviderTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var fp = new ProviderItem()
-            {
-                alias = "testfilesystem",
-                type = "filesystem",
-                securetoken = "/vagrant",                
-            };
-            try
-            {
-                var pl = client.Put(fp);
-                Assert.True(pl.Count>0);
-                Assert.True(pl.Select(x=> x.alias).Contains("testfilesystem"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("catched exception during test: {0}\nStacktrace:{1}\nInfo:{2}",e.Message, e.StackTrace,e.GetBaseException());
-                //throw e;
-            }
-        }*/
-        
         [Test]
-        public void OptionsShouldReturn200OnFileProvidersDatasetTestCase()
+        public void HttpOptionsShouldReturn200OnFileProvidersDatasetTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var response = client.Send<HttpWebResponse>("OPTIONS", "files", null);
@@ -282,6 +256,7 @@ namespace MetadataServiceTest
             Assert.True(response.StatusCode == HttpStatusCode.OK);
             response = client.Send<HttpWebResponse>("OPTIONS", "dataset", null);
             Assert.True(response.StatusCode == HttpStatusCode.OK);
+            
             try
             {
                 response = client.Send<HttpWebResponse>("OPTIONS", "otherservice", null);
@@ -291,9 +266,138 @@ namespace MetadataServiceTest
             {
                 //Assert.Pass();
             }
-
         }
+
+        private ProviderItem createTestProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "b2drop_test",
+                type = "B2Drop",
+                securetoken =
+                    "dmFncmFudFM2wAdx6KqWemSjD2Re38CZ9i0xMywQt8x71NwEoJZavTxbiOEga3te+q4cq4pK2gAKTtawu3k0REBz1pGiFiJR+Wnot8pS7d52o+w6x9tW",
+                username = "tomas.kulhanek@stfc.ac.uk",
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+
+
+        [Test]
+        public void DecryptSecretsRegisterB2dropTestCase()
+        {
+            var pi = createTestProviderItem();
+            try
+            {                                                                
+                SettingsStorageInDB.decrypt(ref pi);
+            }
+            catch (WarningException)
+            {
+                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
+                Assert.Ignore();                
+            }
+            //should decrypt secret token
+            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            
+            var client = new JsonServiceClient(_baseUri);
+            var providerlist = client.Get(new ProviderItem());            
+            var providerlistwithnew = client.Put(pi);
+            //should register - new providers is added
+            Assert.True(providerlist.Count < providerlistwithnew.Count);
+            Assert.True(providerlistwithnew.Last().alias=="b2drop_test");
+            //test directory exists, it is mounted
+            Assert.True(Directory.Exists("/home/vagrant/work/vagrant/b2drop_test"));
+            //test directory is not empty - some dirs or files
+            Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/b2drop_test").Length>0);
+
+            var providerlistdeleted = client.Delete(pi);
+            //should delete - no provider list is there
+            Assert.True(providerlistdeleted.Count == providerlist.Count);
+        }                       
+
+        private ProviderItem createTestDropboxProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "dropbox_test",
+                type = "Dropbox",
+                securetoken =
+                    "dmFncmFudEX+37yxPbbSDfjkeDjBmkbcWhZ47fNWLjQnpNnfAV38Gm/NeRZA7199SLzaJekuV//2tdyJRoR19Qc8EZAcvqbjwI6dtlXymSF5OlssD3e9XdYdXEM5b//D2dg6nuYOrMt/24iQ6KIasRSIn3wGNn12sawI73nc00KbwlX5NFJ5/urb/qgczBhO5h7v+0VFLQ==",                
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+
+        [Test]
+        public void DecryptSecretsRegisterDropboxTestCase()
+        {
+            var pi = createTestDropboxProviderItem();
+            try
+            {                                                                
+                SettingsStorageInDB.decrypt(ref pi);
+            }
+            catch (WarningException)
+            {
+                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
+                Assert.Ignore();                
+            }
+            //should decrypt secret token
+            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            
+            var client = new JsonServiceClient(_baseUri);
+            var providerlist = client.Get(new ProviderItem());            
+            var providerlistwithnew = client.Put(pi);
+            //should register - new providers is added
+            Assert.True(providerlist.Count < providerlistwithnew.Count);
+            Assert.True(providerlistwithnew.Last().alias=="dropbox_test");
+
+            var providerlistdeleted = client.Delete(pi);
+            //should delete - no provider list is there
+            Assert.True(providerlistdeleted.Count == providerlist.Count);
+        }
+        
+        private ProviderItem createTestFilesystemProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "filesystem_test",
+                type = "FileSystem",
+                securetoken =
+                    "/home/vagrant",                
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+        [Test]
+
+        public void RegisterFilesystemTestCase()
+        {            
+            var pi = createTestFilesystemProviderItem();            
+            var client = new JsonServiceClient(_baseUri);
+            var providerlist = client.Get(new ProviderItem());
+            try
+            {
+                var providerlistwithnew = client.Put(pi);
+                //should register - new providers is added
+                Assert.True(providerlist.Count < providerlistwithnew.Count);
+                Assert.True(providerlistwithnew.Last().alias=="filesystem_test");
+                //test directory exists, it is mounted
+                Assert.True(Directory.Exists("/home/vagrant/work/vagrant/filesystem_test"));
+                //test directory is not empty - some dirs or files
+                Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/filesystem_test").Length>0);
+
+                var providerlistdeleted = client.Delete(pi);
+                //should delete - no provider list is there
+                Assert.True(providerlistdeleted.Count == providerlist.Count);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
                 
+                Console.WriteLine(e.StackTrace);
+                throw e;
+            }
+        }                       
         
     }
 }
