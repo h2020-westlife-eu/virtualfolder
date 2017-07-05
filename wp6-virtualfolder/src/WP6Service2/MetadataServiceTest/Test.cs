@@ -10,6 +10,7 @@ using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
 using ServiceStack.ServiceClient.Web;
+using WP6Service2.Services.Cerif;
 using WP6Service2.Services.Dataset;
 
 namespace MetadataServiceTest
@@ -368,8 +369,8 @@ namespace MetadataServiceTest
             };
             return pi;
         }
+        
         [Test]
-
         public void RegisterFilesystemTestCase()
         {            
             var pi = createTestFilesystemProviderItem();            
@@ -397,7 +398,25 @@ namespace MetadataServiceTest
                 Console.WriteLine(e.StackTrace);
                 throw e;
             }
-        }                       
-        
+        }
+
+        [Test]
+        public void GetCerifProjectsReturnsNonZeroListTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var projects = client.Get(new GetProjects());
+            Assert.True(projects.Count>0);            
+        }
+
+        [Test]
+        public void GetCerifProjectsReturnsRequestedProjectTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var projects = client.Get(new GetProjects(){Name="West-Life"});
+            Assert.True(projects.Count>0);
+            Assert.True(projects[0].cfTitle.StartsWith("West-Life")); 
+            projects = client.Get(new GetProjects(){Name="Nonsense"});
+            Assert.True(projects.Count==0);                        
+        }        
     }
 }
