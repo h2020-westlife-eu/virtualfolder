@@ -374,9 +374,9 @@ namespace MetadataServiceTest
         {            
             var pi = createTestFilesystemProviderItem();            
             var client = new JsonServiceClient(_baseUri);
-            var providerlist = client.Get(new ProviderItem());
-            try
-            {
+            try {
+                var providerlist = client.Get(new ProviderItem());
+                
                 var providerlistwithnew = client.Put(pi);
                 //should register - new providers is added
                 Assert.True(providerlist.Count < providerlistwithnew.Count);
@@ -390,11 +390,13 @@ namespace MetadataServiceTest
                 //should delete - no provider list is there
                 Assert.True(providerlistdeleted.Count == providerlist.Count);
             }
-            catch (Exception e)
+            catch (WebServiceException e)
             {
+        	if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
                 Console.WriteLine(e.Message);
-                
-                Console.WriteLine(e.StackTrace);
+                throw e;
+            }
+            catch (Exception e) {
                 throw e;
             }
         }                       
