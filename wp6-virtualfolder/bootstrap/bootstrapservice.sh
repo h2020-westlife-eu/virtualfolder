@@ -7,26 +7,26 @@
 # 02.06.2016 replaced mysql by postgres
 
 # install nuget
-#yum -y install nuget
-#rm -rf /home/vagrant/MetadataService
+yum -y install nuget
+rm -rf /home/vagrant/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
-#for i in {1..3}; do 
-#    echo attemp $i
-#    if [ ! -f /home/vagrant/MetadataService/MetadataService.exe ]
-#    then
-#       echo Building MetadataService
+for i in {1..3}; do
+    echo attemp $i
+    if [ ! -f /home/vagrant/MetadataService/MetadataService.exe ]
+    then
+       echo Building MetadataService
 	#clean from previous try
-#	rm -rf /home/vagrant/MetadataService
-#	rm -rf /home/vagrant/src
+	rm -rf /home/vagrant/MetadataService
+	rm -rf /home/vagrant/src
 	# build metadataservice
-#	cp -R $WP6SRC/src /home/vagrant
+	cp -R $WP6SRC/src /home/vagrant
 
-#    cert-sync /etc/pki/tls/certs/ca-bundle.crt
-#	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/Build.proj
-#    fi
-#done
-#mkdir -p /home/vagrant/logs
-#chmod -R ugo+rwx /home/vagrant/logs
+    cert-sync /etc/pki/tls/certs/ca-bundle.crt
+	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/Build.proj
+    fi
+done
+mkdir -p /home/vagrant/logs
+chmod -R ugo+rwx /home/vagrant/logs
 #generate random key
 if [ -f /home/vagrant/.westlife/metadata.key ]
 then
