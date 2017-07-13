@@ -1,6 +1,7 @@
 <template bindable="panelid">
     <div class="w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right">
-        <span class="w3-padding-tiny w3-margin-right">${path} contains ${filescount} items.</span><button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+        <span class="w3-padding-tiny">${path} contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+        <img class="w3-display-position" show.bind="lock" src="../img/vfloader.gif"/>
         <div class="w3-clear"></div>
         <table id="${panelid}">
             <thead>
@@ -12,6 +13,7 @@
                 <th title="information icons">i</th>
             </tr>
             </thead>
+
             <tbody>
             <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
               <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">&empty;</span></td>
