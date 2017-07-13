@@ -4,9 +4,9 @@
 
 rm -rf iso
 mkdir -p iso
-# encode script
 fromdos src/*.sh
 fromdos iso/*.sh
+# encode script
 base64 -w 0 src/user-data.sh > src/user-data.sh.encoded
 cp src/context.sh.prefix iso/context.sh
 # echo without new line
@@ -29,6 +29,9 @@ mkdir -p iso
 
 # create VMDK with user data file
 # option 2) bootstrap from cvmfs
+rm src/user-data-cloud.sh
+cp src/user-data.sh src/user-data-cloud.sh
+sed -i "/Do provisioning here/ r src/provision.inc" src/user-data-cloud.sh
 base64 -w 0 src/user-data-cloud.sh > src/user-data.sh.encoded
 cp src/context.sh.prefix iso/context.sh
 # echo without new line
