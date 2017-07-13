@@ -41,12 +41,12 @@ shell=/bin/bash
 config_url=http://cernvm.cern.ch/config
 users=vagrant:vagrant:$6$UlU6Rl9a$TOSbHFSKhiqodkkate.nIb82dtTYOphWG4CePwrEp9IHCrFxeczRgoYn8mAf6IansKHjDCw6dr7kFaUrurg41/
 edition=Desktop
+keyboard=us-acentos
+swap_size=2G
 #uncomment for gui
 #screenRes=1024x768
-keyboard=us-acentos
 #startXDM=on
 #auto_login=on
-swap_size=2G
 
 [ucernvm-begin]
 cvmfs_branch=cernvm-sl7.cern.ch
