@@ -18,14 +18,23 @@ namespace MetadataServiceTest
     [TestFixture]
     public class Test
     {
-        private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        private readonly string _baseUri = "http://localhost:8001/metadataservice/";
+        //private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             System.Environment.SetEnvironmentVariable("VF_ALLOW_FILESYSTEM","true");
-            Program.StartHost(_baseUri, null);
-            Thread.Sleep(500);
+            try
+            {
+                Program.StartHost(_baseUri, null);
+                Thread.Sleep(500);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("metadataservice already running by another process, testing ...");
+            }
         }
 
         [TestFixtureTearDown]
@@ -406,7 +415,8 @@ namespace MetadataServiceTest
         public void GetCerifProjectsReturnsNonZeroListTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
-            var projects = client.Get(new GetProjects());
+            var gp = new GetProjects();
+            var projects = client.Get(gp);
             Assert.True(projects.Count>0);            
         }
 
@@ -414,7 +424,8 @@ namespace MetadataServiceTest
         public void GetCerifProjectsReturnsRequestedProjectTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
-            var projects = client.Get(new GetProjects(){Name="West-Life"});
+            var gp = new GetProjects() {Name = "West-Life"};
+            var projects = client.Get(gp);
             Assert.True(projects.Count>0);
             Assert.True(projects[0].cfTitle.StartsWith("West-Life")); 
             projects = client.Get(new GetProjects(){Name="Nonsense"});

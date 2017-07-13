@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using Dropbox.Api.Sharing;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 
@@ -48,50 +45,64 @@ namespace WP6Service2.Services.Cerif
     {
         public List<Project> Get(GetProjects request)
         {
-            return AllProjects(request).GetRange(request.offset,request.pageSize);
+            try{
+                var range=GetProjectsImpl(request);
+                if (range.Count > (request.pageSize))
+                    return range.GetRange(request.offset, request.pageSize);
+                else
+                    return range;
+            
+             }
+            catch (Exception e)
+            {
+                Console.WriteLine("ProjectService exception:{0}\n{1}",e.Message,e.StackTrace);
+                throw e;
+            }
         }
 
-        private List<Project> AllProjects(GetProjects request)
+        private static List<Project> GetProjectsImpl(GetProjects request)
         {
-            var l = new List<Project>();
-            if (request.Name.Length > 0 && request.Name == "West-Life")
-            {
-                var p = new Project()
+
+                var l = new List<Project>();
+                if (string.IsNullOrEmpty(request.Name) || request.Name == "West-Life")
                 {
-                    cfAbstract =
-                        "West-Life provides services for computation and data management to researchers in structural biology, integrating multiple approaches and experimental techniques. It builds on European e-Infrastructure solutions from EGI and EUDAT and links together web services and repositories for structural biology. It is also engaged in the development and dissemination of best practices.",
-                    cfAcro = {"West-Life", "West-Life Virtual Folder", "WL", "WL VF"},
-                    cfStartDate = new DateTime(2015, 11, 1),
-                    cfEndDate = new DateTime(2018, 11, 1),
-                    cfKeyw = {"integrative structural biology", "data management"},
-                    cfProj_Class = "OA mandated",
-                    cfProj_OrgUnit =
+                    var p = new Project()
                     {
-                        "STFC",
-                        "NKI AVL",
-                        "EMBL",
-                        "MU",
-                        "CSIC",
-                        "CIRMMP",
-                        "Instruct",
-                        "UU",
-                        "Luna",
-                        "INFN"
-                    },
-                    cfProj_ResProd = {"https://www.west-life.eu"},
-                    cfTitle = "West-Life: Virtual Research Environment for Structural Biology",
-                    cfProj_ResPubl = {"https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs/index.html"},
-                    cfProjId = 1,
-                    Proj_Pers = {"Martyn Winn", "Chris Morris"}
-                };
-                if (request.fedIds)
-                {
-                    p.cfFedId = new List<string>() {"https://www.west-life.eu", "https://portal.west-life.eu"};
-                    if (request.classifications) p.cfFedId_Class = new List<string>() {"Website", "Website"};
+                        cfAbstract =
+                            "West-Life provides services for computation and data management to researchers in structural biology, integrating multiple approaches and experimental techniques. It builds on European e-Infrastructure solutions from EGI and EUDAT and links together web services and repositories for structural biology. It is also engaged in the development and dissemination of best practices.",
+                        cfAcro = new List<string>(){"West-Life", "West-Life Virtual Folder", "WL", "WL VF"},
+                        cfStartDate = new DateTime(2015, 11, 1),
+                        cfEndDate = new DateTime(2018, 11, 1),
+                        cfKeyw = new List<string>(){"integrative structural biology", "data management"},
+                        cfProj_Class = "OA mandated",
+                        cfProj_OrgUnit =new List<string>()
+                        {
+                            "STFC",
+                            "NKI AVL",
+                            "EMBL",
+                            "MU",
+                            "CSIC",
+                            "CIRMMP",
+                            "Instruct",
+                            "UU",
+                            "Luna",
+                            "INFN"
+                        },
+                        cfProj_ResProd = new List<string>(){"https://www.west-life.eu"},
+                        cfTitle = "West-Life: Virtual Research Environment for Structural Biology",
+                        cfProj_ResPubl = new List<string>(){"https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs/index.html"},
+                        cfProjId = 1,
+                        Proj_Pers = new List<string>(){"Martyn Winn", "Chris Morris"}
+                    };
+                    if (request.fedIds)
+                    {
+                        p.cfFedId = new List<string>() {"https://www.west-life.eu", "https://portal.west-life.eu"};
+                        if (request.classifications) p.cfFedId_Class = new List<string>() {"Website", "Website"};
+                    }
+                    l.Add(p);
                 }
-                l.Add(p);
-            }
-            return l;
+                return l;
+  
         }
     }
 }

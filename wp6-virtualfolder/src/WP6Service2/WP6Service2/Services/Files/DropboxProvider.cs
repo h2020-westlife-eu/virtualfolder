@@ -39,7 +39,6 @@ namespace MetadataService.Services.Files
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
-
             DROPBOXURIROOT = "/metadataservice/files/" + alias;
         }
 
@@ -71,7 +70,7 @@ namespace MetadataService.Services.Files
             return isOk;
         }
 
-        public async Task Initialize()
+        private async Task Initialize()
         {
             //TODO change access token to user specific
             try
