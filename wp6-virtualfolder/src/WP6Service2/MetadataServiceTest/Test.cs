@@ -32,7 +32,7 @@ namespace MetadataServiceTest
                 Program.StartHost(_baseUri, null);
                 Thread.Sleep(500);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("metadataservice already running by another process, testing ...");
             }
@@ -58,7 +58,7 @@ namespace MetadataServiceTest
         }
 
         [Test]
-        public void CheckDeletingDatasetWithForeignKeyDisablesTestCase()
+        public void CheckDeletingDatasetWithForeignKeyDisabledTestCase()
         {
             //the same as dataset2TestCase - calls NoFK service. Warning released when cascade delete doesnt work =>
             //foreign key is very probably disabled
@@ -90,7 +90,11 @@ namespace MetadataServiceTest
 
             datasetentries = client.Get(new GetDatasetEntries());
             if (datasetentries.Count != dErelations)
+            {
                 Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
+                Assert.Ignore();
+            }
+
         }
 
         [Test]
@@ -426,7 +430,7 @@ namespace MetadataServiceTest
         }        
 
         [Test]
-        public void CreateUserJobServiceTestCase()
+        public void CreateAndDeleteUserJobServiceTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
@@ -442,6 +446,41 @@ namespace MetadataServiceTest
                     Name = "jupyter"
                 });
             //Assert.True(jp.);            
+        }
+        [Test]
+        public void CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            //something is returned
+            Assert.True(all.Count>=0);
+            var runingjobs = all.Count;
+            //create job
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            all = client.Get(new GetUserJobs());
+            //number of jobs increases by 1
+            Assert.True(all.Count==(runingjobs+1));            
+            Thread.Sleep(10000);
+            //create 2nd job
+            jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            all = client.Get(new GetUserJobs());
+            //number of jobs don't increases, it is still same
+            Assert.True(all.Count==(runingjobs+1));            
+            
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            all = client.Get(new GetUserJobs());
+            //number of jobs decreases by 1, to previous number of running jobs
+            Assert.True(all.Count==runingjobs);            
         }
     }
 }

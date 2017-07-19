@@ -179,7 +179,6 @@ namespace WP6Service2.Services.Dataset
             }
         }
 
-
         public DatasetDTO Post(DatasetDTO dto)
         {
             try
@@ -254,9 +253,10 @@ namespace WP6Service2.Services.Dataset
             {
                 var owner = (string) Request.Items["userid"];
                 if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
-                    Db.DeleteById<Dataset>(dto.Id);
+                    Db.DeleteById<Dataset>(dto.Id);                
                 else
                     throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);
+                
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
             {
