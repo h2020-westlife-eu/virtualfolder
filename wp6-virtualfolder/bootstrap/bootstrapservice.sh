@@ -7,6 +7,11 @@
 # 02.06.2016 replaced mysql by postgres
 
 # install nuget
+if hash mono 2>/dev/null; then
+  echo using preinstaled mono
+else
+  yum -y install mono-devel
+fi
 yum -y install nuget
 rm -rf /home/vagrant/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
