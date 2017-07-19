@@ -12,6 +12,7 @@ using NUnit.Framework;
 using ServiceStack.ServiceClient.Web;
 using WP6Service2.Services.Cerif;
 using WP6Service2.Services.Dataset;
+using WP6Service2.Services.PerUserProcess;
 
 namespace MetadataServiceTest
 {
@@ -163,16 +164,16 @@ namespace MetadataServiceTest
             //check whether number of relation increased by 3, then delete
             var client = new JsonServiceClient(_baseUri);
             var entries = client.Get(new GetEntries());
-            Assert.False(entries.Select(x => x.Name).Contains("2hh4"));
-            Assert.False(entries.Select(x => x.Name).Contains("3csb"));
-            Assert.False(entries.Select(x => x.Name).Contains("4ygg"));
+            Assert.False(entries.Select(x => x.Name).Contains("2hh6"));
+            Assert.False(entries.Select(x => x.Name).Contains("3cs6"));
+            Assert.False(entries.Select(x => x.Name).Contains("4yg6"));
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
             var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hh4",Url = "http://www.pdb.org/2hh4"});
-            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
-            myEntries.Add(new DatasetEntry(){Name="4ygg",Url = "http://www.pdb.org/4ygg"});
+            myEntries.Add(new DatasetEntry(){Name="2hh6",Url = "http://www.pdb.org/2hh6"});
+            myEntries.Add(new DatasetEntry(){Name="3cs6",Url = "http://www.pdb.org/3cs6"});
+            myEntries.Add(new DatasetEntry(){Name="4yg6",Url = "http://www.pdb.org/4yg6"});
 
             var mydto = new DatasetDTO
             {
@@ -182,9 +183,9 @@ namespace MetadataServiceTest
             var mydto2 = client.Post(mydto);
 
             entries = client.Get(new GetEntries());
-            Assert.True(entries.Select(x => x.Name).Contains("2hh4"));
-            Assert.True(entries.Select(x => x.Name).Contains("3csb"));
-            Assert.True(entries.Select(x => x.Name).Contains("4ygg"));
+            Assert.True(entries.Select(x => x.Name).Contains("2hh6"));
+            Assert.True(entries.Select(x => x.Name).Contains("3cs6"));
+            Assert.True(entries.Select(x => x.Name).Contains("4yg6"));
             datasetentries = client.Get(new GetDatasetEntries());
             Assert.True(datasetentries.Count > dErelations);
             Assert.True(datasetentries.Count == dErelations + 3);
@@ -246,14 +247,6 @@ namespace MetadataServiceTest
             var client = new JsonServiceClient(_baseUri);
             var response = client.Get<string>("");
             Assert.True(response.Length > 0);
-        }
-
-        [Test]
-        public void SbServiceTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var all = client.Get(new SBService {Name = "scipion"});
-            Assert.That(all.ToString(), Is.StringStarting("{Id"));
         }
 
         [Test]
@@ -431,5 +424,24 @@ namespace MetadataServiceTest
             projects = client.Get(new GetProjects(){Name="Nonsense"});
             Assert.True(projects.Count==0);                        
         }        
+
+        [Test]
+        public void CreateUserJobServiceTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            Assert.That(all.Count>=0);
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            Thread.Sleep(10000);
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            //Assert.True(jp.);            
+        }
     }
 }

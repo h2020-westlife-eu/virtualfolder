@@ -57,7 +57,7 @@ namespace MetadataService.Services.Files
 
         public override object GetFileOrList(string Path)
         {
-            var path = Path != null ? Path : "";
+            var path = Path ?? "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
@@ -79,7 +79,7 @@ namespace MetadataService.Services.Files
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in fis)
                 {
-                    var isdirectory = !fi.GetType().Equals(typeof(FileInfo));
+                    var isdirectory = !(fi.GetType() == typeof(FileInfo));
                     var mysize = isdirectory ? 0 : (ulong) ((FileInfo) fi).Length;
                     var mypath = path == "" ? path : path + "/";
                     var myfiletype = (isdirectory ? FileType.Directory : FileType.None) | FileType.Read |
@@ -102,21 +102,23 @@ namespace MetadataService.Services.Files
             }
             else //it is file
             {
-                var listOfFiles = new List<SBFile>();
-
-                listOfFiles.Add(new SBFile
+                var listOfFiles = new List<SBFile>
                 {
-                    path = path,
-                    name = myfi.Name,
-                    attributes = myfi.Attributes, //.ToString(),
-                    size = (ulong) myfi.Length,
-                    date = myfi.LastWriteTime,
-                    filetype = FileType.None | FileType.Read |
-                               ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
-                               FileType.Available,
-                    webdavuri = path,
-                    publicwebdavuri = publicwebdavprefix + "/" + path
-                });
+                    new SBFile
+                    {
+                        path = path,
+                        name = myfi.Name,
+                        attributes = myfi.Attributes, //.ToString(),
+                        size = (ulong) myfi.Length,
+                        date = myfi.LastWriteTime,
+                        filetype = FileType.None | FileType.Read |
+                                   ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
+                                   FileType.Available,
+                        webdavuri = path,
+                        publicwebdavuri = publicwebdavprefix + "/" + path
+                    }
+                };
+
                 return listOfFiles;
             }
         }

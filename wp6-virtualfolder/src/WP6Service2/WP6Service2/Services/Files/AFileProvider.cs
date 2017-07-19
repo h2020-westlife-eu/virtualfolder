@@ -23,7 +23,7 @@ namespace MetadataService.Services.Files
 
         protected string WEBDAVURL;
 
-        public AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection,
+        protected AFileProvider(ProviderItem provider, ISettingsStorage settingsStorage, IDbConnection connection,
             string authproxy)
         {
             SettingsStorage = settingsStorage;

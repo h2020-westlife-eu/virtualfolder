@@ -9,6 +9,11 @@ using ServiceStack.ServiceInterface;
 
 namespace MetadataService.Services.Files
 {
+    /** This filter adds these items into request.Items, so they could be used by subsequent service
+    *    'userid': contains unique id of user (e.g. username or email address)
+    *    'authproxy': contains hash which can be used to generate unique URL available without authentication to access files
+    *    These items are obtained from subsequent VRE process via API  
+    */
     public class VreCookieRequestFilterAttribute : RequestFilterAttribute
     {
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
@@ -43,8 +48,7 @@ namespace MetadataService.Services.Files
             }
             catch (KeyNotFoundException) //no cookie set - either needs to log in or in single user deployment - it is vagrant user
             {
-                mysession = new Cookie();
-                mysession.Value = "west-life_vf_insecure_session_id";
+                mysession = new Cookie {Value = "west-life_vf_insecure_session_id"};
             }
 
             //get user info related to session id fromVRE

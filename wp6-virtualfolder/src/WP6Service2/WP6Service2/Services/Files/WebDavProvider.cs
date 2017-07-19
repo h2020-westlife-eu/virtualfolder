@@ -6,10 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using MetadataService.Services.Settings;
-using ServiceStack.Common.Web;
-using ServiceStack.ServiceClient.Web;
 using HttpMethod = System.Net.Http.HttpMethod;
 
 namespace MetadataService.Services.Files
@@ -75,7 +72,7 @@ namespace MetadataService.Services.Files
 
         public override object GetFileOrList(string Path)
         {
-            var path = Path != null ? Path : "";
+            var path = Path ?? "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files

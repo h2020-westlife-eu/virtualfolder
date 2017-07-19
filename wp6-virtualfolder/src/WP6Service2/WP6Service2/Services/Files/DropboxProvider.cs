@@ -44,7 +44,7 @@ namespace MetadataService.Services.Files
 
         public override object GetFileOrList(string Path)
         {
-            var path = Path != null ? Path : "";
+            var path = Path ?? "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
@@ -57,8 +57,8 @@ namespace MetadataService.Services.Files
             var isOk = true;
             // If there are errors in the certificate chain, look at each error to determine the cause.
             if (sslPolicyErrors != SslPolicyErrors.None)
-                for (var i = 0; i < chain.ChainStatus.Length; i++)
-                    if (chain.ChainStatus[i].Status != X509ChainStatusFlags.RevocationStatusUnknown)
+                foreach (X509ChainStatus t in chain.ChainStatus)
+                    if (t.Status != X509ChainStatusFlags.RevocationStatusUnknown)
                     {
                         chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
                         chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
@@ -245,10 +245,7 @@ namespace MetadataService.Services.Files
                         publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
                     });
 
-                if (list.HasMore)
-                    hasmoreresults = false; //true
-                else
-                    hasmoreresults = false;
+                hasmoreresults = list.HasMore && false;
             } while (hasmoreresults);
 
             //Console.WriteLine("ListOfFilesAsync done");

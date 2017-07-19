@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Net;
 using System.Reflection;
+using MetadataService.Services;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using Mono.Unix;
@@ -10,6 +10,7 @@ using Mono.Unix.Native;
 using ServiceStack.OrmLite;
 using ServiceStack.WebHost.Endpoints;
 using WP6Service2.Services.Dataset;
+using WP6Service2.Services.PerUserProcess;
 using Container = Funq.Container;
 
 namespace MetadataService
@@ -83,7 +84,7 @@ namespace MetadataService
             private readonly string _SQLITE_FILENAME_VAR = "VF_DATABASE_FILE";
 
             public AppHost()
-                : base("HttpListener Self-Host", typeof(SBService).Assembly)
+                : base("HttpListener Self-Host", typeof(UserJob).Assembly)
             {
             }
 
@@ -160,6 +161,7 @@ namespace MetadataService
                     //create tables
 
                     CreateTablesV1705(db);
+                    CreateTablesV1707(db);
                 }
             }
 
@@ -203,28 +205,8 @@ namespace MetadataService
 
             private static void CreateTablesV1702(IDbConnection db)
             {
-                db.CreateTableIfNotExists<PDBArtifact>();
-
-                //db.DropTable<SBService> ();
-                string[][] services =
-                {
-                    new[]
-                        {"b2drop", "/bin/sudo", "/home/vagrant/scripts/mountb2drop.sh"},
-                    new[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-                    new[] {"scipion", "/bin/sh", "/home/vagrant/scripts/startScipionWeb.sh"},
-                    new[] {"virtuoso", "/bin/sh", "/home/vagrant/scripts/startVirtuoso.sh"}
-                    //new string[] {"cloudinstance","/bin/sh",""}
-                };
-
-                //create table
-                db.CreateTableIfNotExists<SBService>();
-
-                foreach (var service in services)
-                {
-                    var p = new SBService {Name = service[0], Shell = service[1], TriggerScript = service[2]};
-                    db.Insert(p);
-                }
-
+                //DEPRECATED FROM v17.07
+                //db.CreateTableIfNotExists<PDBArtifact>();                                
                 db.CreateTableIfNotExists<ProviderItem>();
                 //encrypt secure keys in DB
                 var items = db.Select<ProviderItem>();
@@ -241,6 +223,13 @@ namespace MetadataService
                 db.CreateTableIfNotExists<Dataset>();
                 db.CreateTableIfNotExists<DatasetEntry>();
                 db.CreateTableIfNotExists<DatasetEntries>();
+            }
+
+            private void CreateTablesV1707(IDbConnection db)
+            {
+                if (db.TableExists("SBService")) db.DropTable<SBService>();
+                db.DropAndCreateTable<UserJob>();
+                //db.CreateTableIfNotExists<UserJob>();
             }
         }
     }

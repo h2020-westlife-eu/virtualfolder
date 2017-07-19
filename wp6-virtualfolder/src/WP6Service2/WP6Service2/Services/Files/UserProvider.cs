@@ -14,11 +14,9 @@ namespace MetadataService.Services.Files
         private readonly List<ProviderItem> _providers; //list of configured providers
         private readonly Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
         private readonly string userauthproxy;
-        private readonly string userid;
 
         private UserProvider(string _userid, string _userauthproxy, ISettingsStorage storage, IDbConnection db)
         {
-            userid = _userid;
             userauthproxy = _userauthproxy;
             lock (userlock) //seems two threads enters this section
             {
@@ -27,12 +25,12 @@ namespace MetadataService.Services.Files
                     _providers = new List<ProviderItem>();
                     linkedimpl = new Dictionary<string, AFileProvider>();
                     //retrieve config from db or persistent storage
-                    var providers = storage.GetAllConfigs(userid, db);
+                    var providers = storage.GetAllConfigs(_userid, db);
 
-                    IProviderCreator impl;
                     foreach (var pf in providers)
                         try
                         {
+                            IProviderCreator impl;
                             if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                             {
                                 _providers.Add(pf);
