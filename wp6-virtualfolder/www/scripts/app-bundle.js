@@ -939,7 +939,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         if (error.statusCode == 403) {
           window.location = "/login?next=" + window.location.pathname;
         } else {
-          if (_this.path.length > 0) {
+          if (_this.path && _this.path.length > 0) {
             _this.path = "";
             _this.client.get(_this.serviceurl + _this.path).then(function (data) {
               if (data.response) {

@@ -112,7 +112,7 @@ export class Filepanel{
                   //console.log('Filepanel Error retrieving from "'+this.path+'":');
                   //console.log(error);
                   //try empty path
-                  if (this.path.length>0){
+                  if (this.path && this.path.length>0){
                     this.path="";
                     this.client.get(this.serviceurl+this.path)
                       .then(data => {
