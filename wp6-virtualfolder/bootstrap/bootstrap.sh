@@ -8,7 +8,13 @@ $WP6SRC/bootstrap/bootstrapvirtuoso.sh
 $WP6SRC/bootstrap/bootstrapstart.sh
 if curl -I http://localhost
 then
-  echo "BOOTSTRAP FINISHED, VM prepared to use"
+  echo "HTTP SERVICE WORKS"
+else
+  echo "BOOTSTRAP FAILED, check logs, repair manually or try again."
+fi
+if [[ $(curl -IsL -w "%{http_code}" "http://localhost/virtualfolder" -o /dev/null) = "200" ]]
+then
+  echo "BOOTSTRAP FINISHED, VM prepared to use at http://localhost (from host http://localhost:8080)"
 else
   echo "BOOTSTRAP FAILED, check logs, repair manually or try again."
 fi
