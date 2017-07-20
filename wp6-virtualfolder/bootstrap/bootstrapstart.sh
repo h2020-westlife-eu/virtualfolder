@@ -16,6 +16,8 @@ chown -R vagrant:vagrant /home/vagrant/.westlife
 if hash setsebool 2>/dev/null; then
   setsebool -P httpd_can_network_connect 1
   chcon -R --reference=/var/www $WP6SRC/www
+  firewall-cmd --zone=public --add-port=80/tcp --permanent
+  firewall-cmd --reload
 fi
 service httpd start
 service westlife-metadata start
