@@ -11,6 +11,12 @@ sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant\/VRE-master/g" /e
 sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/home\/vagrant\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
 sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant/g" /etc/systemd/system/westlife-metadata.service
 chown -R vagrant:vagrant /home/vagrant/.westlife
+
+# SELinux setting, allow proxy from apache to other services and security context to dir
+if hash setsebool 2>/dev/null; then
+  setsebool -P httpd_can_network_connect 1
+  chcon -R --reference=/var/www $WP6SRC/www
+fi
 service httpd start
 service westlife-metadata start
 service westlife-vre start
