@@ -52,7 +52,7 @@ echo minrate=10 >> /etc/yum.conf
 echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
 yum repolist
-yum -y install davfs2 mod_proxy_html --skip-broken
+yum -y install davfs2 mod_proxy_html mod_ssl dos2unix --skip-broken
 
 systemctl start httpd
 systemctl enable httpd

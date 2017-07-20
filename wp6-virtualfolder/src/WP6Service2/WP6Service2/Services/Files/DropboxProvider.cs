@@ -147,7 +147,7 @@ namespace MetadataService.Services.Files
             catch (Exception e)
             {
                 Console.WriteLine(e.Message + " " + e.StackTrace);
-                throw e;
+                throw;
             }
         }
 
@@ -192,7 +192,7 @@ namespace MetadataService.Services.Files
                     //waits until the file is downloaded by other process, usefull for big files
                     while (!IsFileReady(filename)) Thread.Sleep(200);
                     if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
-                    throw e;
+                    throw;
                 }
             }
             return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
@@ -204,7 +204,7 @@ namespace MetadataService.Services.Files
 //if (metadata.IsFolder)
             //gets folder information
             var list = await dbx.Files.ListFolderAsync(dropboxpath);
-            var hasmoreresults = false;
+            //var hasmoreresults = false;
             var listOfFiles = new List<SBFile>();
             do
             {
@@ -244,9 +244,8 @@ namespace MetadataService.Services.Files
                         webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
                         publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
                     });
-
-                hasmoreresults = list.HasMore && false;
-            } while (hasmoreresults);
+                
+            } while (list.HasMore);
 
             //Console.WriteLine("ListOfFilesAsync done");
             return listOfFiles; //returns all

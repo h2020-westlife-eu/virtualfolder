@@ -15,7 +15,7 @@ cp $WP6SRC/VRE-master/addvagrantuser.py /home/vagrant/VRE-master
 cp /home/vagrant/VRE-master/static/img/westlife-logo.png /home/vagrant/.icons
 
 #configure all needed packages by VRE
-yum -y install python-virtualenv python-pip python-redis nodejs-supervisor python-devel libffi-devel
+yum -y install gcc python-virtualenv python-pip python-redis nodejs-supervisor python-devel libffi-devel
 #not needed when cloning from dev branch
 #cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
 # Prepares development version of VRE

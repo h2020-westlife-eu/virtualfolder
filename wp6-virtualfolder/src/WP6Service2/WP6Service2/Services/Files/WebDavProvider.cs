@@ -22,8 +22,8 @@ namespace MetadataService.Services.Files
 
     public class WebDavProvider : AFileProvider
     {
-        private static readonly HashSet<string> initializedproviders = new HashSet<string>();
-        private static readonly object initlock = new object();
+        private static readonly HashSet<string> Initializedproviders = new HashSet<string>();
+        private static readonly object Initlock = new object();
         private readonly string _providerurl = ""; //"https://b2drop.eudat.eu/remote.php/webdav"
 
 
@@ -70,15 +70,15 @@ namespace MetadataService.Services.Files
 
         }
 
-        public override object GetFileOrList(string Path)
+        public override object GetFileOrList(string path)
         {
-            var path = Path ?? "";
-            if (path.Contains(".."))
-                path = ""; //prevents directory listing outside
+            var _path = path ?? "";
+            if (_path.Contains(".."))
+                _path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, path);
+            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, _path);
         }
 
         public override bool DeleteSettings()
@@ -87,19 +87,18 @@ namespace MetadataService.Services.Files
             return base.DeleteSettings();
         }
 
-
-        //TODO sudo as 'vagrant' here or sudo whole 'metadataservice'?
+        
         private void Initialize(ProviderItem request)
         {
-            lock (initlock)
+            lock (Initlock)
             {
-                if (initializedproviders.Contains(FILESYSTEMFOLDER))
+                if (Initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
                     Console.WriteLine("provider at " + FILESYSTEMFOLDER + "already initialized for " + username);
                     return;
                 }
                 //else
-                initializedproviders.Add(FILESYSTEMFOLDER);
+                Initializedproviders.Add(FILESYSTEMFOLDER);
                 try
                 {
                     var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
@@ -134,15 +133,15 @@ namespace MetadataService.Services.Files
 
         private void DeInitialize()
         {
-            lock (initlock)
+            lock (Initlock)
             {
-                if (!initializedproviders.Contains(FILESYSTEMFOLDER))
+                if (!Initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
                     Console.WriteLine("provider " + FILESYSTEMFOLDER + " already deinitialized for " + username);
                     return;
                 }
                 //else
-                initializedproviders.Remove(FILESYSTEMFOLDER);
+                Initializedproviders.Remove(FILESYSTEMFOLDER);
                 int exitcode;
                 var output = Utils.ExecuteShell("/bin/bash", new[]
                 {
