@@ -25,3 +25,4 @@ cd /home/vagrant/VRE-master
 source ./rc.sh
 python manage.py migrate
 python addvagrantuser.py
+chown -R vagrant:vagrant /home/vagrant/VRE-master
