@@ -1,6 +1,8 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using ServiceStack.Common;
 using ServiceStack.ServiceHost;
 
 namespace WP6Service2.Services.PerUserProcess
@@ -22,7 +24,7 @@ namespace WP6Service2.Services.PerUserProcess
         }
         public virtual string getArgs()
         {
-            return "";
+            return redirectOutput();
         }
         public virtual string getStopArgs()
         {
@@ -34,9 +36,10 @@ namespace WP6Service2.Services.PerUserProcess
             var psi = new ProcessStartInfo
             {
                 FileName = jobtype.Shell,
+                WorkingDirectory = jobtype.Pwd,
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
                 Arguments = jobtype.Script +" "+ getArgs()
             };
             pid = Process.Start(psi).Id;
@@ -53,8 +56,8 @@ namespace WP6Service2.Services.PerUserProcess
             {
                 FileName = jobtype.Shell,
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
                 Arguments = jobtype.Script +" "+ getStopArgs()
             };
             Process.Start(psi2);
@@ -63,6 +66,11 @@ namespace WP6Service2.Services.PerUserProcess
         public virtual string getUrl()
         {
             return "";
+        }
+
+        private string redirectOutput()
+        {
+            return "/home/vagrant/logs/"+jobtype.Name + DateTime.Now.Ticks + ".log";
         }
     }
 }

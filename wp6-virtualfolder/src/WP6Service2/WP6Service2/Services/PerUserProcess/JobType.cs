@@ -8,5 +8,6 @@
         public string Shell;
         public string Script;
         public string ArgTypes;
+        public string Pwd;
     }
 }

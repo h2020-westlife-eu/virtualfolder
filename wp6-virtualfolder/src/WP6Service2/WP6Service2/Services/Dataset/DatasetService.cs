@@ -255,8 +255,7 @@ namespace WP6Service2.Services.Dataset
                 if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
                     Db.DeleteById<Dataset>(dto.Id);                
                 else
-                    throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);
-                
+                    throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);                
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
             {

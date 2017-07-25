@@ -8,6 +8,7 @@ namespace WP6Service2.Services.PerUserProcess
     {
         string getArgs();        
         string getStopArgs();
+        
         int Start();
         void Stop();
         string getUrl();

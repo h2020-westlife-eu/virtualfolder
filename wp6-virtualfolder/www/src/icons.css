@@ -4,7 +4,7 @@
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  width: 18px;
+  width: 16px;
 }
 .fa-remove:before,
 .fa-close:before,
@@ -24,6 +24,12 @@
 
 .fa-caret-down:before{
   content:url('data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"  viewBox="0 0 292.362 292.362" style="enable-background:new 0 0 292.362 292.362;"  xml:space="preserve">  <g>  <path d="M286.935,69.377c-3.614-3.617-7.898-5.424-12.848-5.424H18.274c-4.952,0-9.233,1.807-12.85,5.424  C1.807,72.998,0,77.279,0,82.228c0,4.948,1.807,9.229,5.424,12.847l127.907,127.907c3.621,3.617,7.902,5.428,12.85,5.428  s9.233-1.811,12.847-5.428L286.935,95.074c3.613-3.617,5.427-7.898,5.427-12.847C292.362,77.279,290.548,72.998,286.935,69.377z"/>  </g> </svg>');
+}
+.fa-start:before{
+  content:url('data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"  viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">  <g>  <path d="M8,0C3.5,0,0,3.5,0,8s3.5,8,8,8s8-3.5,8-8S12.5,0,8,0z M8,14c-3.5,0-6-2.5-6-6s2.5-6,6-6s6,2.5,6,6  S11.5,14,8,14z"/>  <polygon points="6,12 11,8 6,4"/></g></svg>');
+}
+.fa-stop:before{
+  content:url('data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"  viewBox="0 0 508.52 508.52" style="enable-background:new 0 0 508.52 508.52;" xml:space="preserve"><g><path d="M254.26,0C113.845,0,0,113.845,0,254.26s113.845,254.26,254.26,254.26s254.26-113.845,254.26-254.26S394.675,0,254.26,0z M254.26,476.737c-122.68,0-222.477-99.829-222.477-222.477c0-122.68,99.797-222.477,222.477-222.477c122.649,0,222.477,99.797,222.477,222.477C476.737,376.908,376.908,476.737,254.26,476.737z"/><path d="M317.825,158.912h-127.13c-17.544,0-31.782,14.239-31.782,31.782v127.13c0,17.544,14.239,31.783,31.782,31.783h127.13c17.544,0,31.783-14.239,31.783-31.783v-127.13C349.607,173.151,335.369,158.912,317.825,158.912z"/></g></svg>');
 }
 
 /* most icons derived from http://www.flaticon.com/free-icon/caret-down_25243, needs to attribute*/

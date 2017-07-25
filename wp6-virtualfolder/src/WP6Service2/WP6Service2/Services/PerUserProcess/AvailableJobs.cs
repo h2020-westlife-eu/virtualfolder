@@ -11,10 +11,10 @@ namespace WP6Service2.Services.PerUserProcess
         private static readonly string[][] services =
         {
             new[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-            new[] {"scipion", "/bin/sh", "/home/vagrant/scripts/startScipionWeb.sh"},
-            new[] {"virtuoso", "/bin/sh", "/home/vagrant/scripts/startVirtuoso.sh"},
-            new[] {"jupyter","/bin/sh","/home/vagrant/scripts/startJupyter.sh"},
-            new[] {"vminstance","/bin/sh","/home/vagrant/scripts/startvm.sh"}
+            new[] {"scipion", "/bin/bash", "/home/vagrant/scripts/startScipionWeb.sh"},
+            new[] {"virtuoso", "/bin/bash", "/home/vagrant/scripts/startVirtuoso.sh"},
+            new[] {"jupyter","/bin/bash","/home/vagrant/scripts/startJupyter.sh"},
+            new[] {"vminstance","/bin/bash","/home/vagrant/scripts/startvm.sh"}
         };
         private static readonly List<JobType> list;
 
@@ -22,7 +22,7 @@ namespace WP6Service2.Services.PerUserProcess
         {
             list = new List<JobType>();
             foreach (var service in services)              
-                list.Add(new JobType {Name = service[0], Shell = service[1], Script = service[2]});               
+                list.Add(new JobType {Name = service[0], Shell = service[1], Script = service[2],Pwd="/home/vagrant"});               
         }
         
         public static List<JobType> getList() { return list; }

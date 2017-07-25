@@ -14,11 +14,12 @@ namespace WP6Service2.Services.PerUserProcess
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db,int pid) : base(jobname,request,db,pid) {}
         private long port =0;
         private string suffix;
+        
         public override string getArgs()
         {
             var portnumber = getAvailablePort();
-            suffix = portnumber+ " "+"/vfnotebook/"+request.Items["authproxy"]+" "+getUrl();
-            return request.Items["userid"] + " " +suffix;
+            suffix = portnumber + " " + "/vfnotebook" + request.Items["authproxy"];//l+" "+getUrl();
+            return request.Items["userid"] + " " +suffix+ " "+base.getArgs();
         }
 
         public override string getStopArgs()
@@ -30,8 +31,8 @@ namespace WP6Service2.Services.PerUserProcess
         private long getAvailablePort()
         {
             var b = db.Select<UserJob>().Select(x => x.Id);  
-            port = 8900 + (b.Any() ? b.Max()+1 : 0) ;
-            return 8900 + (b.Any() ? b.Max()+1 : 0) ;
+            port = 8950 + (b.Any() ? b.Max()+1 : 0) ;
+            return port ;
         }
 
         public override string getUrl()

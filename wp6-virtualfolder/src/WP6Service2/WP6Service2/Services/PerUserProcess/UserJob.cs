@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MetadataService.Services.Files;
 using ServiceStack.Common.Web;
 using ServiceStack.DataAnnotations;
@@ -48,6 +49,13 @@ namespace WP6Service2.Services.PerUserProcess
         public string Name { get; set; }
         public string Url { get; set; }
     }
+
+    [Route("/availabletasks", "GET")]
+    public class AvailableTasks : IReturn<List<AvailableTasks>>
+    {
+        public string Name { get; set; }
+        public bool Running { get; set; }
+    }
         
     
     [VreCookieRequestFilter]
@@ -63,13 +71,18 @@ namespace WP6Service2.Services.PerUserProcess
             //returns all his jobs
             try
             {
-                return Db.Select<UserJob>(x => x.Username == owner);
+                return SelectUserJobs(owner);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message+e.StackTrace);
-                throw e;
+                throw;
             }
+        }
+
+        private List<UserJob> SelectUserJobs(string owner)
+        {
+            return Db.Select<UserJob>(x => x.Username == owner).ToList();
         }
 
         /** triggers action
@@ -138,6 +151,14 @@ namespace WP6Service2.Services.PerUserProcess
                                                 "'. No such job exists.");
                 var url= Db.First<UserJob>(x => x.jobType == ap.Name && x.Username == owner).LocalUrl;
             return (url+ap.Url).GetBytesFromUrl();
+        }
+
+        public object Get(AvailableTasks at)
+        {
+            var owner = (string) Request.Items["userid"];
+            var userjobs = SelectUserJobs(owner).Select(x=> x.jobType);
+            var result = AvailableJobs.getList().Select(x => new AvailableTasks() {Name = x.Name,Running=userjobs.Contains(x.Name)}).ToList();
+            return result;
         }
     }
 }

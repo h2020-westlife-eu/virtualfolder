@@ -482,5 +482,40 @@ namespace MetadataServiceTest
             //number of jobs decreases by 1, to previous number of running jobs
             Assert.True(all.Count==runingjobs);            
         }
+
+        [Test]
+        public void CreateTaskCheckAvailableTaskDeleteTaskTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            Assert.That(all.Count>=0);
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            Thread.Sleep(10000);
+            
+            var at = client.Get(new AvailableTasks());
+            //check that jupyter is there
+            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check it is running
+            var task = at.First(x => x.Name == "jupyter");            
+            Assert.True(task.Running);
+            
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            at = client.Get(new AvailableTasks());
+            //check that jupyter is there
+            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check it is not running
+            task = at.First(x => x.Name == "jupyter");            
+            Assert.False(task.Running);
+            
+            //Assert.True(jp.);            
+
+        }
     }
 }
