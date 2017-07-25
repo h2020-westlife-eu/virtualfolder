@@ -2,9 +2,10 @@
 
 function help {
 echo Usage:
-echo startJupyter.sh [username]|remove [port] [proxyurlpart]
+echo startJupyter.sh [username] [port] [proxyurlpart] [log]
+echo startJupyter.sh remove [username] [port] [proxyurlpart]
+echo   remove indicates that proxy setting should be removed from apache, default is adding and starting the jupyter instance
 echo   [username] is existing VF username with some mounted repositories and existing directory /home/vagrant/work/[username]
-echo   remove indicates that proxy setting should be removed from apache
 echo   [port] the jupyter service will listen in this port
 echo   [proxyurlpart] the location, which will be reverse proxied to jupyter service
 echo
@@ -53,26 +54,30 @@ if [ -z $1 ]; then
   exit 1
 fi
 
-if [-z $2 ]; then
+if [ -z $2 ]; then
   echo missing port
   help
   exit 1
 fi
 
-if [-z $3 ]; then
+if [ -z $3 ]; then
   echo missing proxyurlpart
   help
   exit 1
 fi
 
 WORKDIR=/home/vagrant/work/$1
-
+echo startJupyter.sh called with args: $1:$2:$3:$4
 if [ $1 == 'remove' ]; then
   removeapacheproxy $2
 elif [ -d $WORKDIR ]; then
   cd $WORKDIR
   addapacheproxy http://localhost:$2 $3
-  jupyter notebook --port $2 --no-browser
+  if [ -z $4 ]; then
+    jupyter notebook --port $2 --no-browser >$4 2>&1
+  else
+    jupyter notebook --port $2 --no-browser
+  fi
 else
   echo Directory $WORKDIR does not exist.
   help
