@@ -110,7 +110,7 @@ function addapacheproxy {
     echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo -E tee -a $HTTPD_CONF >/dev/null
     echo "  RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
     # on localhost, preservehost leads to ssl proxy error
-    if [ $HOSTNAME = "localhost" ]; then
+    if [ $HOST = "localhost" ]; then
         echo "  #ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
     else
         echo "  ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
