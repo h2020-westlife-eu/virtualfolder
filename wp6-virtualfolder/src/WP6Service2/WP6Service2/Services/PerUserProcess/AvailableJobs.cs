@@ -34,7 +34,7 @@ namespace WP6Service2.Services.PerUserProcess
                 case "jupyter": 
                     return new JupyterJob(jobname,request,db,pid);
                 default: 
-                    return new DefaultJobStrategy(jobname,request,db,pid);
+                    return new DefaultJob(jobname,request,db,pid);
             }
         }
 

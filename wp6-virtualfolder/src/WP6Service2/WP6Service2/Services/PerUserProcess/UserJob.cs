@@ -10,6 +10,7 @@ using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceClient.Web;
 using ServiceStack.Text;
+using ServiceStack.WebHost.Endpoints.Support.Markdown;
 
 namespace WP6Service2.Services.PerUserProcess
 {
@@ -55,6 +56,7 @@ namespace WP6Service2.Services.PerUserProcess
     {
         public string Name { get; set; }
         public bool Running { get; set; }
+        public string LocalUrl { get; set; }
     }
         
     
@@ -109,6 +111,7 @@ namespace WP6Service2.Services.PerUserProcess
                 var job = AvailableJobs.CreateJobInstance(request.Name, Request, Db);
                 service.pid = job.Start();
                 service.LocalUrl = job.getUrl();
+                service.Args = job.getArgs();
                 Db.Insert(service);
                 return service;
             } catch (Exception e)
@@ -157,7 +160,7 @@ namespace WP6Service2.Services.PerUserProcess
         {
             var owner = (string) Request.Items["userid"];
             var userjobs = SelectUserJobs(owner).Select(x=> x.jobType);
-            var result = AvailableJobs.getList().Select(x => new AvailableTasks() {Name = x.Name,Running=userjobs.Contains(x.Name)}).ToList();
+            var result = AvailableJobs.getList().Select(x => new AvailableTasks() {Name = x.Name,Running=userjobs.Contains(x.Name),LocalUrl=userjobs.Contains(x.Name)?SelectUserJobs(owner).First(y=>y.jobType==x.Name).LocalUrl:""}).ToList();
             return result;
         }
     }

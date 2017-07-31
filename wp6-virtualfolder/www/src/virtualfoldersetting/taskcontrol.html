@@ -11,7 +11,7 @@
       </thead>
       <tbody>
       <tr class="w3-hover-green" repeat.for="task of tasks">
-        <td>${task.Name}</td><td>${task.Description}</td><td show.bind="!task.Updating"><i class="fa fa-start" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i><i class="fa fa-stop" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i></td><td show.bind="task.Updating"><img src="img/vfloader.gif"></td>
+        <td>${task.Name}</td><td>${task.Description}</td><td show.bind="!task.Updating"><i class="fa fa-start" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i><i class="fa fa-stop" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i></td><td show.bind="task.Updating"><img src="img/vfloader.gif"></td><td show.bind="task.Running">access UI <a href.bind="task.LocalUrl">${task.LocalUrl}</a></td>
       </tr>
       </tbody>
     </table>

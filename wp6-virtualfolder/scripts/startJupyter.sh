@@ -5,9 +5,9 @@ HTTPD_SERVICE="httpd"
 
 function help {
 echo Usage:
-echo startJupyter.sh [username] [port] [proxyurlpart] [log]
-echo startJupyter.sh remove [username] [port] [proxyurlpart]
-echo   remove indicates that proxy setting should be removed from apache, default is adding and starting the jupyter instance
+echo startJupyter.sh add\|remove [username] [port] [proxyurlpart]
+echo   add - adds proxy setting and starts jupyter on port
+echo   remove - stops jupyter running on port and removes proxy
 echo   [username] is existing VF username with some mounted repositories and existing directory /home/vagrant/work/[username]
 echo   [port] the jupyter service will listen in this port
 echo   [proxyurlpart] the location, which will be reverse proxied to jupyter service
@@ -28,7 +28,7 @@ function addapacheproxy {
   echo $HOST
   IFS=" ";
   echo "<Location $2 >" | sudo -E tee -a $HTTPD_CONF
-  echo "  RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
+  echo "  # RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
   # on localhost, preservehost leads to ssl proxy error
   if [ "$HOST" == "localhost" ]; then
       echo "  #ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
@@ -38,11 +38,17 @@ function addapacheproxy {
   echo "  ProxyPass \"$1$2\"" | sudo -E tee -a $HTTPD_CONF
   echo "  ProxyPassReverse \"$1$2\"" | sudo -E tee -a $HTTPD_CONF
   echo "</Location>" | sudo -E tee -a $HTTPD_CONF
-  echo "<LocationMatch \"$2/(user/[^/]*)/(api/kernels/[^/]+/channels|terminals/websocket)(.*)\">"| sudo -E tee -a $HTTPD_CONF
-  echo "  ProxyPassMatch $WSURL$2/\$1/\$2\$3" | sudo -E tee -a $HTTPD_CONF
-  echo "  ProxyPassReverse $WSURL$2/\$1/\$2\$3" | sudo -E tee -a $HTTPD_CONF
-  echo "</LocationMatch>" | sudo -E tee -a $HTTPD_CONF
+  echo "<Location $2/api/kernels/>"| sudo -E tee -a $HTTPD_CONF
+  echo "  ProxyPass $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
+  echo "  ProxyPassReverse $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
+  echo "</Location>" | sudo -E tee -a $HTTPD_CONF
   sudo service ${HTTPD_SERVICE} reload
+}
+
+function setjupyterurl {
+ url=$1
+  #sed -i -e "s/c\.NotebookApp\.base_url.*$/c\.NotebookApp\.base_url = '$1'" /home/vagrant/.jupyter/jupyter_notebook_config.py
+ sed -i -e "s|\(c\.NotebookApp\.base\_url\s*=\s*\).*$|\1\'$url\'|g" /home/vagrant/.jupyter/jupyter_notebook_config.py
 }
 
 function removeapacheproxy {
@@ -57,7 +63,8 @@ function removeapacheproxy {
 }
 
 function killjupyter {
-PIDS=`ps -af | grep "port $port" | cut -f4 -d" "`
+ps -af | grep "port $1"
+PIDS=`ps -af | grep "port $1" | awk '{ print \$2 }'`
 echo killing jupyter processes $PIDS
 kill $PIDS
 }
@@ -80,25 +87,34 @@ if [ -z $3 ]; then
   exit 1
 fi
 
-WORKDIR=/home/vagrant/work/$1
 echo startJupyter.sh called with args: $1:$2:$3:$4
+
 if [ $1 == 'remove' ]; then
   killjupyter $3
   removeapacheproxy $4
-elif [ -d $WORKDIR ]; then
-  cd $WORKDIR
-  addapacheproxy http://localhost:$2 $3
-  if [ -z $4 ]; then
-    echo launching jupyter without logs
-    jupyter notebook --port $2 --no-browser &
-  else
-    echo launching jupyter log to $4
-    jupyter notebook --port $2 --no-browser >$4 2>&1 &
-  fi
-else
-  echo Directory $WORKDIR does not exist.
-  help
-  exit 1
+  exit
 fi
 
-exit
+if [ $1 == 'add' ]; then
+  WORKDIR=/home/vagrant/work/$2
+  if [ -d $WORKDIR ]; then
+    cd $WORKDIR
+    addapacheproxy http://localhost:$3 $4
+    setjupyterurl $4
+    if [ -z $5 ]; then
+      echo launching jupyter without logs
+      jupyter notebook --port $3 --no-browser &
+    else
+      echo launching jupyter log to $5
+      jupyter notebook --port $3 --no-browser >$5 2>&1 &
+    fi
+    exit
+  else
+    echo Directory $WORKDIR does not exist.
+    help
+    exit 1
+  fi
+fi
+
+help
+exit 1

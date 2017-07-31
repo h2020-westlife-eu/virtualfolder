@@ -7,6 +7,8 @@ namespace WP6Service2.Services.PerUserProcess
     public interface IJobStrategy
     {
         string getArgs();        
+
+        string getStartArgs();
         string getStopArgs();
         
         int Start();

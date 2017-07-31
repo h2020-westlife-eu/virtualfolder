@@ -7,28 +7,35 @@ using ServiceStack.ServiceHost;
 
 namespace WP6Service2.Services.PerUserProcess
 {
-    /** default job strategy - no args returns jobtype
+    /** default job implementation - no args returns jobtype
     */
-    public class DefaultJobStrategy:IJobStrategy
+    public class DefaultJob:IJobStrategy
     {
         private readonly JobType jobtype;
         protected IHttpRequest request;
         protected IDbConnection db;
         private int pid;
-        public DefaultJobStrategy(string jobname,IHttpRequest _request,IDbConnection _db,int _pid=0)
+        public DefaultJob(string jobname,IHttpRequest _request,IDbConnection _db,int _pid=0)
         {
             jobtype = AvailableJobs.getList().First(x => x.Name == jobname);
             request = _request;
             db = _db;
             pid = _pid;
         }
+
+        public virtual string getStartArgs()
+        {
+            return "add "+getArgs();
+        }
+        
         public virtual string getArgs()
         {
-            return redirectOutput();
+            return "";
         }
+        
         public virtual string getStopArgs()
         {
-            return "remove";
+            return "remove "+getArgs();
         }
 
         public virtual int Start()
@@ -40,7 +47,7 @@ namespace WP6Service2.Services.PerUserProcess
                 UseShellExecute = false,
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
-                Arguments = jobtype.Script +" "+ getArgs()
+                Arguments = jobtype.Script +" "+ getStartArgs()
             };
             pid = Process.Start(psi).Id;
             return pid;
@@ -48,10 +55,16 @@ namespace WP6Service2.Services.PerUserProcess
 
         public virtual void Stop()
         {
-            var psi = Process.GetProcessById(pid);
-            //Output = psi.StandardOutput.ReadToEndAsync();
-            //Error = psi.StandardError.ReadToEndAsync();            
-            psi.Kill();
+            //stops remaining process
+            try
+            {
+                var psi = Process.GetProcessById(pid);
+                //Output = psi.StandardOutput.ReadToEndAsync();
+                //Error = psi.StandardError.ReadToEndAsync();            
+                psi.Kill();
+            }
+            catch (Exception) {}
+            //get stop arguments and launch
             var psi2 = new ProcessStartInfo
             {
                 FileName = jobtype.Shell,
@@ -68,9 +81,6 @@ namespace WP6Service2.Services.PerUserProcess
             return "";
         }
 
-        private string redirectOutput()
-        {
-            return "/home/vagrant/logs/"+jobtype.Name + DateTime.Now.Ticks + ".log";
-        }
+
     }
 }

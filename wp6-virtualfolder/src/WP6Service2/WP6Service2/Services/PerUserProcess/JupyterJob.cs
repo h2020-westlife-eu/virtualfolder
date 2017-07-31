@@ -2,29 +2,35 @@
 using System.CodeDom;
 using System.Data;
 using System.Linq;
+using Dropbox.Api.Properties;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 
 namespace WP6Service2.Services.PerUserProcess
 {
-    /** specific strategy pattern for jupyter notebook - first arg is userid, second arg is portnumber
+    /** specific implementation for jupyter notebook - first arg is userid, second arg is portnumber
     */
-    public class JupyterJob : DefaultJobStrategy
+    public class JupyterJob : DefaultJob
     {
-        public JupyterJob(string jobname, IHttpRequest request, IDbConnection db,int pid) : base(jobname,request,db,pid) {}
         private long port =0;
         private string suffix;
+        private string proxyurl;
+        private string outputlog;
         
+        public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
+            pid)
+        {
+            var portnumber = getAvailablePort();            
+            proxyurl = "/vfnotebook" + request.Items["authproxy"];
+            proxyurl= proxyurl.TrimEnd('/');
+            outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
+            suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        
+        }
+        
+        //startJupyter.sh add|remove [username] [port] [proxyurlpart]
         public override string getArgs()
         {
-            var portnumber = getAvailablePort();
-            suffix = portnumber + " " + "/vfnotebook" + request.Items["authproxy"];//l+" "+getUrl();
-            return request.Items["userid"] + " " +suffix+ " "+base.getArgs();
-        }
-
-        public override string getStopArgs()
-        {
-            return "remove " + suffix;
+            return suffix + " " + outputlog;
         }
 
         //returns 8901 + max id of already existing jobs.
@@ -37,8 +43,8 @@ namespace WP6Service2.Services.PerUserProcess
 
         public override string getUrl()
         {
-            if (port==0) throw new ArgumentNullException("port","port not set. Call getArgs() first.");
-            return "http://localhost:" + port + "/";
+            if (port==0) throw new ArgumentNullException("port","port not set.");
+            return proxyurl;
         }
     }
 }

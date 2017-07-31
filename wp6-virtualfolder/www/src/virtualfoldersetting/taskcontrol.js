@@ -83,6 +83,10 @@ export class Taskcontrol {
       if (task.Running) {//will try to stop
          this.client.delete(this.userprocessurl+task.Name)
            .then(data =>{
+             console.log("updatetask().data")
+             console.log(data)
+             let updatedtask=JSON.parse(data.response);
+             task.LocalUrl=updatedtask.LocalUrl;
              resolve('Done')
          })
            .catch(error=>{
@@ -91,6 +95,8 @@ export class Taskcontrol {
       } else {
          this.client.post(this.userprocessurl+task.Name)
            .then(data=>{
+             console.log("updatetask().data")
+             console.log(data)
             resolve('Done')
            }
          )
