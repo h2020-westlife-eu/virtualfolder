@@ -21,8 +21,8 @@ namespace WP6Service2.Services.PerUserProcess
             pid)
         {
             var portnumber = getAvailablePort();            
-            proxyurl = "/vfnotebook" + request.Items["authproxy"];
-            proxyurl= proxyurl.TrimEnd('/');
+            proxyurl = "/vfnotebook" + "/"+request.Items["authproxy"].ToString().Trim('/');
+            //proxyurl= proxyurl.TrimEnd('/');
             outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
             suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        
         }
