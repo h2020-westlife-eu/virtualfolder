@@ -103,11 +103,21 @@ namespace MetadataService.Services.Files
                 Console.WriteLine("authproxy " + response.signed_url);
                 return response.signed_url;
             }
-            catch (Exception e)
+            catch (Exception e) /* handle local deployment or error*/
             {
-                Console.WriteLine("error during getting authproxy info of sessionid " + sessionid + " domain " +
-                                  domain + " \n" + e.Message + e.StackTrace);
-                return "";
+                //on local deployment - authproxy url can be same as sessionuser
+                if (sessionuser.ContainsKey(sessionid))
+                {
+                    Console.WriteLine("error getting authproxy, setting temporary authproxy for sessionid " + sessionid);
+                    sessionauthproxy[sessionid] = sessionuser[sessionid];
+                    return sessionauthproxy[sessionid];
+                }
+                else
+                {
+                    Console.WriteLine("error during getting authproxy info of sessionid " + sessionid + " domain " +
+                                      domain + " \n" + e.Message + e.StackTrace);
+                    return "";
+                }
             }
         }
 

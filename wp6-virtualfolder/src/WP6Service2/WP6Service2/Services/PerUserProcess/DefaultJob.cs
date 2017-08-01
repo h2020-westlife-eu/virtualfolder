@@ -80,7 +80,5 @@ namespace WP6Service2.Services.PerUserProcess
         {
             return "";
         }
-
-
     }
 }
