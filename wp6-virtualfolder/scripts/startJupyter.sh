@@ -48,6 +48,7 @@ function addapacheproxy {
 function setjupyterurl {
  url=$1
   #sed -i -e "s/c\.NotebookApp\.base_url.*$/c\.NotebookApp\.base_url = '$1'" /home/vagrant/.jupyter/jupyter_notebook_config.py
+ echo setting jupyter url to $url
  sed -i -e "s|\(c\.NotebookApp\.base\_url\s*=\s*\).*$|\1\'$url\'|g" /home/vagrant/.jupyter/jupyter_notebook_config.py
 }
 
@@ -64,7 +65,7 @@ function removeapacheproxy {
 
 function killjupyter {
 ps -af | grep "port $1"
-PIDS=`ps -af | grep "port $1" | awk '{ print \$2 }'`
+PIDS=`ps -x | grep "jupyter-notebook --port $1" | awk '{ print \$2 }'`
 echo killing jupyter processes $PIDS
 kill $PIDS
 }
