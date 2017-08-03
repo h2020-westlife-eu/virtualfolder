@@ -26,6 +26,7 @@ qemu-img convert -O vmdk user-data.iso user-data.vmdk
 rm -rf iso
 rm user-data.iso
 mkdir -p iso
+rm src/user-data.sh.encoded
 
 # create VMDK with user data file
 # option 2) bootstrap from cvmfs
@@ -45,9 +46,10 @@ cp src/user-data iso/user-data
 genisoimage -J -r -o user-data-provision.iso iso
 # create vmdk image
 qemu-img convert -O vmdk user-data-provision.iso user-data-provision.vmdk
+rm src/user-data.sh.encoded
 
 cp src/user-data.sh src/user-data-gui.sh
-sed -i "/uncomment for gui/ a screenRes=1024x768\nstartXDM=on\nauto_login=on" src/user-data-gui.sh
+sed -i "/start gui here/ a screenRes=1024x768\nstartXDM=on\nauto_login=on" src/user-data-gui.sh
 base64 -w 0 src/user-data-gui.sh > src/user-data.sh.encoded
 cp src/context.sh.prefix iso/context.sh
 # echo without new line
@@ -62,6 +64,7 @@ cp src/user-data iso/user-data
 genisoimage -J -r -o user-data-gui.iso iso
 # create vmdk image
 qemu-img convert -O vmdk user-data-gui.iso user-data-gui.vmdk
+rm src/user-data.sh.encoded
 
 cp src/user-data.sh src/user-data-provgui.sh
 sed -i "/uncomment for gui/ a screenRes=1024x768\nstartXDM=on\nauto_login=on" src/user-data-provgui.sh
@@ -80,6 +83,7 @@ cp src/user-data iso/user-data
 genisoimage -J -r -o user-data-provgui.iso iso
 # create vmdk image
 qemu-img convert -O vmdk user-data-provgui.iso user-data-provgui.vmdk
+rm src/user-data.sh.encoded
 
 
 rm -rf iso

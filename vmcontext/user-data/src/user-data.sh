@@ -42,6 +42,7 @@ users=vagrant:vagrant:$6$UlU6Rl9a$TOSbHFSKhiqodkkate.nIb82dtTYOphWG4CePwrEp9IHCr
 edition=Desktop
 keyboard=us-acentos
 swap_size=2G
+#start gui here
 
 [ucernvm-begin]
 cvmfs_branch=cernvm-sl7.cern.ch
