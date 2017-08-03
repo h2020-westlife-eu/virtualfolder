@@ -13,6 +13,7 @@ namespace WP6Service2.Services.PerUserProcess
         
         int Start();
         void Stop();
+        bool Running();
         string getUrl();
     }
 }

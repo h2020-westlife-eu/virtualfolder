@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using ServiceStack.Common;
 using ServiceStack.ServiceHost;
 
@@ -11,7 +12,7 @@ namespace WP6Service2.Services.PerUserProcess
     */
     public class DefaultJob:IJobStrategy
     {
-        private readonly JobType jobtype;
+        protected readonly JobType jobtype;
         protected IHttpRequest request;
         protected IDbConnection db;
         private int pid;
@@ -76,9 +77,16 @@ namespace WP6Service2.Services.PerUserProcess
             Process.Start(psi2);
         }
 
+        public virtual bool Running()
+        {
+            //throw new NotImplementedException();
+            Process[] localProcesses = Process.GetProcessesByName(jobtype.Name);
+            return localProcesses.Length > 0;
+        }
+
         public virtual string getUrl()
         {
             return "";
-        }
+        }        
     }
 }

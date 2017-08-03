@@ -96,7 +96,7 @@ namespace WP6Service2.Services.PerUserProcess
                 if (string.IsNullOrEmpty(request.Name))
                     throw new ArgumentNullException("Missing 'Name' in requesting to trigger user job.");
 
-                //gets username which is loffed within this session
+                //gets user of this session
                 var owner = (string) Request.Items["userid"];
                 //returns existing job info
                 if (Db.Select<UserJob>(x => x.jobType == request.Name && x.Username == owner).Count > 0)
@@ -112,6 +112,8 @@ namespace WP6Service2.Services.PerUserProcess
                 service.pid = job.Start();
                 service.LocalUrl = job.getUrl();
                 service.Args = job.getArgs();
+                //check it runs
+                if (!job.Running()) throw new ApplicationException("Job not running after attempt to start.");
                 Db.Insert(service);
                 return service;
             } catch (Exception e)
