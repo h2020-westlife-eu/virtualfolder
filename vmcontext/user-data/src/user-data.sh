@@ -6,7 +6,7 @@ usermod -G wheel,docker,users,vagrant vagrant
 date > /etc/vagrant_provisioned_at
 echo "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 echo "Defaults:vagrant !requiretty"   >> /etc/sudoers
-if [ -f "/root/.ssh/authorized_keys" ]; then
+if [ -s "/root/.ssh/authorized_keys" ]; then
   mkdir -p /home/vagrant/.ssh
   cp /root/.ssh/authorized_keys /home/vagrant/.ssh/authorized_keys
 fi
