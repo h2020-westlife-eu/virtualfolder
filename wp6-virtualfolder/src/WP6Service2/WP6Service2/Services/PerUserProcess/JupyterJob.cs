@@ -60,7 +60,7 @@ namespace WP6Service2.Services.PerUserProcess
             foreach (var localProcess in localProcesses)
             {
                 //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
-                foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline").Contains(suffix);
+                foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline").Contains(port.ToString());
             }
             return foundmyargs;
             //return localProcesses.Length > 0;
