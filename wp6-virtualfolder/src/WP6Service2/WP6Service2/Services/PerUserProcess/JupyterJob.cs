@@ -55,7 +55,7 @@ namespace WP6Service2.Services.PerUserProcess
         {
             //throw new NotImplementedException();
             Thread.Sleep(1000);
-            Process[] localProcesses = Process.GetProcessesByName("jupyter-notebook");
+            Process[] localProcesses = Process.GetProcessesByName("python3.4");
             bool foundmyargs = false;
             foreach (var localProcess in localProcesses)
             {
