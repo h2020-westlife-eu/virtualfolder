@@ -99,6 +99,12 @@ fi
 if [ $1 == 'add' ]; then
   WORKDIR=/home/vagrant/work/$2
   if [ -d $WORKDIR ]; then
+    echo working directory exists
+  else
+    echo trying to create working directory, it\'ll be empty
+    mkdir -p $WORKDIR
+  fi
+  if [ -d $WORKDIR ]; then
     cd $WORKDIR
     addapacheproxy http://localhost:$3 $4
     setjupyterurl $4
