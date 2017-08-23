@@ -2340,7 +2340,7 @@ define('utils/vfstorage',["exports"], function (exports) {
     Vfstorage.getValue = function getValue(propertyName) {
       var defaultvalue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "true";
 
-      return typeof Storage !== "undefined" ? localStorage.getItem(propertyName) : defaultvalue;
+      return typeof Storage !== "undefined" ? localStorage.getItem(propertyName) ? localStorage.getItem(propertyName) : defaultvalue : defaultvalue;
     };
 
     Vfstorage.setValue = function setValue(propertyName, value) {
@@ -3385,7 +3385,7 @@ function popContext(state) {
 }
 
 function typeBefore(stream, state, pos) {
-  if (state.prevToken == "variable" || state.prevToken == "variable-3") return true;
+  if (state.prevToken == "variable" || state.prevToken == "type") return true;
   if (/\S(?:[^- ]>|[*\]])\s*$|\*$/.test(stream.string.slice(0, pos))) return true;
   if (state.typeAtEndOfLine && stream.column() == stream.indentation()) return true;
 }
@@ -3416,7 +3416,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       isPunctuationChar = parserConfig.isPunctuationChar || /[\[\]{}\(\),;\:\.]/,
       numberStart = parserConfig.numberStart || /[\d\.]/,
       number = parserConfig.number || /^(?:0x[a-f\d]+|0b[01]+|(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(u|ll?|l|f)?/i,
-      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
+      isIdentifierChar = parserConfig.isIdentifierChar || /[\w\$_\xa1-\uffff]/;
 
   var curPunc, isDefKeyword;
 
@@ -3453,9 +3454,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       while (!stream.match(/^\/[\/*]/, false) && stream.eat(isOperatorChar)) {}
       return "operator";
     }
-    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+    stream.eatWhile(isIdentifierChar);
     if (namespaceSeparator) while (stream.match(namespaceSeparator))
-      stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+      stream.eatWhile(isIdentifierChar);
 
     var cur = stream.current();
     if (contains(keywords, cur)) {
@@ -3463,7 +3464,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (contains(defKeywords, cur)) isDefKeyword = true;
       return "keyword";
     }
-    if (contains(types, cur)) return "variable-3";
+    if (contains(types, cur)) return "type";
     if (contains(builtin, cur)) {
       if (contains(blockKeywords, cur)) curPunc = "newstatement";
       return "builtin";
@@ -3632,7 +3633,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
 
   function pointerHook(_stream, state) {
-    if (state.prevToken == "variable-3") return "variable-3";
+    if (state.prevToken == "type") return "type";
     return false;
   }
 
@@ -3666,7 +3667,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
 
   function cppLooksLikeConstructor(word) {
-    var lastTwo = /(\w+)::(\w+)$/.exec(word);
+    var lastTwo = /(\w+)::~?(\w+)$/.exec(word);
     return lastTwo && lastTwo[1] == lastTwo[2];
   }
 
@@ -3742,6 +3743,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     typeFirstDefinitions: true,
     atoms: words("true false null"),
     dontIndentStatements: /^template$/,
+    isIdentifierChar: /[\w\$_~\xa1-\uffff]/,
     hooks: {
       "#": cppHook,
       "*": pointerHook,
@@ -3865,8 +3867,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
     ),
     multiLineStrings: true,
-    blockKeywords: words("catch class do else finally for forSome if match switch try while"),
-    defKeywords: words("class def object package trait type val var"),
+    blockKeywords: words("catch class enum do else finally for forSome if match switch try while"),
+    defKeywords: words("class enum def object package trait type val var"),
     atoms: words("true false null"),
     indentStatements: false,
     indentSwitch: false,
@@ -4124,7 +4126,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return "atom";
       },
       token: function(_stream, state, style) {
-          if ((style == "variable" || style == "variable-3") &&
+          if ((style == "variable" || style == "type") &&
               state.prevToken == ".") {
             return "variable-2";
           }
@@ -4273,11 +4275,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return state.token(stream, state);
       },
 
-      indent: function (state, textAfter) {
+      indent: function (state, textAfter, line) {
         if (!state.localMode || /^\s*<\//.test(textAfter))
           return htmlMode.indent(state.htmlState, textAfter);
         else if (state.localMode.indent)
-          return state.localMode.indent(state.localState, textAfter);
+          return state.localMode.indent(state.localState, textAfter, line);
         else
           return CodeMirror.Pass;
       },
@@ -4729,12 +4731,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom,
       "this": kw("this"), "class": kw("class"), "super": kw("atom"),
       "yield": C, "export": kw("export"), "import": kw("import"), "extends": C,
-      "await": C, "async": kw("async")
+      "await": C
     };
 
     // Extend the 'normal' keywords with the TypeScript language extensions
     if (isTS) {
-      var type = {type: "variable", style: "variable-3"};
+      var type = {type: "variable", style: "type"};
       var tsKeywords = {
         // object-like things
         "interface": kw("class"),
@@ -4742,16 +4744,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         "namespace": C,
         "module": kw("module"),
         "enum": kw("module"),
-        "type": kw("type"),
 
         // scope modifiers
         "public": kw("modifier"),
         "private": kw("modifier"),
         "protected": kw("modifier"),
         "abstract": kw("modifier"),
-
-        // operators
-        "as": operator,
 
         // types
         "string": type, "number": type, "boolean": type, "any": type
@@ -4765,7 +4763,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return jsKeywords;
   }();
 
-  var isOperatorChar = /[+\-*&%=<>!?|~^]/;
+  var isOperatorChar = /[+\-*&%=<>!?|~^@]/;
   var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
 
   function readRegexp(stream) {
@@ -4839,9 +4837,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("operator", "operator", stream.current());
     } else if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
-      var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
-      return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
-                     ret("variable", "variable", word);
+      var word = stream.current()
+      if (state.lastType != ".") {
+        if (keywords.propertyIsEnumerable(word)) {
+          var kw = keywords[word]
+          return ret(kw.type, kw.style, word)
+        }
+        if (word == "async" && stream.match(/^\s*[\(\w]/, false))
+          return ret("async", "keyword", word)
+      }
+      return ret("variable", "variable", word)
     }
   }
 
@@ -5049,8 +5054,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
-    if (type == "variable") return cont(pushlex("stat"), maybelabel);
-    if (type == "switch") return cont(pushlex("form"), parenExpr, pushlex("}", "switch"), expect("{"),
+    if (type == "variable") {
+      if (isTS && value == "type") {
+        cx.marked = "keyword"
+        return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
+      } else {
+        return cont(pushlex("stat"), maybelabel);
+      }
+    }
+    if (type == "switch") return cont(pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
                                       block, poplex, poplex);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
@@ -5059,9 +5071,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "class") return cont(pushlex("form"), className, poplex);
     if (type == "export") return cont(pushlex("stat"), afterExport, poplex);
     if (type == "import") return cont(pushlex("stat"), afterImport, poplex);
-    if (type == "module") return cont(pushlex("form"), pattern, pushlex("}"), expect("{"), block, poplex, poplex)
-    if (type == "type") return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
+    if (type == "module") return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
     if (type == "async") return cont(statement)
+    if (value == "@") return cont(expression, statement)
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
   function expression(type) {
@@ -5121,6 +5133,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+    if (isTS && value == "as") { cx.marked = "keyword"; return cont(typeexpr, me) }
   }
   function quasi(type, value) {
     if (type != "quasi") return pass();
@@ -5179,7 +5192,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (type == "[") {
       return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
-      return cont(expression);
+      return cont(expression, afterprop);
     } else if (type == ":") {
       return pass(afterprop)
     }
@@ -5227,9 +5240,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   function typeexpr(type) {
-    if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
+    if (type == "variable") {cx.marked = "type"; return cont(afterType);}
     if (type == "string" || type == "number" || type == "atom") return cont(afterType);
-    if (type == "{") return cont(pushlex("}"), commasep(typeprop, "}", ",;"), poplex)
+    if (type == "{") return cont(pushlex("}"), commasep(typeprop, "}", ",;"), poplex, afterType)
     if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
   }
   function maybeReturnType(type) {
@@ -5243,6 +5256,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(typeprop)
     } else if (type == ":") {
       return cont(typeexpr)
+    } else if (type == "[") {
+      return cont(expression, maybetype, expect("]"), typeprop)
     }
   }
   function typearg(type) {
@@ -5253,6 +5268,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
     if (value == "|" || type == ".") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
+    if (value == "extends") return cont(typeexpr)
   }
   function vardef() {
     return pass(pattern, maybetype, maybeAssign, vardefCont);
@@ -5308,6 +5324,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "*") {cx.marked = "keyword"; return cont(functiondef);}
     if (type == "variable") {register(value); return cont(functiondef);}
     if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, maybetype, statement, popcontext);
+    if (isTS && value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, functiondef)
   }
   function funarg(type) {
     if (type == "spread") return cont(funarg);
@@ -5346,6 +5363,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (type == ";") return cont(classBody);
     if (type == "}") return cont();
+    if (value == "@") return cont(expression, classBody)
   }
   function classfield(type, value) {
     if (value == "?") return cont(classfield)
@@ -5892,7 +5910,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
             ch == "{" && (cx.type == "at" || cx.type == "atBlock")) {
           // Dedent relative to current context.
           indent = Math.max(0, cx.indent - indentUnit);
-          cx = cx.prev;
         }
       }
       return indent;
@@ -5963,7 +5980,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "border-top-left-radius", "border-top-right-radius", "border-top-style",
     "border-top-width", "border-width", "bottom", "box-decoration-break",
     "box-shadow", "box-sizing", "break-after", "break-before", "break-inside",
-    "caption-side", "clear", "clip", "color", "color-profile", "column-count",
+    "caption-side", "caret-color", "clear", "clip", "color", "color-profile", "column-count",
     "column-fill", "column-gap", "column-rule", "column-rule-color",
     "column-rule-style", "column-rule-width", "column-span", "column-width",
     "columns", "content", "counter-increment", "counter-reset", "crop", "cue",
@@ -5984,7 +6001,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns",
     "grid-template-rows", "hanging-punctuation", "height", "hyphens",
     "icon", "image-orientation", "image-rendering", "image-resolution",
-    "inline-box-align", "justify-content", "left", "letter-spacing",
+    "inline-box-align", "justify-content", "justify-items", "justify-self", "left", "letter-spacing",
     "line-break", "line-height", "line-stacking", "line-stacking-ruby",
     "line-stacking-shift", "line-stacking-strategy", "list-style",
     "list-style-image", "list-style-position", "list-style-type", "margin",
@@ -5999,7 +6016,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "padding", "padding-bottom", "padding-left", "padding-right", "padding-top",
     "page", "page-break-after", "page-break-before", "page-break-inside",
     "page-policy", "pause", "pause-after", "pause-before", "perspective",
-    "perspective-origin", "pitch", "pitch-range", "play-during", "position",
+    "perspective-origin", "pitch", "pitch-range", "place-content", "place-items", "place-self", "play-during", "position",
     "presentation-level", "punctuation-trim", "quotes", "region-break-after",
     "region-break-before", "region-break-inside", "region-fragment",
     "rendering-intent", "resize", "rest", "rest-after", "rest-before", "richness",
@@ -6150,13 +6167,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "s-resize", "sans-serif", "saturation", "scale", "scale3d", "scaleX", "scaleY", "scaleZ", "screen",
     "scroll", "scrollbar", "scroll-position", "se-resize", "searchfield",
     "searchfield-cancel-button", "searchfield-decoration",
-    "searchfield-results-button", "searchfield-results-decoration",
+    "searchfield-results-button", "searchfield-results-decoration", "self-start", "self-end",
     "semi-condensed", "semi-expanded", "separate", "serif", "show", "sidama",
     "simp-chinese-formal", "simp-chinese-informal", "single",
     "skew", "skewX", "skewY", "skip-white-space", "slide", "slider-horizontal",
     "slider-vertical", "sliderthumb-horizontal", "sliderthumb-vertical", "slow",
     "small", "small-caps", "small-caption", "smaller", "soft-light", "solid", "somali",
-    "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "spell-out", "square",
+    "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "space-evenly", "spell-out", "square",
     "square-button", "start", "static", "status-bar", "stretch", "stroke", "sub",
     "subpixel-antialiased", "super", "sw-resize", "symbolic", "symbols", "system-ui", "table",
     "table-caption", "table-cell", "table-column", "table-column-group",
@@ -6239,8 +6256,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
       },
       ":": function(stream) {
-        if (stream.match(/\s*\{/))
-          return [null, "{"];
+        if (stream.match(/\s*\{/, false))
+          return [null, null]
         return false;
       },
       "$": function(stream) {
