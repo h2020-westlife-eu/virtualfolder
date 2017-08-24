@@ -52,6 +52,7 @@ echo Warning: This operation might be slown down by repeating requests to SL ser
 echo minrate=10 >> /etc/yum.conf
 echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
+yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
 yum repolist
 yum -y install davfs2 mod_proxy_html mod_ssl dos2unix --skip-broken
 
