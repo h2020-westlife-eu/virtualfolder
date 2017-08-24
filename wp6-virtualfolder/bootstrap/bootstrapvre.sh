@@ -1,9 +1,12 @@
 #!/usr/bin/env sh
+# 24.08.2017 tomas - permissive SELinux 
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment";
 else
   cp ${WP6SRC}/conf-template/etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc
   sed -i -e "s|\Alias.*$|Alias \"\/\" \"$WP6SRC\/singlevre\/\"|g" /etc/httpd/conf.d/vre.inc
   sed -i -e "s|<Directory.*$|<Directory \"$WP6SRC\/singlevre\" >|g" /etc/httpd/conf.d/vre.inc
+  # 24.08.2017 tomas - permissive SELinux - prevent HTTP 403 Forbidden for api/vfsession
+  setenforce 0 
 fi
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
