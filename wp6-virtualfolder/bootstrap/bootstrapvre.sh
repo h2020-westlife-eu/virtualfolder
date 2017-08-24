@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment";
+else
+  mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc
+  sed -i -e "s/Alias.*$/Alias \"\/\" \"${WP6SRC}\/singlevre\/\"/g" /etc/httpd/conf.d/vre.inc
+  sed -i -e "s/Directory \".*$/Directory \"\/\" \"${WP6SRC}\/singlevre\"/g" /etc/httpd/conf.d/vre.inc
+fi
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   git clone https://github.com/h2020-westlife-eu/VRE.git
