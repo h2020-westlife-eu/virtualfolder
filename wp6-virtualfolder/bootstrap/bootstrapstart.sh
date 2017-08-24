@@ -21,5 +21,6 @@ if hash setsebool 2>/dev/null; then
 fi
 service httpd start
 service westlife-metadata start
-service westlife-vre start
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 

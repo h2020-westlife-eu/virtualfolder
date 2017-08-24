@@ -3333,13 +3333,12 @@ define('virtualfoldersetting/storageprovider',['exports', 'aurelia-event-aggrega
     return Storageprovider;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
-  'use strict';
+define('virtualfoldersetting/urlutils',["exports"], function (exports) {
+  "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.Taskcontrol = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3347,92 +3346,9 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
     }
   }
 
-  var _class, _temp;
-
-  var Taskcontrol = exports.Taskcontrol = (_temp = _class = function () {
-    function Taskcontrol(httpclient) {
-      _classCallCheck(this, Taskcontrol);
-
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/availabletasks";
-      this.userprocessurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/userprocess/";
-      this.client = httpclient;
-      this.tasks = [];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-      this.descriptions = [];
-      this.descriptions["jupyter"] = "Jupyter notebook web application instance";
-      this.descriptions["scipion"] = "Scipion Cryo-em web application instance";
-    }
-
-    Taskcontrol.prototype.attached = function attached() {
-      var _this = this;
-
-      this.client.get(this.serviceurl).then(function (data) {
-        if (data.response) {
-          _this.tasks = JSON.parse(data.response);
-          var that = _this;
-          _this.tasks.forEach(function (task) {
-            task.Description = that.descriptions[task.Name] || "";
-            task.Updating = false;
-          });
-        }
-      }).catch(function (error) {
-        console.log("taskcontrol.attached() error:");
-        console.log(error);
-      });
-    };
-
-    Taskcontrol.prototype.starttask = function starttask(task) {
-      task.Updating = true;
-      this.updatetask(task).then(function (msg) {
-        task.Updating = false;
-        task.Running = true;
-        task.LocalUrl = msg;
-        console.log("task.LocalUrl:" + task.LocalUrl);
-      }).catch(function (reason) {
-        task.Updating = false;
-        console.log('start failed');
-        console.log(reason);
-      });
-    };
-
-    Taskcontrol.prototype.stoptask = function stoptask(task) {
-      task.Updating = true;
-      this.updatetask(task).then(function (msg) {
-        task.Updating = false;
-        task.Running = false;
-      }).catch(function (reason) {
-        task.Updating = false;
-        console.log('stop failed');
-        console.log(reason);
-      });
-    };
-
-    Taskcontrol.prototype.updatetask = function updatetask(task) {
-      var _this2 = this;
-
-      return new Promise(function (resolve, reject) {
-        if (task.Running) {
-          _this2.client.delete(_this2.userprocessurl + task.Name).then(function (data) {
-            resolve('Deleted');
-          }).catch(function (error) {
-            reject(error);
-          });
-        } else {
-          _this2.client.post(_this2.userprocessurl + task.Name).then(function (data) {
-            var updatedtask = JSON.parse(data.response);
-            resolve(updatedtask.LocalUrl);
-          }).catch(function (error) {
-            reject(error);
-          });
-        }
-      });
-    };
-
-    return Taskcontrol;
-  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
+  var UrlUtils = exports.UrlUtils = function UrlUtils() {
+    _classCallCheck(this, UrlUtils);
+  };
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -7270,6 +7186,107 @@ define('aurelia-dialog/dialog-service',["require", "exports", "aurelia-dependenc
     }
 });
 
+define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Taskcontrol = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var Taskcontrol = exports.Taskcontrol = (_temp = _class = function () {
+    function Taskcontrol(httpclient) {
+      _classCallCheck(this, Taskcontrol);
+
+      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/availabletasks";
+      this.userprocessurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/userprocess/";
+      this.client = httpclient;
+      this.tasks = [];
+      this.client.configure(function (config) {
+        config.withHeader('Accept', 'application/json');
+        config.withHeader('Content-Type', 'application/json');
+      });
+      this.descriptions = [];
+      this.descriptions["jupyter"] = "Jupyter notebook web application instance";
+      this.descriptions["scipion"] = "Scipion Cryo-em web application instance";
+    }
+
+    Taskcontrol.prototype.attached = function attached() {
+      var _this = this;
+
+      this.client.get(this.serviceurl).then(function (data) {
+        if (data.response) {
+          _this.tasks = JSON.parse(data.response);
+          var that = _this;
+          _this.tasks.forEach(function (task) {
+            task.Description = that.descriptions[task.Name] || "";
+            task.Updating = false;
+          });
+        }
+      }).catch(function (error) {
+        console.log("taskcontrol.attached() error:");
+        console.log(error);
+      });
+    };
+
+    Taskcontrol.prototype.starttask = function starttask(task) {
+      task.Updating = true;
+      this.updatetask(task).then(function (msg) {
+        task.Updating = false;
+        task.Running = true;
+        task.LocalUrl = msg;
+        console.log("task.LocalUrl:" + task.LocalUrl);
+      }).catch(function (reason) {
+        task.Updating = false;
+        console.log('start failed');
+        console.log(reason);
+      });
+    };
+
+    Taskcontrol.prototype.stoptask = function stoptask(task) {
+      task.Updating = true;
+      this.updatetask(task).then(function (msg) {
+        task.Updating = false;
+        task.Running = false;
+      }).catch(function (reason) {
+        task.Updating = false;
+        console.log('stop failed');
+        console.log(reason);
+      });
+    };
+
+    Taskcontrol.prototype.updatetask = function updatetask(task) {
+      var _this2 = this;
+
+      return new Promise(function (resolve, reject) {
+        if (task.Running) {
+          _this2.client.delete(_this2.userprocessurl + task.Name).then(function (data) {
+            resolve('Deleted');
+          }).catch(function (error) {
+            reject(error);
+          });
+        } else {
+          _this2.client.post(_this2.userprocessurl + task.Name).then(function (data) {
+            var updatedtask = JSON.parse(data.response);
+            resolve(updatedtask.LocalUrl);
+          }).catch(function (error) {
+            reject(error);
+          });
+        }
+      });
+    };
+
+    return Taskcontrol;
+  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder</h3>\n  </div>\n  <div if.bind=\"firsttime\">\n    <intro></intro>\n    <setting></setting>\n  </div>\n  <div if.bind=\"!firsttime\">\n    <filemanager></filemanager>\n  </div>\n</template>\n\n"; });
 define('text!icons.css', ['module'], function(module) { module.exports = ".fa {\n  display: inline-block;\n  font-size: inherit;\n  text-rendering: auto;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  width: 16px;\n}\n.fa-remove:before,\n.fa-close:before,\n.fa-times:before {\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20width%3D%27100%25%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2021.9%2021.9%27%20enable-background%3D%27new%200%200%2021.9%2021.9%27%3E%20%3Cg%3E%20%3Cg%3E%20%3Cpath%20d%3D%27M14.1%2C11.3c-0.2-0.2-0.2-0.5%2C0-0.7l7.5-7.5c0.2-0.2%2C0.3-0.5%2C0.3-0.7s-0.1-0.5-0.3-0.7l-1.4-1.4C20%2C0.1%2C19.7%2C0%2C19.5%2C0%20%20c-0.3%2C0-0.5%2C0.1-0.7%2C0.3l-7.5%2C7.5c-0.2%2C0.2-0.5%2C0.2-0.7%2C0L3.1%2C0.3C2.9%2C0.1%2C2.6%2C0%2C2.4%2C0S1.9%2C0.1%2C1.7%2C0.3L0.3%2C1.7C0.1%2C1.9%2C0%2C2.2%2C0%2C2.4%20%20s0.1%2C0.5%2C0.3%2C0.7l7.5%2C7.5c0.2%2C0.2%2C0.2%2C0.5%2C0%2C0.7l-7.5%2C7.5C0.1%2C19%2C0%2C19.3%2C0%2C19.5s0.1%2C0.5%2C0.3%2C0.7l1.4%2C1.4c0.2%2C0.2%2C0.5%2C0.3%2C0.7%2C0.3%20%20s0.5-0.1%2C0.7-0.3l7.5-7.5c0.2-0.2%2C0.5-0.2%2C0.7%2C0l7.5%2C7.5c0.2%2C0.2%2C0.5%2C0.3%2C0.7%2C0.3s0.5-0.1%2C0.7-0.3l1.4-1.4c0.2-0.2%2C0.3-0.5%2C0.3-0.7%20%20s-0.1-0.5-0.3-0.7L14.1%2C11.3z%27%2F%3E%20%3C%2Fg%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E \");\n}\n.fa-cog:before {\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20489.7%20489.7%27%20style%3D%27enable-background%3Anew%200%200%20489.7%20489.7%3B%27%3E%20%20%3Cg%3E%20%20%3Cg%3E%20%20%3Cpath%20d%3D%27M60.6%2C461.95c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3s12.3-5.5%2C12.3-12.3v-301.6c34.4-5.9%2C60.8-35.8%2C60.8-71.9c0-40.3-32.8-73-73-73%20%20s-73%2C32.7-73%2C73c0%2C36.1%2C26.3%2C66%2C60.8%2C71.9v301.6H60.6z%20M24.3%2C88.45c0-26.7%2C21.8-48.5%2C48.5-48.5s48.5%2C21.8%2C48.5%2C48.5%20%20s-21.8%2C48.5-48.5%2C48.5S24.3%2C115.25%2C24.3%2C88.45z%27%2F%3E%20%20%3Cpath%20d%3D%27M317.1%2C401.25c0-36.1-26.3-66-60.8-71.9V27.75c0-6.8-5.5-12.3-12.3-12.3s-12.3%2C5.5-12.3%2C12.3v301.6%20%20c-34.4%2C5.9-60.8%2C35.8-60.8%2C71.9c0%2C40.3%2C32.8%2C73%2C73%2C73S317.1%2C441.45%2C317.1%2C401.25z%20M195.6%2C401.25c0-26.7%2C21.8-48.5%2C48.5-48.5%20%20s48.5%2C21.8%2C48.5%2C48.5s-21.8%2C48.5-48.5%2C48.5S195.6%2C427.95%2C195.6%2C401.25z%27%2F%3E%20%20%3Cpath%20d%3D%27M416.6%2C474.25c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-301.6c34.4-5.9%2C60.8-35.8%2C60.8-71.9c0-40.3-32.8-73-73-73s-73%2C32.7-73%2C73%20%20c0%2C36.1%2C26.3%2C66%2C60.8%2C71.9v301.6C404.3%2C468.75%2C409.8%2C474.25%2C416.6%2C474.25z%20M368.1%2C88.45c0-26.7%2C21.8-48.5%2C48.5-48.5%20%20s48.5%2C21.8%2C48.5%2C48.5s-21.8%2C48.5-48.5%2C48.5C389.8%2C136.95%2C368.1%2C115.25%2C368.1%2C88.45z%27%2F%3E%20%20%3C%2Fg%3E%20%20%3C%2Fg%3E%20%20%3C%2Fsvg%3E  \");\n}\n.fa-window-minimize:before{\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20489.3%20489.3%27%20style%3D%27enable-background%3Anew%200%200%20489.3%20489.3%3B%27%3E%3Cg%3E%09%3Cg%3E%09%09%3Cpath%20d%3D%27M0%2C12.251v464.7c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h224c6.8%2C0%2C12.3-5.5%2C12.3-12.3s-5.5-12.3-12.3-12.3H24.5v-440.2h440.2v210.5%09%09%09c0%2C6.8%2C5.5%2C12.2%2C12.3%2C12.2s12.3-5.5%2C12.3-12.2v-222.7c0-6.8-5.5-12.2-12.3-12.2H12.3C5.5-0.049%2C0%2C5.451%2C0%2C12.251z%27%2F%3E%09%09%3Cpath%20d%3D%27M476.9%2C489.151c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-170.3c0-6.8-5.5-12.3-12.3-12.3H306.6c-6.8%2C0-12.3%2C5.5-12.3%2C12.3v170.4%09%09%09c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h170.3V489.151z%20M318.8%2C318.751h145.9v145.9H318.8V318.751z%27%2F%3E%09%09%3Cpath%20d%3D%27M135.9%2C257.651c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h109.5c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-109.5c0-6.8-5.5-12.3-12.3-12.3%09%09%09s-12.3%2C5.5-12.3%2C12.3v79.9l-138.7-138.7c-4.8-4.8-12.5-4.8-17.3%2C0c-4.8%2C4.8-4.8%2C12.5%2C0%2C17.3l138.7%2C138.7h-79.9%09%09%09C141.4%2C245.351%2C135.9%2C250.851%2C135.9%2C257.651z%27%2F%3E%09%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\");\n}\n.fa-window-maximize:before{\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20258.008%20258.008%27%20style%3D%27enable-background%3Anew%200%200%20258.008%20258.008%3B%27%20%20xml%3Aspace%3D%27preserve%27%3E%20%20%3Cg%3E%20%20%3Cg%3E%20%20%3Cpath%20d%3D%27M125.609%2C122.35H10.049C4.5%2C122.35%2C0%2C126.85%2C0%2C132.399v115.56c0%2C5.549%2C4.5%2C10.048%2C10.049%2C10.048H125.61%20%20c5.548%2C0%2C10.046-4.499%2C10.046-10.048v-115.56C135.656%2C126.85%2C131.158%2C122.35%2C125.609%2C122.35z%20M115.559%2C237.909H20.098v-95.463%20%20h95.461V237.909z%27%2F%3E%20%20%3Cpath%20d%3D%27M247.958%2C0.001H10.049C4.5%2C0.001%2C0%2C4.5%2C0%2C10.049v93.312c0%2C5.55%2C4.5%2C10.05%2C10.049%2C10.05c5.55%2C0%2C10.049-4.5%2C10.049-10.05%20%20V20.098h217.812v217.812h-82.915c-5.55%2C0-10.05%2C4.5-10.05%2C10.05c0%2C5.549%2C4.5%2C10.048%2C10.05%2C10.048h92.964%20%20c5.55%2C0%2C10.05-4.499%2C10.05-10.048V10.049C258.008%2C4.5%2C253.508%2C0.001%2C247.958%2C0.001z%27%2F%3E%20%20%3Cpath%20d%3D%27M154.35%2C106.876c1.965%2C1.961%2C4.534%2C2.942%2C7.105%2C2.942c2.57%2C0%2C5.142-0.981%2C7.104-2.942l31.755-31.757V89.57%20%20c0%2C5.549%2C4.499%2C10.047%2C10.05%2C10.047c5.549%2C0%2C10.048-4.498%2C10.048-10.047V53.054c0-0.365-0.068-0.713-0.107-1.068%20%20c0.329-2.933-0.588-5.979-2.837-8.229c-2.146-2.148-5.023-3.079-7.831-2.873c-0.233-0.017-0.461-0.072-0.696-0.072h-36.513%20%20c-5.551%2C0-10.051%2C4.5-10.051%2C10.05c0%2C5.549%2C4.5%2C10.049%2C10.051%2C10.049h13.679L154.35%2C92.665%20%20C150.426%2C96.589%2C150.426%2C102.952%2C154.35%2C106.876z%27%2F%3E%20%20%3C%2Fg%3E%20%20%3C%2Fg%3E%20%20%3C%2Fsvg%3E\");\n/*  content: url(\"data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='0 0 258.008 258.008' style='enable-background:new 0 0 258.008 258.008;'  xml:space='preserve'>  <g>  <g>  <path d='M125.609,122.35H10.049C4.5,122.35,0,126.85,0,132.399v115.56c0,5.549,4.5,10.048,10.049,10.048H125.61  c5.548,0,10.046-4.499,10.046-10.048v-115.56C135.656,126.85,131.158,122.35,125.609,122.35z M115.559,237.909H20.098v-95.463  h95.461V237.909z'/>  <path d='M247.958,0.001H10.049C4.5,0.001,0,4.5,0,10.049v93.312c0,5.55,4.5,10.05,10.049,10.05c5.55,0,10.049-4.5,10.049-10.05  V20.098h217.812v217.812h-82.915c-5.55,0-10.05,4.5-10.05,10.05c0,5.549,4.5,10.048,10.05,10.048h92.964  c5.55,0,10.05-4.499,10.05-10.048V10.049C258.008,4.5,253.508,0.001,247.958,0.001z'/>  <path d='M154.35,106.876c1.965,1.961,4.534,2.942,7.105,2.942c2.57,0,5.142-0.981,7.104-2.942l31.755-31.757V89.57  c0,5.549,4.499,10.047,10.05,10.047c5.549,0,10.048-4.498,10.048-10.047V53.054c0-0.365-0.068-0.713-0.107-1.068  c0.329-2.933-0.588-5.979-2.837-8.229c-2.146-2.148-5.023-3.079-7.831-2.873c-0.233-0.017-0.461-0.072-0.696-0.072h-36.513  c-5.551,0-10.051,4.5-10.051,10.05c0,5.549,4.5,10.049,10.051,10.049h13.679L154.35,92.665  C150.426,96.589,150.426,102.952,154.35,106.876z'/>  </g>  </g>  </svg>  \");*/\n}\n\n.fa-caret-down:before{\n  content:url('data:image/svg+xml,<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\"  viewBox=\"0 0 292.362 292.362\" style=\"enable-background:new 0 0 292.362 292.362;\"  xml:space=\"preserve\">  <g>  <path d=\"M286.935,69.377c-3.614-3.617-7.898-5.424-12.848-5.424H18.274c-4.952,0-9.233,1.807-12.85,5.424  C1.807,72.998,0,77.279,0,82.228c0,4.948,1.807,9.229,5.424,12.847l127.907,127.907c3.621,3.617,7.902,5.428,12.85,5.428  s9.233-1.811,12.847-5.428L286.935,95.074c3.613-3.617,5.427-7.898,5.427-12.847C292.362,77.279,290.548,72.998,286.935,69.377z\"/>  </g> </svg>');\n}\n.fa-start:before{\n  content:url('data:image/svg+xml,<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\"  viewBox=\"0 0 16 16\" style=\"enable-background:new 0 0 16 16;\" xml:space=\"preserve\">  <g>  <path d=\"M8,0C3.5,0,0,3.5,0,8s3.5,8,8,8s8-3.5,8-8S12.5,0,8,0z M8,14c-3.5,0-6-2.5-6-6s2.5-6,6-6s6,2.5,6,6  S11.5,14,8,14z\"/>  <polygon points=\"6,12 11,8 6,4\"/></g></svg>');\n}\n.fa-stop:before{\n  content:url('data:image/svg+xml,<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\"  viewBox=\"0 0 508.52 508.52\" style=\"enable-background:new 0 0 508.52 508.52;\" xml:space=\"preserve\"><g><path d=\"M254.26,0C113.845,0,0,113.845,0,254.26s113.845,254.26,254.26,254.26s254.26-113.845,254.26-254.26S394.675,0,254.26,0z M254.26,476.737c-122.68,0-222.477-99.829-222.477-222.477c0-122.68,99.797-222.477,222.477-222.477c122.649,0,222.477,99.797,222.477,222.477C476.737,376.908,376.908,476.737,254.26,476.737z\"/><path d=\"M317.825,158.912h-127.13c-17.544,0-31.782,14.239-31.782,31.782v127.13c0,17.544,14.239,31.783,31.782,31.783h127.13c17.544,0,31.783-14.239,31.783-31.783v-127.13C349.607,173.151,335.369,158.912,317.825,158.912z\"/></g></svg>');\n}\n\n/* most icons derived from http://www.flaticon.com/free-icon/caret-down_25243, needs to attribute*/\n\n.vf-transition{\n  -webkit-transition: all 0.5s ease-in-out;\n  -moz-transition: all 0.5s ease-in-out;\n  -ms-transition: all 0.5s ease-in-out;\n  transition: visibility 0.5s, height 0.5s ease-in-out;\n}\n.vf-code-2{line-height:1;font-size:10px}\n\n.CodeMirror {\n  height: 75%!important;\n}\n"; });
 define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n\n\n  <input ref=\"input\" autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"blurSuggestions($event)\"\n         keydown.delegate=\"keypressed($event)\"\n         placeholder.bind=\"placeholder\" focus.trigger=\"focusSuggestions()\"\n         size.bind=\"size\">\n\n  <div ref=\"results\" show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\" class=\"result-card\">\n\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <div class=\"result-card-body\">\n          <span repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n\n            <div class=\"result-card-item\"><button type=\"button\" class=\"result-card-item-label w3-button w3-padding-0\" click.trigger=\"clicked(doclistRec)\" >${doclistRec.value}</button> <span class=\"result-card-item-count\">(${doclistRec.num_pdb_entries})</span></div>\n          </span>\n\n        </div>\n        <footer class=\"result-card-footer\">\n\n          <a class=\"result-card-item-label\" href=\"#\" click.delegate=\"searchMore(resultGroup.doclist.docs[0].var_name)\">More...</a>\n        </footer>\n\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">Enter PDB or UnitProt accession code, protein name or related terms.</div>\n  </div>\n</div>\n</template>\n"; });
