@@ -7,7 +7,8 @@ else
   sed -i -e "s|<Directory.*$|<Directory \"$WP6SRC\/singlevre\" >|g" /etc/httpd/conf.d/vre.inc
   service httpd restart
   # 24.08.2017 tomas - permissive SELinux - prevent HTTP 403 Forbidden for api/vfsession
-  sed -i -e "s|\SELINUX=.*$|SELINUX=permissive|g" /etc/selinux/config 
+  sed -i -e "s|\SELINUX=.*$|SELINUX=permissive|g" /etc/selinux/config
+  setenforce 0 
 fi
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
