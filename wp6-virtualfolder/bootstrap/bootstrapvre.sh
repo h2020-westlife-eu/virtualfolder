@@ -11,11 +11,12 @@ else
 fi
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
+  cd /home/vagrant
   git clone https://github.com/h2020-westlife-eu/VRE.git
   cd VRE
   git checkout dev
   cd ..
-  mv VRE $VRE-master
+  mv VRE VRE-master
   cp $WP6SRC/VRE-master/rundevvre.sh /home/vagrant/VRE-master
   cp $WP6SRC/VRE-master/addvagrantuser.py /home/vagrant/VRE-master
 
