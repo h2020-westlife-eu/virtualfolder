@@ -7,7 +7,7 @@ else
   sed -i -e "s|<Directory.*$|<Directory \"$WP6SRC\/singlevre\" >|g" /etc/httpd/conf.d/vre.inc
   service httpd restart
   # 24.08.2017 tomas - permissive SELinux - prevent HTTP 403 Forbidden for api/vfsession
-  setenforce 0 
+  sed -i -e "s|\SELINUX=.*$|SELINUX=permissive|g" /etc/selinux/config 
 fi
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
@@ -40,8 +40,8 @@ if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   python manage.py migrate
   python addvagrantuser.py
   chown -R vagrant:vagrant /home/vagrant/VRE-master
+  systemctl enable westlife-vre
+  systemctl start westlife-vre
 fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 
 
