@@ -1,17 +1,20 @@
 <template bindable="panelid">
     <div class="w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right">
-        <span>${path} contains ${filescount} items.<button click.delegate="refresh()">refresh</button></span>
+        <span class="w3-padding-tiny w3-margin-right">${path} contains ${filescount} items.</span><button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+        <div class="w3-clear"></div>
         <table id="${panelid}">
             <thead>
             <tr>
-                <th style="text-align:left">name</th>
-                <th style="text-align:right">size</th>
-                <th style="text-align:center">date</th>
+                <th style="text-align:left" click.delegate="sortByName()">name</th>
+                <th style="text-align:left" click.delegate="sortByExt()">ext</th>
+                <th style="text-align:right" click.delegate="sortBySize()">size</th>
+                <th style="text-align:center" click.delegate="sortByDate()">date</th>
+                <th title="information icons">i</th>
             </tr>
             </thead>
             <tbody>
             <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
-              <td>${file.name}</td><td class="w3-right">${file.size}</td><td align="center">${file.date}</td>
+              <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">&empty;</span></td>
             </tr>
             </tbody>
         </table>

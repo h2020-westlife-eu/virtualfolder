@@ -5,17 +5,18 @@
 
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {VisualizeFile} from '../filepicker/messages';
-import {HttpClient} from 'aurelia-http-client';
 import {bindable} from 'aurelia-framework';
 
+/**
+ * integrates pdb-lite-mol component into panel
+ */
 export class  Viewpanel {
-    static inject = [Element,EventAggregator, HttpClient];
+    static inject = [Element,EventAggregator];
     @bindable pid;
 
-    constructor(el,ea, httpclient) {
+    constructor(el,ea) {
         this.element = el;
         this.ea = ea;
-        this.httpclient = httpclient;
       this.ea.subscribe(VisualizeFile, msg => this.viewfile(msg.file,msg.senderid));
         //this.uid = new Date().valueOf().toString();
         this.sourceurl="";
@@ -31,7 +32,7 @@ export class  Viewpanel {
 
     viewfile(file,senderid) {
         if (senderid!=this.pid) {
-          console.log("viewfile " + file.webdavuri);
+          //console.log("viewfile " + file.webdavuri);
           this.pdburl=file.webdavuri;
           var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
           this.replacepdblitemol(pdblitemol);

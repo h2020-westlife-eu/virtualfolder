@@ -22,3 +22,10 @@ export class EditFile {
     this.senderid = senderid;
   }
 }
+
+export class DatasetFile {
+  constructor(file,senderid){
+    this.file = file;
+    this.senderid = senderid;
+  }
+}

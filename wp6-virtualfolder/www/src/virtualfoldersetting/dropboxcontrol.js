@@ -5,23 +5,23 @@
  * Created by Tomas Kulhanek on 1/5/17.
  */
 
-import {UrlUtils} from './urlutils';
+
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSelected} from './messages';
+import {Vfstorage} from '../utils/vfstorage';
 import 'dropbox';
 
 //let client = new HttpClient();
 
 export class DropboxControl {
 
-  static inject = [EventAggregator, UrlUtils];
+  static inject = [EventAggregator];
 
-  constructor(ea,urlutils){
+  constructor(ea){
     //this.dbx = dropbox;
     // Parses the url and gets the access token if it is in the urls hash
     this.ea= ea;
-    this.urlutils = urlutils;
-    this.accesstoken=this.urlutils.parseQueryString(window.location.hash).access_token;
+    this.accesstoken=Vfstorage.parseQueryString(window.location.hash).access_token;
     this.isAuthenticated = !!this.accesstoken;
     //console.log('dropboxcontrol() accesstoken:'+this.accesstoken);
 
@@ -41,7 +41,7 @@ export class DropboxControl {
       //console.log('dropboxcontrol() auth url:' + this.authurl);
       //console.log(this.dropBoxAuthUrl);
     } catch(e){
-      console.log("exception:")
+      console.log("Dropboxcontrol() exception:")
       console.log(e)
     }
 

@@ -18,8 +18,6 @@ export class EntryIdCustomAttribute {
     this.element.setAttribute('entry-id',this.value);
   }
 
-
-
   /* bootstrap the pdb component library just from the element */
   attached(){
     angular.bootstrap(this.element, ['pdb.component.library']);

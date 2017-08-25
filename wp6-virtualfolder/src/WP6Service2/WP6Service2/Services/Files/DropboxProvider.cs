@@ -76,7 +76,7 @@ namespace MetadataService.Services.Files
             //TODO change access token to user specific
             try
             {
-                if (accesstoken == null || accesstoken.Length == 0) return;
+                if (string.IsNullOrEmpty(accesstoken)) return;
                 //setting proxy if it is defined in environment
                 var environmentVariable = Environment.GetEnvironmentVariable("http_proxy");
                 ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
@@ -199,6 +199,7 @@ namespace MetadataService.Services.Files
             return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
         }
 
+        //get list of files within a folder
         private async Task<object> ListFolder(string path, string dropboxpath)
         {
 //if (metadata.IsFolder)
@@ -222,7 +223,8 @@ namespace MetadataService.Services.Files
                         attributes = FileAttributes.Directory, //.ToString(),
                         size = 0,
                         date = DateTime.Now,
-                        filetype = FileType.Directory & FileType.Read & FileType.Write,
+                        filetype = FileType.Directory | FileType.Read | FileType.Write |
+                                   (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = DROPBOXURIROOT + mypath + fi.Name
                         //publicwebdavuri = PUBLICDROPBOXURIROOT+mypath+fi.Name,
@@ -237,7 +239,8 @@ namespace MetadataService.Services.Files
                         attributes = FileAttributes.Normal, //.ToString(),
                         size = fi.AsFile.Size,
                         date = fi.AsFile.ServerModified,
-                        filetype = FileType.Read & FileType.Write,
+                        filetype = FileType.Read | FileType.Write | 
+                                   (IsLocal(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
                         publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
@@ -254,12 +257,22 @@ namespace MetadataService.Services.Files
         }
 
 //returns WEBDAV URL if it exists locally
-        private string LocalOrRemote(string s)
+        private string LocalOrRemote(string filepath)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
-            if (File.Exists(s.Replace(DROPBOXURIROOT, FILESYSTEMFOLDER)))
-                return s.Replace(DROPBOXURIROOT + "/", WEBDAVURL);
-            return s;
+            if (IsLocal(filepath))
+                return filepath.Replace(DROPBOXURIROOT + "/", WEBDAVURL);
+            return filepath;
+        }
+
+        private bool IsLocal(string filepath)
+        {
+            return File.Exists(filepath.Replace(DROPBOXURIROOT, FILESYSTEMFOLDER));
+        }
+
+        private bool IsLocalDir(string filepath)
+        {
+            return Directory.Exists(filepath.Replace(DROPBOXURIROOT, FILESYSTEMFOLDER));
         }
     }
 }

@@ -7,38 +7,32 @@ using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
+using ServiceStack.ServiceInterface.Cors;
 
 namespace WP6Service2.Services.Dataset
 {
     /* database schema */
-    public class Dataset
+    public class Dataset //dataset name, owner, id
     {
         [AutoIncrement]
         public long Id { get; set; }
-
         public string Owner { get; set; }
         public string Name { get; set; }
     }
 
-    /** enumeration of structural biology entry types, currently pdb, uniprot and other */
-    public enum EntryType
-    {
-        OTHER,
-        PDB,
-        UNIPROT
-    }
-
-    public class DatasetEntry
+    public class DatasetEntry //entry of a dataset, consist of entryname (2hhd), type (PDB), url (http://pdb.org/2hhd.pdb)
     {
         [AutoIncrement]
         public long Id { get; set; }
 
-        public EntryType Type { get; set; }
+        public string Type { get; set; }
         public string Url { get; set; }
-        public string Entry { get; set; }
+        [Alias("Entry")]
+        public string Name { get; set; }
     }
 
-    public class DatasetEntries
+    public class DatasetEntries //relation between entry and dataset, one dataset contains multiple entries, 
+    //one entry can be in multiple datasets
     {
         [AutoIncrement]
         public long Id { get; set; }
@@ -51,14 +45,13 @@ namespace WP6Service2.Services.Dataset
     }
 
     /* DTO for API*/
-    [Route("/dataset/{Id}", "GET,PUT")]
+    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
     [Route("/dataset", "POST")]
     public class DatasetDTO : IReturn<DatasetDTO>
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public List<string> Entries { get; set; }
-        public List<string> Urls { get; set; }
+        public List<DatasetEntry> Entries { get; set; }
     }
 
     [Route("/dataset/{Id}", ",DELETE")]
@@ -73,77 +66,102 @@ namespace WP6Service2.Services.Dataset
         public long Id { get; set; }
     }
 
-    [Route("/dataset", "GET")]
-    public class GetDatasets : IReturn<List<GetResponse>>
+    [Route("/dataset", "GET,OPTIONS")]
+    public class GetDatasets : IReturn<List<GetEntriesResponse>>
     {
     }
 
 
-    public class GetResponse
+    public class GetEntriesResponse
     {
         public long Id { get; set; }
         public string Name { get; set; }
     }
 
-    [Route("/entry", "GET")]
-    public class GetEntries : IReturn<List<GetResponse>>
+    //returns list of entries, which exists in some of the dataset
+    [Route("/entry", "GET,OPTIONS")]
+    public class GetEntries : IReturn<List<GetEntriesResponse>>
     {
     }
 
-    [Route("/entry/{Name}", "GET")] //list of urls associated with the entry name
-    public class GetEntry : IReturn<List<string>>
+    [Route("/entry/{Name}", "GET,OPTIONS")] //list of urls associated with the entry name
+    public class GetEntry : IReturn<List<DatasetEntry>>
     {
         public string Name { get; set; }
     }
 
-    [Route("/datasetentry", "GET")]
+    [Route("/datasetentry", "GET,OPTIONS")]
     public class GetDatasetEntries : IReturn<List<DatasetEntries>>
     {
     }
 
-    [VreCookieRequestFilter]
+    [EnableCors(allowCredentials:true)] //options for CORS    
+    [VreCookieRequestFilter] //filters authenticated users, sets userid item in request
     public class DatasetService : Service
     {
-        /**
-returns all entries belonging to this dataset
-*/
-        public List<GetResponse> Get(GetDatasets dtos)
+        /**returns all entries belonging to this dataset */
+        public List<GetEntriesResponse> Get(GetDatasets dtos)
         {
             var owner = (string) Request.Items["userid"];
             var result = Db.Where<Dataset>(x => x.Owner == owner)
-                .Select(x => new GetResponse {Id = x.Id, Name = x.Name}).ToList();
+                .Select(x => new GetEntriesResponse {Id = x.Id, Name = x.Name}).ToList();
             return result;
         }
 
+        public void Options(GetDatasets dtos)
+        {
+        }
+
+        /**returns dataset details */
         public DatasetDTO Get(DatasetDTO dto)
         {
             var mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
             dto.Name = mydataset.Name;
-            dto.Entries = new List<string>();
-            var myentries = Db.Select<DatasetEntries>(x => x.DatasetId == dto.Id);
+            //var entries = Db.Where<DatasetEntries>(x => x.DatasetId == dto.Id).First();
+            //dto.Entries = Db.Select<DatasetEntry>().ToList();
+            /* RAW SQL seems to produce sqliteexception
+            var myentries = Db.Select<DatasetEntry>(
+                "SELECT * FROM DatasetEntry " +
+                "INNER JOIN DatasetEntries ON DatasetEntries.DatasetEntryId = DatasetEntry.Id" +
+                "WHERE DatasetEntries.DatasetId = "+dto.Id+ ";"
+                ).ToList();
+            dto.Entries = myentries;*/
+            
+            dto.Entries = new List<DatasetEntry>();
+            var myentries= Db.Select<DatasetEntries>(x => x.DatasetId == dto.Id).ToList();
             foreach (var myentryid in myentries)
             {
                 var myentry = Db.First<DatasetEntry>(x => x.Id == myentryid.DatasetEntryId);
-                dto.Entries.Add(myentry.Entry);
+                dto.Entries.Add(myentry);
             }
             return dto;
         }
 
-        public List<GetResponse> Get(GetEntries dtos)
+        public void Options(DatasetDTO dto) {}
+
+        //returns list of entries, which exists in some of the dataset
+        public List<GetEntriesResponse> Get(GetEntries dtos)
         {
-            return Db.Select<DatasetEntry>().Select(x => new GetResponse {Id = x.Id, Name = x.Entry}).ToList();
+            return Db.Select<DatasetEntry>().Select(x => new GetEntriesResponse {Id = x.Id, Name = x.Name}).ToList();
+        }
+
+        public void Options(GetEntries dtos)
+        {
         }
 
         public List<string> Get(GetEntry dto)
         {
-            return Db.Where<DatasetEntry>(x => x.Entry == dto.Name).Select(x => x.Url).ToList();
+            return Db.Where<DatasetEntry>(x => x.Name == dto.Name).Select(x => x.Url).ToList();
         }
+        
+        public void Options(GetEntry dto) {}
 
         public List<DatasetEntries> Get(GetDatasetEntries dtos)
         {
             return Db.Select<DatasetEntries>().ToList();
         }
 
+        public void Options(GetDatasetEntries dtos) {}
         /** will store DatasetDTO as tables per DB schema
 */
         public DatasetDTO Put(DatasetDTO dto)
@@ -182,14 +200,15 @@ returns all entries belonging to this dataset
             var existingre = Db.Where<DatasetEntries>(de => de.DatasetId == mydataset.Id).Select(x => x.DatasetEntryId);
             for (var i = 0; i < dto.Entries.Count; i++) //each (var myentry in dto.Entries)
             {
-                var mydatasetEntry = new DatasetEntry
+                var mydatasetEntry = dto.Entries[i];
+                /*new DatasetEntry
                 {
-                    Entry = dto.Entries[i],
-                    Type = EntryType.OTHER,
-                    Url = dto.Urls != null ? dto.Urls[i] : ""
-                };
+                    Name = dto.Entries[i].Name,
+                    Type = dto.Entries[i].Type,
+                    Url = dto.Entries[i].Url
+                };*/
                 //check if such entry with url exists
-                var dbentry = Db.Where<DatasetEntry>(x => x.Entry == dto.Entries[i]);
+                var dbentry = Db.Where<DatasetEntry>(x => x.Name == dto.Entries[i].Name);
                 var dbentryurls = dbentry.Select(x => x.Url); // &&
                 //(x.Url == ((dto.Urls != null) ? dto.Urls[i] : "")));
                 if (dbentryurls.Contains(mydatasetEntry.Url)) //use existing entry
@@ -201,7 +220,7 @@ returns all entries belonging to this dataset
                     Db.Insert(mydatasetEntry);
                     mydatasetEntry.Id = Db.GetLastInsertId();
                 }
-                //insert relation Dataset-Entry
+                //insert relation Dataset-Name
                 if (!existingre.Contains(mydatasetEntry.Id))
                 {
                     var mydatasetentries =
@@ -213,7 +232,7 @@ returns all entries belonging to this dataset
         }
 
         private Dataset CreateNew(DatasetDTO dto)
-        {
+        {//TODO lock
             var mydataset = new Dataset {Name = dto.Name, Owner = (string) Request.Items["userid"]};
             Db.Insert(mydataset);
             mydataset.Id = Db.GetLastInsertId();

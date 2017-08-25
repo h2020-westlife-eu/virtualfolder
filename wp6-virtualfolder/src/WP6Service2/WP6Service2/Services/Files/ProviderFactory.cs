@@ -27,6 +27,7 @@ namespace MetadataService.Services.Files
                         var typename = creatortype.Name.Substring(0, creatortype.Name.IndexOf("Provider"));
                         var obj = (IProviderCreator) Activator.CreateInstance(creatortype);
                         AvailableProviders.Add(typename, obj);
+                        //Console.WriteLine("Create provider: {0} ",creatortype.Name);
                     }
         }
 

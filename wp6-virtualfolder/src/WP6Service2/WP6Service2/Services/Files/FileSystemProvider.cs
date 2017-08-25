@@ -32,7 +32,7 @@ namespace MetadataService.Services.Files
 
         private void MakeLinkToFolder(string localpath, string link)
         {
-            if (File.Exists(link)) return; //link already exists
+            if (Directory.Exists(link)) return; //link already exists
             Console.WriteLine("FileSystem initializing...");
             //create subsequent directory if not exist
             Utils.CreateSystemSubFolder(FILESYSTEMFOLDER);
@@ -82,6 +82,9 @@ namespace MetadataService.Services.Files
                     var isdirectory = !fi.GetType().Equals(typeof(FileInfo));
                     var mysize = isdirectory ? 0 : (ulong) ((FileInfo) fi).Length;
                     var mypath = path == "" ? path : path + "/";
+                    var myfiletype = (isdirectory ? FileType.Directory : FileType.None) | FileType.Read |
+                                     ((fi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
+                                     FileType.Available;
                     listOfFiles.Add(new SBFile
                     {
                         path = path,
@@ -89,8 +92,7 @@ namespace MetadataService.Services.Files
                         attributes = fi.Attributes, //.ToString(),
                         size = mysize,
                         date = fi.LastWriteTime,
-                        filetype = (isdirectory ? FileType.Directory : FileType.None) & FileType.Read &
-                                   ((fi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write),
+                        filetype = myfiletype,
                         webdavuri = webdavprefix + mypath + fi.Name,
                         publicwebdavuri = publicwebdavprefix + mypath + fi.Name
                     });
@@ -109,8 +111,9 @@ namespace MetadataService.Services.Files
                     attributes = myfi.Attributes, //.ToString(),
                     size = (ulong) myfi.Length,
                     date = myfi.LastWriteTime,
-                    filetype = FileType.None & FileType.Read &
-                               ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write),
+                    filetype = FileType.None | FileType.Read |
+                               ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
+                               FileType.Available,
                     webdavuri = path,
                     publicwebdavuri = publicwebdavprefix + "/" + path
                 });

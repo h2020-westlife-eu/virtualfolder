@@ -7,6 +7,7 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
 import {bindable} from 'aurelia-framework';
+import {Vfstorage} from '../utils/vfstorage';
 
 export class Filepanel{
   static inject = [EventAggregator,HttpClient];
@@ -17,11 +18,11 @@ export class Filepanel{
         this.client = httpclient;
         this.files = [];
         this.filescount = this.files.length;
-        if (localStorage && (localStorage.filepanel))
         this.path= "";
         this.lastpath=this.path;
         this.dynatable = {};
-        this.serviceurl = "/metadataservice/files";
+
+        this.serviceurl = Vfstorage.getBaseUrl()+ "/metadataservice/files";
         //http to accept json
         this.client.configure(config=>{
             config.withHeader('Accept','application/json');
@@ -29,11 +30,66 @@ export class Filepanel{
         });
         //console.log("filepanel tableid:"+this.panelid);
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
+        this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
+        this.wassorted=this.sorted.none;
     }
 
     bind(){
-      this.path = localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
+      this.path = Vfstorage.getValue("filepanel" + this.panelid,"");
+        //localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
       this.lastpath="";
+    }
+
+    sortByX(sortflag,sortfunction){
+      //console.log("Filepanel sort");
+      //console.log(this.files);
+      if (this.path.length>0) {//non root path
+        this.files.shift(); //take the first '..'
+      }
+
+      //sort by name if previously not this.sorted by name
+      if (!(this.wassorted & sortflag)) {
+        this.files.sort(sortfunction)
+        this.wassorted = sortflag;
+      } else {
+        //if previously reversed
+        if (this.wassorted & this.sorted.reverse) {
+          this.files.reverse(); //reverse again
+          this.wassorted = sortflag;
+        } else { //not reversed - reverse and set flag
+          this.files.reverse();
+          this.wassorted = this.wassorted | this.sorted.reverse;
+        }
+      }//sort(function(a,b){return a.name>b.name?-1:1;})
+      if (this.path.length>0) {//non root path add the first '..'
+        this.addUpDir()
+      }
+      //this.wassorted = this.wassorted | sortflag;
+      //console.log(this.files);
+    }
+
+    addUpDir(){
+      this.files.unshift({name: "..", nicesize: "UP-DIR",date:"",available:true}); //up dir item
+    }
+
+    sortByName(){
+      this.sortByX(this.sorted.byname,function(a,b){return a.name>b.name?1:-1;})
+    }
+
+    sortBySize(){
+      this.sortByX(this.sorted.bysize,function(a,b){return a.size-b.size})
+    }
+    sortByDate(){
+      this.sortByX(this.sorted.bydate,function(a,b){return a.date>b.date?1:-1;})
+    }
+
+    extension(filename){
+      var re = /(?:\.([^.]+))?$/;
+      return re.exec(filename)[1];
+    }
+
+    sortByExt(){
+      this.sortByX(this.sorted.byext,function(a,b){return a.ext>b.ext?1:-1;})
     }
 
     //triggered after this object is placed to DOM
@@ -49,12 +105,12 @@ export class Filepanel{
                 //handle 403 unauthorized
                 if (error.statusCode == 403) {
                   //try to login
-                  console.log("redirecting");
+                  //console.log("redirecting");
                   window.location = "/login?next=" + window.location.pathname;
                   //window.location =
                 } else {
-                  console.log('Filepanel Error retrieving from "'+this.path+'":');
-                  console.log(error);
+                  //console.log('Filepanel Error retrieving from "'+this.path+'":');
+                  //console.log(error);
                   //try empty path
                   if (this.path.length>0){
                     this.path="";
@@ -64,7 +120,7 @@ export class Filepanel{
                           this.populateFiles(data.response);
                         }
                       }).catch(error => {
-                      console.log('Filepanel Error retrieving from "'+this.path+'":');
+                      console.log('Filepanel Error retrieving file info from "'+this.path+'":');
                       console.log(error);
                     });
                     }
@@ -80,7 +136,7 @@ export class Filepanel{
         if (typeof value === 'string') {
             a = /\/Date\(([\d\+]*)\)\//.exec(value);
             if (a) {
-                return new Date(parseInt(a[1])).toLocaleDateString('en-GB');
+                return new Date(parseInt(a[1])).toLocaleDateString(navigator.language?navigator.language:"en-GB");
             }
         }
         return value;
@@ -99,6 +155,16 @@ export class Filepanel{
         this.path+='/'+subdir;
     }
 
+    cdroot(){
+      this.lastpath= this.path;
+      this.path = "";
+    }
+
+    //goes to the root
+    goroot(){
+      this.changefolder("/");
+    }
+
 
     //change folder, reads the folder content and updates the table structure
     changefolder(folder){
@@ -106,6 +172,7 @@ export class Filepanel{
             this.lock = true;
             if (folder) {
                 if (folder == '..') this.cdup();
+                  else if (folder == '/') this.cdroot();
                 else this.cddown(folder);
             }
 
@@ -133,30 +200,40 @@ export class Filepanel{
 
     //parses response and fills file array with customization (DIRS instead of size number)
     populateFiles(dataresponse){
-      if (localStorage) localStorage.setItem("filepanel" + this.panelid,this.path);
-        this.files = JSON.parse(dataresponse,this.dateTimeReviver);//populate window list
+      //console.log("filepanel.populateFiles()")
+      Vfstorage.setValue("filepanel" + this.panelid,this.path);
+
+        this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
         this.filescount =  this.files.length;
+        let that = this;
         this.files.forEach (function (item,index,arr){
           if(!arr[index].name && arr[index].alias) {
             arr[index].name=arr[index].alias;
             arr[index].attributes = 16;
             arr[index].date="";
+            arr[index].filetype=8;
           }
-          if (arr[index].attributes & 16) arr[index].size="DIR";
+          //console.log(arr[index]);
+          arr[index].ext=that.extension(arr[index].name); //may return undefined
+          arr[index].nicedate=that.dateTimeReviver(null,arr[index].date);
+          if (!arr[index].ext) arr[index].ext="";
+          arr[index].available = !!(arr[index].filetype & 8); //available if the filetype attribute contains flag 8
+          if (arr[index].attributes & 16) arr[index].nicesize="DIR";
           else
             //convert to 4GB or 30MB or 20kB or 100b
-            arr[index].size=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
+            arr[index].nicesize=~~(arr[index].size/1000000000)>0?~~(arr[index].size/1000000000)+"GB":(~~(arr[index].size/1000000)>0?~~(arr[index].size/1000000)+"MB":(~~(arr[index].size/1000)>0?~~(arr[index].size/1000)+"kB":arr[index].size+" b"));
         });
       if (this.path.length>0) {//non root path
-        this.files.unshift({name: "..", size: "UP DIR",date:""}); //up dir item
+        this.addUpDir();
       }
 
     }
 
     selectFile(file){
       //console.log("selectFile("+file+") panelid:"+this.panelid);
-      if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
+      if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
       else {
+
         //HEAD the file - so it can be obtained - cached by metadata service, fix #45
         let fileurl=this.serviceurl + this.path + '/' + file.name
         this.client.head(fileurl)
@@ -168,7 +245,8 @@ export class Filepanel{
           console.log("Error when geting metadata information about file:")
           console.log(error);
         });
-        //reconstructs public url
+
+        //constructs public url
         this.client.get(this.getpublicwebdavurl)
           .then(data => {
             if (data.response) {

@@ -7,6 +7,7 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {DropboxControl} from './dropboxcontrol';
 import {SettingsSelected} from './messages';
+import {Vfstorage} from "../utils/vfstorage";
 
 export class Genericcontrol {
 
@@ -24,12 +25,10 @@ export class Genericcontrol {
     this.dropboxauthurl = "";
     this.providers = [];
     this.selectedProvider="";
+    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/";
     //console.log('genericcontrol()');
     this.client=httpclient;
-    /*this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });*/
+
     this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
     this.myHeaders = new Headers();
     this.myHeaders.append('Accept', 'application/json');
@@ -76,11 +75,11 @@ export class Genericcontrol {
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
-    this.client.fetch("/metadataservice/"+this.providerspath,{headers:this.myHeaders,credentials:'include'})
+    this.client.fetch(this.serviceurl+this.providerspath,{headers:this.myHeaders,credentials:'include'})
       .then(response => response.json())
       .then(data=> {
-        console.log("data response");
-        console.log(data);
+        //console.log("data response");
+        //console.log(data);
         if (data) {
           this.providers = data;
         }
@@ -88,12 +87,12 @@ export class Genericcontrol {
       //handle 403 unauthorized
       if (error.statusCode == 403) {
         //try to login
-        console.log("redirecting");
+        console.log("genericcontrol.attached() redirecting");
         window.location = "/login?next=" + window.location.pathname;
         //window.location =
       } else {
-        console.log('Error');
-        console.log(error);
+        //console.log('Error');
+        //console.log(error);
         //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
       }
     });
@@ -105,37 +104,21 @@ export class Genericcontrol {
      settings.type=this.selectedProvider;
      settings.alias = this.alias;
      if (this.selectedDropbox) settings.securetoken = this.securetoken;
-     //TODO check validity of filesystem path on server
      if (this.selectedFileSystem) settings.securetoken = this.filesystempath;
-     //TODO check b2drop and webdav username and password
      if (this.selectedB2Drop) {
        settings.securetoken = this.password;
        settings.username = this.username;
-       //check HTTP 200
-       //this.checkWebdav("https://b2drop.eudat.eu/remote.php/webdav",settings);
      } else if (this.selectedWebDav){
        settings.accessurl=this.accessurl;
        settings.securetoken = this.password;
        settings.username = this.username;
-       //this.checkWebdav(this.accessurl,settings)
      }
     this.submitSettings(settings)
   }
 
-  //DO NOT WORK as CORS pre-flight OPTION is triggered by browser which results in HTTP 401 returned by b2drop
-  checkWebdav(url,settings){
-    this.client.fetch(url,{method:'HEAD',credentials:'include'})
-      .catch(error => {
-        let myHeaders = new Headers();
-        myHeaders.append('Authorization','Basic '+btoa(settings.username+":"+settings.securetoken))
-        this.client.fetch(url,{method:'HEAD', headers:myHeaders})
-        .then(data => this.doneCallback(settings))
-        .catch(error => this.errorCallback(error))
-      })
-  }
 
   submitSettings(settings) {
-    this.client.fetch("/metadataservice/"+this.filespath,{
+    this.client.fetch(this.serviceurl+this.filespath,{
       method: 'put',
       body: json(settings),
       headers:this.myHeaders,
@@ -143,14 +126,14 @@ export class Genericcontrol {
     })
       .then(response => response.json())
       .then(data =>{
-        console.log("genericcontrol: data response:");
-        console.log(data);
+        //console.log("genericcontrol: data response:");
+        //console.log(data);
         if (Array.isArray(data)) {
           this.doneCallback(data);
           //this.providers = data;
         } else {
 
-          console.log(data);
+          //console.log(data);
           if (data.ResponseStatus) alert('Sorry.'+data.ResponseStatus.ErrorCode+"\n"+ data.ResponseStatus.Message+"\nSubmit correct username and/or password again.");
           else alert ('Sorry. Settings not submitted. Check all items are correct and submit again.')
         }

@@ -15,7 +15,7 @@
         <div class="result-card-body">
           <span repeat.for="doclistRec of resultGroup.doclist.docs">
 
-            <div class="result-card-item"><button type="button" class="result-card-item-label w3-button w3-padding-0" click.trigger="clicked(doclistRec.value)" >${doclistRec.value}</button> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
+            <div class="result-card-item"><button type="button" class="result-card-item-label w3-button w3-padding-0" click.trigger="clicked(doclistRec)" >${doclistRec.value}</button> <span class="result-card-item-count">(${doclistRec.num_pdb_entries})</span></div>
           </span>
 
         </div>

@@ -2,12 +2,12 @@
   <require from="codemirror/lib/codemirror.css" as="scoped"></require>
   <require from="codemirror/theme/eclipse.css" as="scoped"></require>
   <div show.bind="!isimage" class="w3-card-2 w3-pale-blue w3-code-2">
-    Viewing file:<i class="w3-tiny">${fileurl}</i>
+    Viewing file:<i class="w3-tiny">${filename}</i>
   <textarea ref="cmTextarea">
 
   </textarea>
   </div>
-  <div if.bind="isimage" class="w3-card-2 w3-black w3-code-2">
-    <img src.bind="imageurl"/>
+  <div if.bind="isimage" class="w3-card-2 w3-code-2">
+    <img src.bind="imageurl" class="w3-image"/>
   </div>
 </template>

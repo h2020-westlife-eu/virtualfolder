@@ -12,6 +12,7 @@
 * [Integration guide](doc/integration-guide.md)
   * [Link component](doc/integration-guide/link-component.md)
   * [Embedding component into web site](doc/integration-guide/embedding-component-into-web-site.md)
+  * [Adding component into Virtual Folder](doc/integration-guide/adding-component-into-virtual-folder.md)
 * [Developer's guide](doc/developers-guide.md)
   * [Backend](doc/developers-guide/backend.md)
   * [Frontend - Web Application](doc/developers-guide/frontend-web-application.md)

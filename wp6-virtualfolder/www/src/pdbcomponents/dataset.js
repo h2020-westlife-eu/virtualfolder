@@ -4,25 +4,35 @@
 
 import 'whatwg-fetch';
 import {HttpClient} from "aurelia-http-client";
-import {computedFrom} from 'aurelia-framework';
 import {bindable} from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {DatasetFile} from '../filepicker/messages';
+import {Vfstorage} from '../utils/vfstorage';
 
 //Model view controller
 //Model view viewmodel
-
+/** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
+ * holds dataset structure and includes dataitems
+ *
+ */
 export class Dataset {
-  static inject = [HttpClient];
+  static inject = [HttpClient,EventAggregator];
   @bindable panelid;
 
-  constructor (httpclient) {
+  constructor (httpclient,ea) {
     this.client = httpclient;
     this.client.configure(config=> {
       config.withHeader('Accept', 'application/json');
       config.withHeader('Content-Type', 'application/json');
     });
+    this.ea = ea;
+    this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
+
     this.showitem=true;
+    this.baseurl =
+    this.dataseturl=Vfstorage.getBaseUrl()+"/metadataservice/dataset";
     this.showlist=true;
-    this.pdbdataset = [];
+    this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
     this.pdbdataitem = "";
     this.pdblinkset = [];
     this.pdbdataitem = "";
@@ -59,6 +69,7 @@ export class Dataset {
       //console.log("dataset.attached(), data:")
       //console.log(data)
       this.datasetlist = JSON.parse(data.response);
+      //console.log('Dataset().datasetlist:')
       //console.log(this.datasetlist)
     })
   }
@@ -84,16 +95,27 @@ export class Dataset {
   }
 
   removedataset(item){
-    console.log("removedataset() not implemented");
-    console.log(item)
+    alert("Remove dataset not yet implemented.");
+    //console.log(item)
   }
 
   additem(item){
-    console.log("additem()");
-    console.log(item);
+    //console.log("additem()");
+    //console.log(item);
     this.pdbdataset.unshift(item);
-
+    //console.log(this.pdbdataset);
     //this.canSubmit = this.pdbdataset.length>0?true:false;
+  }
+
+  addDatasetFile(file,senderid) {
+    if (senderid!== this.panelid) {
+      //console.log("dataset.adddatasetfile()");
+      //console.log(file);
+      if (window.confirm("The file " + file.name + " will be added to dataset.")) {
+        let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"}
+        this.pdbdataset.unshift(item);
+      }
+    }
   }
 
   removeitem(itemtodelete){
@@ -108,14 +130,40 @@ export class Dataset {
 
 
   submit(){
-    this.client.put("/metadataservice/dataset",JSON.stringify(this.pdbdataset))
-      .then(data =>{
-        console.log("data response");
-        console.log(data);9
-      })
-      .catch(error =>{
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-      });
+    //console.log("submitting data:");
+    this.submitdataset = {};
+    this.submitdataset.Id = this.id;
+    this.submitdataset.Name = this.name;
+    this.submitdataset.Entries = this.pdbdataset;
+    //this.submitdataset.Urls =
+    //console.log(this.submitdataset);
+    //console.log(JSON.stringify(this.submitdataset));
+    //PUT = UPDATE, POST = create new
+    if (this.id>0)
+      this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          //console.log("data response");
+          //console.log(data);
+          let myitem = JSON.parse(data.response);
+          //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
+    else
+      this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
+        .then(data =>{
+          //console.log("data response");
+          //console.log(data);
+          let myitem = JSON.parse(data.response);
+          this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+        })
+        .catch(error =>{
+          console.log(error);
+          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        });
   }
 }

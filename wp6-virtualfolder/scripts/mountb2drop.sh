@@ -96,10 +96,10 @@ function removesecrets {
 function addapacheproxy {
   removeapacheproxy $2
   SFILE2=/tmp/secrets2
-  sudo rm $SFILE2
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
     AUTH="$(base64 -w 0 $SFILE2)"
+    rm $SFILE2
     # hostname from the url in argument $1 is ${HOST[2]}, fix bug #24
     IFS="/";
     HOSTURL=( $1 )
@@ -118,9 +118,8 @@ function addapacheproxy {
     echo "  ProxyPass \"$1/\"" | sudo -E tee -a $HTTPD_CONF
     echo "  ProxyPassReverse \"$1/\"" | sudo -E tee -a $HTTPD_CONF
     echo "</Location>" | sudo -E tee -a $HTTPD_CONF
-    sudo service ${HTTP_SERVICE} reload
+    sudo service ${HTTPD_SERVICE} reload
   fi
-  rm $SFILE2
 }
 
 function removeapacheproxy {

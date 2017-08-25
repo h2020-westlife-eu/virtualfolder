@@ -1,9 +1,12 @@
 /**
- * Created by Tomas Kulhanek on 2/27/17.
+ * * Created by Tomas Kulhanek on 2/27/17.
  */
 
-// PdbId => pdb-id MyCustomAttribute => my-custom-attribute
-
+/** adds functionality into pdb-id attribute, if used, then
+ * it is integrated with ebi.ac.uk PDB components - which use
+ * this attribute torender specific content
+ *
+ */
 export class PdbIdCustomAttribute {
   static inject = [Element]
 

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
@@ -16,17 +19,12 @@ namespace MetadataServiceTest
     {
         private readonly string _baseUri = "http://localhost:8002/metadataservice/";
 
-
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            //sets the dropbox key to parallel task
-            //WP6Service2.Program.StartHost(BaseUri,new string[]{});
-            //wait 1 second
-            //Environment.SetEnvironmentVariable("VF_STORAGE_PKEY", "xYD+jvVfisbY5Mer1ZfTEuv7KWw/NZN0BJaUoTBSFXw=");
-            //Environment.SetEnvironmentVariable("VF_DATABASE_FILE", "home/vagrant/.westlife/metadata.sqlite");
+            System.Environment.SetEnvironmentVariable("VF_ALLOW_FILESYSTEM","true");
             Program.StartHost(_baseUri, null);
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
         }
 
         [TestFixtureTearDown]
@@ -58,11 +56,14 @@ namespace MetadataServiceTest
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
+            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
+            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
             var mydto = new DatasetDTO
             {
                 Name = "testdataset2",
-                Entries = new[] {"2hh1", "3csa", "4yg1"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
 
@@ -86,24 +87,26 @@ namespace MetadataServiceTest
         {
             //submit dataset, then update it, check whether only relevant entries were updated - not doubled
             var client = new JsonServiceClient(_baseUri);
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
+            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
+            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
             var mydto = new DatasetDTO
             {
                 Name = "testdataset3",
-                Entries = new[] {"2hh1", "3csa", "4yg1"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
             Assert.True(mydto2.Entries.Count == 3);
-            Assert.True(mydto2.Urls.Count == 3);
-            mydto2.Entries.Add("2hhd");
-            mydto2.Urls.Add("http://www.pdb.org/2hhd");
-            //var mydto3 =
+            
+            mydto2.Entries.Add(new DatasetEntry(){Name="2hhd",Url="http://www.pdb.org/2hhd"});
+            
             client.Put(mydto2);
             var mydto4 = client.Get(new DatasetDTO {Id = mydto2.Id});
 
             Assert.True(mydto4.Entries.Count == 4);
             //Assert.True(mydto4.Urls.Count==4);
-            Assert.True(mydto4.Entries.Contains("2hhd"));
+            Assert.True(mydto4.Entries.Select(x=> x.Name).Contains("2hhd"));
             //Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
         }
 
@@ -156,11 +159,15 @@ namespace MetadataServiceTest
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hh4",Url = "http://www.pdb.org/2hh4"});
+            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
+            myEntries.Add(new DatasetEntry(){Name="4ygg",Url = "http://www.pdb.org/4ygg"});
+
             var mydto = new DatasetDTO
             {
                 Name = "testdataset2",
-                Entries = new[] {"2hh4", "3csb", "4ygg"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hh1", "http://www.pdb.org/3csa", "http://www.pdb.org/4yg1"}.ToList()
+                Entries = myEntries
             };
             var mydto2 = client.Post(mydto);
 
@@ -187,11 +194,15 @@ namespace MetadataServiceTest
             Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
             Assert.True(all.Count >= 0);
             //    Is.StringStarting("[")); // asserts that the json is array
+            var myEntries = new List<DatasetEntry>();
+            myEntries.Add(new DatasetEntry(){Name="2hhd",Url = "http://www.pdb.org/2hhd"});
+            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
+            myEntries.Add(new DatasetEntry(){Name="4yg0",Url = "http://www.pdb.org/4yg0"});
+
             var mydto = new DatasetDTO
             {
                 Name = "testdataset",
-                Entries = new[] {"2hhd", "3csb", "4yg0"}.ToList(),
-                Urls = new[] {"http://www.pdb.org/2hhd", "http://www.pdb.org/3csb", "http://www.pdb.org/4yg0"}.ToList()
+                Entries = myEntries
             };
 
             var mydto2 = client.Post(mydto);
@@ -234,5 +245,161 @@ namespace MetadataServiceTest
             var all = client.Get(new SBService {Name = "scipion"});
             Assert.That(all.ToString(), Is.StringStarting("{Id"));
         }
+
+        [Test]
+        public void HttpOptionsShouldReturn200OnFileProvidersDatasetTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var response = client.Send<HttpWebResponse>("OPTIONS", "files", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            response = client.Send<HttpWebResponse>("OPTIONS", "files/filesystem", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            response = client.Send<HttpWebResponse>("OPTIONS", "dataset", null);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            
+            try
+            {
+                response = client.Send<HttpWebResponse>("OPTIONS", "otherservice", null);
+                Assert.Fail();
+            }
+            catch (WebServiceException)
+            {
+                //Assert.Pass();
+            }
+        }
+
+        private ProviderItem createTestProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "b2drop_test",
+                type = "B2Drop",
+                securetoken =
+                    "dmFncmFudFM2wAdx6KqWemSjD2Re38CZ9i0xMywQt8x71NwEoJZavTxbiOEga3te+q4cq4pK2gAKTtawu3k0REBz1pGiFiJR+Wnot8pS7d52o+w6x9tW",
+                username = "tomas.kulhanek@stfc.ac.uk",
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+
+
+        [Test]
+        public void DecryptSecretsRegisterB2dropTestCase()
+        {
+            var pi = createTestProviderItem();
+            try
+            {                                                                
+                SettingsStorageInDB.decrypt(ref pi);
+            }
+            catch (WarningException)
+            {
+                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
+                Assert.Ignore();                
+            }
+            //should decrypt secret token
+            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            
+            var client = new JsonServiceClient(_baseUri);
+            var providerlist = client.Get(new ProviderItem());            
+            var providerlistwithnew = client.Put(pi);
+            //should register - new providers is added
+            Assert.True(providerlist.Count < providerlistwithnew.Count);
+            Assert.True(providerlistwithnew.Last().alias=="b2drop_test");
+            //test directory exists, it is mounted
+            Assert.True(Directory.Exists("/home/vagrant/work/vagrant/b2drop_test"));
+            //test directory is not empty - some dirs or files
+            Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/b2drop_test").Length>0);
+
+            var providerlistdeleted = client.Delete(pi);
+            //should delete - no provider list is there
+            Assert.True(providerlistdeleted.Count == providerlist.Count);
+        }                       
+
+        private ProviderItem createTestDropboxProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "dropbox_test",
+                type = "Dropbox",
+                securetoken =
+                    "dmFncmFudEX+37yxPbbSDfjkeDjBmkbcWhZ47fNWLjQnpNnfAV38Gm/NeRZA7199SLzaJekuV//2tdyJRoR19Qc8EZAcvqbjwI6dtlXymSF5OlssD3e9XdYdXEM5b//D2dg6nuYOrMt/24iQ6KIasRSIn3wGNn12sawI73nc00KbwlX5NFJ5/urb/qgczBhO5h7v+0VFLQ==",                
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+
+        [Test]
+        public void DecryptSecretsRegisterDropboxTestCase()
+        {
+            var pi = createTestDropboxProviderItem();
+            try
+            {                                                                
+                SettingsStorageInDB.decrypt(ref pi);
+            }
+            catch (WarningException)
+            {
+                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
+                Assert.Ignore();                
+            }
+            //should decrypt secret token
+            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            
+            var client = new JsonServiceClient(_baseUri);
+            var providerlist = client.Get(new ProviderItem());            
+            var providerlistwithnew = client.Put(pi);
+            //should register - new providers is added
+            Assert.True(providerlist.Count < providerlistwithnew.Count);
+            Assert.True(providerlistwithnew.Last().alias=="dropbox_test");
+
+            var providerlistdeleted = client.Delete(pi);
+            //should delete - no provider list is there
+            Assert.True(providerlistdeleted.Count == providerlist.Count);
+        }
+        
+        private ProviderItem createTestFilesystemProviderItem()
+        {
+            var pi = new ProviderItem
+            {
+                alias = "filesystem_test",
+                type = "FileSystem",
+                securetoken =
+                    "/home/vagrant",                
+                loggeduser="vagrant"
+            };
+            return pi;
+        }
+        [Test]
+
+        public void RegisterFilesystemTestCase()
+        {            
+            var pi = createTestFilesystemProviderItem();            
+            var client = new JsonServiceClient(_baseUri);
+            try {
+                var providerlist = client.Get(new ProviderItem());
+                
+                var providerlistwithnew = client.Put(pi);
+                //should register - new providers is added
+                Assert.True(providerlist.Count < providerlistwithnew.Count);
+                Assert.True(providerlistwithnew.Last().alias=="filesystem_test");
+                //test directory exists, it is mounted
+                Assert.True(Directory.Exists("/home/vagrant/work/vagrant/filesystem_test"));
+                //test directory is not empty - some dirs or files
+                Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/filesystem_test").Length>0);
+
+                var providerlistdeleted = client.Delete(pi);
+                //should delete - no provider list is there
+                Assert.True(providerlistdeleted.Count == providerlist.Count);
+            }
+            catch (WebServiceException e)
+            {
+        	if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
+                Console.WriteLine(e.Message);
+                throw e;
+            }
+            catch (Exception e) {
+                throw e;
+            }
+        }                       
+        
     }
 }

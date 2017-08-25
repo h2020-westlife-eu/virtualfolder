@@ -4,7 +4,10 @@ import {SelectedTab} from './messages';
 //import $ from 'jquery';
 //import {tabs} from 'jquery-ui';
 
-
+/**
+ * <tabs></tabs>
+ * adds tabs functionality into application filepanel
+ */
 export class Tabs {
     @bindable tabs = null;
     static inject = [Element,EventAggregator];

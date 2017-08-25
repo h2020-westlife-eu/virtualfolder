@@ -4,6 +4,12 @@
 import {bindable} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
+/** Checkurl component <checkurl url="some url">content</checkurl>
+ * checks the url provided in url attribute,
+ * if the HEAD request returns HTTP 200, then the content inside the component is
+ * added into the resulting DOM, otherwise no DOM is rendered and no further processing
+ * performed -e.g. subsequent calls to the url etc.
+ */
 export class Checkurl {
   static inject = [HttpClient];
   @bindable failmessage="No data available for this structure.";
@@ -15,12 +21,12 @@ export class Checkurl {
   }
 
   attached(){
-    console.log("Checkurl component:"+this.url+" message:"+this.failmessage);
+    //console.log("Checkurl component:"+this.url+" message:"+this.failmessage);
 
     this.client.fetch(this.url, {method: 'HEAD'})
       .then(response => {
-        console.log("checkurl response:");
-        console.log(response);
+        //console.log("checkurl response:");
+        //console.log(response);
         if (response.status==200) this.showit=true;
         //this.message = this.failmessage;
       })
