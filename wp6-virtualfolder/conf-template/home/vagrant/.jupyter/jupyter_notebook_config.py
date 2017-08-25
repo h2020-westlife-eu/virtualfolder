@@ -156,7 +156,7 @@ c.NotebookApp.iopub_data_rate_limit = 1000000000
 
 ## (msgs/sec) Maximum rate at which messages can be sent on iopub before they are
 #  limited.
-#c.NotebookApp.iopub_msg_rate_limit = 1000
+c.NotebookApp.iopub_msg_rate_limit = 1000000000
 
 ## The IP address the notebook server will listen on.
 #c.NotebookApp.ip = 'localhost'
