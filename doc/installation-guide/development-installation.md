@@ -5,13 +5,13 @@ Prerequisites:
  1. Vagrant - tool for automation of virtual machine deployment. 
   1. For MS Windows - Download and install vagrant from https://www.vagrantup.com/  (tested on/recommended version vagrant 1.9.6) 
   2. For Linux - use prefered package management
-     1. Ubuntu:```apt install vagrant```
+     1. Ubuntu:```apt install vagrant``` (tested on Ubuntu 17.04, vagrant 1.9.1)
      2. Centos(RHEL):```yum install vagrant```
  2. Virtualbox - VM stack. 
    1. For MS Windows - Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
  (tested on/recommended version Virtualbox 5.1.22)
    2. For Linux - use preferred package management. 
-      1. Ubuntu: ```apt install virtualbox```
+      1. Ubuntu: ```apt install virtualbox``` (tested on Ubuntu 17.04, Virtualbox 5.1.22)
       2. Centos(RHEL): ```yum install virtualbox```
 
 ## Brief instruction using Vagrant
