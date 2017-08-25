@@ -2,12 +2,17 @@
 
 Prerequisites:
 
- 1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/ or using your system package management (
- (tested on/recommended version vagrant 1.9.6)
- 
-
- 2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
+ 1. Vagrant - tool for automation of virtual machine deployment. 
+  1. For MS Windows - Download and install vagrant from https://www.vagrantup.com/  (tested on/recommended version vagrant 1.9.6) 
+  2. For Linux - use prefered package management
+     1. Ubuntu:```apt install vagrant```
+     2. Centos(RHEL):```yum install vagrant```
+ 2. Virtualbox - VM stack. 
+   1. For MS Windows - Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
  (tested on/recommended version Virtualbox 5.1.22)
+   2. For Linux - use preferred package management. 
+      1. Ubuntu: ```apt install virtualbox```
+      2. Centos(RHEL): ```yum install virtualbox```
 
 ## Brief instruction using Vagrant
 
@@ -51,7 +56,7 @@ cd wp6-vm/vf-standalone-src/
 cd wp6-vm
 ```
 
-- Standalone from Binaries (distributed via cvmfs). The same as above - but Virtual Folder is not compiled from sources -boots from cvmfs as well.
+- Standalone from Binaries (distributed via cvmfs). The same as above - but Virtual Folder is not compiled from sources -boots from cvmfs as well. This option is faster, the last stable release is distributed.
 ```
 cd wp6-vm/vf-standalone-bin/
 ```
