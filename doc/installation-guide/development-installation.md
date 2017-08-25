@@ -2,12 +2,16 @@
 
 Prerequisites:
 
- 1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/
+ 1. Vagrant - tool for automation of virtual machine deployment. Download and install vagrant from https://www.vagrantup.com/ or using your system package management (
+ (tested on/recommended version vagrant 1.9.6)
+ 
+
  2. Virtualbox - VM stack. Download and install virtualbox https://www.virtualbox.org/wiki/Downloads
+ (tested on/recommended version Virtualbox 5.1.22)
 
 ## Brief instruction using Vagrant
 
-The Vagrant tool with connection to Virtualbox is used to prepare a virtual machine. Scripts are supplied to prepare the local environment, get the source codes, and to set up port forwarding and shared folders settings etc.   
+The Vagrant tool configures and bootstraps virtual machine in Virtualbox.
 Brief instructions are:
 
 ```
@@ -18,16 +22,14 @@ cd wp6-vm
 vagrant up
 ```
 
-This will clone repository with scripts, get an initial VM image and starts the image with provisioning.
-
 ![](/doc/assets/VMVagrantUp.gif)
 
 After succesfull installation, there should be message 'BOOSTRAP FINISHED, VM prepared to use'.
 
-After 'vagrant up' has finished, the new virtual machine can be accessed via web browser \(port 8081 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number\)
+After 'vagrant up' has finished, the new virtual machine can be accessed via web browser \(port 8080 is by default forwarded to VM, check VagrantFile or vagrant log for exact port number\)
 
 ```
-http://localhost:8081/
+http://localhost:8080/
 ```
 
 You can access the desktop of the VM by going into VirtualBox.
@@ -37,35 +39,54 @@ You can access the desktop of the VM by going into VirtualBox.
 
 Download or clone metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) unzip it into some [wp6-vm directory] or clone the main repository https://github.com/h2020-westlife-eu/wp6-vm.git.
 
-*1.* Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
+**1.** Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
      
-    cd [wp6-vm directory]
+    cd [wp6-vm directory]/[selected configuration]
 
+These configurations are available:
+- Standalone from Source Codes (default) - based on CernVM 4.0 micro image which boots into Scientific Linux 7. This is preferred option as CernVM distributes most updated SL7 with recent security updates, so either restart or ```cernvm-update -a``` is required occasionally.
+```
+cd wp6-vm/vf-standalone-src/
+    OR
+cd wp6-vm
+```
+
+- Standalone from Binaries (distributed via cvmfs). The same as above - but Virtual Folder is not compiled from sources -boots from cvmfs as well.
+```
+cd wp6-vm/vf-standalone-bin/
+```
+
+- Standalone from Source Codes - based on clean Scientific Linux 7 - no dependency on online repositories at all, recommended for preparing off-line deployment.
+```
+cd wp6-vm/vf-standalone-src-sl7/
+```
+
+- Test configurations - currently in testing stage, not guaranted to be working.
+```
+cd wp6-vm/test-...
+```
     
-*2.* (Optionally), if you have used west-life VM before, update the vagrant box cache
+**2.** (Optionally), if you have used west-life VM before, you may remove previous VM by and update the vagrant box cache
 
+    vagrant destroy
     vagrant box update    
+        
 
-*3.* (Optionally), if you want install WP6 from source codes,
-   edit Vagrantfile and uncomment bootstrapsources.sh and comment bootstrapcvmfs.sh lines:
-
- ```  
-   config.vm.provision "shell",  path: "bootstrapsources.sh"
-   # config.vm.provision "shell",  path: "bootstrapcvmfs.sh"
- ```
-
-*4.* (Optionally), based on step 3. the (master) branch from sources are cloned, to change it, edit the bootstrapcloud.sh file and uncomment/edit the following three lines (change 'dev' with a desired git branch):
+**3.** (Optionally), the master branch from sources are cloned, to change it, edit the bootstrapsources.sh file and uncomment/edit the following three lines (change 'dev' with a desired git branch):
 
     # optional switch to branch
     cd west-life-wp6
     git checkout dev
     cd ..
+**4.** (Optionally), by default, virtualfolder in VM will contain single user environment. To enable multiuser environment with VRE, edit bootstrapsources.sh file and uncomment the following line. Default user for VF will then be vagrant/vagrant:
 
-*5.* Start the vagrant box:
+    export PORTAL_DEPLOYMENT=1  
+
+**5.** Start the vagrant box:
 
     vagrant up    
 
-This will start VM template CernVM, boots to Scientific Linux 7.2 and performs some bootstrap scripts. Depending on network speed it will take several to several tens of minutes - downloading about 200 MB of data. Wait until "BOOTSTRAP FINISHED", otherwise the process failed, investigate the log and repeat the step 5.
+This will start VM template, boots to Scientific Linux 7 and performs some bootstrap scripts. Depending on network speed it will take several to several tens of minutes - CernVM image (18MB) will need to download additional 200 MB, SL7 image (700 MB) will need to download additional 100 MB. Wait until "BOOTSTRAP FINISHED", otherwise the process failed, investigate the logs.
 
 ## Usage
 
