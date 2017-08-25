@@ -54,7 +54,10 @@ echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
 yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
 yum repolist
-yum -y install davfs2 mod_proxy_html mod_ssl dos2unix --skip-broken
+yum -y install davfs2 --skip-broken 
+yum -y install mod_proxy_html --skip-broken 
+yum -y install mod_ssl --skip-broken 
+yum -y install dos2unix --skip-broken
 
 systemctl start httpd
 systemctl enable httpd
