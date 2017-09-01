@@ -24,7 +24,8 @@
 # prepare and restart apache, rewrite configuration
 # copy all system config to etc
 cp -R $WP6SRC/conf-template/* /
-sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/virtualfolder\/latest\/www/${WP6SRC}\/www/g" /etc/httpd/conf.d/000-default.conf
+WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
+sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/virtualfolder\/latest\/www/${WP6SRCESC}\/www/g" /etc/httpd/conf.d/000-default.conf
 
 # copy web app pages
 #cp $WP6SRC/www/* /var/www/html
@@ -51,8 +52,12 @@ echo Warning: This operation might be slown down by repeating requests to SL ser
 echo minrate=10 >> /etc/yum.conf
 echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
+yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
 yum repolist
-yum -y install davfs2 mod_proxy_html --skip-broken
+yum -y install davfs2 --skip-broken 
+yum -y install mod_proxy_html --skip-broken 
+yum -y install mod_ssl --skip-broken 
+yum -y install dos2unix --skip-broken
 
 systemctl start httpd
 systemctl enable httpd
@@ -79,14 +84,8 @@ usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
+ln -s $WP6SRC/scripts /home/vagrant/scripts
 
-# mount b2drop
-#mkdir /home/vagrant/.davfs
-#copy script for mounting B2DROP and setting root SetUID bit
-#fromdos /home/vagrant/mountb2drop.sh
-#cp $WP6SRC/mountb2drop.sh /home/vagrant
-mkdir /home/vagrant/scripts
-cp -R $WP6SRC/scripts/* /home/vagrant/scripts
 dos2unix /home/vagrant/scripts/*
 chmod ugo+x /home/vagrant/scripts/*
 

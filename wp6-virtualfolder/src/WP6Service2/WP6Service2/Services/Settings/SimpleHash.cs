@@ -115,16 +115,15 @@ namespace MetadataService.Services.Settings
             var hashWithSaltBytes = Convert.FromBase64String(hashValue);
 
             // We must know size of hash (without salt).
-            int hashSizeInBits, hashSizeInBytes;
 
-            hashSizeInBits = 512;
+            var hashSizeInBits = 512;
             // hashSizeInBits = 160; sha1
             // hashSizeInBits = 256; sha256
             // hashSizeInBits = 384; sha384
             // hashSizeInBits = 128; md5
 
             // Convert size of hash from bits to bytes.
-            hashSizeInBytes = hashSizeInBits / 8;
+            var hashSizeInBytes = hashSizeInBits / 8;
 
             // Make sure that the specified hash value is long enough.
             if (hashWithSaltBytes.Length < hashSizeInBytes)

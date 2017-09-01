@@ -10,21 +10,32 @@ using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
 using ServiceStack.ServiceClient.Web;
+using WP6Service2.Services.Cerif;
 using WP6Service2.Services.Dataset;
+using WP6Service2.Services.PerUserProcess;
 
 namespace MetadataServiceTest
 {
     [TestFixture]
     public class Test
     {
-        private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        private readonly string _baseUri = "http://localhost:8001/metadataservice/";
+        //private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             System.Environment.SetEnvironmentVariable("VF_ALLOW_FILESYSTEM","true");
-            Program.StartHost(_baseUri, null);
-            Thread.Sleep(500);
+            try
+            {
+                Program.StartHost(_baseUri, null);
+                Thread.Sleep(500);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("metadataservice already running by another process, testing ...");
+            }
         }
 
         [TestFixtureTearDown]
@@ -47,7 +58,7 @@ namespace MetadataServiceTest
         }
 
         [Test]
-        public void CheckDeletingDatasetWithForeignKeyDisablesTestCase()
+        public void CheckDeletingDatasetWithForeignKeyDisabledTestCase()
         {
             //the same as dataset2TestCase - calls NoFK service. Warning released when cascade delete doesnt work =>
             //foreign key is very probably disabled
@@ -79,7 +90,11 @@ namespace MetadataServiceTest
 
             datasetentries = client.Get(new GetDatasetEntries());
             if (datasetentries.Count != dErelations)
+            {
                 Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
+                Assert.Ignore();
+            }
+
         }
 
         [Test]
@@ -153,16 +168,16 @@ namespace MetadataServiceTest
             //check whether number of relation increased by 3, then delete
             var client = new JsonServiceClient(_baseUri);
             var entries = client.Get(new GetEntries());
-            Assert.False(entries.Select(x => x.Name).Contains("2hh4"));
-            Assert.False(entries.Select(x => x.Name).Contains("3csb"));
-            Assert.False(entries.Select(x => x.Name).Contains("4ygg"));
+            Assert.False(entries.Select(x => x.Name).Contains("2hh6"));
+            Assert.False(entries.Select(x => x.Name).Contains("3cs6"));
+            Assert.False(entries.Select(x => x.Name).Contains("4yg6"));
 
             var datasetentries = client.Get(new GetDatasetEntries());
             var dErelations = datasetentries.Count;
             var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hh4",Url = "http://www.pdb.org/2hh4"});
-            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
-            myEntries.Add(new DatasetEntry(){Name="4ygg",Url = "http://www.pdb.org/4ygg"});
+            myEntries.Add(new DatasetEntry(){Name="2hh6",Url = "http://www.pdb.org/2hh6"});
+            myEntries.Add(new DatasetEntry(){Name="3cs6",Url = "http://www.pdb.org/3cs6"});
+            myEntries.Add(new DatasetEntry(){Name="4yg6",Url = "http://www.pdb.org/4yg6"});
 
             var mydto = new DatasetDTO
             {
@@ -172,9 +187,9 @@ namespace MetadataServiceTest
             var mydto2 = client.Post(mydto);
 
             entries = client.Get(new GetEntries());
-            Assert.True(entries.Select(x => x.Name).Contains("2hh4"));
-            Assert.True(entries.Select(x => x.Name).Contains("3csb"));
-            Assert.True(entries.Select(x => x.Name).Contains("4ygg"));
+            Assert.True(entries.Select(x => x.Name).Contains("2hh6"));
+            Assert.True(entries.Select(x => x.Name).Contains("3cs6"));
+            Assert.True(entries.Select(x => x.Name).Contains("4yg6"));
             datasetentries = client.Get(new GetDatasetEntries());
             Assert.True(datasetentries.Count > dErelations);
             Assert.True(datasetentries.Count == dErelations + 3);
@@ -236,14 +251,6 @@ namespace MetadataServiceTest
             var client = new JsonServiceClient(_baseUri);
             var response = client.Get<string>("");
             Assert.True(response.Length > 0);
-        }
-
-        [Test]
-        public void SbServiceTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var all = client.Get(new SBService {Name = "scipion"});
-            Assert.That(all.ToString(), Is.StringStarting("{Id"));
         }
 
         [Test]
@@ -368,15 +375,15 @@ namespace MetadataServiceTest
             };
             return pi;
         }
+        
         [Test]
-
         public void RegisterFilesystemTestCase()
         {            
             var pi = createTestFilesystemProviderItem();            
             var client = new JsonServiceClient(_baseUri);
-            var providerlist = client.Get(new ProviderItem());
-            try
-            {
+            try {
+                var providerlist = client.Get(new ProviderItem());
+                
                 var providerlistwithnew = client.Put(pi);
                 //should register - new providers is added
                 Assert.True(providerlist.Count < providerlistwithnew.Count);
@@ -390,14 +397,125 @@ namespace MetadataServiceTest
                 //should delete - no provider list is there
                 Assert.True(providerlistdeleted.Count == providerlist.Count);
             }
-            catch (Exception e)
+            catch (WebServiceException e)
             {
+        	if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
                 Console.WriteLine(e.Message);
-                
-                Console.WriteLine(e.StackTrace);
                 throw e;
             }
-        }                       
-        
+            catch (Exception e) {
+                throw e;
+            }
+        }
+
+        [Test]
+        public void GetCerifProjectsReturnsNonZeroListTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var gp = new GetProjects();
+            var projects = client.Get(gp);
+            Assert.True(projects.Count>0);            
+        }
+
+        [Test]
+        public void GetCerifProjectsReturnsRequestedProjectTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var gp = new GetProjects() {Name = "West-Life"};
+            var projects = client.Get(gp);
+            Assert.True(projects.Count>0);
+            Assert.True(projects[0].cfTitle.StartsWith("West-Life")); 
+            projects = client.Get(new GetProjects(){Name="Nonsense"});
+            Assert.True(projects.Count==0);                        
+        }        
+
+        [Test]
+        public void CreateAndDeleteUserJobServiceTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            Assert.That(all.Count>=0);
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            Thread.Sleep(10000);
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            //Assert.True(jp.);            
+        }
+        [Test]
+        public void CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            //something is returned
+            Assert.True(all.Count>=0);
+            var runingjobs = all.Count;
+            //create job
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            all = client.Get(new GetUserJobs());
+            //number of jobs increases by 1
+            Assert.True(all.Count==(runingjobs+1));            
+            Thread.Sleep(10000);
+            //create 2nd job
+            jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            all = client.Get(new GetUserJobs());
+            //number of jobs don't increases, it is still same
+            Assert.True(all.Count==(runingjobs+1));            
+            
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            all = client.Get(new GetUserJobs());
+            //number of jobs decreases by 1, to previous number of running jobs
+            Assert.True(all.Count==runingjobs);            
+        }
+
+        [Test]
+        public void CreateTaskCheckAvailableTaskDeleteTaskTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetUserJobs());
+            Assert.That(all.Count>=0);
+            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
+            Assert.True(jp.jobType=="jupyter");
+            Assert.True(jp.Id>=0);
+            Assert.True(jp.Username.Equals("vagrant"));
+            Thread.Sleep(10000);
+            
+            var at = client.Get(new AvailableTasks());
+            //check that jupyter is there
+            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check it is running
+            var task = at.First(x => x.Name == "jupyter");            
+            Assert.True(task.Running);
+            
+            jp = client.Delete(
+                new PostUserJob()
+                {
+                    Name = "jupyter"
+                });
+            at = client.Get(new AvailableTasks());
+            //check that jupyter is there
+            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check it is not running
+            task = at.First(x => x.Name == "jupyter");            
+            Assert.False(task.Running);
+            
+            //Assert.True(jp.);            
+
+        }
     }
 }

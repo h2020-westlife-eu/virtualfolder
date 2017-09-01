@@ -25,8 +25,7 @@ export class Vfstorage{
    * @returns {string}
    */
   static getValue(propertyName,defaultvalue="true"){
-    return (typeof(Storage) !== "undefined") ? localStorage.getItem(propertyName): defaultvalue;
-  }
+    return (typeof(Storage) !== "undefined") ? (localStorage.getItem(propertyName)?localStorage.getItem(propertyName):defaultvalue): defaultvalue;  }
 
   /** sets value to the property into localStorage,
    * if not supported by browser, does nothing

@@ -55,7 +55,7 @@ Follow [Integration guide](doc/integration-guide.md) for further details.
 In order to test, contribute to source codes and prepare  virtual machine environment with source codes, follow [Development installation](doc/installation-guide/development-installation.md). Documents are maintained inside /docs folder and built from dev-docs branch, occasionally merged to master branch; in sync with [Gitbook](https://www.gitbook.com/book/h2020-westlife-eu/virtual-folder-docs/details)
 
 ## Release Notes
-
+  * 17.08 - UI animated GIF indicator, CERIF prototype implementation
   * 28/06/2017 - UI improvement, docs in sync with gitbook and /doc folder in dev-docs branch
   * 23/06/2017 - added support for source code installation/binary installation
   * 01/05/2017 - Added Dataset demo integrates some web PDB components to visualize features of PDB and UniProt entries

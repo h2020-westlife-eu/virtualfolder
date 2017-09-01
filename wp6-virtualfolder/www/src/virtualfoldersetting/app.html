@@ -1,6 +1,6 @@
 <template>
   <require from="./storageprovider"></require>
-  <require from="../virtualfoldermodules/modulesetting"></require>
+  <require from="./taskcontrol"></require>
   <require from="./clouddeployment"></require>
   <require from="../w3.css"></require>
 
@@ -11,7 +11,7 @@
   <storageprovider></storageprovider>
 
   <div if.bind="islocalhost">
-    <modulesetting></modulesetting>
+    <taskcontrol></taskcontrol>
   </div>
 
   <div if.bind="islocalhost">

@@ -3776,7 +3776,7 @@ module.exports = ret;
 },{"./es5":10}]},{},[3])(3)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -3788,7 +3788,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.3',
+        version = '2.3.5',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -14449,7 +14449,7 @@ define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exports, _aur
   if (typeof FEATURE_NO_IE === 'undefined') {
     var test = function test() {};
 
-    if (!test.name) {
+    if (test.name === undefined) {
       Object.defineProperty(Function.prototype, 'name', {
         get: function get() {
           var name = this.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
@@ -15191,7 +15191,7 @@ define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
       },
           propertyIsEnumerable = function propertyIsEnumerable(key) {
         var uid = '' + key;
-        return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
+        return onlySymbols(uid) ? hOP.call(this, uid) && this[internalSymbol] && this[internalSymbol]['@@' + uid] : pIE.call(this, key);
       },
           setAndGetSymbol = function setAndGetSymbol(uid) {
         var descriptor = {
@@ -15244,7 +15244,16 @@ define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
       descriptor.value = $getOwnPropertySymbols;
       defineProperty(Object, GOPS, descriptor);
 
+      var cachedWindowNames = (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' ? Object.getOwnPropertyNames(window) : [];
+      var originalObjectGetOwnPropertyNames = Object.getOwnPropertyNames;
       descriptor.value = function getOwnPropertyNames(o) {
+        if (toString.call(o) === '[object Window]') {
+          try {
+            return originalObjectGetOwnPropertyNames(o);
+          } catch (e) {
+            return [].concat([], cachedWindowNames);
+          }
+        }
         return gOPN(o).filter(onlyNonSymbols);
       };
       defineProperty(Object, GOPN, descriptor);
@@ -16732,13 +16741,14 @@ define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer
     };
 
     NavigationInstruction.prototype.addViewPortInstruction = function addViewPortInstruction(viewPortName, strategy, moduleId, component) {
+      var config = Object.assign({}, this.lifecycleArgs[1], { currentViewPort: viewPortName });
       var viewportInstruction = this.viewPortInstructions[viewPortName] = {
         name: viewPortName,
         strategy: strategy,
         moduleId: moduleId,
         component: component,
         childRouter: component.childRouter,
-        lifecycleArgs: this.lifecycleArgs.slice()
+        lifecycleArgs: [].concat(this.lifecycleArgs[0], config, this.lifecycleArgs[2])
       };
 
       return viewportInstruction;
@@ -24529,7 +24539,7 @@ define('aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], functio
       return;
     }
 
-    if (_aureliaPal.PLATFORM.global.ArrayBufferView && message.content instanceof ArrayBufferView) {
+    if (_aureliaPal.PLATFORM.global.ArrayBuffer && message.content instanceof ArrayBuffer) {
       return;
     }
 
@@ -25677,15 +25687,15 @@ define('aurelia-fetch-client',['exports'], function (exports) {
     throw x;
   }
 });
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define('dropbox/Dropbox-sdk.min',[],t):"object"==typeof exports?exports.Dropbox=t():e.Dropbox=t()}(this,function(){return function(e){function t(n){if(r[n])return r[n].exports;var s=r[n]={exports:{},id:n,loaded:!1};return e[n].call(s.exports,s,s.exports,t),s.loaded=!0,s.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){var n=r(13);e.exports=n},function(e,t,r){(function(t,n){/*!
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define('dropbox/Dropbox-sdk.min',[],t):"object"==typeof exports?exports.Dropbox=t():e.Dropbox=t()}(this,function(){return function(e){function t(n){if(r[n])return r[n].exports;var i=r[n]={exports:{},id:n,loaded:!1};return e[n].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){var n=r(13);e.exports=n},function(e,t,r){(function(t,n){/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 	 * @license   Licensed under MIT license
 	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
 	 * @version   3.3.1
 	 */
-!function(t,r){e.exports=r()}(this,function(){"use strict";function e(e){return"function"==typeof e||"object"==typeof e&&null!==e}function s(e){return"function"==typeof e}function i(e){Y=e}function o(e){K=e}function u(){return function(){return t.nextTick(l)}}function a(){return function(){W(l)}}function c(){var e=0,t=new Z(l),r=document.createTextNode("");return t.observe(r,{characterData:!0}),function(){r.data=e=++e%2}}function p(){var e=new MessageChannel;return e.port1.onmessage=l,function(){return e.port2.postMessage(0)}}function h(){var e=setTimeout;return function(){return e(l,1)}}function l(){for(var e=0;e<$;e+=2){var t=re[e],r=re[e+1];t(r),re[e]=void 0,re[e+1]=void 0}$=0}function f(){try{var e=r(19);return W=e.runOnLoop||e.runOnContext,a()}catch(e){return h()}}function d(e,t){var r=arguments,n=this,s=new this.constructor(m);void 0===s[se]&&M(s);var i=n._state;return i?!function(){var e=r[i-1];K(function(){return F(i,s,e,n._result)})}():C(n,s,e,t),s}function _(e){var t=this;if(e&&"object"==typeof e&&e.constructor===t)return e;var r=new t(m);return k(r,e),r}function m(){}function y(){return new TypeError("You cannot resolve a promise with itself")}function g(){return new TypeError("A promises callback cannot return that same promise.")}function v(e){try{return e.then}catch(e){return ae.error=e,ae}}function b(e,t,r,n){try{e.call(t,r,n)}catch(e){return e}}function q(e,t,r){K(function(e){var n=!1,s=b(r,t,function(r){n||(n=!0,t!==r?k(e,r):A(e,r))},function(t){n||(n=!0,L(e,t))},"Settle: "+(e._label||" unknown promise"));!n&&s&&(n=!0,L(e,s))},e)}function w(e,t){t._state===oe?A(e,t._result):t._state===ue?L(e,t._result):C(t,void 0,function(t){return k(e,t)},function(t){return L(e,t)})}function x(e,t,r){t.constructor===e.constructor&&r===d&&t.constructor.resolve===_?w(e,t):r===ae?L(e,ae.error):void 0===r?A(e,t):s(r)?q(e,t,r):A(e,t)}function k(t,r){t===r?L(t,y()):e(r)?x(t,r,v(r)):A(t,r)}function T(e){e._onerror&&e._onerror(e._result),S(e)}function A(e,t){e._state===ie&&(e._result=t,e._state=oe,0!==e._subscribers.length&&K(S,e))}function L(e,t){e._state===ie&&(e._state=ue,e._result=t,K(T,e))}function C(e,t,r,n){var s=e._subscribers,i=s.length;e._onerror=null,s[i]=t,s[i+oe]=r,s[i+ue]=n,0===i&&e._state&&K(S,e)}function S(e){var t=e._subscribers,r=e._state;if(0!==t.length){for(var n=void 0,s=void 0,i=e._result,o=0;o<t.length;o+=3)n=t[o],s=t[o+r],n?F(r,n,s,i):s(i);e._subscribers.length=0}}function R(){this.error=null}function D(e,t){try{return e(t)}catch(e){return ce.error=e,ce}}function F(e,t,r,n){var i=s(r),o=void 0,u=void 0,a=void 0,c=void 0;if(i){if(o=D(r,n),o===ce?(c=!0,u=o.error,o=null):a=!0,t===o)return void L(t,g())}else o=n,a=!0;t._state!==ie||(i&&a?k(t,o):c?L(t,u):e===oe?A(t,o):e===ue&&L(t,o))}function E(e,t){try{t(function(t){k(e,t)},function(t){L(e,t)})}catch(t){L(e,t)}}function j(){return pe++}function M(e){e[se]=pe++,e._state=void 0,e._result=void 0,e._subscribers=[]}function U(e,t){this._instanceConstructor=e,this.promise=new e(m),this.promise[se]||M(this.promise),N(t)?(this._input=t,this.length=t.length,this._remaining=t.length,this._result=new Array(this.length),0===this.length?A(this.promise,this._result):(this.length=this.length||0,this._enumerate(),0===this._remaining&&A(this.promise,this._result))):L(this.promise,P())}function P(){return new Error("Array Methods must be provided an Array")}function O(e){return new U(this,e).promise}function G(e){var t=this;return new t(N(e)?function(r,n){for(var s=e.length,i=0;i<s;i++)t.resolve(e[i]).then(r,n)}:function(e,t){return t(new TypeError("You must pass an array to race."))})}function B(e){var t=this,r=new t(m);return L(r,e),r}function H(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function I(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function z(e){this[se]=j(),this._result=this._state=void 0,this._subscribers=[],m!==e&&("function"!=typeof e&&H(),this instanceof z?E(this,e):I())}function X(){var e=void 0;if("undefined"!=typeof n)e=n;else if("undefined"!=typeof self)e=self;else try{e=Function("return this")()}catch(e){throw new Error("polyfill failed because global object is unavailable in this environment")}var t=e.Promise;if(t){var r=null;try{r=Object.prototype.toString.call(t.resolve())}catch(e){}if("[object Promise]"===r&&!t.cast)return}e.Promise=z}var J=void 0;J=Array.isArray?Array.isArray:function(e){return"[object Array]"===Object.prototype.toString.call(e)};var N=J,$=0,W=void 0,Y=void 0,K=function(e,t){re[$]=e,re[$+1]=t,$+=2,2===$&&(Y?Y(l):ne())},V="undefined"!=typeof window?window:void 0,Q=V||{},Z=Q.MutationObserver||Q.WebKitMutationObserver,ee="undefined"==typeof self&&"undefined"!=typeof t&&"[object process]"==={}.toString.call(t),te="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,re=new Array(1e3),ne=void 0;ne=ee?u():Z?c():te?p():void 0===V?f():h();var se=Math.random().toString(36).substring(16),ie=void 0,oe=1,ue=2,ae=new R,ce=new R,pe=0;return U.prototype._enumerate=function(){for(var e=this.length,t=this._input,r=0;this._state===ie&&r<e;r++)this._eachEntry(t[r],r)},U.prototype._eachEntry=function(e,t){var r=this._instanceConstructor,n=r.resolve;if(n===_){var s=v(e);if(s===d&&e._state!==ie)this._settledAt(e._state,t,e._result);else if("function"!=typeof s)this._remaining--,this._result[t]=e;else if(r===z){var i=new r(m);x(i,e,s),this._willSettleAt(i,t)}else this._willSettleAt(new r(function(t){return t(e)}),t)}else this._willSettleAt(n(e),t)},U.prototype._settledAt=function(e,t,r){var n=this.promise;n._state===ie&&(this._remaining--,e===ue?L(n,r):this._result[t]=r),0===this._remaining&&A(n,this._result)},U.prototype._willSettleAt=function(e,t){var r=this;C(e,void 0,function(e){return r._settledAt(oe,t,e)},function(e){return r._settledAt(ue,t,e)})},z.all=O,z.race=G,z.resolve=_,z.reject=B,z._setScheduler=i,z._setAsap=o,z._asap=K,z.prototype={constructor:z,then:d,catch:function(e){return this.then(null,e)}},X(),z.polyfill=X,z.Promise=z,z})}).call(t,r(8),function(){return this}())},function(e,t,r){function n(){}function s(e){var t={}.toString.call(e);switch(t){case"[object File]":case"[object Blob]":case"[object FormData]":return!0;default:return!1}}function i(e){if(!v(e))return e;var t=[];for(var r in e)null!=e[r]&&o(t,r,e[r]);return t.join("&")}function o(e,t,r){return Array.isArray(r)?r.forEach(function(r){o(e,t,r)}):void e.push(encodeURIComponent(t)+"="+encodeURIComponent(r))}function u(e){for(var t,r,n={},s=e.split("&"),i=0,o=s.length;i<o;++i)r=s[i],t=r.split("="),n[decodeURIComponent(t[0])]=decodeURIComponent(t[1]);return n}function a(e){var t,r,n,s,i=e.split(/\r?\n/),o={};i.pop();for(var u=0,a=i.length;u<a;++u)r=i[u],t=r.indexOf(":"),n=r.slice(0,t).toLowerCase(),s=q(r.slice(t+1)),o[n]=s;return o}function c(e){return/[\/+]json\b/.test(e)}function p(e){return e.split(/ *; */).shift()}function h(e){return y(e.split(/ *; */),function(e,t){var r=t.split(/ *= */),n=r.shift(),s=r.shift();return n&&s&&(e[n]=s),e},{})}function l(e,t){t=t||{},this.req=e,this.xhr=this.req.xhr,this.text="HEAD"!=this.req.method&&(""===this.xhr.responseType||"text"===this.xhr.responseType)||"undefined"==typeof this.xhr.responseType?this.xhr.responseText:null,this.statusText=this.req.xhr.statusText,this.setStatusProperties(this.xhr.status),this.header=this.headers=a(this.xhr.getAllResponseHeaders()),this.header["content-type"]=this.xhr.getResponseHeader("content-type"),this.setHeaderProperties(this.header),this.body="HEAD"!=this.req.method?this.parseBody(this.text?this.text:this.xhr.response):null}function f(e,t){var r=this;this._query=this._query||[],this.method=e,this.url=t,this.header={},this._header={},this.on("end",function(){var e=null,t=null;try{t=new l(r)}catch(t){return e=new Error("Parser is unable to parse the response"),e.parse=!0,e.original=t,e.rawResponse=r.xhr&&r.xhr.responseText?r.xhr.responseText:null,e.statusCode=r.xhr&&r.xhr.status?r.xhr.status:null,r.callback(e)}if(r.emit("response",t),e)return r.callback(e,t);if(t.status>=200&&t.status<300)return r.callback(e,t);var n=new Error(t.statusText||"Unsuccessful HTTP response");n.original=e,n.response=t,n.status=t.status,r.callback(n,t)})}function d(e,t){var r=b("DELETE",e);return t&&r.end(t),r}var _,m=r(7),y=r(9),g=r(10),v=r(4);_="undefined"!=typeof window?window:"undefined"!=typeof self?self:this;var b=e.exports=r(11).bind(null,f);b.getXHR=function(){if(!(!_.XMLHttpRequest||_.location&&"file:"==_.location.protocol&&_.ActiveXObject))return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.6.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.3.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP")}catch(e){}return!1};var q="".trim?function(e){return e.trim()}:function(e){return e.replace(/(^\s*|\s*$)/g,"")};b.serializeObject=i,b.parseString=u,b.types={html:"text/html",json:"application/json",xml:"application/xml",urlencoded:"application/x-www-form-urlencoded",form:"application/x-www-form-urlencoded","form-data":"application/x-www-form-urlencoded"},b.serialize={"application/x-www-form-urlencoded":i,"application/json":JSON.stringify},b.parse={"application/x-www-form-urlencoded":u,"application/json":JSON.parse},l.prototype.get=function(e){return this.header[e.toLowerCase()]},l.prototype.setHeaderProperties=function(e){var t=this.header["content-type"]||"";this.type=p(t);var r=h(t);for(var n in r)this[n]=r[n]},l.prototype.parseBody=function(e){var t=b.parse[this.type];return!t&&c(this.type)&&(t=b.parse["application/json"]),t&&e&&(e.length||e instanceof Object)?t(e):null},l.prototype.setStatusProperties=function(e){1223===e&&(e=204);var t=e/100|0;this.status=this.statusCode=e,this.statusType=t,this.info=1==t,this.ok=2==t,this.clientError=4==t,this.serverError=5==t,this.error=(4==t||5==t)&&this.toError(),this.accepted=202==e,this.noContent=204==e,this.badRequest=400==e,this.unauthorized=401==e,this.notAcceptable=406==e,this.notFound=404==e,this.forbidden=403==e},l.prototype.toError=function(){var e=this.req,t=e.method,r=e.url,n="cannot "+t+" "+r+" ("+this.status+")",s=new Error(n);return s.status=this.status,s.method=t,s.url=r,s},b.Response=l,m(f.prototype);for(var w in g)f.prototype[w]=g[w];f.prototype.abort=function(){if(!this.aborted)return this.aborted=!0,this.xhr&&this.xhr.abort(),this.clearTimeout(),this.emit("abort"),this},f.prototype.type=function(e){return this.set("Content-Type",b.types[e]||e),this},f.prototype.responseType=function(e){return this._responseType=e,this},f.prototype.accept=function(e){return this.set("Accept",b.types[e]||e),this},f.prototype.auth=function(e,t,r){switch(r||(r={type:"basic"}),r.type){case"basic":var n=btoa(e+":"+t);this.set("Authorization","Basic "+n);break;case"auto":this.username=e,this.password=t}return this},f.prototype.query=function(e){return"string"!=typeof e&&(e=i(e)),e&&this._query.push(e),this},f.prototype.attach=function(e,t,r){return this._getFormData().append(e,t,r||t.name),this},f.prototype._getFormData=function(){return this._formData||(this._formData=new _.FormData),this._formData},f.prototype.send=function(e){var t=v(e),r=this._header["content-type"];if(t&&v(this._data))for(var n in e)this._data[n]=e[n];else"string"==typeof e?(r||this.type("form"),r=this._header["content-type"],"application/x-www-form-urlencoded"==r?this._data=this._data?this._data+"&"+e:e:this._data=(this._data||"")+e):this._data=e;return!t||s(e)?this:(r||this.type("json"),this)},l.prototype.parse=function(e){return _.console&&console.warn("Client-side parse() method has been renamed to serialize(). This method is not compatible with superagent v2.0"),this.serialize(e),this},l.prototype.serialize=function(e){return this._parser=e,this},f.prototype.callback=function(e,t){var r=this._callback;this.clearTimeout(),r(e,t)},f.prototype.crossDomainError=function(){var e=new Error("Request has been terminated\nPossible causes: the network is offline, Origin is not allowed by Access-Control-Allow-Origin, the page is being unloaded, etc.");e.crossDomain=!0,e.status=this.status,e.method=this.method,e.url=this.url,this.callback(e)},f.prototype.timeoutError=function(){var e=this._timeout,t=new Error("timeout of "+e+"ms exceeded");t.timeout=e,this.callback(t)},f.prototype.withCredentials=function(){return this._withCredentials=!0,this},f.prototype.end=function(e){var t=this,r=this.xhr=b.getXHR(),i=this._query.join("&"),o=this._timeout,u=this._formData||this._data;this._callback=e||n,r.onreadystatechange=function(){if(4==r.readyState){var e;try{e=r.status}catch(t){e=0}if(0==e){if(t.timedout)return t.timeoutError();if(t.aborted)return;return t.crossDomainError()}t.emit("end")}};var a=function(e){e.total>0&&(e.percent=e.loaded/e.total*100),e.direction="download",t.emit("progress",e)};this.hasListeners("progress")&&(r.onprogress=a);try{r.upload&&this.hasListeners("progress")&&(r.upload.onprogress=a)}catch(e){}if(o&&!this._timer&&(this._timer=setTimeout(function(){t.timedout=!0,t.abort()},o)),i&&(i=b.serializeObject(i),this.url+=~this.url.indexOf("?")?"&"+i:"?"+i),this.username&&this.password?r.open(this.method,this.url,!0,this.username,this.password):r.open(this.method,this.url,!0),this._withCredentials&&(r.withCredentials=!0),"GET"!=this.method&&"HEAD"!=this.method&&"string"!=typeof u&&!s(u)){var p=this._header["content-type"],h=this._parser||b.serialize[p?p.split(";")[0]:""];!h&&c(p)&&(h=b.serialize["application/json"]),h&&(u=h(u))}for(var l in this.header)null!=this.header[l]&&r.setRequestHeader(l,this.header[l]);return this._responseType&&(r.responseType=this._responseType),this.emit("request",this),r.send("undefined"!=typeof u?u:null),this},b.Request=f,b.get=function(e,t,r){var n=b("GET",e);return"function"==typeof t&&(r=t,t=null),t&&n.query(t),r&&n.end(r),n},b.head=function(e,t,r){var n=b("HEAD",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.del=d,b.delete=d,b.patch=function(e,t,r){var n=b("PATCH",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.post=function(e,t,r){var n=b("POST",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.put=function(e,t,r){var n=b("PUT",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n}},function(e,t){function r(e){return"https://"+e+".dropboxapi.com/2/"}e.exports=r},function(e,t){function r(e){return null!=e&&"object"==typeof e}e.exports=r},function(e,t){function r(e){return JSON.stringify(e).replace(n,function(e){return"\\u"+("000"+e.charCodeAt(0).toString(16)).slice(-4)})}var n=/[\u007f-\uffff]/g;e.exports=r},function(e,t,r){var n,s=r(15);r(14),n=function(e){e=e||{},this.accessToken=e.accessToken,this.clientId=e.clientId,this.selectUser=e.selectUser},n.prototype.setAccessToken=function(e){this.accessToken=e},n.prototype.getAccessToken=function(){return this.accessToken},n.prototype.setClientId=function(e){this.clientId=e},n.prototype.getClientId=function(){return this.clientId},n.prototype.getAuthenticationUrl=function(e,t){var r,n="https://www.dropbox.com/oauth2/authorize",s=this.getClientId();if(!s)throw new Error("A client id is required. You can set the client id using .setClientId().");if(!e)throw new Error("A redirect uri is required.");return r=n+"?response_type=token&client_id="+s,e&&(r=r+"&redirect_uri="+e),t&&(r=r+"&state="+t),r},n.prototype.request=function(e,t,r,n,i){var o=null;switch(i){case s.RPC:o=this.getRpcRequest();break;case s.DOWNLOAD:o=this.getDownloadRequest();break;case s.UPLOAD:o=this.getUploadRequest();break;default:throw new Error("Invalid request style: "+i)}return o(e,t,r,n,this.getAccessToken(),this.selectUser)},n.prototype.setRpcRequest=function(e){n.prototype.rpcRequest=e},n.prototype.getRpcRequest=function(){return void 0===n.prototype.rpcRequest&&(n.prototype.rpcRequest=r(17)),n.prototype.rpcRequest},n.prototype.setDownloadRequest=function(e){n.prototype.downloadRequest=e},n.prototype.getDownloadRequest=function(){return void 0===n.prototype.downloadRequest&&(n.prototype.downloadRequest=r(12)),n.prototype.downloadRequest},n.prototype.setUploadRequest=function(e){n.prototype.uploadRequest=e},n.prototype.getUploadRequest=function(){return void 0===n.prototype.uploadRequest&&(n.prototype.uploadRequest=r(18)),n.prototype.uploadRequest},e.exports=n},function(e,t,r){function n(e){if(e)return s(e)}function s(e){for(var t in n.prototype)e[t]=n.prototype[t];return e}e.exports=n,n.prototype.on=n.prototype.addEventListener=function(e,t){return this._callbacks=this._callbacks||{},(this._callbacks["$"+e]=this._callbacks["$"+e]||[]).push(t),this},n.prototype.once=function(e,t){function r(){this.off(e,r),t.apply(this,arguments)}return r.fn=t,this.on(e,r),this},n.prototype.off=n.prototype.removeListener=n.prototype.removeAllListeners=n.prototype.removeEventListener=function(e,t){if(this._callbacks=this._callbacks||{},0==arguments.length)return this._callbacks={},this;var r=this._callbacks["$"+e];if(!r)return this;if(1==arguments.length)return delete this._callbacks["$"+e],this;for(var n,s=0;s<r.length;s++)if(n=r[s],n===t||n.fn===t){r.splice(s,1);break}return this},n.prototype.emit=function(e){this._callbacks=this._callbacks||{};var t=[].slice.call(arguments,1),r=this._callbacks["$"+e];if(r){r=r.slice(0);for(var n=0,s=r.length;n<s;++n)r[n].apply(this,t)}return this},n.prototype.listeners=function(e){return this._callbacks=this._callbacks||{},this._callbacks["$"+e]||[]},n.prototype.hasListeners=function(e){return!!this.listeners(e).length}},function(e,t){function r(){throw new Error("setTimeout has not been defined")}function n(){throw new Error("clearTimeout has not been defined")}function s(e){if(p===setTimeout)return setTimeout(e,0);if((p===r||!p)&&setTimeout)return p=setTimeout,setTimeout(e,0);try{return p(e,0)}catch(t){try{return p.call(null,e,0)}catch(t){return p.call(this,e,0)}}}function i(e){if(h===clearTimeout)return clearTimeout(e);if((h===n||!h)&&clearTimeout)return h=clearTimeout,clearTimeout(e);try{return h(e)}catch(t){try{return h.call(null,e)}catch(t){return h.call(this,e)}}}function o(){_&&f&&(_=!1,f.length?d=f.concat(d):m=-1,d.length&&u())}function u(){if(!_){var e=s(o);_=!0;for(var t=d.length;t;){for(f=d,d=[];++m<t;)f&&f[m].run();m=-1,t=d.length}f=null,_=!1,i(e)}}function a(e,t){this.fun=e,this.array=t}function c(){}var p,h,l=e.exports={};!function(){try{p="function"==typeof setTimeout?setTimeout:r}catch(e){p=r}try{h="function"==typeof clearTimeout?clearTimeout:n}catch(e){h=n}}();var f,d=[],_=!1,m=-1;l.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var r=1;r<arguments.length;r++)t[r-1]=arguments[r];d.push(new a(e,t)),1!==d.length||_||s(u)},a.prototype.run=function(){this.fun.apply(null,this.array)},l.title="browser",l.browser=!0,l.env={},l.argv=[],l.version="",l.versions={},l.on=c,l.addListener=c,l.once=c,l.off=c,l.removeListener=c,l.removeAllListeners=c,l.emit=c,l.binding=function(e){throw new Error("process.binding is not supported")},l.cwd=function(){return"/"},l.chdir=function(e){throw new Error("process.chdir is not supported")},l.umask=function(){return 0}},function(e,t){e.exports=function(e,t,r){for(var n=0,s=e.length,i=3==arguments.length?r:e[n++];n<s;)i=t.call(null,i,e[n],++n,e);return i}},function(e,t,r){var n=r(4);t.clearTimeout=function(){return this._timeout=0,clearTimeout(this._timer),this},t.parse=function(e){return this._parser=e,this},t.timeout=function(e){return this._timeout=e,this},t.then=function(e,t){return this.end(function(r,n){r?t(r):e(n)})},t.use=function(e){return e(this),this},t.get=function(e){return this._header[e.toLowerCase()]},t.getHeader=t.get,t.set=function(e,t){if(n(e)){for(var r in e)this.set(r,e[r]);return this}return this._header[e.toLowerCase()]=t,this.header[e]=t,this},t.unset=function(e){return delete this._header[e.toLowerCase()],delete this.header[e],this},t.field=function(e,t){return this._getFormData().append(e,t),this}},function(e,t){function r(e,t,r){return"function"==typeof r?new e("GET",t).end(r):2==arguments.length?new e("GET",t):new e(t,r)}e.exports=r},function(e,t,r){var n,s,i,o=r(2),u=r(1).Promise,a=r(3),c=r(5);o.parse["application/octect-stream"]=function(e){return e},n=function(e,t){return{status:e.status,error:(t?t.text:null)||e.toString(),response:t}},i=function(e,t){e.text="",e.setEncoding("binary"),e.on("data",function(t){e.text+=t}),e.on("end",function(){t()})},s=function(e,t,r,s,p,h){if("user"!==r)throw new Error("Unexpected auth type: "+r);var l=function(r,u){function l(e){r&&r(e)}function f(e){u&&u(e)}function d(e,t){var r;e?f(n(e,t)):(r=JSON.parse(t.headers["dropbox-api-result"]),t.xhr?r.fileBlob=t.xhr.response:r.fileBinary=t.res.text,l(r))}var _;_=o.post(a(s)+e).set("Authorization","Bearer "+p).set("Dropbox-API-Arg",c(t)).on("request",function(){this.xhr&&(this.xhr.responseType="blob")}),h&&(_=_.set("Dropbox-API-Select-User",h)),"undefined"==typeof window?_.buffer(!0).parse(i).end(d):_.end(d)};return new u(l)},e.exports=s},function(e,t,r){var n,s=r(6),i=r(16);n=function(e){s.call(this,e)},n.prototype=Object.create(s.prototype),n.prototype.constructor=n,n.prototype=Object.assign(n.prototype,i),n.prototype.filesGetSharedLinkFile=function(e){return this.request("sharing/get_shared_link_file",e,"api","download")},e.exports=n},function(e,t){"function"!=typeof Object.assign&&!function(){Object.assign=function(e){"use strict";var t,r,n,s;if(void 0===e||null===e)throw new TypeError("Cannot convert undefined or null to object");for(t=Object(e),r=1;r<arguments.length;r++)if(n=arguments[r],void 0!==n&&null!==n)for(s in n)n.hasOwnProperty(s)&&(t[s]=n[s]);return t}}()},function(e,t){var r={RPC:"rpc",DOWNLOAD:"download",UPLOAD:"upload"};e.exports=r},function(e,t){var r={};r.authTokenFromOauth1=function(e){return this.request("auth/token/from_oauth1",e,"app","api","rpc")},r.authTokenRevoke=function(e){return this.request("auth/token/revoke",e,"user","api","rpc")},r.filesAlphaGetMetadata=function(e){return this.request("files/alpha/get_metadata",e,"user","api","rpc")},r.filesAlphaUpload=function(e){return this.request("files/alpha/upload",e,"user","content","upload")},r.filesCopy=function(e){return this.request("files/copy",e,"user","api","rpc")},r.filesCopyBatch=function(e){return this.request("files/copy_batch",e,"user","api","rpc")},r.filesCopyBatchCheck=function(e){return this.request("files/copy_batch/check",e,"user","api","rpc")},r.filesCopyReferenceGet=function(e){return this.request("files/copy_reference/get",e,"user","api","rpc")},r.filesCopyReferenceSave=function(e){return this.request("files/copy_reference/save",e,"user","api","rpc")},r.filesCreateFolder=function(e){return this.request("files/create_folder",e,"user","api","rpc")},r.filesDelete=function(e){return this.request("files/delete",e,"user","api","rpc")},r.filesDeleteBatch=function(e){return this.request("files/delete_batch",e,"user","api","rpc")},r.filesDeleteBatchCheck=function(e){return this.request("files/delete_batch/check",e,"user","api","rpc")},r.filesDownload=function(e){return this.request("files/download",e,"user","content","download")},r.filesGetMetadata=function(e){return this.request("files/get_metadata",e,"user","api","rpc")},r.filesGetPreview=function(e){return this.request("files/get_preview",e,"user","content","download")},r.filesGetTemporaryLink=function(e){return this.request("files/get_temporary_link",e,"user","api","rpc")},r.filesGetThumbnail=function(e){return this.request("files/get_thumbnail",e,"user","content","download")},r.filesListFolder=function(e){return this.request("files/list_folder",e,"user","api","rpc")},r.filesListFolderContinue=function(e){return this.request("files/list_folder/continue",e,"user","api","rpc")},r.filesListFolderGetLatestCursor=function(e){return this.request("files/list_folder/get_latest_cursor",e,"user","api","rpc")},r.filesListFolderLongpoll=function(e){return this.request("files/list_folder/longpoll",e,"noauth","notify","rpc")},r.filesListRevisions=function(e){return this.request("files/list_revisions",e,"user","api","rpc")},r.filesMove=function(e){return this.request("files/move",e,"user","api","rpc")},r.filesMoveBatch=function(e){return this.request("files/move_batch",e,"user","api","rpc")},r.filesMoveBatchCheck=function(e){return this.request("files/move_batch/check",e,"user","api","rpc")},r.filesPermanentlyDelete=function(e){return this.request("files/permanently_delete",e,"user","api","rpc")},r.filesPropertiesAdd=function(e){return this.request("files/properties/add",e,"user","api","rpc")},r.filesPropertiesOverwrite=function(e){return this.request("files/properties/overwrite",e,"user","api","rpc")},r.filesPropertiesRemove=function(e){return this.request("files/properties/remove",e,"user","api","rpc")},r.filesPropertiesTemplateGet=function(e){return this.request("files/properties/template/get",e,"user","api","rpc")},r.filesPropertiesTemplateList=function(e){return this.request("files/properties/template/list",e,"user","api","rpc")},r.filesPropertiesUpdate=function(e){return this.request("files/properties/update",e,"user","api","rpc")},r.filesRestore=function(e){return this.request("files/restore",e,"user","api","rpc")},r.filesSaveUrl=function(e){return this.request("files/save_url",e,"user","api","rpc")},r.filesSaveUrlCheckJobStatus=function(e){return this.request("files/save_url/check_job_status",e,"user","api","rpc")},r.filesSearch=function(e){return this.request("files/search",e,"user","api","rpc")},r.filesUpload=function(e){return this.request("files/upload",e,"user","content","upload")},r.filesUploadSessionAppend=function(e){return this.request("files/upload_session/append",e,"user","content","upload")},r.filesUploadSessionAppendV2=function(e){return this.request("files/upload_session/append_v2",e,"user","content","upload")},r.filesUploadSessionFinish=function(e){return this.request("files/upload_session/finish",e,"user","content","upload")},r.filesUploadSessionFinishBatch=function(e){return this.request("files/upload_session/finish_batch",e,"user","api","rpc")},r.filesUploadSessionFinishBatchCheck=function(e){return this.request("files/upload_session/finish_batch/check",e,"user","api","rpc")},r.filesUploadSessionStart=function(e){return this.request("files/upload_session/start",e,"user","content","upload")},r.paperDocsArchive=function(e){return this.request("paper/docs/archive",e,"user","api","rpc")},r.paperDocsDownload=function(e){return this.request("paper/docs/download",e,"user","api","download")},r.paperDocsFolderUsersList=function(e){return this.request("paper/docs/folder_users/list",e,"user","api","rpc")},r.paperDocsFolderUsersListContinue=function(e){return this.request("paper/docs/folder_users/list/continue",e,"user","api","rpc")},r.paperDocsGetFolderInfo=function(e){return this.request("paper/docs/get_folder_info",e,"user","api","rpc")},r.paperDocsList=function(e){return this.request("paper/docs/list",e,"user","api","rpc")},r.paperDocsListContinue=function(e){return this.request("paper/docs/list/continue",e,"user","api","rpc")},r.paperDocsPermanentlyDelete=function(e){return this.request("paper/docs/permanently_delete",e,"user","api","rpc")},r.paperDocsSharingPolicyGet=function(e){return this.request("paper/docs/sharing_policy/get",e,"user","api","rpc")},r.paperDocsSharingPolicySet=function(e){return this.request("paper/docs/sharing_policy/set",e,"user","api","rpc")},r.paperDocsUsersAdd=function(e){return this.request("paper/docs/users/add",e,"user","api","rpc")},r.paperDocsUsersList=function(e){return this.request("paper/docs/users/list",e,"user","api","rpc")},r.paperDocsUsersListContinue=function(e){return this.request("paper/docs/users/list/continue",e,"user","api","rpc")},r.paperDocsUsersRemove=function(e){return this.request("paper/docs/users/remove",e,"user","api","rpc")},r.sharingAddFileMember=function(e){return this.request("sharing/add_file_member",e,"user","api","rpc")},r.sharingAddFolderMember=function(e){return this.request("sharing/add_folder_member",e,"user","api","rpc")},r.sharingChangeFileMemberAccess=function(e){return this.request("sharing/change_file_member_access",e,"user","api","rpc")},r.sharingCheckJobStatus=function(e){return this.request("sharing/check_job_status",e,"user","api","rpc")},r.sharingCheckRemoveMemberJobStatus=function(e){return this.request("sharing/check_remove_member_job_status",e,"user","api","rpc")},r.sharingCheckShareJobStatus=function(e){return this.request("sharing/check_share_job_status",e,"user","api","rpc")},r.sharingCreateSharedLink=function(e){return this.request("sharing/create_shared_link",e,"user","api","rpc")},r.sharingCreateSharedLinkWithSettings=function(e){return this.request("sharing/create_shared_link_with_settings",e,"user","api","rpc")},r.sharingGetFileMetadata=function(e){return this.request("sharing/get_file_metadata",e,"user","api","rpc")},r.sharingGetFileMetadataBatch=function(e){return this.request("sharing/get_file_metadata/batch",e,"user","api","rpc")},r.sharingGetFolderMetadata=function(e){return this.request("sharing/get_folder_metadata",e,"user","api","rpc")},r.sharingGetSharedLinkFile=function(e){return this.request("sharing/get_shared_link_file",e,"user","content","download")},r.sharingGetSharedLinkMetadata=function(e){return this.request("sharing/get_shared_link_metadata",e,"user","api","rpc")},r.sharingGetSharedLinks=function(e){return this.request("sharing/get_shared_links",e,"user","api","rpc")},r.sharingListFileMembers=function(e){return this.request("sharing/list_file_members",e,"user","api","rpc")},r.sharingListFileMembersBatch=function(e){return this.request("sharing/list_file_members/batch",e,"user","api","rpc")},r.sharingListFileMembersContinue=function(e){return this.request("sharing/list_file_members/continue",e,"user","api","rpc")},r.sharingListFolderMembers=function(e){return this.request("sharing/list_folder_members",e,"user","api","rpc")},r.sharingListFolderMembersContinue=function(e){return this.request("sharing/list_folder_members/continue",e,"user","api","rpc")},r.sharingListFolders=function(e){return this.request("sharing/list_folders",e,"user","api","rpc")},r.sharingListFoldersContinue=function(e){return this.request("sharing/list_folders/continue",e,"user","api","rpc")},r.sharingListMountableFolders=function(e){return this.request("sharing/list_mountable_folders",e,"user","api","rpc")},r.sharingListMountableFoldersContinue=function(e){return this.request("sharing/list_mountable_folders/continue",e,"user","api","rpc")},r.sharingListReceivedFiles=function(e){return this.request("sharing/list_received_files",e,"user","api","rpc")},r.sharingListReceivedFilesContinue=function(e){return this.request("sharing/list_received_files/continue",e,"user","api","rpc")},r.sharingListSharedLinks=function(e){return this.request("sharing/list_shared_links",e,"user","api","rpc")},r.sharingModifySharedLinkSettings=function(e){return this.request("sharing/modify_shared_link_settings",e,"user","api","rpc")},r.sharingMountFolder=function(e){return this.request("sharing/mount_folder",e,"user","api","rpc")},r.sharingRelinquishFileMembership=function(e){return this.request("sharing/relinquish_file_membership",e,"user","api","rpc")},r.sharingRelinquishFolderMembership=function(e){return this.request("sharing/relinquish_folder_membership",e,"user","api","rpc")},r.sharingRemoveFileMember=function(e){return this.request("sharing/remove_file_member",e,"user","api","rpc")},r.sharingRemoveFileMember2=function(e){return this.request("sharing/remove_file_member_2",e,"user","api","rpc")},r.sharingRemoveFolderMember=function(e){return this.request("sharing/remove_folder_member",e,"user","api","rpc")},r.sharingRevokeSharedLink=function(e){return this.request("sharing/revoke_shared_link",e,"user","api","rpc")},r.sharingShareFolder=function(e){return this.request("sharing/share_folder",e,"user","api","rpc")},r.sharingTransferFolder=function(e){
-return this.request("sharing/transfer_folder",e,"user","api","rpc")},r.sharingUnmountFolder=function(e){return this.request("sharing/unmount_folder",e,"user","api","rpc")},r.sharingUnshareFile=function(e){return this.request("sharing/unshare_file",e,"user","api","rpc")},r.sharingUnshareFolder=function(e){return this.request("sharing/unshare_folder",e,"user","api","rpc")},r.sharingUpdateFileMember=function(e){return this.request("sharing/update_file_member",e,"user","api","rpc")},r.sharingUpdateFolderMember=function(e){return this.request("sharing/update_folder_member",e,"user","api","rpc")},r.sharingUpdateFolderPolicy=function(e){return this.request("sharing/update_folder_policy",e,"user","api","rpc")},r.usersGetAccount=function(e){return this.request("users/get_account",e,"user","api","rpc")},r.usersGetAccountBatch=function(e){return this.request("users/get_account_batch",e,"user","api","rpc")},r.usersGetCurrentAccount=function(e){return this.request("users/get_current_account",e,"user","api","rpc")},r.usersGetSpaceUsage=function(e){return this.request("users/get_space_usage",e,"user","api","rpc")},e.exports=r},function(e,t,r){var n=r(2),s=r(1).Promise,i=r(3),o=function(e,t){return{status:e.status,error:(t?t.text:null)||e.toString(),response:t}},u=function(e,t,r,u,a,c){var p=function(s,p){function h(e){s&&s(e)}function l(e){p&&p(e)}function f(e,t){e?l(o(e,t)):h(t.body)}var d;switch(t||(t=null),d=n.post(i(u)+e).type("application/json"),r){case"team":case"user":d.set("Authorization","Bearer "+a);break;case"noauth":break;default:throw new Error("Unhandled auth type: "+r)}c&&(d=d.set("Dropbox-API-Select-User",c)),d.send(t).end(f)};return new s(p)};e.exports=u},function(e,t,r){var n=r(2),s=r(1).Promise,i=r(3),o=r(5),u=function(e,t){return{status:e.status,error:(t?t.text:null)||e.toString(),response:t}},a=function(e,t,r,a,c,p){if("user"!==r)throw new Error("Unexpected auth type: "+r);var h=function(r,s){function h(e){r&&r(e)}function l(e){s&&s(e)}function f(e,t){e?l(u(e,t)):h(t.body)}var d,_=t.contents;delete t.contents,d=n.post(i(a)+e).type("application/octet-stream").set("Authorization","Bearer "+c).set("Dropbox-API-Arg",o(t)),p&&(d=d.set("Dropbox-API-Select-User",p)),d.send(_).end(f)};return new s(h)};e.exports=a},function(e,t){}])});;define('dropbox', ['dropbox/Dropbox-sdk.min'], function (main) { return main; });
+!function(t,r){e.exports=r()}(this,function(){"use strict";function e(e){return"function"==typeof e||"object"==typeof e&&null!==e}function i(e){return"function"==typeof e}function s(e){W=e}function o(e){Y=e}function u(){return function(){return t.nextTick(l)}}function a(){return function(){V(l)}}function c(){var e=0,t=new Z(l),r=document.createTextNode("");return t.observe(r,{characterData:!0}),function(){r.data=e=++e%2}}function p(){var e=new MessageChannel;return e.port1.onmessage=l,function(){return e.port2.postMessage(0)}}function h(){var e=setTimeout;return function(){return e(l,1)}}function l(){for(var e=0;e<$;e+=2){var t=re[e],r=re[e+1];t(r),re[e]=void 0,re[e+1]=void 0}$=0}function f(){try{var e=r(19);return V=e.runOnLoop||e.runOnContext,a()}catch(e){return h()}}function d(e,t){var r=arguments,n=this,i=new this.constructor(m);void 0===i[ie]&&U(i);var s=n._state;return s?!function(){var e=r[s-1];Y(function(){return E(s,i,e,n._result)})}():C(n,i,e,t),i}function _(e){var t=this;if(e&&"object"==typeof e&&e.constructor===t)return e;var r=new t(m);return k(r,e),r}function m(){}function y(){return new TypeError("You cannot resolve a promise with itself")}function g(){return new TypeError("A promises callback cannot return that same promise.")}function v(e){try{return e.then}catch(e){return ae.error=e,ae}}function b(e,t,r,n){try{e.call(t,r,n)}catch(e){return e}}function w(e,t,r){Y(function(e){var n=!1,i=b(r,t,function(r){n||(n=!0,t!==r?k(e,r):A(e,r))},function(t){n||(n=!0,L(e,t))},"Settle: "+(e._label||" unknown promise"));!n&&i&&(n=!0,L(e,i))},e)}function q(e,t){t._state===oe?A(e,t._result):t._state===ue?L(e,t._result):C(t,void 0,function(t){return k(e,t)},function(t){return L(e,t)})}function x(e,t,r){t.constructor===e.constructor&&r===d&&t.constructor.resolve===_?q(e,t):r===ae?L(e,ae.error):void 0===r?A(e,t):i(r)?w(e,t,r):A(e,t)}function k(t,r){t===r?L(t,y()):e(r)?x(t,r,v(r)):A(t,r)}function T(e){e._onerror&&e._onerror(e._result),S(e)}function A(e,t){e._state===se&&(e._result=t,e._state=oe,0!==e._subscribers.length&&Y(S,e))}function L(e,t){e._state===se&&(e._state=ue,e._result=t,Y(T,e))}function C(e,t,r,n){var i=e._subscribers,s=i.length;e._onerror=null,i[s]=t,i[s+oe]=r,i[s+ue]=n,0===s&&e._state&&Y(S,e)}function S(e){var t=e._subscribers,r=e._state;if(0!==t.length){for(var n=void 0,i=void 0,s=e._result,o=0;o<t.length;o+=3)n=t[o],i=t[o+r],n?E(r,n,i,s):i(s);e._subscribers.length=0}}function R(){this.error=null}function D(e,t){try{return e(t)}catch(e){return ce.error=e,ce}}function E(e,t,r,n){var s=i(r),o=void 0,u=void 0,a=void 0,c=void 0;if(s){if(o=D(r,n),o===ce?(c=!0,u=o.error,o=null):a=!0,t===o)return void L(t,g())}else o=n,a=!0;t._state!==se||(s&&a?k(t,o):c?L(t,u):e===oe?A(t,o):e===ue&&L(t,o))}function F(e,t){try{t(function(t){k(e,t)},function(t){L(e,t)})}catch(t){L(e,t)}}function M(){return pe++}function U(e){e[ie]=pe++,e._state=void 0,e._result=void 0,e._subscribers=[]}function j(e,t){this._instanceConstructor=e,this.promise=new e(m),this.promise[ie]||U(this.promise),N(t)?(this._input=t,this.length=t.length,this._remaining=t.length,this._result=new Array(this.length),0===this.length?A(this.promise,this._result):(this.length=this.length||0,this._enumerate(),0===this._remaining&&A(this.promise,this._result))):L(this.promise,P())}function P(){return new Error("Array Methods must be provided an Array")}function O(e){return new j(this,e).promise}function G(e){var t=this;return new t(N(e)?function(r,n){for(var i=e.length,s=0;s<i;s++)t.resolve(e[s]).then(r,n)}:function(e,t){return t(new TypeError("You must pass an array to race."))})}function B(e){var t=this,r=new t(m);return L(r,e),r}function H(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function I(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function z(e){this[ie]=M(),this._result=this._state=void 0,this._subscribers=[],m!==e&&("function"!=typeof e&&H(),this instanceof z?F(this,e):I())}function X(){var e=void 0;if("undefined"!=typeof n)e=n;else if("undefined"!=typeof self)e=self;else try{e=Function("return this")()}catch(e){throw new Error("polyfill failed because global object is unavailable in this environment")}var t=e.Promise;if(t){var r=null;try{r=Object.prototype.toString.call(t.resolve())}catch(e){}if("[object Promise]"===r&&!t.cast)return}e.Promise=z}var J=void 0;J=Array.isArray?Array.isArray:function(e){return"[object Array]"===Object.prototype.toString.call(e)};var N=J,$=0,V=void 0,W=void 0,Y=function(e,t){re[$]=e,re[$+1]=t,$+=2,2===$&&(W?W(l):ne())},K="undefined"!=typeof window?window:void 0,Q=K||{},Z=Q.MutationObserver||Q.WebKitMutationObserver,ee="undefined"==typeof self&&"undefined"!=typeof t&&"[object process]"==={}.toString.call(t),te="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,re=new Array(1e3),ne=void 0;ne=ee?u():Z?c():te?p():void 0===K?f():h();var ie=Math.random().toString(36).substring(16),se=void 0,oe=1,ue=2,ae=new R,ce=new R,pe=0;return j.prototype._enumerate=function(){for(var e=this.length,t=this._input,r=0;this._state===se&&r<e;r++)this._eachEntry(t[r],r)},j.prototype._eachEntry=function(e,t){var r=this._instanceConstructor,n=r.resolve;if(n===_){var i=v(e);if(i===d&&e._state!==se)this._settledAt(e._state,t,e._result);else if("function"!=typeof i)this._remaining--,this._result[t]=e;else if(r===z){var s=new r(m);x(s,e,i),this._willSettleAt(s,t)}else this._willSettleAt(new r(function(t){return t(e)}),t)}else this._willSettleAt(n(e),t)},j.prototype._settledAt=function(e,t,r){var n=this.promise;n._state===se&&(this._remaining--,e===ue?L(n,r):this._result[t]=r),0===this._remaining&&A(n,this._result)},j.prototype._willSettleAt=function(e,t){var r=this;C(e,void 0,function(e){return r._settledAt(oe,t,e)},function(e){return r._settledAt(ue,t,e)})},z.all=O,z.race=G,z.resolve=_,z.reject=B,z._setScheduler=s,z._setAsap=o,z._asap=Y,z.prototype={constructor:z,then:d,catch:function(e){return this.then(null,e)}},X(),z.polyfill=X,z.Promise=z,z})}).call(t,r(8),function(){return this}())},function(e,t,r){function n(){}function i(e){var t={}.toString.call(e);switch(t){case"[object File]":case"[object Blob]":case"[object FormData]":return!0;default:return!1}}function s(e){if(!v(e))return e;var t=[];for(var r in e)null!=e[r]&&o(t,r,e[r]);return t.join("&")}function o(e,t,r){return Array.isArray(r)?r.forEach(function(r){o(e,t,r)}):void e.push(encodeURIComponent(t)+"="+encodeURIComponent(r))}function u(e){for(var t,r,n={},i=e.split("&"),s=0,o=i.length;s<o;++s)r=i[s],t=r.split("="),n[decodeURIComponent(t[0])]=decodeURIComponent(t[1]);return n}function a(e){var t,r,n,i,s=e.split(/\r?\n/),o={};s.pop();for(var u=0,a=s.length;u<a;++u)r=s[u],t=r.indexOf(":"),n=r.slice(0,t).toLowerCase(),i=w(r.slice(t+1)),o[n]=i;return o}function c(e){return/[\/+]json\b/.test(e)}function p(e){return e.split(/ *; */).shift()}function h(e){return y(e.split(/ *; */),function(e,t){var r=t.split(/ *= */),n=r.shift(),i=r.shift();return n&&i&&(e[n]=i),e},{})}function l(e,t){t=t||{},this.req=e,this.xhr=this.req.xhr,this.text="HEAD"!=this.req.method&&(""===this.xhr.responseType||"text"===this.xhr.responseType)||"undefined"==typeof this.xhr.responseType?this.xhr.responseText:null,this.statusText=this.req.xhr.statusText,this.setStatusProperties(this.xhr.status),this.header=this.headers=a(this.xhr.getAllResponseHeaders()),this.header["content-type"]=this.xhr.getResponseHeader("content-type"),this.setHeaderProperties(this.header),this.body="HEAD"!=this.req.method?this.parseBody(this.text?this.text:this.xhr.response):null}function f(e,t){var r=this;this._query=this._query||[],this.method=e,this.url=t,this.header={},this._header={},this.on("end",function(){var e=null,t=null;try{t=new l(r)}catch(t){return e=new Error("Parser is unable to parse the response"),e.parse=!0,e.original=t,e.rawResponse=r.xhr&&r.xhr.responseText?r.xhr.responseText:null,e.statusCode=r.xhr&&r.xhr.status?r.xhr.status:null,r.callback(e)}if(r.emit("response",t),e)return r.callback(e,t);if(t.status>=200&&t.status<300)return r.callback(e,t);var n=new Error(t.statusText||"Unsuccessful HTTP response");n.original=e,n.response=t,n.status=t.status,r.callback(n,t)})}function d(e,t){var r=b("DELETE",e);return t&&r.end(t),r}var _,m=r(7),y=r(9),g=r(10),v=r(4);_="undefined"!=typeof window?window:"undefined"!=typeof self?self:this;var b=e.exports=r(11).bind(null,f);b.getXHR=function(){if(!(!_.XMLHttpRequest||_.location&&"file:"==_.location.protocol&&_.ActiveXObject))return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.6.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.3.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP")}catch(e){}return!1};var w="".trim?function(e){return e.trim()}:function(e){return e.replace(/(^\s*|\s*$)/g,"")};b.serializeObject=s,b.parseString=u,b.types={html:"text/html",json:"application/json",xml:"application/xml",urlencoded:"application/x-www-form-urlencoded",form:"application/x-www-form-urlencoded","form-data":"application/x-www-form-urlencoded"},b.serialize={"application/x-www-form-urlencoded":s,"application/json":JSON.stringify},b.parse={"application/x-www-form-urlencoded":u,"application/json":JSON.parse},l.prototype.get=function(e){return this.header[e.toLowerCase()]},l.prototype.setHeaderProperties=function(e){var t=this.header["content-type"]||"";this.type=p(t);var r=h(t);for(var n in r)this[n]=r[n]},l.prototype.parseBody=function(e){var t=b.parse[this.type];return!t&&c(this.type)&&(t=b.parse["application/json"]),t&&e&&(e.length||e instanceof Object)?t(e):null},l.prototype.setStatusProperties=function(e){1223===e&&(e=204);var t=e/100|0;this.status=this.statusCode=e,this.statusType=t,this.info=1==t,this.ok=2==t,this.clientError=4==t,this.serverError=5==t,this.error=(4==t||5==t)&&this.toError(),this.accepted=202==e,this.noContent=204==e,this.badRequest=400==e,this.unauthorized=401==e,this.notAcceptable=406==e,this.notFound=404==e,this.forbidden=403==e},l.prototype.toError=function(){var e=this.req,t=e.method,r=e.url,n="cannot "+t+" "+r+" ("+this.status+")",i=new Error(n);return i.status=this.status,i.method=t,i.url=r,i},b.Response=l,m(f.prototype);for(var q in g)f.prototype[q]=g[q];f.prototype.abort=function(){if(!this.aborted)return this.aborted=!0,this.xhr&&this.xhr.abort(),this.clearTimeout(),this.emit("abort"),this},f.prototype.type=function(e){return this.set("Content-Type",b.types[e]||e),this},f.prototype.responseType=function(e){return this._responseType=e,this},f.prototype.accept=function(e){return this.set("Accept",b.types[e]||e),this},f.prototype.auth=function(e,t,r){switch(r||(r={type:"basic"}),r.type){case"basic":var n=btoa(e+":"+t);this.set("Authorization","Basic "+n);break;case"auto":this.username=e,this.password=t}return this},f.prototype.query=function(e){return"string"!=typeof e&&(e=s(e)),e&&this._query.push(e),this},f.prototype.attach=function(e,t,r){return this._getFormData().append(e,t,r||t.name),this},f.prototype._getFormData=function(){return this._formData||(this._formData=new _.FormData),this._formData},f.prototype.send=function(e){var t=v(e),r=this._header["content-type"];if(t&&v(this._data))for(var n in e)this._data[n]=e[n];else"string"==typeof e?(r||this.type("form"),r=this._header["content-type"],"application/x-www-form-urlencoded"==r?this._data=this._data?this._data+"&"+e:e:this._data=(this._data||"")+e):this._data=e;return!t||i(e)?this:(r||this.type("json"),this)},l.prototype.parse=function(e){return _.console&&console.warn("Client-side parse() method has been renamed to serialize(). This method is not compatible with superagent v2.0"),this.serialize(e),this},l.prototype.serialize=function(e){return this._parser=e,this},f.prototype.callback=function(e,t){var r=this._callback;this.clearTimeout(),r(e,t)},f.prototype.crossDomainError=function(){var e=new Error("Request has been terminated\nPossible causes: the network is offline, Origin is not allowed by Access-Control-Allow-Origin, the page is being unloaded, etc.");e.crossDomain=!0,e.status=this.status,e.method=this.method,e.url=this.url,this.callback(e)},f.prototype.timeoutError=function(){var e=this._timeout,t=new Error("timeout of "+e+"ms exceeded");t.timeout=e,this.callback(t)},f.prototype.withCredentials=function(){return this._withCredentials=!0,this},f.prototype.end=function(e){var t=this,r=this.xhr=b.getXHR(),s=this._query.join("&"),o=this._timeout,u=this._formData||this._data;this._callback=e||n,r.onreadystatechange=function(){if(4==r.readyState){var e;try{e=r.status}catch(t){e=0}if(0==e){if(t.timedout)return t.timeoutError();if(t.aborted)return;return t.crossDomainError()}t.emit("end")}};var a=function(e){e.total>0&&(e.percent=e.loaded/e.total*100),e.direction="download",t.emit("progress",e)};this.hasListeners("progress")&&(r.onprogress=a);try{r.upload&&this.hasListeners("progress")&&(r.upload.onprogress=a)}catch(e){}if(o&&!this._timer&&(this._timer=setTimeout(function(){t.timedout=!0,t.abort()},o)),s&&(s=b.serializeObject(s),this.url+=~this.url.indexOf("?")?"&"+s:"?"+s),this.username&&this.password?r.open(this.method,this.url,!0,this.username,this.password):r.open(this.method,this.url,!0),this._withCredentials&&(r.withCredentials=!0),"GET"!=this.method&&"HEAD"!=this.method&&"string"!=typeof u&&!i(u)){var p=this._header["content-type"],h=this._parser||b.serialize[p?p.split(";")[0]:""];!h&&c(p)&&(h=b.serialize["application/json"]),h&&(u=h(u))}for(var l in this.header)null!=this.header[l]&&r.setRequestHeader(l,this.header[l]);return this._responseType&&(r.responseType=this._responseType),this.emit("request",this),r.send("undefined"!=typeof u?u:null),this},b.Request=f,b.get=function(e,t,r){var n=b("GET",e);return"function"==typeof t&&(r=t,t=null),t&&n.query(t),r&&n.end(r),n},b.head=function(e,t,r){var n=b("HEAD",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.del=d,b.delete=d,b.patch=function(e,t,r){var n=b("PATCH",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.post=function(e,t,r){var n=b("POST",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n},b.put=function(e,t,r){var n=b("PUT",e);return"function"==typeof t&&(r=t,t=null),t&&n.send(t),r&&n.end(r),n}},function(e,t){function r(e){return"https://"+e+".dropboxapi.com/2/"}e.exports=r},function(e,t){function r(e){return null!=e&&"object"==typeof e}e.exports=r},function(e,t){function r(e){return JSON.stringify(e).replace(n,function(e){return"\\u"+("000"+e.charCodeAt(0).toString(16)).slice(-4)})}var n=/[\u007f-\uffff]/g;e.exports=r},function(e,t,r){var n,i=r(15);r(14),n=function(e){e=e||{},this.accessToken=e.accessToken,this.clientId=e.clientId,this.selectUser=e.selectUser},n.prototype.setAccessToken=function(e){this.accessToken=e},n.prototype.getAccessToken=function(){return this.accessToken},n.prototype.setClientId=function(e){this.clientId=e},n.prototype.getClientId=function(){return this.clientId},n.prototype.getAuthenticationUrl=function(e,t){var r,n="https://www.dropbox.com/oauth2/authorize",i=this.getClientId();if(!i)throw new Error("A client id is required. You can set the client id using .setClientId().");if(!e)throw new Error("A redirect uri is required.");return r=n+"?response_type=token&client_id="+i,e&&(r=r+"&redirect_uri="+e),t&&(r=r+"&state="+t),r},n.prototype.authenticateWithCordova=function(e,t){var r="https://www.dropbox.com/1/oauth2/redirect_receiver",n=this.getAuthenticationUrl(r),i=window.open(n,"_blank"),s=!1,o=function(e){window.setTimeout(function(){i.close()},10),t()},u=function(r){var n="&error=",s=r.url.indexOf(n);if(s>-1)window.setTimeout(function(){i.close()},10),t();else{var o="#access_token=",u=r.url.indexOf(o),a=r.url.indexOf("&token_type=");if(u>-1){u+=o.length,window.setTimeout(function(){i.close()},10);var c=r.url.substring(u,a);e(c)}}},a=function(e){s||(i.removeEventListener("loaderror",o),i.removeEventListener("loadstop",u),i.removeEventListener("exit",a),s=!0)};i.addEventListener("loaderror",o),i.addEventListener("loadstop",u),i.addEventListener("exit",a)},n.prototype.request=function(e,t,r,n,s){var o=null;switch(s){case i.RPC:o=this.getRpcRequest();break;case i.DOWNLOAD:o=this.getDownloadRequest();break;case i.UPLOAD:o=this.getUploadRequest();break;default:throw new Error("Invalid request style: "+s)}return o(e,t,r,n,this.getAccessToken(),this.selectUser)},n.prototype.setRpcRequest=function(e){n.prototype.rpcRequest=e},n.prototype.getRpcRequest=function(){return void 0===n.prototype.rpcRequest&&(n.prototype.rpcRequest=r(17)),n.prototype.rpcRequest},n.prototype.setDownloadRequest=function(e){n.prototype.downloadRequest=e},n.prototype.getDownloadRequest=function(){return void 0===n.prototype.downloadRequest&&(n.prototype.downloadRequest=r(12)),n.prototype.downloadRequest},n.prototype.setUploadRequest=function(e){n.prototype.uploadRequest=e},n.prototype.getUploadRequest=function(){return void 0===n.prototype.uploadRequest&&(n.prototype.uploadRequest=r(18)),n.prototype.uploadRequest},e.exports=n},function(e,t,r){function n(e){if(e)return i(e)}function i(e){for(var t in n.prototype)e[t]=n.prototype[t];return e}e.exports=n,n.prototype.on=n.prototype.addEventListener=function(e,t){return this._callbacks=this._callbacks||{},(this._callbacks["$"+e]=this._callbacks["$"+e]||[]).push(t),this},n.prototype.once=function(e,t){function r(){this.off(e,r),t.apply(this,arguments)}return r.fn=t,this.on(e,r),this},n.prototype.off=n.prototype.removeListener=n.prototype.removeAllListeners=n.prototype.removeEventListener=function(e,t){if(this._callbacks=this._callbacks||{},0==arguments.length)return this._callbacks={},this;var r=this._callbacks["$"+e];if(!r)return this;if(1==arguments.length)return delete this._callbacks["$"+e],this;for(var n,i=0;i<r.length;i++)if(n=r[i],n===t||n.fn===t){r.splice(i,1);break}return this},n.prototype.emit=function(e){this._callbacks=this._callbacks||{};var t=[].slice.call(arguments,1),r=this._callbacks["$"+e];if(r){r=r.slice(0);for(var n=0,i=r.length;n<i;++n)r[n].apply(this,t)}return this},n.prototype.listeners=function(e){return this._callbacks=this._callbacks||{},this._callbacks["$"+e]||[]},n.prototype.hasListeners=function(e){return!!this.listeners(e).length}},function(e,t){function r(){throw new Error("setTimeout has not been defined")}function n(){throw new Error("clearTimeout has not been defined")}function i(e){if(p===setTimeout)return setTimeout(e,0);if((p===r||!p)&&setTimeout)return p=setTimeout,setTimeout(e,0);try{return p(e,0)}catch(t){try{return p.call(null,e,0)}catch(t){return p.call(this,e,0)}}}function s(e){if(h===clearTimeout)return clearTimeout(e);if((h===n||!h)&&clearTimeout)return h=clearTimeout,clearTimeout(e);try{return h(e)}catch(t){try{return h.call(null,e)}catch(t){return h.call(this,e)}}}function o(){_&&f&&(_=!1,f.length?d=f.concat(d):m=-1,d.length&&u())}function u(){if(!_){var e=i(o);_=!0;for(var t=d.length;t;){for(f=d,d=[];++m<t;)f&&f[m].run();m=-1,t=d.length}f=null,_=!1,s(e)}}function a(e,t){this.fun=e,this.array=t}function c(){}var p,h,l=e.exports={};!function(){try{p="function"==typeof setTimeout?setTimeout:r}catch(e){p=r}try{h="function"==typeof clearTimeout?clearTimeout:n}catch(e){h=n}}();var f,d=[],_=!1,m=-1;l.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var r=1;r<arguments.length;r++)t[r-1]=arguments[r];d.push(new a(e,t)),1!==d.length||_||i(u)},a.prototype.run=function(){this.fun.apply(null,this.array)},l.title="browser",l.browser=!0,l.env={},l.argv=[],l.version="",l.versions={},l.on=c,l.addListener=c,l.once=c,l.off=c,l.removeListener=c,l.removeAllListeners=c,l.emit=c,l.binding=function(e){throw new Error("process.binding is not supported")},l.cwd=function(){return"/"},l.chdir=function(e){throw new Error("process.chdir is not supported")},l.umask=function(){return 0}},function(e,t){e.exports=function(e,t,r){for(var n=0,i=e.length,s=3==arguments.length?r:e[n++];n<i;)s=t.call(null,s,e[n],++n,e);return s}},function(e,t,r){var n=r(4);t.clearTimeout=function(){return this._timeout=0,clearTimeout(this._timer),this},t.parse=function(e){return this._parser=e,this},t.timeout=function(e){return this._timeout=e,this},t.then=function(e,t){return this.end(function(r,n){r?t(r):e(n)})},t.use=function(e){return e(this),this},t.get=function(e){return this._header[e.toLowerCase()]},t.getHeader=t.get,t.set=function(e,t){if(n(e)){for(var r in e)this.set(r,e[r]);return this}return this._header[e.toLowerCase()]=t,this.header[e]=t,this},t.unset=function(e){return delete this._header[e.toLowerCase()],delete this.header[e],this},t.field=function(e,t){return this._getFormData().append(e,t),this}},function(e,t){function r(e,t,r){return"function"==typeof r?new e("GET",t).end(r):2==arguments.length?new e("GET",t):new e(t,r)}e.exports=r},function(e,t,r){var n,i,s,o=r(2),u=r(1).Promise,a=r(3),c=r(5);o.parse["application/octect-stream"]=function(e){return e},n=function(e,t){return{status:e.status,error:(t?t.text:null)||e.toString(),response:t}},s=function(e,t){e.text="",e.setEncoding("binary"),e.on("data",function(t){e.text+=t}),e.on("end",function(){t()})},i=function(e,t,r,i,p,h){if("user"!==r)throw new Error("Unexpected auth type: "+r);var l=function(r,u){function l(e){r&&r(e)}function f(e){u&&u(e)}function d(e,t){var r;e?f(n(e,t)):(r=JSON.parse(t.headers["dropbox-api-result"]),t.xhr?r.fileBlob=t.xhr.response:r.fileBinary=t.res.text,l(r))}var _;_=o.post(a(i)+e).set("Authorization","Bearer "+p).set("Dropbox-API-Arg",c(t)).on("request",function(){this.xhr&&(this.xhr.responseType="blob")}),h&&(_=_.set("Dropbox-API-Select-User",h)),"undefined"==typeof window?_.buffer(!0).parse(s).end(d):_.end(d)};return new u(l)},e.exports=i},function(e,t,r){var n,i=r(6),s=r(16);n=function(e){i.call(this,e)},n.prototype=Object.create(i.prototype),n.prototype.constructor=n,n.prototype=Object.assign(n.prototype,s),n.prototype.filesGetSharedLinkFile=function(e){return this.request("sharing/get_shared_link_file",e,"api","download")},e.exports=n},function(e,t){"function"!=typeof Object.assign&&!function(){Object.assign=function(e){"use strict";var t,r,n,i;if(void 0===e||null===e)throw new TypeError("Cannot convert undefined or null to object");for(t=Object(e),r=1;r<arguments.length;r++)if(n=arguments[r],void 0!==n&&null!==n)for(i in n)n.hasOwnProperty(i)&&(t[i]=n[i]);return t}}()},function(e,t){var r={RPC:"rpc",DOWNLOAD:"download",UPLOAD:"upload"};e.exports=r},function(e,t){var r={};r.authTokenFromOauth1=function(e){return this.request("auth/token/from_oauth1",e,"app","api","rpc")},r.authTokenRevoke=function(e){return this.request("auth/token/revoke",e,"user","api","rpc")},r.filesAlphaGetMetadata=function(e){return this.request("files/alpha/get_metadata",e,"user","api","rpc")},r.filesAlphaUpload=function(e){return this.request("files/alpha/upload",e,"user","content","upload")},r.filesCopy=function(e){return this.request("files/copy",e,"user","api","rpc")},r.filesCopyBatch=function(e){return this.request("files/copy_batch",e,"user","api","rpc")},r.filesCopyBatchCheck=function(e){return this.request("files/copy_batch/check",e,"user","api","rpc")},r.filesCopyReferenceGet=function(e){return this.request("files/copy_reference/get",e,"user","api","rpc")},r.filesCopyReferenceSave=function(e){return this.request("files/copy_reference/save",e,"user","api","rpc")},r.filesCopyV2=function(e){return this.request("files/copy_v2",e,"user","api","rpc")},r.filesCreateFolder=function(e){return this.request("files/create_folder",e,"user","api","rpc")},r.filesCreateFolderV2=function(e){return this.request("files/create_folder_v2",e,"user","api","rpc")},r.filesDelete=function(e){return this.request("files/delete",e,"user","api","rpc")},r.filesDeleteBatch=function(e){return this.request("files/delete_batch",e,"user","api","rpc")},r.filesDeleteBatchCheck=function(e){return this.request("files/delete_batch/check",e,"user","api","rpc")},r.filesDeleteV2=function(e){return this.request("files/delete_v2",e,"user","api","rpc")},r.filesDownload=function(e){return this.request("files/download",e,"user","content","download")},r.filesGetMetadata=function(e){return this.request("files/get_metadata",e,"user","api","rpc")},r.filesGetPreview=function(e){return this.request("files/get_preview",e,"user","content","download")},r.filesGetTemporaryLink=function(e){return this.request("files/get_temporary_link",e,"user","api","rpc")},r.filesGetThumbnail=function(e){return this.request("files/get_thumbnail",e,"user","content","download")},r.filesListFolder=function(e){return this.request("files/list_folder",e,"user","api","rpc")},r.filesListFolderContinue=function(e){return this.request("files/list_folder/continue",e,"user","api","rpc")},r.filesListFolderGetLatestCursor=function(e){return this.request("files/list_folder/get_latest_cursor",e,"user","api","rpc")},r.filesListFolderLongpoll=function(e){return this.request("files/list_folder/longpoll",e,"noauth","notify","rpc")},r.filesListRevisions=function(e){return this.request("files/list_revisions",e,"user","api","rpc")},r.filesMove=function(e){return this.request("files/move",e,"user","api","rpc")},r.filesMoveBatch=function(e){return this.request("files/move_batch",e,"user","api","rpc")},r.filesMoveBatchCheck=function(e){return this.request("files/move_batch/check",e,"user","api","rpc")},r.filesMoveV2=function(e){return this.request("files/move_v2",e,"user","api","rpc")},r.filesPermanentlyDelete=function(e){return this.request("files/permanently_delete",e,"user","api","rpc")},r.filesPropertiesAdd=function(e){return this.request("files/properties/add",e,"user","api","rpc")},r.filesPropertiesOverwrite=function(e){return this.request("files/properties/overwrite",e,"user","api","rpc")},r.filesPropertiesRemove=function(e){return this.request("files/properties/remove",e,"user","api","rpc")},r.filesPropertiesTemplateGet=function(e){return this.request("files/properties/template/get",e,"user","api","rpc")},r.filesPropertiesTemplateList=function(e){return this.request("files/properties/template/list",e,"user","api","rpc")},r.filesPropertiesUpdate=function(e){return this.request("files/properties/update",e,"user","api","rpc")},r.filesRestore=function(e){return this.request("files/restore",e,"user","api","rpc")},r.filesSaveUrl=function(e){return this.request("files/save_url",e,"user","api","rpc")},r.filesSaveUrlCheckJobStatus=function(e){return this.request("files/save_url/check_job_status",e,"user","api","rpc")},r.filesSearch=function(e){return this.request("files/search",e,"user","api","rpc")},r.filesUpload=function(e){return this.request("files/upload",e,"user","content","upload")},r.filesUploadSessionAppend=function(e){return this.request("files/upload_session/append",e,"user","content","upload")},r.filesUploadSessionAppendV2=function(e){return this.request("files/upload_session/append_v2",e,"user","content","upload")},r.filesUploadSessionFinish=function(e){return this.request("files/upload_session/finish",e,"user","content","upload")},r.filesUploadSessionFinishBatch=function(e){return this.request("files/upload_session/finish_batch",e,"user","api","rpc")},r.filesUploadSessionFinishBatchCheck=function(e){return this.request("files/upload_session/finish_batch/check",e,"user","api","rpc")},r.filesUploadSessionStart=function(e){return this.request("files/upload_session/start",e,"user","content","upload")},r.paperDocsArchive=function(e){return this.request("paper/docs/archive",e,"user","api","rpc")},r.paperDocsDownload=function(e){return this.request("paper/docs/download",e,"user","api","download")},r.paperDocsFolderUsersList=function(e){return this.request("paper/docs/folder_users/list",e,"user","api","rpc")},r.paperDocsFolderUsersListContinue=function(e){return this.request("paper/docs/folder_users/list/continue",e,"user","api","rpc")},r.paperDocsGetFolderInfo=function(e){return this.request("paper/docs/get_folder_info",e,"user","api","rpc")},r.paperDocsList=function(e){return this.request("paper/docs/list",e,"user","api","rpc")},r.paperDocsListContinue=function(e){return this.request("paper/docs/list/continue",e,"user","api","rpc")},r.paperDocsPermanentlyDelete=function(e){return this.request("paper/docs/permanently_delete",e,"user","api","rpc")},r.paperDocsSharingPolicyGet=function(e){return this.request("paper/docs/sharing_policy/get",e,"user","api","rpc")},r.paperDocsSharingPolicySet=function(e){return this.request("paper/docs/sharing_policy/set",e,"user","api","rpc")},r.paperDocsUsersAdd=function(e){return this.request("paper/docs/users/add",e,"user","api","rpc")},r.paperDocsUsersList=function(e){return this.request("paper/docs/users/list",e,"user","api","rpc")},r.paperDocsUsersListContinue=function(e){return this.request("paper/docs/users/list/continue",e,"user","api","rpc")},r.paperDocsUsersRemove=function(e){return this.request("paper/docs/users/remove",e,"user","api","rpc")},r.sharingAddFileMember=function(e){return this.request("sharing/add_file_member",e,"user","api","rpc")},r.sharingAddFolderMember=function(e){return this.request("sharing/add_folder_member",e,"user","api","rpc")},r.sharingChangeFileMemberAccess=function(e){return this.request("sharing/change_file_member_access",e,"user","api","rpc")},r.sharingCheckJobStatus=function(e){return this.request("sharing/check_job_status",e,"user","api","rpc")},r.sharingCheckRemoveMemberJobStatus=function(e){return this.request("sharing/check_remove_member_job_status",e,"user","api","rpc")},r.sharingCheckShareJobStatus=function(e){return this.request("sharing/check_share_job_status",e,"user","api","rpc")},r.sharingCreateSharedLink=function(e){return this.request("sharing/create_shared_link",e,"user","api","rpc")},r.sharingCreateSharedLinkWithSettings=function(e){return this.request("sharing/create_shared_link_with_settings",e,"user","api","rpc")},r.sharingGetFileMetadata=function(e){return this.request("sharing/get_file_metadata",e,"user","api","rpc")},r.sharingGetFileMetadataBatch=function(e){return this.request("sharing/get_file_metadata/batch",e,"user","api","rpc")},r.sharingGetFolderMetadata=function(e){return this.request("sharing/get_folder_metadata",e,"user","api","rpc")},r.sharingGetSharedLinkFile=function(e){return this.request("sharing/get_shared_link_file",e,"user","content","download")},r.sharingGetSharedLinkMetadata=function(e){return this.request("sharing/get_shared_link_metadata",e,"user","api","rpc")},r.sharingGetSharedLinks=function(e){return this.request("sharing/get_shared_links",e,"user","api","rpc")},r.sharingListFileMembers=function(e){return this.request("sharing/list_file_members",e,"user","api","rpc")},r.sharingListFileMembersBatch=function(e){return this.request("sharing/list_file_members/batch",e,"user","api","rpc")},r.sharingListFileMembersContinue=function(e){return this.request("sharing/list_file_members/continue",e,"user","api","rpc")},r.sharingListFolderMembers=function(e){return this.request("sharing/list_folder_members",e,"user","api","rpc")},r.sharingListFolderMembersContinue=function(e){return this.request("sharing/list_folder_members/continue",e,"user","api","rpc")},r.sharingListFolders=function(e){return this.request("sharing/list_folders",e,"user","api","rpc")},r.sharingListFoldersContinue=function(e){return this.request("sharing/list_folders/continue",e,"user","api","rpc")},r.sharingListMountableFolders=function(e){return this.request("sharing/list_mountable_folders",e,"user","api","rpc")},r.sharingListMountableFoldersContinue=function(e){return this.request("sharing/list_mountable_folders/continue",e,"user","api","rpc")},r.sharingListReceivedFiles=function(e){return this.request("sharing/list_received_files",e,"user","api","rpc")},r.sharingListReceivedFilesContinue=function(e){return this.request("sharing/list_received_files/continue",e,"user","api","rpc")},r.sharingListSharedLinks=function(e){return this.request("sharing/list_shared_links",e,"user","api","rpc");
+},r.sharingModifySharedLinkSettings=function(e){return this.request("sharing/modify_shared_link_settings",e,"user","api","rpc")},r.sharingMountFolder=function(e){return this.request("sharing/mount_folder",e,"user","api","rpc")},r.sharingRelinquishFileMembership=function(e){return this.request("sharing/relinquish_file_membership",e,"user","api","rpc")},r.sharingRelinquishFolderMembership=function(e){return this.request("sharing/relinquish_folder_membership",e,"user","api","rpc")},r.sharingRemoveFileMember=function(e){return this.request("sharing/remove_file_member",e,"user","api","rpc")},r.sharingRemoveFileMember2=function(e){return this.request("sharing/remove_file_member_2",e,"user","api","rpc")},r.sharingRemoveFolderMember=function(e){return this.request("sharing/remove_folder_member",e,"user","api","rpc")},r.sharingRevokeSharedLink=function(e){return this.request("sharing/revoke_shared_link",e,"user","api","rpc")},r.sharingShareFolder=function(e){return this.request("sharing/share_folder",e,"user","api","rpc")},r.sharingTransferFolder=function(e){return this.request("sharing/transfer_folder",e,"user","api","rpc")},r.sharingUnmountFolder=function(e){return this.request("sharing/unmount_folder",e,"user","api","rpc")},r.sharingUnshareFile=function(e){return this.request("sharing/unshare_file",e,"user","api","rpc")},r.sharingUnshareFolder=function(e){return this.request("sharing/unshare_folder",e,"user","api","rpc")},r.sharingUpdateFileMember=function(e){return this.request("sharing/update_file_member",e,"user","api","rpc")},r.sharingUpdateFolderMember=function(e){return this.request("sharing/update_folder_member",e,"user","api","rpc")},r.sharingUpdateFolderPolicy=function(e){return this.request("sharing/update_folder_policy",e,"user","api","rpc")},r.teamLogGetEvents=function(e){return this.request("team_log/get_events",e,"team","api","rpc")},r.teamLogGetEventsContinue=function(e){return this.request("team_log/get_events/continue",e,"team","api","rpc")},r.usersGetAccount=function(e){return this.request("users/get_account",e,"user","api","rpc")},r.usersGetAccountBatch=function(e){return this.request("users/get_account_batch",e,"user","api","rpc")},r.usersGetCurrentAccount=function(e){return this.request("users/get_current_account",e,"user","api","rpc")},r.usersGetSpaceUsage=function(e){return this.request("users/get_space_usage",e,"user","api","rpc")},e.exports=r},function(e,t,r){var n=r(2),i=r(1).Promise,s=r(3),o=function(e,t){var r;if(t)try{r=JSON.parse(t.text)}catch(e){r=t.text}return{status:e.status,error:r||e,response:t}},u=function(e,t,r,u,a,c){var p=function(i,p){function h(e){i&&i(e)}function l(e){p&&p(e)}function f(e,t){e?l(o(e,t)):h(t.body)}var d;switch(t||(t=null),d=n.post(s(u)+e).type("application/json"),r){case"team":case"user":d.set("Authorization","Bearer "+a);break;case"noauth":break;default:throw new Error("Unhandled auth type: "+r)}c&&(d=d.set("Dropbox-API-Select-User",c)),d.send(t).end(f)};return new i(p)};e.exports=u},function(e,t,r){var n=r(2),i=r(1).Promise,s=r(3),o=r(5),u=function(e,t){return{status:e.status,error:(t?t.text:null)||e.toString(),response:t}},a=function(e,t,r,a,c,p){if("user"!==r)throw new Error("Unexpected auth type: "+r);var h=function(r,i){function h(e){r&&r(e)}function l(e){i&&i(e)}function f(e,t){e?l(u(e,t)):h(t.body)}var d,_=t.contents;delete t.contents,d=n.post(s(a)+e).type("application/octet-stream").set("Authorization","Bearer "+c).set("Dropbox-API-Arg",o(t)),p&&(d=d.set("Dropbox-API-Select-User",p)),d.send(_).end(f)};return new i(h)};e.exports=a},function(e,t){}])});;define('dropbox', ['dropbox/Dropbox-sdk.min'], function (main) { return main; });
 
 define('aurelia-dialog/aurelia-dialog',["require", "exports", "./dialog-configuration", "./ux-dialog", "./ux-dialog-header", "./ux-dialog-body", "./ux-dialog-footer", "./attach-focus", "./dialog-settings", "./dialog-configuration", "./renderer", "./dialog-cancel-error", "./dialog-service", "./dialog-controller"], function (require, exports, dialog_configuration_1, ux_dialog_1, ux_dialog_header_1, ux_dialog_body_1, ux_dialog_footer_1, attach_focus_1, dialog_settings_1, dialog_configuration_2, renderer_1, dialog_cancel_error_1, dialog_service_1, dialog_controller_1) {
     "use strict";
@@ -26856,7 +26866,7 @@ function endOfLine(visually, cm, lineObj, lineNo, dir) {
         ch = dir < 0 ? lineObj.text.length - 1 : 0;
         var targetTop = measureCharPrepared(cm, prep, ch).top;
         ch = findFirst(function (ch) { return measureCharPrepared(cm, prep, ch).top == targetTop; }, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch);
-        if (sticky == "before") { ch = moveCharLogically(lineObj, ch, 1, true); }
+        if (sticky == "before") { ch = moveCharLogically(lineObj, ch, 1); }
       } else { ch = dir < 0 ? part.to : part.from; }
       return new Pos(lineNo, ch, sticky)
     }
@@ -27217,12 +27227,13 @@ function startState(mode, a1, a2) {
 // Fed to the mode parsers, provides helper functions to make
 // parsers more succinct.
 
-var StringStream = function(string, tabSize) {
+var StringStream = function(string, tabSize, lineOracle) {
   this.pos = this.start = 0;
   this.string = string;
   this.tabSize = tabSize || 8;
   this.lastColumnPos = this.lastColumnValue = 0;
   this.lineStart = 0;
+  this.lineOracle = lineOracle;
 };
 
 StringStream.prototype.eol = function () {return this.pos >= this.string.length};
@@ -27289,23 +27300,65 @@ StringStream.prototype.hideFirstChars = function (n, inner) {
   try { return inner() }
   finally { this.lineStart -= n; }
 };
+StringStream.prototype.lookAhead = function (n) {
+  var oracle = this.lineOracle;
+  return oracle && oracle.lookAhead(n)
+};
+
+var SavedContext = function(state, lookAhead) {
+  this.state = state;
+  this.lookAhead = lookAhead;
+};
+
+var Context = function(doc, state, line, lookAhead) {
+  this.state = state;
+  this.doc = doc;
+  this.line = line;
+  this.maxLookAhead = lookAhead || 0;
+};
+
+Context.prototype.lookAhead = function (n) {
+  var line = this.doc.getLine(this.line + n);
+  if (line != null && n > this.maxLookAhead) { this.maxLookAhead = n; }
+  return line
+};
+
+Context.prototype.nextLine = function () {
+  this.line++;
+  if (this.maxLookAhead > 0) { this.maxLookAhead--; }
+};
+
+Context.fromSaved = function (doc, saved, line) {
+  if (saved instanceof SavedContext)
+    { return new Context(doc, copyState(doc.mode, saved.state), line, saved.lookAhead) }
+  else
+    { return new Context(doc, copyState(doc.mode, saved), line) }
+};
+
+Context.prototype.save = function (copy) {
+  var state = copy !== false ? copyState(this.doc.mode, this.state) : this.state;
+  return this.maxLookAhead > 0 ? new SavedContext(state, this.maxLookAhead) : state
+};
+
 
 // Compute a style array (an array starting with a mode generation
 // -- for invalidation -- followed by pairs of end positions and
 // style strings), which is used to highlight the tokens on the
 // line.
-function highlightLine(cm, line, state, forceToEnd) {
+function highlightLine(cm, line, context, forceToEnd) {
   // A styles array always starts with a number identifying the
   // mode/overlays that it is based on (for easy invalidation).
   var st = [cm.state.modeGen], lineClasses = {};
   // Compute the base array of styles
-  runMode(cm, line.text, cm.doc.mode, state, function (end, style) { return st.push(end, style); },
-    lineClasses, forceToEnd);
+  runMode(cm, line.text, cm.doc.mode, context, function (end, style) { return st.push(end, style); },
+          lineClasses, forceToEnd);
+  var state = context.state;
 
   // Run overlays, adjust style array.
   var loop = function ( o ) {
     var overlay = cm.state.overlays[o], i = 1, at = 0;
-    runMode(cm, line.text, overlay.mode, true, function (end, style) {
+    context.state = true;
+    runMode(cm, line.text, overlay.mode, context, function (end, style) {
       var start = i;
       // Ensure there's a token end at the current position, and that i points at it
       while (at < end) {
@@ -27329,49 +27382,54 @@ function highlightLine(cm, line, state, forceToEnd) {
   };
 
   for (var o = 0; o < cm.state.overlays.length; ++o) loop( o );
+  context.state = state;
 
   return {styles: st, classes: lineClasses.bgClass || lineClasses.textClass ? lineClasses : null}
 }
 
 function getLineStyles(cm, line, updateFrontier) {
   if (!line.styles || line.styles[0] != cm.state.modeGen) {
-    var state = getStateBefore(cm, lineNo(line));
-    var result = highlightLine(cm, line, line.text.length > cm.options.maxHighlightLength ? copyState(cm.doc.mode, state) : state);
-    line.stateAfter = state;
+    var context = getContextBefore(cm, lineNo(line));
+    var resetState = line.text.length > cm.options.maxHighlightLength && copyState(cm.doc.mode, context.state);
+    var result = highlightLine(cm, line, context);
+    if (resetState) { context.state = resetState; }
+    line.stateAfter = context.save(!resetState);
     line.styles = result.styles;
     if (result.classes) { line.styleClasses = result.classes; }
     else if (line.styleClasses) { line.styleClasses = null; }
-    if (updateFrontier === cm.doc.frontier) { cm.doc.frontier++; }
+    if (updateFrontier === cm.doc.highlightFrontier)
+      { cm.doc.modeFrontier = Math.max(cm.doc.modeFrontier, ++cm.doc.highlightFrontier); }
   }
   return line.styles
 }
 
-function getStateBefore(cm, n, precise) {
+function getContextBefore(cm, n, precise) {
   var doc = cm.doc, display = cm.display;
-  if (!doc.mode.startState) { return true }
-  var pos = findStartLine(cm, n, precise), state = pos > doc.first && getLine(doc, pos-1).stateAfter;
-  if (!state) { state = startState(doc.mode); }
-  else { state = copyState(doc.mode, state); }
-  doc.iter(pos, n, function (line) {
-    processLine(cm, line.text, state);
-    var save = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo;
-    line.stateAfter = save ? copyState(doc.mode, state) : null;
-    ++pos;
+  if (!doc.mode.startState) { return new Context(doc, true, n) }
+  var start = findStartLine(cm, n, precise);
+  var saved = start > doc.first && getLine(doc, start - 1).stateAfter;
+  var context = saved ? Context.fromSaved(doc, saved, start) : new Context(doc, startState(doc.mode), start);
+
+  doc.iter(start, n, function (line) {
+    processLine(cm, line.text, context);
+    var pos = context.line;
+    line.stateAfter = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo ? context.save() : null;
+    context.nextLine();
   });
-  if (precise) { doc.frontier = pos; }
-  return state
+  if (precise) { doc.modeFrontier = context.line; }
+  return context
 }
 
 // Lightweight form of highlight -- proceed over this line and
 // update state, but don't save a style array. Used for lines that
 // aren't currently visible.
-function processLine(cm, text, state, startAt) {
+function processLine(cm, text, context, startAt) {
   var mode = cm.doc.mode;
-  var stream = new StringStream(text, cm.options.tabSize);
+  var stream = new StringStream(text, cm.options.tabSize, context);
   stream.start = stream.pos = startAt || 0;
-  if (text == "") { callBlankLine(mode, state); }
+  if (text == "") { callBlankLine(mode, context.state); }
   while (!stream.eol()) {
-    readToken(mode, stream, state);
+    readToken(mode, stream, context.state);
     stream.start = stream.pos;
   }
 }
@@ -27392,26 +27450,26 @@ function readToken(mode, stream, state, inner) {
   throw new Error("Mode " + mode.name + " failed to advance stream.")
 }
 
+var Token = function(stream, type, state) {
+  this.start = stream.start; this.end = stream.pos;
+  this.string = stream.current();
+  this.type = type || null;
+  this.state = state;
+};
+
 // Utility for getTokenAt and getLineTokens
 function takeToken(cm, pos, precise, asArray) {
-  var getObj = function (copy) { return ({
-    start: stream.start, end: stream.pos,
-    string: stream.current(),
-    type: style || null,
-    state: copy ? copyState(doc.mode, state) : state
-  }); };
-
   var doc = cm.doc, mode = doc.mode, style;
   pos = clipPos(doc, pos);
-  var line = getLine(doc, pos.line), state = getStateBefore(cm, pos.line, precise);
-  var stream = new StringStream(line.text, cm.options.tabSize), tokens;
+  var line = getLine(doc, pos.line), context = getContextBefore(cm, pos.line, precise);
+  var stream = new StringStream(line.text, cm.options.tabSize, context), tokens;
   if (asArray) { tokens = []; }
   while ((asArray || stream.pos < pos.ch) && !stream.eol()) {
     stream.start = stream.pos;
-    style = readToken(mode, stream, state);
-    if (asArray) { tokens.push(getObj(true)); }
+    style = readToken(mode, stream, context.state);
+    if (asArray) { tokens.push(new Token(stream, style, copyState(doc.mode, context.state))); }
   }
-  return asArray ? tokens : getObj()
+  return asArray ? tokens : new Token(stream, style, context.state)
 }
 
 function extractLineClasses(type, output) {
@@ -27429,21 +27487,21 @@ function extractLineClasses(type, output) {
 }
 
 // Run the given mode's parser over a line, calling f for each token.
-function runMode(cm, text, mode, state, f, lineClasses, forceToEnd) {
+function runMode(cm, text, mode, context, f, lineClasses, forceToEnd) {
   var flattenSpans = mode.flattenSpans;
   if (flattenSpans == null) { flattenSpans = cm.options.flattenSpans; }
   var curStart = 0, curStyle = null;
-  var stream = new StringStream(text, cm.options.tabSize), style;
+  var stream = new StringStream(text, cm.options.tabSize, context), style;
   var inner = cm.options.addModeClass && [null];
-  if (text == "") { extractLineClasses(callBlankLine(mode, state), lineClasses); }
+  if (text == "") { extractLineClasses(callBlankLine(mode, context.state), lineClasses); }
   while (!stream.eol()) {
     if (stream.pos > cm.options.maxHighlightLength) {
       flattenSpans = false;
-      if (forceToEnd) { processLine(cm, text, state, stream.pos); }
+      if (forceToEnd) { processLine(cm, text, context, stream.pos); }
       stream.pos = text.length;
       style = null;
     } else {
-      style = extractLineClasses(readToken(mode, stream, state, inner), lineClasses);
+      style = extractLineClasses(readToken(mode, stream, context.state, inner), lineClasses);
     }
     if (inner) {
       var mName = inner[0].name;
@@ -27478,8 +27536,9 @@ function findStartLine(cm, n, precise) {
   var lim = precise ? -1 : n - (cm.doc.mode.innerMode ? 1000 : 100);
   for (var search = n; search > lim; --search) {
     if (search <= doc.first) { return doc.first }
-    var line = getLine(doc, search - 1);
-    if (line.stateAfter && (!precise || search <= doc.frontier)) { return search }
+    var line = getLine(doc, search - 1), after = line.stateAfter;
+    if (after && (!precise || search + (after instanceof SavedContext ? after.lookAhead : 0) <= doc.modeFrontier))
+      { return search }
     var indented = countColumn(line.text, null, cm.options.tabSize);
     if (minline == null || minindent > indented) {
       minline = search - 1;
@@ -27487,6 +27546,23 @@ function findStartLine(cm, n, precise) {
     }
   }
   return minline
+}
+
+function retreatFrontier(doc, n) {
+  doc.modeFrontier = Math.min(doc.modeFrontier, n);
+  if (doc.highlightFrontier < n - 10) { return }
+  var start = doc.first;
+  for (var line = n - 1; line > start; line--) {
+    var saved = getLine(doc, line).stateAfter;
+    // change is on 3
+    // state on line 1 looked ahead 2 -- so saw 3
+    // test 1 + 2 < 3 should cover this
+    if (saved && (!(saved instanceof SavedContext) || line + saved.lookAhead < n)) {
+      start = line + 1;
+      break
+    }
+  }
+  doc.highlightFrontier = Math.min(doc.highlightFrontier, start);
 }
 
 // LINE DATA STRUCTURE
@@ -28365,8 +28441,17 @@ function clearCaches(cm) {
   cm.display.lineNumChars = null;
 }
 
-function pageScrollX() { return window.pageXOffset || (document.documentElement || document.body).scrollLeft }
-function pageScrollY() { return window.pageYOffset || (document.documentElement || document.body).scrollTop }
+function pageScrollX() {
+  // Work around https://bugs.chromium.org/p/chromium/issues/detail?id=489206
+  // which causes page_Offset and bounding client rects to use
+  // different reference viewports and invalidate our calculations.
+  if (chrome && android) { return -(document.body.getBoundingClientRect().left - parseInt(getComputedStyle(document.body).marginLeft)) }
+  return window.pageXOffset || (document.documentElement || document.body).scrollLeft
+}
+function pageScrollY() {
+  if (chrome && android) { return -(document.body.getBoundingClientRect().top - parseInt(getComputedStyle(document.body).marginTop)) }
+  return window.pageYOffset || (document.documentElement || document.body).scrollTop
+}
 
 // Converts a {top, bottom, left, right} box from line-local
 // coordinates into another coordinate system. Context may be one of
@@ -28532,20 +28617,30 @@ function coordsCharInner(cm, lineObj, lineNo$$1, x, y) {
       var assign;
       ((assign = wrappedLineExtent(cm, lineObj, preparedMeasure, y), begin = assign.begin, end = assign.end, assign));
     }
-    pos = new Pos(lineNo$$1, begin);
+    pos = new Pos(lineNo$$1, Math.floor(begin + (end - begin) / 2));
     var beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left;
     var dir = beginLeft < x ? 1 : -1;
     var prevDiff, diff = beginLeft - x, prevPos;
-    do {
+    var steps = Math.ceil((end - begin) / 4);
+    outer: do {
       prevDiff = diff;
       prevPos = pos;
-      pos = moveVisually(cm, lineObj, pos, dir);
-      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-        pos = prevPos;
-        break
+      var i = 0;
+      for (; i < steps; ++i) {
+        var prevPos$1 = pos;
+        pos = moveVisually(cm, lineObj, pos, dir);
+        if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
+          pos = prevPos$1;
+          break outer
+        }
       }
       diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x;
-    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
+      if (steps > 1) {
+        var diff_change_per_step = Math.abs(diff - prevDiff) / steps;
+        steps = Math.min(steps, Math.ceil(Math.abs(diff) / diff_change_per_step));
+        dir = diff < 0 ? 1 : -1;
+      }
+    } while (diff != 0 && (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))))
     if (Math.abs(diff) > Math.abs(prevDiff)) {
       if ((diff < 0) == (prevDiff < 0)) { throw new Error("Broke out of infinite loop in coordsCharInner") }
       pos = prevPos;
@@ -28861,6 +28956,64 @@ function onBlur(cm, e) {
   setTimeout(function () { if (!cm.state.focused) { cm.display.shift = false; } }, 150);
 }
 
+// Read the actual heights of the rendered lines, and update their
+// stored heights to match.
+function updateHeightsInViewport(cm) {
+  var display = cm.display;
+  var prevBottom = display.lineDiv.offsetTop;
+  for (var i = 0; i < display.view.length; i++) {
+    var cur = display.view[i], height = (void 0);
+    if (cur.hidden) { continue }
+    if (ie && ie_version < 8) {
+      var bot = cur.node.offsetTop + cur.node.offsetHeight;
+      height = bot - prevBottom;
+      prevBottom = bot;
+    } else {
+      var box = cur.node.getBoundingClientRect();
+      height = box.bottom - box.top;
+    }
+    var diff = cur.line.height - height;
+    if (height < 2) { height = textHeight(display); }
+    if (diff > .005 || diff < -.005) {
+      updateLineHeight(cur.line, height);
+      updateWidgetHeight(cur.line);
+      if (cur.rest) { for (var j = 0; j < cur.rest.length; j++)
+        { updateWidgetHeight(cur.rest[j]); } }
+    }
+  }
+}
+
+// Read and store the height of line widgets associated with the
+// given line.
+function updateWidgetHeight(line) {
+  if (line.widgets) { for (var i = 0; i < line.widgets.length; ++i)
+    { line.widgets[i].height = line.widgets[i].node.parentNode.offsetHeight; } }
+}
+
+// Compute the lines that are visible in a given viewport (defaults
+// the the current scroll position). viewport may contain top,
+// height, and ensure (see op.scrollToPos) properties.
+function visibleLines(display, doc, viewport) {
+  var top = viewport && viewport.top != null ? Math.max(0, viewport.top) : display.scroller.scrollTop;
+  top = Math.floor(top - paddingTop(display));
+  var bottom = viewport && viewport.bottom != null ? viewport.bottom : top + display.wrapper.clientHeight;
+
+  var from = lineAtHeight(doc, top), to = lineAtHeight(doc, bottom);
+  // Ensure is a {from: {line, ch}, to: {line, ch}} object, and
+  // forces those lines into the viewport (if possible).
+  if (viewport && viewport.ensure) {
+    var ensureFrom = viewport.ensure.from.line, ensureTo = viewport.ensure.to.line;
+    if (ensureFrom < from) {
+      from = ensureFrom;
+      to = lineAtHeight(doc, heightAtLine(getLine(doc, ensureFrom)) + display.wrapper.clientHeight);
+    } else if (Math.min(ensureTo, doc.lastLine()) >= to) {
+      from = lineAtHeight(doc, heightAtLine(getLine(doc, ensureTo)) - display.wrapper.clientHeight);
+      to = ensureTo;
+    }
+  }
+  return {from: from, to: Math.max(to, from + 1)}
+}
+
 // Re-align line numbers and gutter marks to compensate for
 // horizontal scrolling.
 function alignHorizontally(cm) {
@@ -28904,195 +29057,176 @@ function maybeUpdateLineNumberWidth(cm) {
   return false
 }
 
-// Read the actual heights of the rendered lines, and update their
-// stored heights to match.
-function updateHeightsInViewport(cm) {
-  var display = cm.display;
-  var prevBottom = display.lineDiv.offsetTop;
-  for (var i = 0; i < display.view.length; i++) {
-    var cur = display.view[i], height = (void 0);
-    if (cur.hidden) { continue }
-    if (ie && ie_version < 8) {
-      var bot = cur.node.offsetTop + cur.node.offsetHeight;
-      height = bot - prevBottom;
-      prevBottom = bot;
-    } else {
-      var box = cur.node.getBoundingClientRect();
-      height = box.bottom - box.top;
-    }
-    var diff = cur.line.height - height;
-    if (height < 2) { height = textHeight(display); }
-    if (diff > .001 || diff < -.001) {
-      updateLineHeight(cur.line, height);
-      updateWidgetHeight(cur.line);
-      if (cur.rest) { for (var j = 0; j < cur.rest.length; j++)
-        { updateWidgetHeight(cur.rest[j]); } }
-    }
+// SCROLLING THINGS INTO VIEW
+
+// If an editor sits on the top or bottom of the window, partially
+// scrolled out of view, this ensures that the cursor is visible.
+function maybeScrollWindow(cm, rect) {
+  if (signalDOMEvent(cm, "scrollCursorIntoView")) { return }
+
+  var display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null;
+  if (rect.top + box.top < 0) { doScroll = true; }
+  else if (rect.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) { doScroll = false; }
+  if (doScroll != null && !phantom) {
+    var scrollNode = elt("div", "\u200b", null, ("position: absolute;\n                         top: " + (rect.top - display.viewOffset - paddingTop(cm.display)) + "px;\n                         height: " + (rect.bottom - rect.top + scrollGap(cm) + display.barHeight) + "px;\n                         left: " + (rect.left) + "px; width: " + (Math.max(2, rect.right - rect.left)) + "px;"));
+    cm.display.lineSpace.appendChild(scrollNode);
+    scrollNode.scrollIntoView(doScroll);
+    cm.display.lineSpace.removeChild(scrollNode);
   }
 }
 
-// Read and store the height of line widgets associated with the
-// given line.
-function updateWidgetHeight(line) {
-  if (line.widgets) { for (var i = 0; i < line.widgets.length; ++i)
-    { line.widgets[i].height = line.widgets[i].node.parentNode.offsetHeight; } }
+// Scroll a given position into view (immediately), verifying that
+// it actually became visible (as line heights are accurately
+// measured, the position of something may 'drift' during drawing).
+function scrollPosIntoView(cm, pos, end, margin) {
+  if (margin == null) { margin = 0; }
+  var rect;
+  if (!cm.options.lineWrapping && pos == end) {
+    // Set pos and end to the cursor positions around the character pos sticks to
+    // If pos.sticky == "before", that is around pos.ch - 1, otherwise around pos.ch
+    // If pos == Pos(_, 0, "before"), pos and end are unchanged
+    pos = pos.ch ? Pos(pos.line, pos.sticky == "before" ? pos.ch - 1 : pos.ch, "after") : pos;
+    end = pos.sticky == "before" ? Pos(pos.line, pos.ch + 1, "before") : pos;
+  }
+  for (var limit = 0; limit < 5; limit++) {
+    var changed = false;
+    var coords = cursorCoords(cm, pos);
+    var endCoords = !end || end == pos ? coords : cursorCoords(cm, end);
+    rect = {left: Math.min(coords.left, endCoords.left),
+            top: Math.min(coords.top, endCoords.top) - margin,
+            right: Math.max(coords.left, endCoords.left),
+            bottom: Math.max(coords.bottom, endCoords.bottom) + margin};
+    var scrollPos = calculateScrollPos(cm, rect);
+    var startTop = cm.doc.scrollTop, startLeft = cm.doc.scrollLeft;
+    if (scrollPos.scrollTop != null) {
+      updateScrollTop(cm, scrollPos.scrollTop);
+      if (Math.abs(cm.doc.scrollTop - startTop) > 1) { changed = true; }
+    }
+    if (scrollPos.scrollLeft != null) {
+      setScrollLeft(cm, scrollPos.scrollLeft);
+      if (Math.abs(cm.doc.scrollLeft - startLeft) > 1) { changed = true; }
+    }
+    if (!changed) { break }
+  }
+  return rect
 }
 
-// Compute the lines that are visible in a given viewport (defaults
-// the the current scroll position). viewport may contain top,
-// height, and ensure (see op.scrollToPos) properties.
-function visibleLines(display, doc, viewport) {
-  var top = viewport && viewport.top != null ? Math.max(0, viewport.top) : display.scroller.scrollTop;
-  top = Math.floor(top - paddingTop(display));
-  var bottom = viewport && viewport.bottom != null ? viewport.bottom : top + display.wrapper.clientHeight;
+// Scroll a given set of coordinates into view (immediately).
+function scrollIntoView(cm, rect) {
+  var scrollPos = calculateScrollPos(cm, rect);
+  if (scrollPos.scrollTop != null) { updateScrollTop(cm, scrollPos.scrollTop); }
+  if (scrollPos.scrollLeft != null) { setScrollLeft(cm, scrollPos.scrollLeft); }
+}
 
-  var from = lineAtHeight(doc, top), to = lineAtHeight(doc, bottom);
-  // Ensure is a {from: {line, ch}, to: {line, ch}} object, and
-  // forces those lines into the viewport (if possible).
-  if (viewport && viewport.ensure) {
-    var ensureFrom = viewport.ensure.from.line, ensureTo = viewport.ensure.to.line;
-    if (ensureFrom < from) {
-      from = ensureFrom;
-      to = lineAtHeight(doc, heightAtLine(getLine(doc, ensureFrom)) + display.wrapper.clientHeight);
-    } else if (Math.min(ensureTo, doc.lastLine()) >= to) {
-      from = lineAtHeight(doc, heightAtLine(getLine(doc, ensureTo)) - display.wrapper.clientHeight);
-      to = ensureTo;
-    }
+// Calculate a new scroll position needed to scroll the given
+// rectangle into view. Returns an object with scrollTop and
+// scrollLeft properties. When these are undefined, the
+// vertical/horizontal position does not need to be adjusted.
+function calculateScrollPos(cm, rect) {
+  var display = cm.display, snapMargin = textHeight(cm.display);
+  if (rect.top < 0) { rect.top = 0; }
+  var screentop = cm.curOp && cm.curOp.scrollTop != null ? cm.curOp.scrollTop : display.scroller.scrollTop;
+  var screen = displayHeight(cm), result = {};
+  if (rect.bottom - rect.top > screen) { rect.bottom = rect.top + screen; }
+  var docBottom = cm.doc.height + paddingVert(display);
+  var atTop = rect.top < snapMargin, atBottom = rect.bottom > docBottom - snapMargin;
+  if (rect.top < screentop) {
+    result.scrollTop = atTop ? 0 : rect.top;
+  } else if (rect.bottom > screentop + screen) {
+    var newTop = Math.min(rect.top, (atBottom ? docBottom : rect.bottom) - screen);
+    if (newTop != screentop) { result.scrollTop = newTop; }
   }
-  return {from: from, to: Math.max(to, from + 1)}
+
+  var screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft;
+  var screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0);
+  var tooWide = rect.right - rect.left > screenw;
+  if (tooWide) { rect.right = rect.left + screenw; }
+  if (rect.left < 10)
+    { result.scrollLeft = 0; }
+  else if (rect.left < screenleft)
+    { result.scrollLeft = Math.max(0, rect.left - (tooWide ? 0 : 10)); }
+  else if (rect.right > screenw + screenleft - 3)
+    { result.scrollLeft = rect.right + (tooWide ? 0 : 10) - screenw; }
+  return result
+}
+
+// Store a relative adjustment to the scroll position in the current
+// operation (to be applied when the operation finishes).
+function addToScrollTop(cm, top) {
+  if (top == null) { return }
+  resolveScrollToPos(cm);
+  cm.curOp.scrollTop = (cm.curOp.scrollTop == null ? cm.doc.scrollTop : cm.curOp.scrollTop) + top;
+}
+
+// Make sure that at the end of the operation the current cursor is
+// shown.
+function ensureCursorVisible(cm) {
+  resolveScrollToPos(cm);
+  var cur = cm.getCursor();
+  cm.curOp.scrollToPos = {from: cur, to: cur, margin: cm.options.cursorScrollMargin};
+}
+
+function scrollToCoords(cm, x, y) {
+  if (x != null || y != null) { resolveScrollToPos(cm); }
+  if (x != null) { cm.curOp.scrollLeft = x; }
+  if (y != null) { cm.curOp.scrollTop = y; }
+}
+
+function scrollToRange(cm, range$$1) {
+  resolveScrollToPos(cm);
+  cm.curOp.scrollToPos = range$$1;
+}
+
+// When an operation has its scrollToPos property set, and another
+// scroll action is applied before the end of the operation, this
+// 'simulates' scrolling that position into view in a cheap way, so
+// that the effect of intermediate scroll commands is not ignored.
+function resolveScrollToPos(cm) {
+  var range$$1 = cm.curOp.scrollToPos;
+  if (range$$1) {
+    cm.curOp.scrollToPos = null;
+    var from = estimateCoords(cm, range$$1.from), to = estimateCoords(cm, range$$1.to);
+    scrollToCoordsRange(cm, from, to, range$$1.margin);
+  }
+}
+
+function scrollToCoordsRange(cm, from, to, margin) {
+  var sPos = calculateScrollPos(cm, {
+    left: Math.min(from.left, to.left),
+    top: Math.min(from.top, to.top) - margin,
+    right: Math.max(from.right, to.right),
+    bottom: Math.max(from.bottom, to.bottom) + margin
+  });
+  scrollToCoords(cm, sPos.scrollLeft, sPos.scrollTop);
 }
 
 // Sync the scrollable area and scrollbars, ensure the viewport
 // covers the visible area.
-function setScrollTop(cm, val) {
+function updateScrollTop(cm, val) {
   if (Math.abs(cm.doc.scrollTop - val) < 2) { return }
-  cm.doc.scrollTop = val;
   if (!gecko) { updateDisplaySimple(cm, {top: val}); }
-  if (cm.display.scroller.scrollTop != val) { cm.display.scroller.scrollTop = val; }
-  cm.display.scrollbars.setScrollTop(val);
+  setScrollTop(cm, val, true);
   if (gecko) { updateDisplaySimple(cm); }
   startWorker(cm, 100);
 }
+
+function setScrollTop(cm, val, forceScroll) {
+  val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val);
+  if (cm.display.scroller.scrollTop == val && !forceScroll) { return }
+  cm.doc.scrollTop = val;
+  cm.display.scrollbars.setScrollTop(val);
+  if (cm.display.scroller.scrollTop != val) { cm.display.scroller.scrollTop = val; }
+}
+
 // Sync scroller and scrollbar, ensure the gutter elements are
 // aligned.
-function setScrollLeft(cm, val, isScroller) {
-  if (isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) { return }
+function setScrollLeft(cm, val, isScroller, forceScroll) {
   val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth);
+  if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) { return }
   cm.doc.scrollLeft = val;
   alignHorizontally(cm);
   if (cm.display.scroller.scrollLeft != val) { cm.display.scroller.scrollLeft = val; }
   cm.display.scrollbars.setScrollLeft(val);
-}
-
-// Since the delta values reported on mouse wheel events are
-// unstandardized between browsers and even browser versions, and
-// generally horribly unpredictable, this code starts by measuring
-// the scroll effect that the first few mouse wheel events have,
-// and, from that, detects the way it can convert deltas to pixel
-// offsets afterwards.
-//
-// The reason we want to know the amount a wheel event will scroll
-// is that it gives us a chance to update the display before the
-// actual scrolling happens, reducing flickering.
-
-var wheelSamples = 0;
-var wheelPixelsPerUnit = null;
-// Fill in a browser-detected starting value on browsers where we
-// know one. These don't have to be accurate -- the result of them
-// being wrong would just be a slight flicker on the first wheel
-// scroll (if it is large enough).
-if (ie) { wheelPixelsPerUnit = -.53; }
-else if (gecko) { wheelPixelsPerUnit = 15; }
-else if (chrome) { wheelPixelsPerUnit = -.7; }
-else if (safari) { wheelPixelsPerUnit = -1/3; }
-
-function wheelEventDelta(e) {
-  var dx = e.wheelDeltaX, dy = e.wheelDeltaY;
-  if (dx == null && e.detail && e.axis == e.HORIZONTAL_AXIS) { dx = e.detail; }
-  if (dy == null && e.detail && e.axis == e.VERTICAL_AXIS) { dy = e.detail; }
-  else if (dy == null) { dy = e.wheelDelta; }
-  return {x: dx, y: dy}
-}
-function wheelEventPixels(e) {
-  var delta = wheelEventDelta(e);
-  delta.x *= wheelPixelsPerUnit;
-  delta.y *= wheelPixelsPerUnit;
-  return delta
-}
-
-function onScrollWheel(cm, e) {
-  var delta = wheelEventDelta(e), dx = delta.x, dy = delta.y;
-
-  var display = cm.display, scroll = display.scroller;
-  // Quit if there's nothing to scroll here
-  var canScrollX = scroll.scrollWidth > scroll.clientWidth;
-  var canScrollY = scroll.scrollHeight > scroll.clientHeight;
-  if (!(dx && canScrollX || dy && canScrollY)) { return }
-
-  // Webkit browsers on OS X abort momentum scrolls when the target
-  // of the scroll event is removed from the scrollable element.
-  // This hack (see related code in patchDisplay) makes sure the
-  // element is kept around.
-  if (dy && mac && webkit) {
-    outer: for (var cur = e.target, view = display.view; cur != scroll; cur = cur.parentNode) {
-      for (var i = 0; i < view.length; i++) {
-        if (view[i].node == cur) {
-          cm.display.currentWheelTarget = cur;
-          break outer
-        }
-      }
-    }
-  }
-
-  // On some browsers, horizontal scrolling will cause redraws to
-  // happen before the gutter has been realigned, causing it to
-  // wriggle around in a most unseemly way. When we have an
-  // estimated pixels/delta value, we just handle horizontal
-  // scrolling entirely here. It'll be slightly off from native, but
-  // better than glitching out.
-  if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
-    if (dy && canScrollY)
-      { setScrollTop(cm, Math.max(0, Math.min(scroll.scrollTop + dy * wheelPixelsPerUnit, scroll.scrollHeight - scroll.clientHeight))); }
-    setScrollLeft(cm, Math.max(0, Math.min(scroll.scrollLeft + dx * wheelPixelsPerUnit, scroll.scrollWidth - scroll.clientWidth)));
-    // Only prevent default scrolling if vertical scrolling is
-    // actually possible. Otherwise, it causes vertical scroll
-    // jitter on OSX trackpads when deltaX is small and deltaY
-    // is large (issue #3579)
-    if (!dy || (dy && canScrollY))
-      { e_preventDefault(e); }
-    display.wheelStartX = null; // Abort measurement, if in progress
-    return
-  }
-
-  // 'Project' the visible viewport to cover the area that is being
-  // scrolled into view (if we know enough to estimate it).
-  if (dy && wheelPixelsPerUnit != null) {
-    var pixels = dy * wheelPixelsPerUnit;
-    var top = cm.doc.scrollTop, bot = top + display.wrapper.clientHeight;
-    if (pixels < 0) { top = Math.max(0, top + pixels - 50); }
-    else { bot = Math.min(cm.doc.height, bot + pixels + 50); }
-    updateDisplaySimple(cm, {top: top, bottom: bot});
-  }
-
-  if (wheelSamples < 20) {
-    if (display.wheelStartX == null) {
-      display.wheelStartX = scroll.scrollLeft; display.wheelStartY = scroll.scrollTop;
-      display.wheelDX = dx; display.wheelDY = dy;
-      setTimeout(function () {
-        if (display.wheelStartX == null) { return }
-        var movedX = scroll.scrollLeft - display.wheelStartX;
-        var movedY = scroll.scrollTop - display.wheelStartY;
-        var sample = (movedY && display.wheelDY && movedY / display.wheelDY) ||
-          (movedX && display.wheelDX && movedX / display.wheelDX);
-        display.wheelStartX = display.wheelStartY = null;
-        if (!sample) { return }
-        wheelPixelsPerUnit = (wheelPixelsPerUnit * wheelSamples + sample) / (wheelSamples + 1);
-        ++wheelSamples;
-      }, 200);
-    } else {
-      display.wheelDX += dx; display.wheelDY += dy;
-    }
-  }
 }
 
 // SCROLLBARS
@@ -29172,12 +29306,12 @@ NativeScrollbars.prototype.update = function (measure) {
 
 NativeScrollbars.prototype.setScrollLeft = function (pos) {
   if (this.horiz.scrollLeft != pos) { this.horiz.scrollLeft = pos; }
-  if (this.disableHoriz) { this.enableZeroWidthBar(this.horiz, this.disableHoriz); }
+  if (this.disableHoriz) { this.enableZeroWidthBar(this.horiz, this.disableHoriz, "horiz"); }
 };
 
 NativeScrollbars.prototype.setScrollTop = function (pos) {
   if (this.vert.scrollTop != pos) { this.vert.scrollTop = pos; }
-  if (this.disableVert) { this.enableZeroWidthBar(this.vert, this.disableVert); }
+  if (this.disableVert) { this.enableZeroWidthBar(this.vert, this.disableVert, "vert"); }
 };
 
 NativeScrollbars.prototype.zeroWidthHack = function () {
@@ -29188,17 +29322,18 @@ NativeScrollbars.prototype.zeroWidthHack = function () {
   this.disableVert = new Delayed;
 };
 
-NativeScrollbars.prototype.enableZeroWidthBar = function (bar, delay) {
+NativeScrollbars.prototype.enableZeroWidthBar = function (bar, delay, type) {
   bar.style.pointerEvents = "auto";
   function maybeDisable() {
     // To find out whether the scrollbar is still visible, we
     // check whether the element under the pixel in the bottom
-    // left corner of the scrollbar box is the scrollbar box
+    // right corner of the scrollbar box is the scrollbar box
     // itself (when the bar is still visible) or its filler child
     // (when the bar is hidden). If it is still visible, we keep
     // it enabled, if it's hidden, we disable pointer events.
     var box = bar.getBoundingClientRect();
-    var elt$$1 = document.elementFromPoint(box.left + 1, box.bottom - 1);
+    var elt$$1 = type == "vert" ? document.elementFromPoint(box.right - 1, (box.top + box.bottom) / 2)
+        : document.elementFromPoint((box.right + box.left) / 2, box.bottom - 1);
     if (elt$$1 != bar) { bar.style.pointerEvents = "none"; }
     else { delay.set(1000, maybeDisable); }
   }
@@ -29270,137 +29405,10 @@ function initScrollbars(cm) {
     node.setAttribute("cm-not-content", "true");
   }, function (pos, axis) {
     if (axis == "horizontal") { setScrollLeft(cm, pos); }
-    else { setScrollTop(cm, pos); }
+    else { updateScrollTop(cm, pos); }
   }, cm);
   if (cm.display.scrollbars.addClass)
     { addClass(cm.display.wrapper, cm.display.scrollbars.addClass); }
-}
-
-// SCROLLING THINGS INTO VIEW
-
-// If an editor sits on the top or bottom of the window, partially
-// scrolled out of view, this ensures that the cursor is visible.
-function maybeScrollWindow(cm, rect) {
-  if (signalDOMEvent(cm, "scrollCursorIntoView")) { return }
-
-  var display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null;
-  if (rect.top + box.top < 0) { doScroll = true; }
-  else if (rect.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) { doScroll = false; }
-  if (doScroll != null && !phantom) {
-    var scrollNode = elt("div", "\u200b", null, ("position: absolute;\n                         top: " + (rect.top - display.viewOffset - paddingTop(cm.display)) + "px;\n                         height: " + (rect.bottom - rect.top + scrollGap(cm) + display.barHeight) + "px;\n                         left: " + (rect.left) + "px; width: " + (Math.max(2, rect.right - rect.left)) + "px;"));
-    cm.display.lineSpace.appendChild(scrollNode);
-    scrollNode.scrollIntoView(doScroll);
-    cm.display.lineSpace.removeChild(scrollNode);
-  }
-}
-
-// Scroll a given position into view (immediately), verifying that
-// it actually became visible (as line heights are accurately
-// measured, the position of something may 'drift' during drawing).
-function scrollPosIntoView(cm, pos, end, margin) {
-  if (margin == null) { margin = 0; }
-  var rect;
-  for (var limit = 0; limit < 5; limit++) {
-    var changed = false;
-    var coords = cursorCoords(cm, pos);
-    var endCoords = !end || end == pos ? coords : cursorCoords(cm, end);
-    rect = {left: Math.min(coords.left, endCoords.left),
-            top: Math.min(coords.top, endCoords.top) - margin,
-            right: Math.max(coords.left, endCoords.left),
-            bottom: Math.max(coords.bottom, endCoords.bottom) + margin};
-    var scrollPos = calculateScrollPos(cm, rect);
-    var startTop = cm.doc.scrollTop, startLeft = cm.doc.scrollLeft;
-    if (scrollPos.scrollTop != null) {
-      setScrollTop(cm, scrollPos.scrollTop);
-      if (Math.abs(cm.doc.scrollTop - startTop) > 1) { changed = true; }
-    }
-    if (scrollPos.scrollLeft != null) {
-      setScrollLeft(cm, scrollPos.scrollLeft);
-      if (Math.abs(cm.doc.scrollLeft - startLeft) > 1) { changed = true; }
-    }
-    if (!changed) { break }
-  }
-  return rect
-}
-
-// Scroll a given set of coordinates into view (immediately).
-function scrollIntoView(cm, rect) {
-  var scrollPos = calculateScrollPos(cm, rect);
-  if (scrollPos.scrollTop != null) { setScrollTop(cm, scrollPos.scrollTop); }
-  if (scrollPos.scrollLeft != null) { setScrollLeft(cm, scrollPos.scrollLeft); }
-}
-
-// Calculate a new scroll position needed to scroll the given
-// rectangle into view. Returns an object with scrollTop and
-// scrollLeft properties. When these are undefined, the
-// vertical/horizontal position does not need to be adjusted.
-function calculateScrollPos(cm, rect) {
-  var display = cm.display, snapMargin = textHeight(cm.display);
-  if (rect.top < 0) { rect.top = 0; }
-  var screentop = cm.curOp && cm.curOp.scrollTop != null ? cm.curOp.scrollTop : display.scroller.scrollTop;
-  var screen = displayHeight(cm), result = {};
-  if (rect.bottom - rect.top > screen) { rect.bottom = rect.top + screen; }
-  var docBottom = cm.doc.height + paddingVert(display);
-  var atTop = rect.top < snapMargin, atBottom = rect.bottom > docBottom - snapMargin;
-  if (rect.top < screentop) {
-    result.scrollTop = atTop ? 0 : rect.top;
-  } else if (rect.bottom > screentop + screen) {
-    var newTop = Math.min(rect.top, (atBottom ? docBottom : rect.bottom) - screen);
-    if (newTop != screentop) { result.scrollTop = newTop; }
-  }
-
-  var screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft;
-  var screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0);
-  var tooWide = rect.right - rect.left > screenw;
-  if (tooWide) { rect.right = rect.left + screenw; }
-  if (rect.left < 10)
-    { result.scrollLeft = 0; }
-  else if (rect.left < screenleft)
-    { result.scrollLeft = Math.max(0, rect.left - (tooWide ? 0 : 10)); }
-  else if (rect.right > screenw + screenleft - 3)
-    { result.scrollLeft = rect.right + (tooWide ? 0 : 10) - screenw; }
-  return result
-}
-
-// Store a relative adjustment to the scroll position in the current
-// operation (to be applied when the operation finishes).
-function addToScrollPos(cm, left, top) {
-  if (left != null || top != null) { resolveScrollToPos(cm); }
-  if (left != null)
-    { cm.curOp.scrollLeft = (cm.curOp.scrollLeft == null ? cm.doc.scrollLeft : cm.curOp.scrollLeft) + left; }
-  if (top != null)
-    { cm.curOp.scrollTop = (cm.curOp.scrollTop == null ? cm.doc.scrollTop : cm.curOp.scrollTop) + top; }
-}
-
-// Make sure that at the end of the operation the current cursor is
-// shown.
-function ensureCursorVisible(cm) {
-  resolveScrollToPos(cm);
-  var cur = cm.getCursor(), from = cur, to = cur;
-  if (!cm.options.lineWrapping) {
-    from = cur.ch ? Pos(cur.line, cur.ch - 1) : cur;
-    to = Pos(cur.line, cur.ch + 1);
-  }
-  cm.curOp.scrollToPos = {from: from, to: to, margin: cm.options.cursorScrollMargin};
-}
-
-// When an operation has its scrollToPos property set, and another
-// scroll action is applied before the end of the operation, this
-// 'simulates' scrolling that position into view in a cheap way, so
-// that the effect of intermediate scroll commands is not ignored.
-function resolveScrollToPos(cm) {
-  var range$$1 = cm.curOp.scrollToPos;
-  if (range$$1) {
-    cm.curOp.scrollToPos = null;
-    var from = estimateCoords(cm, range$$1.from), to = estimateCoords(cm, range$$1.to);
-    var sPos = calculateScrollPos(cm, {
-      left: Math.min(from.left, to.left),
-      top: Math.min(from.top, to.top) - range$$1.margin,
-      right: Math.max(from.right, to.right),
-      bottom: Math.max(from.bottom, to.bottom) + range$$1.margin
-    });
-    cm.scrollTo(sPos.scrollLeft, sPos.scrollTop);
-  }
 }
 
 // Operations are used to wrap a series of changes to the editor
@@ -29531,17 +29539,9 @@ function endOperation_finish(op) {
     { display.wheelStartX = display.wheelStartY = null; }
 
   // Propagate the scroll position to the actual DOM scroller
-  if (op.scrollTop != null && (display.scroller.scrollTop != op.scrollTop || op.forceScroll)) {
-    doc.scrollTop = Math.max(0, Math.min(display.scroller.scrollHeight - display.scroller.clientHeight, op.scrollTop));
-    display.scrollbars.setScrollTop(doc.scrollTop);
-    display.scroller.scrollTop = doc.scrollTop;
-  }
-  if (op.scrollLeft != null && (display.scroller.scrollLeft != op.scrollLeft || op.forceScroll)) {
-    doc.scrollLeft = Math.max(0, Math.min(display.scroller.scrollWidth - display.scroller.clientWidth, op.scrollLeft));
-    display.scrollbars.setScrollLeft(doc.scrollLeft);
-    display.scroller.scrollLeft = doc.scrollLeft;
-    alignHorizontally(cm);
-  }
+  if (op.scrollTop != null) { setScrollTop(cm, op.scrollTop, op.forceScroll); }
+
+  if (op.scrollLeft != null) { setScrollLeft(cm, op.scrollLeft, true, true); }
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {
     var rect = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
@@ -29754,22 +29754,23 @@ function countDirtyView(cm) {
 // HIGHLIGHT WORKER
 
 function startWorker(cm, time) {
-  if (cm.doc.mode.startState && cm.doc.frontier < cm.display.viewTo)
+  if (cm.doc.highlightFrontier < cm.display.viewTo)
     { cm.state.highlight.set(time, bind(highlightWorker, cm)); }
 }
 
 function highlightWorker(cm) {
   var doc = cm.doc;
-  if (doc.frontier < doc.first) { doc.frontier = doc.first; }
-  if (doc.frontier >= cm.display.viewTo) { return }
+  if (doc.highlightFrontier >= cm.display.viewTo) { return }
   var end = +new Date + cm.options.workTime;
-  var state = copyState(doc.mode, getStateBefore(cm, doc.frontier));
+  var context = getContextBefore(cm, doc.highlightFrontier);
   var changedLines = [];
 
-  doc.iter(doc.frontier, Math.min(doc.first + doc.size, cm.display.viewTo + 500), function (line) {
-    if (doc.frontier >= cm.display.viewFrom) { // Visible
-      var oldStyles = line.styles, tooLong = line.text.length > cm.options.maxHighlightLength;
-      var highlighted = highlightLine(cm, line, tooLong ? copyState(doc.mode, state) : state, true);
+  doc.iter(context.line, Math.min(doc.first + doc.size, cm.display.viewTo + 500), function (line) {
+    if (context.line >= cm.display.viewFrom) { // Visible
+      var oldStyles = line.styles;
+      var resetState = line.text.length > cm.options.maxHighlightLength ? copyState(doc.mode, context.state) : null;
+      var highlighted = highlightLine(cm, line, context, true);
+      if (resetState) { context.state = resetState; }
       line.styles = highlighted.styles;
       var oldCls = line.styleClasses, newCls = highlighted.classes;
       if (newCls) { line.styleClasses = newCls; }
@@ -29777,19 +29778,22 @@ function highlightWorker(cm) {
       var ischange = !oldStyles || oldStyles.length != line.styles.length ||
         oldCls != newCls && (!oldCls || !newCls || oldCls.bgClass != newCls.bgClass || oldCls.textClass != newCls.textClass);
       for (var i = 0; !ischange && i < oldStyles.length; ++i) { ischange = oldStyles[i] != line.styles[i]; }
-      if (ischange) { changedLines.push(doc.frontier); }
-      line.stateAfter = tooLong ? state : copyState(doc.mode, state);
+      if (ischange) { changedLines.push(context.line); }
+      line.stateAfter = context.save();
+      context.nextLine();
     } else {
       if (line.text.length <= cm.options.maxHighlightLength)
-        { processLine(cm, line.text, state); }
-      line.stateAfter = doc.frontier % 5 == 0 ? copyState(doc.mode, state) : null;
+        { processLine(cm, line.text, context); }
+      line.stateAfter = context.line % 5 == 0 ? context.save() : null;
+      context.nextLine();
     }
-    ++doc.frontier;
     if (+new Date > end) {
       startWorker(cm, cm.options.workDelay);
       return true
     }
   });
+  doc.highlightFrontier = context.line;
+  doc.modeFrontier = Math.max(doc.modeFrontier, context.line);
   if (changedLines.length) { runInOp(cm, function () {
     for (var i = 0; i < changedLines.length; i++)
       { regLineChange(cm, changedLines[i], "text"); }
@@ -29832,6 +29836,36 @@ function maybeClipScrollbars(cm) {
     display.sizer.style.marginBottom = -display.nativeBarWidth + "px";
     display.sizer.style.borderRightWidth = scrollGap(cm) + "px";
     display.scrollbarsClipped = true;
+  }
+}
+
+function selectionSnapshot(cm) {
+  if (cm.hasFocus()) { return null }
+  var active = activeElt();
+  if (!active || !contains(cm.display.lineDiv, active)) { return null }
+  var result = {activeElt: active};
+  if (window.getSelection) {
+    var sel = window.getSelection();
+    if (sel.anchorNode && sel.extend && contains(cm.display.lineDiv, sel.anchorNode)) {
+      result.anchorNode = sel.anchorNode;
+      result.anchorOffset = sel.anchorOffset;
+      result.focusNode = sel.focusNode;
+      result.focusOffset = sel.focusOffset;
+    }
+  }
+  return result
+}
+
+function restoreSelection(snapshot) {
+  if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) { return }
+  snapshot.activeElt.focus();
+  if (snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
+    var sel = window.getSelection(), range$$1 = document.createRange();
+    range$$1.setEnd(snapshot.anchorNode, snapshot.anchorOffset);
+    range$$1.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range$$1);
+    sel.extend(snapshot.focusNode, snapshot.focusOffset);
   }
 }
 
@@ -29884,14 +29918,14 @@ function updateDisplayIfNeeded(cm, update) {
 
   // For big changes, we hide the enclosing element during the
   // update, since that speeds up the operations on most browsers.
-  var focused = activeElt();
+  var selSnapshot = selectionSnapshot(cm);
   if (toUpdate > 4) { display.lineDiv.style.display = "none"; }
   patchDisplay(cm, display.updateLineNumbers, update.dims);
   if (toUpdate > 4) { display.lineDiv.style.display = ""; }
   display.renderedView = display.view;
   // There might have been a widget with a focused element that got
   // hidden or updated, if so re-focus it.
-  if (focused && activeElt() != focused && focused.offsetHeight) { focused.focus(); }
+  restoreSelection(selSnapshot);
 
   // Prevent selection and cursors from interfering with the scroll
   // width and height.
@@ -29930,6 +29964,7 @@ function postUpdateDisplay(cm, update) {
     updateSelection(cm);
     updateScrollbars(cm, barMeasure);
     setDocumentHeight(cm, barMeasure);
+    update.force = false;
   }
 
   update.signal(cm, "update", cm);
@@ -30036,6 +30071,117 @@ function setGuttersForLineNumbers(options) {
   } else if (found > -1 && !options.lineNumbers) {
     options.gutters = options.gutters.slice(0);
     options.gutters.splice(found, 1);
+  }
+}
+
+// Since the delta values reported on mouse wheel events are
+// unstandardized between browsers and even browser versions, and
+// generally horribly unpredictable, this code starts by measuring
+// the scroll effect that the first few mouse wheel events have,
+// and, from that, detects the way it can convert deltas to pixel
+// offsets afterwards.
+//
+// The reason we want to know the amount a wheel event will scroll
+// is that it gives us a chance to update the display before the
+// actual scrolling happens, reducing flickering.
+
+var wheelSamples = 0;
+var wheelPixelsPerUnit = null;
+// Fill in a browser-detected starting value on browsers where we
+// know one. These don't have to be accurate -- the result of them
+// being wrong would just be a slight flicker on the first wheel
+// scroll (if it is large enough).
+if (ie) { wheelPixelsPerUnit = -.53; }
+else if (gecko) { wheelPixelsPerUnit = 15; }
+else if (chrome) { wheelPixelsPerUnit = -.7; }
+else if (safari) { wheelPixelsPerUnit = -1/3; }
+
+function wheelEventDelta(e) {
+  var dx = e.wheelDeltaX, dy = e.wheelDeltaY;
+  if (dx == null && e.detail && e.axis == e.HORIZONTAL_AXIS) { dx = e.detail; }
+  if (dy == null && e.detail && e.axis == e.VERTICAL_AXIS) { dy = e.detail; }
+  else if (dy == null) { dy = e.wheelDelta; }
+  return {x: dx, y: dy}
+}
+function wheelEventPixels(e) {
+  var delta = wheelEventDelta(e);
+  delta.x *= wheelPixelsPerUnit;
+  delta.y *= wheelPixelsPerUnit;
+  return delta
+}
+
+function onScrollWheel(cm, e) {
+  var delta = wheelEventDelta(e), dx = delta.x, dy = delta.y;
+
+  var display = cm.display, scroll = display.scroller;
+  // Quit if there's nothing to scroll here
+  var canScrollX = scroll.scrollWidth > scroll.clientWidth;
+  var canScrollY = scroll.scrollHeight > scroll.clientHeight;
+  if (!(dx && canScrollX || dy && canScrollY)) { return }
+
+  // Webkit browsers on OS X abort momentum scrolls when the target
+  // of the scroll event is removed from the scrollable element.
+  // This hack (see related code in patchDisplay) makes sure the
+  // element is kept around.
+  if (dy && mac && webkit) {
+    outer: for (var cur = e.target, view = display.view; cur != scroll; cur = cur.parentNode) {
+      for (var i = 0; i < view.length; i++) {
+        if (view[i].node == cur) {
+          cm.display.currentWheelTarget = cur;
+          break outer
+        }
+      }
+    }
+  }
+
+  // On some browsers, horizontal scrolling will cause redraws to
+  // happen before the gutter has been realigned, causing it to
+  // wriggle around in a most unseemly way. When we have an
+  // estimated pixels/delta value, we just handle horizontal
+  // scrolling entirely here. It'll be slightly off from native, but
+  // better than glitching out.
+  if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
+    if (dy && canScrollY)
+      { updateScrollTop(cm, Math.max(0, scroll.scrollTop + dy * wheelPixelsPerUnit)); }
+    setScrollLeft(cm, Math.max(0, scroll.scrollLeft + dx * wheelPixelsPerUnit));
+    // Only prevent default scrolling if vertical scrolling is
+    // actually possible. Otherwise, it causes vertical scroll
+    // jitter on OSX trackpads when deltaX is small and deltaY
+    // is large (issue #3579)
+    if (!dy || (dy && canScrollY))
+      { e_preventDefault(e); }
+    display.wheelStartX = null; // Abort measurement, if in progress
+    return
+  }
+
+  // 'Project' the visible viewport to cover the area that is being
+  // scrolled into view (if we know enough to estimate it).
+  if (dy && wheelPixelsPerUnit != null) {
+    var pixels = dy * wheelPixelsPerUnit;
+    var top = cm.doc.scrollTop, bot = top + display.wrapper.clientHeight;
+    if (pixels < 0) { top = Math.max(0, top + pixels - 50); }
+    else { bot = Math.min(cm.doc.height, bot + pixels + 50); }
+    updateDisplaySimple(cm, {top: top, bottom: bot});
+  }
+
+  if (wheelSamples < 20) {
+    if (display.wheelStartX == null) {
+      display.wheelStartX = scroll.scrollLeft; display.wheelStartY = scroll.scrollTop;
+      display.wheelDX = dx; display.wheelDY = dy;
+      setTimeout(function () {
+        if (display.wheelStartX == null) { return }
+        var movedX = scroll.scrollLeft - display.wheelStartX;
+        var movedY = scroll.scrollTop - display.wheelStartY;
+        var sample = (movedY && display.wheelDY && movedY / display.wheelDY) ||
+          (movedX && display.wheelDX && movedX / display.wheelDX);
+        display.wheelStartX = display.wheelStartY = null;
+        if (!sample) { return }
+        wheelPixelsPerUnit = (wheelPixelsPerUnit * wheelSamples + sample) / (wheelSamples + 1);
+        ++wheelSamples;
+      }, 200);
+    } else {
+      display.wheelDX += dx; display.wheelDY += dy;
+    }
   }
 }
 
@@ -30192,7 +30338,7 @@ function resetModeState(cm) {
     if (line.stateAfter) { line.stateAfter = null; }
     if (line.styles) { line.styles = null; }
   });
-  cm.doc.frontier = cm.doc.first;
+  cm.doc.modeFrontier = cm.doc.highlightFrontier = cm.doc.first;
   startWorker(cm, 100);
   cm.state.modeGen++;
   if (cm.curOp) { regChange(cm); }
@@ -30526,8 +30672,8 @@ function copyHistoryArray(events, newGroup, instantiateSel) {
 // include a given position (and optionally a second position).
 // Otherwise, simply returns the range between the given positions.
 // Used for cursor motion and such.
-function extendRange(doc, range, head, other) {
-  if (doc.cm && doc.cm.display.shift || doc.extend) {
+function extendRange(range, head, other, extend) {
+  if (extend) {
     var anchor = range.anchor;
     if (other) {
       var posBefore = cmp(head, anchor) < 0;
@@ -30545,16 +30691,18 @@ function extendRange(doc, range, head, other) {
 }
 
 // Extend the primary selection range, discard the rest.
-function extendSelection(doc, head, other, options) {
-  setSelection(doc, new Selection([extendRange(doc, doc.sel.primary(), head, other)], 0), options);
+function extendSelection(doc, head, other, options, extend) {
+  if (extend == null) { extend = doc.cm && (doc.cm.display.shift || doc.extend); }
+  setSelection(doc, new Selection([extendRange(doc.sel.primary(), head, other, extend)], 0), options);
 }
 
 // Extend all selections (pos is an array of selections with length
 // equal the number of selections)
 function extendSelections(doc, heads, options) {
   var out = [];
+  var extend = doc.cm && (doc.cm.display.shift || doc.extend);
   for (var i = 0; i < doc.sel.ranges.length; i++)
-    { out[i] = extendRange(doc, doc.sel.ranges[i], heads[i], null); }
+    { out[i] = extendRange(doc.sel.ranges[i], heads[i], null, extend); }
   var newSel = normalizeSelection(out, doc.sel.primIndex);
   setSelection(doc, newSel, options);
 }
@@ -30635,7 +30783,7 @@ function setSelectionInner(doc, sel) {
 // Verify that the selection does not partially select any atomic
 // marked ranges.
 function reCheckSelection(doc) {
-  setSelectionInner(doc, skipAtomicInSelection(doc, doc.sel, null, false), sel_dontScroll);
+  setSelectionInner(doc, skipAtomicInSelection(doc, doc.sel, null, false));
 }
 
 // Return a selection that does not partially select any atomic
@@ -30938,8 +31086,7 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
     if (recomputeMaxLength) { cm.curOp.updateMaxLine = true; }
   }
 
-  // Adjust frontier, schedule worker
-  doc.frontier = Math.min(doc.frontier, from.line);
+  retreatFrontier(doc, from.line);
   startWorker(cm, 400);
 
   var lendiff = change.text.length - (to.line - from.line) - 1;
@@ -31049,7 +31196,7 @@ function changeLine(doc, handle, changeType, op) {
 //
 // See also http://marijnhaverbeke.nl/blog/codemirror-line-tree.html
 
-var LeafChunk = function(lines) {
+function LeafChunk(lines) {
   var this$1 = this;
 
   this.lines = lines;
@@ -31060,47 +31207,49 @@ var LeafChunk = function(lines) {
     height += lines[i].height;
   }
   this.height = height;
-};
+}
 
-LeafChunk.prototype.chunkSize = function () { return this.lines.length };
+LeafChunk.prototype = {
+  chunkSize: function chunkSize() { return this.lines.length },
 
-// Remove the n lines at offset 'at'.
-LeafChunk.prototype.removeInner = function (at, n) {
+  // Remove the n lines at offset 'at'.
+  removeInner: function removeInner(at, n) {
     var this$1 = this;
 
-  for (var i = at, e = at + n; i < e; ++i) {
-    var line = this$1.lines[i];
-    this$1.height -= line.height;
-    cleanUpLine(line);
-    signalLater(line, "delete");
+    for (var i = at, e = at + n; i < e; ++i) {
+      var line = this$1.lines[i];
+      this$1.height -= line.height;
+      cleanUpLine(line);
+      signalLater(line, "delete");
+    }
+    this.lines.splice(at, n);
+  },
+
+  // Helper used to collapse a small branch into a single leaf.
+  collapse: function collapse(lines) {
+    lines.push.apply(lines, this.lines);
+  },
+
+  // Insert the given array of lines at offset 'at', count them as
+  // having the given height.
+  insertInner: function insertInner(at, lines, height) {
+    var this$1 = this;
+
+    this.height += height;
+    this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at));
+    for (var i = 0; i < lines.length; ++i) { lines[i].parent = this$1; }
+  },
+
+  // Used to iterate over a part of the tree.
+  iterN: function iterN(at, n, op) {
+    var this$1 = this;
+
+    for (var e = at + n; at < e; ++at)
+      { if (op(this$1.lines[at])) { return true } }
   }
-  this.lines.splice(at, n);
 };
 
-// Helper used to collapse a small branch into a single leaf.
-LeafChunk.prototype.collapse = function (lines) {
-  lines.push.apply(lines, this.lines);
-};
-
-// Insert the given array of lines at offset 'at', count them as
-// having the given height.
-LeafChunk.prototype.insertInner = function (at, lines, height) {
-    var this$1 = this;
-
-  this.height += height;
-  this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at));
-  for (var i = 0; i < lines.length; ++i) { lines[i].parent = this$1; }
-};
-
-// Used to iterate over a part of the tree.
-LeafChunk.prototype.iterN = function (at, n, op) {
-    var this$1 = this;
-
-  for (var e = at + n; at < e; ++at)
-    { if (op(this$1.lines[at])) { return true } }
-};
-
-var BranchChunk = function(children) {
+function BranchChunk(children) {
   var this$1 = this;
 
   this.children = children;
@@ -31113,104 +31262,106 @@ var BranchChunk = function(children) {
   this.size = size;
   this.height = height;
   this.parent = null;
-};
+}
 
-BranchChunk.prototype.chunkSize = function () { return this.size };
+BranchChunk.prototype = {
+  chunkSize: function chunkSize() { return this.size },
 
-BranchChunk.prototype.removeInner = function (at, n) {
+  removeInner: function removeInner(at, n) {
     var this$1 = this;
 
-  this.size -= n;
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize();
-    if (at < sz) {
-      var rm = Math.min(n, sz - at), oldHeight = child.height;
-      child.removeInner(at, rm);
-      this$1.height -= oldHeight - child.height;
-      if (sz == rm) { this$1.children.splice(i--, 1); child.parent = null; }
-      if ((n -= rm) == 0) { break }
-      at = 0;
-    } else { at -= sz; }
-  }
-  // If the result is smaller than 25 lines, ensure that it is a
-  // single leaf node.
-  if (this.size - n < 25 &&
-      (this.children.length > 1 || !(this.children[0] instanceof LeafChunk))) {
-    var lines = [];
-    this.collapse(lines);
-    this.children = [new LeafChunk(lines)];
-    this.children[0].parent = this;
-  }
-};
+    this.size -= n;
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize();
+      if (at < sz) {
+        var rm = Math.min(n, sz - at), oldHeight = child.height;
+        child.removeInner(at, rm);
+        this$1.height -= oldHeight - child.height;
+        if (sz == rm) { this$1.children.splice(i--, 1); child.parent = null; }
+        if ((n -= rm) == 0) { break }
+        at = 0;
+      } else { at -= sz; }
+    }
+    // If the result is smaller than 25 lines, ensure that it is a
+    // single leaf node.
+    if (this.size - n < 25 &&
+        (this.children.length > 1 || !(this.children[0] instanceof LeafChunk))) {
+      var lines = [];
+      this.collapse(lines);
+      this.children = [new LeafChunk(lines)];
+      this.children[0].parent = this;
+    }
+  },
 
-BranchChunk.prototype.collapse = function (lines) {
+  collapse: function collapse(lines) {
     var this$1 = this;
 
-  for (var i = 0; i < this.children.length; ++i) { this$1.children[i].collapse(lines); }
-};
+    for (var i = 0; i < this.children.length; ++i) { this$1.children[i].collapse(lines); }
+  },
 
-BranchChunk.prototype.insertInner = function (at, lines, height) {
+  insertInner: function insertInner(at, lines, height) {
     var this$1 = this;
 
-  this.size += lines.length;
-  this.height += height;
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize();
-    if (at <= sz) {
-      child.insertInner(at, lines, height);
-      if (child.lines && child.lines.length > 50) {
-        // To avoid memory thrashing when child.lines is huge (e.g. first view of a large file), it's never spliced.
-        // Instead, small slices are taken. They're taken in order because sequential memory accesses are fastest.
-        var remaining = child.lines.length % 25 + 25;
-        for (var pos = remaining; pos < child.lines.length;) {
-          var leaf = new LeafChunk(child.lines.slice(pos, pos += 25));
-          child.height -= leaf.height;
-          this$1.children.splice(++i, 0, leaf);
-          leaf.parent = this$1;
+    this.size += lines.length;
+    this.height += height;
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize();
+      if (at <= sz) {
+        child.insertInner(at, lines, height);
+        if (child.lines && child.lines.length > 50) {
+          // To avoid memory thrashing when child.lines is huge (e.g. first view of a large file), it's never spliced.
+          // Instead, small slices are taken. They're taken in order because sequential memory accesses are fastest.
+          var remaining = child.lines.length % 25 + 25;
+          for (var pos = remaining; pos < child.lines.length;) {
+            var leaf = new LeafChunk(child.lines.slice(pos, pos += 25));
+            child.height -= leaf.height;
+            this$1.children.splice(++i, 0, leaf);
+            leaf.parent = this$1;
+          }
+          child.lines = child.lines.slice(0, remaining);
+          this$1.maybeSpill();
         }
-        child.lines = child.lines.slice(0, remaining);
-        this$1.maybeSpill();
+        break
       }
-      break
+      at -= sz;
     }
-    at -= sz;
-  }
-};
+  },
 
-// When a node has grown, check whether it should be split.
-BranchChunk.prototype.maybeSpill = function () {
-  if (this.children.length <= 10) { return }
-  var me = this;
-  do {
-    var spilled = me.children.splice(me.children.length - 5, 5);
-    var sibling = new BranchChunk(spilled);
-    if (!me.parent) { // Become the parent node
-      var copy = new BranchChunk(me.children);
-      copy.parent = me;
-      me.children = [copy, sibling];
-      me = copy;
-   } else {
-      me.size -= sibling.size;
-      me.height -= sibling.height;
-      var myIndex = indexOf(me.parent.children, me);
-      me.parent.children.splice(myIndex + 1, 0, sibling);
-    }
-    sibling.parent = me.parent;
-  } while (me.children.length > 10)
-  me.parent.maybeSpill();
-};
+  // When a node has grown, check whether it should be split.
+  maybeSpill: function maybeSpill() {
+    if (this.children.length <= 10) { return }
+    var me = this;
+    do {
+      var spilled = me.children.splice(me.children.length - 5, 5);
+      var sibling = new BranchChunk(spilled);
+      if (!me.parent) { // Become the parent node
+        var copy = new BranchChunk(me.children);
+        copy.parent = me;
+        me.children = [copy, sibling];
+        me = copy;
+     } else {
+        me.size -= sibling.size;
+        me.height -= sibling.height;
+        var myIndex = indexOf(me.parent.children, me);
+        me.parent.children.splice(myIndex + 1, 0, sibling);
+      }
+      sibling.parent = me.parent;
+    } while (me.children.length > 10)
+    me.parent.maybeSpill();
+  },
 
-BranchChunk.prototype.iterN = function (at, n, op) {
+  iterN: function iterN(at, n, op) {
     var this$1 = this;
 
-  for (var i = 0; i < this.children.length; ++i) {
-    var child = this$1.children[i], sz = child.chunkSize();
-    if (at < sz) {
-      var used = Math.min(n, sz - at);
-      if (child.iterN(at, used, op)) { return true }
-      if ((n -= used) == 0) { break }
-      at = 0;
-    } else { at -= sz; }
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this$1.children[i], sz = child.chunkSize();
+      if (at < sz) {
+        var used = Math.min(n, sz - at);
+        if (child.iterN(at, used, op)) { return true }
+        if ((n -= used) == 0) { break }
+        at = 0;
+      } else { at -= sz; }
+    }
   }
 };
 
@@ -31263,7 +31414,7 @@ eventMixin(LineWidget);
 
 function adjustScrollWhenAboveVisible(cm, line, diff) {
   if (heightAtLine(line) < ((cm.curOp && cm.curOp.scrollTop) || cm.doc.scrollTop))
-    { addToScrollPos(cm, null, diff); }
+    { addToScrollTop(cm, diff); }
 }
 
 function addLineWidget(doc, handle, node, options) {
@@ -31278,7 +31429,7 @@ function addLineWidget(doc, handle, node, options) {
     if (cm && !lineIsHidden(doc, line)) {
       var aboveVisible = heightAtLine(line) < doc.scrollTop;
       updateLineHeight(line, line.height + widgetHeight(widget));
-      if (aboveVisible) { addToScrollPos(cm, null, widget.height); }
+      if (aboveVisible) { addToScrollTop(cm, widget.height); }
       cm.curOp.forceUpdate = true;
     }
     return true
@@ -31580,7 +31731,7 @@ var Doc = function(text, mode, firstLine, lineSep, direction) {
   this.scrollTop = this.scrollLeft = 0;
   this.cantEdit = false;
   this.cleanGeneration = 1;
-  this.frontier = firstLine;
+  this.modeFrontier = this.highlightFrontier = firstLine;
   var start = Pos(firstLine, 0);
   this.sel = simpleSelection(start);
   this.history = new History(null);
@@ -31626,7 +31777,8 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     var top = Pos(this.first, 0), last = this.first + this.size - 1;
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true);
-    setSelection(this, simpleSelection(top));
+    if (this.cm) { scrollToCoords(this.cm, 0, 0); }
+    setSelection(this, simpleSelection(top), sel_dontScroll);
   }),
   replaceRange: function(code, from, to, origin) {
     from = clipPos(this, from);
@@ -32102,8 +32254,8 @@ function clearDragCursor(cm) {
 // garbage collected.
 
 function forEachCodeMirror(f) {
-  if (!document.body.getElementsByClassName) { return }
-  var byClass = document.body.getElementsByClassName("CodeMirror");
+  if (!document.getElementsByClassName) { return }
+  var byClass = document.getElementsByClassName("CodeMirror");
   for (var i = 0; i < byClass.length; i++) {
     var cm = byClass[i].CodeMirror;
     if (cm) { f(cm); }
@@ -32277,16 +32429,21 @@ function isModifierKey(value) {
   return name == "Ctrl" || name == "Alt" || name == "Shift" || name == "Mod"
 }
 
-// Look up the name of a key as indicated by an event object.
-function keyName(event, noShift) {
-  if (presto && event.keyCode == 34 && event["char"]) { return false }
-  var base = keyNames[event.keyCode], name = base;
-  if (name == null || event.altGraphKey) { return false }
+function addModifierNames(name, event, noShift) {
+  var base = name;
   if (event.altKey && base != "Alt") { name = "Alt-" + name; }
   if ((flipCtrlCmd ? event.metaKey : event.ctrlKey) && base != "Ctrl") { name = "Ctrl-" + name; }
   if ((flipCtrlCmd ? event.ctrlKey : event.metaKey) && base != "Cmd") { name = "Cmd-" + name; }
   if (!noShift && event.shiftKey && base != "Shift") { name = "Shift-" + name; }
   return name
+}
+
+// Look up the name of a key as indicated by an event object.
+function keyName(event, noShift) {
+  if (presto && event.keyCode == 34 && event["char"]) { return false }
+  var name = keyNames[event.keyCode];
+  if (name == null || event.altGraphKey) { return false }
+  return addModifierNames(name, event, noShift)
 }
 
 function getKeyMap(val) {
@@ -32367,15 +32524,15 @@ var commands = {
     {origin: "+move", bias: -1}
   ); },
   goLineRight: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
   }, sel_move); },
   goLineLeft: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: 0, top: top}, "div")
   }, sel_move); },
   goLineLeftSmart: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     var pos = cm.coordsChar({left: 0, top: top}, "div");
     if (pos.ch < cm.getLine(pos.line).search(/\S/)) { return lineStartSmart(cm, range.head) }
     return pos
@@ -32515,6 +32672,9 @@ function lookupKeyForEditor(cm, name, handle) {
     || lookupKey(name, cm.options.keyMap, handle, cm)
 }
 
+// Note that, despite the name, this function is also used to check
+// for bound mouse clicks.
+
 var stopSeq = new Delayed;
 function dispatchKey(cm, name, e, handle) {
   var seq = cm.state.keySeq;
@@ -32626,6 +32786,37 @@ function onKeyPress(e) {
   cm.display.input.onKeyPress(e);
 }
 
+var DOUBLECLICK_DELAY = 400;
+
+var PastClick = function(time, pos, button) {
+  this.time = time;
+  this.pos = pos;
+  this.button = button;
+};
+
+PastClick.prototype.compare = function (time, pos, button) {
+  return this.time + DOUBLECLICK_DELAY > time &&
+    cmp(pos, this.pos) == 0 && button == this.button
+};
+
+var lastClick;
+var lastDoubleClick;
+function clickRepeat(pos, button) {
+  var now = +new Date;
+  if (lastDoubleClick && lastDoubleClick.compare(now, pos, button)) {
+    lastClick = lastDoubleClick = null;
+    return "triple"
+  } else if (lastClick && lastClick.compare(now, pos, button)) {
+    lastDoubleClick = new PastClick(now, pos, button);
+    lastClick = null;
+    return "double"
+  } else {
+    lastClick = new PastClick(now, pos, button);
+    lastDoubleClick = null;
+    return "single"
+  }
+}
+
 // A mouse down can be a single click, double click, triple click,
 // start of selection drag, start of text drag, new cursor
 // (ctrl-click), rectangle drag (alt-drag), or xwin
@@ -32647,72 +32838,91 @@ function onMouseDown(e) {
     return
   }
   if (clickInGutter(cm, e)) { return }
-  var start = posFromMouse(cm, e);
+  var pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single";
   window.focus();
 
-  switch (e_button(e)) {
-  case 1:
-    // #3261: make sure, that we're not starting a second selection
-    if (cm.state.selectingText)
-      { cm.state.selectingText(e); }
-    else if (start)
-      { leftButtonDown(cm, e, start); }
-    else if (e_target(e) == display.scroller)
-      { e_preventDefault(e); }
-    break
-  case 2:
-    if (webkit) { cm.state.lastMiddleDown = +new Date; }
-    if (start) { extendSelection(cm.doc, start); }
+  // #3261: make sure, that we're not starting a second selection
+  if (button == 1 && cm.state.selectingText)
+    { cm.state.selectingText(e); }
+
+  if (pos && handleMappedButton(cm, button, pos, repeat, e)) { return }
+
+  if (button == 1) {
+    if (pos) { leftButtonDown(cm, pos, repeat, e); }
+    else if (e_target(e) == display.scroller) { e_preventDefault(e); }
+  } else if (button == 2) {
+    if (pos) { extendSelection(cm.doc, pos); }
     setTimeout(function () { return display.input.focus(); }, 20);
-    e_preventDefault(e);
-    break
-  case 3:
+  } else if (button == 3) {
     if (captureRightClick) { onContextMenu(cm, e); }
     else { delayBlurEvent(cm); }
-    break
   }
 }
 
-var lastClick;
-var lastDoubleClick;
-function leftButtonDown(cm, e, start) {
+function handleMappedButton(cm, button, pos, repeat, event) {
+  var name = "Click";
+  if (repeat == "double") { name = "Double" + name; }
+  else if (repeat == "triple") { name = "Triple" + name; }
+  name = (button == 1 ? "Left" : button == 2 ? "Middle" : "Right") + name;
+
+  return dispatchKey(cm,  addModifierNames(name, event), event, function (bound) {
+    if (typeof bound == "string") { bound = commands[bound]; }
+    if (!bound) { return false }
+    var done = false;
+    try {
+      if (cm.isReadOnly()) { cm.state.suppressEdits = true; }
+      done = bound(cm, pos) != Pass;
+    } finally {
+      cm.state.suppressEdits = false;
+    }
+    return done
+  })
+}
+
+function configureMouse(cm, repeat, event) {
+  var option = cm.getOption("configureMouse");
+  var value = option ? option(cm, repeat, event) : {};
+  if (value.unit == null) {
+    var rect = chromeOS ? event.shiftKey && event.metaKey : event.altKey;
+    value.unit = rect ? "rectangle" : repeat == "single" ? "char" : repeat == "double" ? "word" : "line";
+  }
+  if (value.extend == null || cm.doc.extend) { value.extend = cm.doc.extend || event.shiftKey; }
+  if (value.addNew == null) { value.addNew = mac ? event.metaKey : event.ctrlKey; }
+  if (value.moveOnDrag == null) { value.moveOnDrag = !(mac ? event.altKey : event.ctrlKey); }
+  return value
+}
+
+function leftButtonDown(cm, pos, repeat, event) {
   if (ie) { setTimeout(bind(ensureFocus, cm), 0); }
   else { cm.curOp.focus = activeElt(); }
 
-  var now = +new Date, type;
-  if (lastDoubleClick && lastDoubleClick.time > now - 400 && cmp(lastDoubleClick.pos, start) == 0) {
-    type = "triple";
-  } else if (lastClick && lastClick.time > now - 400 && cmp(lastClick.pos, start) == 0) {
-    type = "double";
-    lastDoubleClick = {time: now, pos: start};
-  } else {
-    type = "single";
-    lastClick = {time: now, pos: start};
-  }
+  var behavior = configureMouse(cm, repeat, event);
 
-  var sel = cm.doc.sel, modifier = mac ? e.metaKey : e.ctrlKey, contained;
+  var sel = cm.doc.sel, contained;
   if (cm.options.dragDrop && dragAndDrop && !cm.isReadOnly() &&
-      type == "single" && (contained = sel.contains(start)) > -1 &&
-      (cmp((contained = sel.ranges[contained]).from(), start) < 0 || start.xRel > 0) &&
-      (cmp(contained.to(), start) > 0 || start.xRel < 0))
-    { leftButtonStartDrag(cm, e, start, modifier); }
+      repeat == "single" && (contained = sel.contains(pos)) > -1 &&
+      (cmp((contained = sel.ranges[contained]).from(), pos) < 0 || pos.xRel > 0) &&
+      (cmp(contained.to(), pos) > 0 || pos.xRel < 0))
+    { leftButtonStartDrag(cm, event, pos, behavior); }
   else
-    { leftButtonSelect(cm, e, start, type, modifier); }
+    { leftButtonSelect(cm, event, pos, behavior); }
 }
 
 // Start a text drag. When it ends, see if any dragging actually
 // happen, and treat as a click if it didn't.
-function leftButtonStartDrag(cm, e, start, modifier) {
-  var display = cm.display, startTime = +new Date;
-  var dragEnd = operation(cm, function (e2) {
+function leftButtonStartDrag(cm, event, pos, behavior) {
+  var display = cm.display, moved = false;
+  var dragEnd = operation(cm, function (e) {
     if (webkit) { display.scroller.draggable = false; }
     cm.state.draggingText = false;
     off(document, "mouseup", dragEnd);
+    off(document, "mousemove", mouseMove);
+    off(display.scroller, "dragstart", dragStart);
     off(display.scroller, "drop", dragEnd);
-    if (Math.abs(e.clientX - e2.clientX) + Math.abs(e.clientY - e2.clientY) < 10) {
-      e_preventDefault(e2);
-      if (!modifier && +new Date - 200 < startTime)
-        { extendSelection(cm.doc, start); }
+    if (!moved) {
+      e_preventDefault(e);
+      if (!behavior.addNew)
+        { extendSelection(cm.doc, pos, null, null, behavior.extend); }
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
         { setTimeout(function () {document.body.focus(); display.input.focus();}, 20); }
@@ -32720,23 +32930,40 @@ function leftButtonStartDrag(cm, e, start, modifier) {
         { display.input.focus(); }
     }
   });
+  var mouseMove = function(e2) {
+    moved = moved || Math.abs(event.clientX - e2.clientX) + Math.abs(event.clientY - e2.clientY) >= 10;
+  };
+  var dragStart = function () { return moved = true; };
   // Let the drag handler handle this.
   if (webkit) { display.scroller.draggable = true; }
   cm.state.draggingText = dragEnd;
-  dragEnd.copy = mac ? e.altKey : e.ctrlKey;
+  dragEnd.copy = !behavior.moveOnDrag;
   // IE's approach to draggable
   if (display.scroller.dragDrop) { display.scroller.dragDrop(); }
   on(document, "mouseup", dragEnd);
+  on(document, "mousemove", mouseMove);
+  on(display.scroller, "dragstart", dragStart);
   on(display.scroller, "drop", dragEnd);
+
+  delayBlurEvent(cm);
+  setTimeout(function () { return display.input.focus(); }, 20);
+}
+
+function rangeForUnit(cm, pos, unit) {
+  if (unit == "char") { return new Range(pos, pos) }
+  if (unit == "word") { return cm.findWordAt(pos) }
+  if (unit == "line") { return new Range(Pos(pos.line, 0), clipPos(cm.doc, Pos(pos.line + 1, 0))) }
+  var result = unit(cm, pos);
+  return new Range(result.from, result.to)
 }
 
 // Normal selection, as opposed to text dragging.
-function leftButtonSelect(cm, e, start, type, addNew) {
+function leftButtonSelect(cm, event, start, behavior) {
   var display = cm.display, doc = cm.doc;
-  e_preventDefault(e);
+  e_preventDefault(event);
 
   var ourRange, ourIndex, startSel = doc.sel, ranges = startSel.ranges;
-  if (addNew && !e.shiftKey) {
+  if (behavior.addNew && !behavior.extend) {
     ourIndex = doc.sel.contains(start);
     if (ourIndex > -1)
       { ourRange = ranges[ourIndex]; }
@@ -32747,28 +32974,19 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     ourIndex = doc.sel.primIndex;
   }
 
-  if (chromeOS ? e.shiftKey && e.metaKey : e.altKey) {
-    type = "rect";
-    if (!addNew) { ourRange = new Range(start, start); }
-    start = posFromMouse(cm, e, true, true);
+  if (behavior.unit == "rectangle") {
+    if (!behavior.addNew) { ourRange = new Range(start, start); }
+    start = posFromMouse(cm, event, true, true);
     ourIndex = -1;
-  } else if (type == "double") {
-    var word = cm.findWordAt(start);
-    if (cm.display.shift || doc.extend)
-      { ourRange = extendRange(doc, ourRange, word.anchor, word.head); }
-    else
-      { ourRange = word; }
-  } else if (type == "triple") {
-    var line = new Range(Pos(start.line, 0), clipPos(doc, Pos(start.line + 1, 0)));
-    if (cm.display.shift || doc.extend)
-      { ourRange = extendRange(doc, ourRange, line.anchor, line.head); }
-    else
-      { ourRange = line; }
   } else {
-    ourRange = extendRange(doc, ourRange, start);
+    var range$$1 = rangeForUnit(cm, start, behavior.unit);
+    if (behavior.extend)
+      { ourRange = extendRange(ourRange, range$$1.anchor, range$$1.head, behavior.extend); }
+    else
+      { ourRange = range$$1; }
   }
 
-  if (!addNew) {
+  if (!behavior.addNew) {
     ourIndex = 0;
     setSelection(doc, new Selection([ourRange], 0), sel_mouse);
     startSel = doc.sel;
@@ -32776,7 +32994,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     ourIndex = ranges.length;
     setSelection(doc, normalizeSelection(ranges.concat([ourRange]), ourIndex),
                  {scroll: false, origin: "*mouse"});
-  } else if (ranges.length > 1 && ranges[ourIndex].empty() && type == "single" && !e.shiftKey) {
+  } else if (ranges.length > 1 && ranges[ourIndex].empty() && behavior.unit == "char" && !behavior.extend) {
     setSelection(doc, normalizeSelection(ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
                  {scroll: false, origin: "*mouse"});
     startSel = doc.sel;
@@ -32789,7 +33007,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     if (cmp(lastPos, pos) == 0) { return }
     lastPos = pos;
 
-    if (type == "rect") {
+    if (behavior.unit == "rectangle") {
       var ranges = [], tabSize = cm.options.tabSize;
       var startCol = countColumn(getLine(doc, start.line).text, start.ch, tabSize);
       var posCol = countColumn(getLine(doc, pos.line).text, pos.ch, tabSize);
@@ -32808,20 +33026,14 @@ function leftButtonSelect(cm, e, start, type, addNew) {
       cm.scrollIntoView(pos);
     } else {
       var oldRange = ourRange;
-      var anchor = oldRange.anchor, head = pos;
-      if (type != "single") {
-        var range$$1;
-        if (type == "double")
-          { range$$1 = cm.findWordAt(pos); }
-        else
-          { range$$1 = new Range(Pos(pos.line, 0), clipPos(doc, Pos(pos.line + 1, 0))); }
-        if (cmp(range$$1.anchor, anchor) > 0) {
-          head = range$$1.head;
-          anchor = minPos(oldRange.from(), range$$1.anchor);
-        } else {
-          head = range$$1.anchor;
-          anchor = maxPos(oldRange.to(), range$$1.head);
-        }
+      var range$$1 = rangeForUnit(cm, pos, behavior.unit);
+      var anchor = oldRange.anchor, head;
+      if (cmp(range$$1.anchor, anchor) > 0) {
+        head = range$$1.head;
+        anchor = minPos(oldRange.from(), range$$1.anchor);
+      } else {
+        head = range$$1.anchor;
+        anchor = maxPos(oldRange.to(), range$$1.head);
       }
       var ranges$1 = startSel.ranges.slice(0);
       ranges$1[ourIndex] = new Range(clipPos(doc, anchor), head);
@@ -32838,7 +33050,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
 
   function extend(e) {
     var curCount = ++counter;
-    var cur = posFromMouse(cm, e, true, type == "rect");
+    var cur = posFromMouse(cm, e, true, behavior.unit == "rectangle");
     if (!cur) { return }
     if (cmp(cur, lastPos) != 0) {
       cm.curOp.focus = activeElt();
@@ -33004,6 +33216,7 @@ function defineOptions(CodeMirror) {
     if (next.attach) { next.attach(cm, prev || null); }
   });
   option("extraKeys", null);
+  option("configureMouse", null);
 
   option("lineWrapping", false, wrappingChanged, true);
   option("gutters", [], function (cm) {
@@ -33031,14 +33244,12 @@ function defineOptions(CodeMirror) {
 
   option("resetSelectionOnContextMenu", true);
   option("lineWiseCopyCut", true);
+  option("pasteLinesPerSelection", true);
 
   option("readOnly", false, function (cm, val) {
     if (val == "nocursor") {
       onBlur(cm);
       cm.display.input.blur();
-      cm.display.disabled = true;
-    } else {
-      cm.display.disabled = false;
     }
     cm.display.input.readOnlyChanged(val);
   });
@@ -33259,7 +33470,7 @@ function registerEventHandlers(cm) {
   // area, ensure viewport is updated when scrolling.
   on(d.scroller, "scroll", function () {
     if (d.scroller.clientHeight) {
-      setScrollTop(cm, d.scroller.scrollTop);
+      updateScrollTop(cm, d.scroller.scrollTop);
       setScrollLeft(cm, d.scroller.scrollLeft, true);
       signal(cm, "scroll", cm);
     }
@@ -33303,7 +33514,7 @@ function indentLine(cm, n, how, aggressive) {
     // Fall back to "prev" when the mode doesn't have an indentation
     // method.
     if (!doc.mode.indent) { how = "prev"; }
-    else { state = getStateBefore(cm, n); }
+    else { state = getContextBefore(cm, n).state; }
   }
 
   var tabSize = cm.options.tabSize;
@@ -33379,7 +33590,7 @@ function applyTextInput(cm, inserted, deleted, sel, origin) {
         for (var i = 0; i < lastCopied.text.length; i++)
           { multiPaste.push(doc.splitLines(lastCopied.text[i])); }
       }
-    } else if (textLines.length == sel.ranges.length) {
+    } else if (textLines.length == sel.ranges.length && cm.options.pasteLinesPerSelection) {
       multiPaste = map(textLines, function (l) { return [l]; });
     }
   }
@@ -33639,7 +33850,7 @@ var addEditorMethods = function(CodeMirror) {
     getStateAfter: function(line, precise) {
       var doc = this.doc;
       line = clipLine(doc, line == null ? doc.first + doc.size - 1: line);
-      return getStateBefore(this, line + 1, precise)
+      return getContextBefore(this, line + 1, precise).state
     },
 
     cursorCoords: function(start, mode) {
@@ -33720,6 +33931,7 @@ var addEditorMethods = function(CodeMirror) {
     triggerOnKeyDown: methodOp(onKeyDown),
     triggerOnKeyPress: methodOp(onKeyPress),
     triggerOnKeyUp: onKeyUp,
+    triggerOnMouseDown: methodOp(onMouseDown),
 
     execCommand: function(cmd) {
       if (commands.hasOwnProperty(cmd))
@@ -33792,7 +34004,7 @@ var addEditorMethods = function(CodeMirror) {
         goals.push(headPos.left);
         var pos = findPosV(this$1, headPos, dir, unit);
         if (unit == "page" && range$$1 == doc.sel.primary())
-          { addToScrollPos(this$1, null, charCoords(this$1, pos, "div").top - headPos.top); }
+          { addToScrollTop(this$1, charCoords(this$1, pos, "div").top - headPos.top); }
         return pos
       }, sel_move);
       if (goals.length) { for (var i = 0; i < doc.sel.ranges.length; i++)
@@ -33829,11 +34041,7 @@ var addEditorMethods = function(CodeMirror) {
     hasFocus: function() { return this.display.input.getField() == activeElt() },
     isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
-    scrollTo: methodOp(function(x, y) {
-      if (x != null || y != null) { resolveScrollToPos(this); }
-      if (x != null) { this.curOp.scrollLeft = x; }
-      if (y != null) { this.curOp.scrollTop = y; }
-    }),
+    scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y); }),
     getScrollInfo: function() {
       var scroller = this.display.scroller;
       return {left: scroller.scrollLeft, top: scroller.scrollTop,
@@ -33855,16 +34063,9 @@ var addEditorMethods = function(CodeMirror) {
       range$$1.margin = margin || 0;
 
       if (range$$1.from.line != null) {
-        resolveScrollToPos(this);
-        this.curOp.scrollToPos = range$$1;
+        scrollToRange(this, range$$1);
       } else {
-        var sPos = calculateScrollPos(this, {
-          left: Math.min(range$$1.from.left, range$$1.to.left),
-          top: Math.min(range$$1.from.top, range$$1.to.top) - range$$1.margin,
-          right: Math.max(range$$1.from.right, range$$1.to.right),
-          bottom: Math.max(range$$1.from.bottom, range$$1.to.bottom) + range$$1.margin
-        });
-        this.scrollTo(sPos.scrollLeft, sPos.scrollTop);
+        scrollToCoordsRange(this, range$$1.from, range$$1.to, range$$1.margin);
       }
     }),
 
@@ -33886,13 +34087,15 @@ var addEditorMethods = function(CodeMirror) {
     }),
 
     operation: function(f){return runInOp(this, f)},
+    startOperation: function(){return startOperation(this)},
+    endOperation: function(){return endOperation(this)},
 
     refresh: methodOp(function() {
       var oldHeight = this.display.cachedTextHeight;
       regChange(this);
       this.curOp.forceUpdate = true;
       clearCaches(this);
-      this.scrollTo(this.doc.scrollLeft, this.doc.scrollTop);
+      scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop);
       updateGutterSpace(this);
       if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
         { estimateLineHeights(this); }
@@ -33905,7 +34108,7 @@ var addEditorMethods = function(CodeMirror) {
       attachDoc(this, doc);
       clearCaches(this);
       this.display.input.reset();
-      this.scrollTo(doc.scrollLeft, doc.scrollTop);
+      scrollToCoords(this, doc.scrollLeft, doc.scrollTop);
       this.curOp.forceScroll = true;
       signalLater(this, "swapDoc", this, old);
       return old
@@ -34116,36 +34319,41 @@ ContentEditableInput.prototype.showSelection = function (info, takeFocus) {
 };
 
 ContentEditableInput.prototype.showPrimarySelection = function () {
-  var sel = window.getSelection(), prim = this.cm.doc.sel.primary();
-  var curAnchor = domToPos(this.cm, sel.anchorNode, sel.anchorOffset);
-  var curFocus = domToPos(this.cm, sel.focusNode, sel.focusOffset);
-  if (curAnchor && !curAnchor.bad && curFocus && !curFocus.bad &&
-      cmp(minPos(curAnchor, curFocus), prim.from()) == 0 &&
-      cmp(maxPos(curAnchor, curFocus), prim.to()) == 0)
-    { return }
+  var sel = window.getSelection(), cm = this.cm, prim = cm.doc.sel.primary();
+  var from = prim.from(), to = prim.to();
 
-  var start = posToDOM(this.cm, prim.from());
-  var end = posToDOM(this.cm, prim.to());
-  if (!start && !end) {
+  if (cm.display.viewTo == cm.display.viewFrom || from.line >= cm.display.viewTo || to.line < cm.display.viewFrom) {
     sel.removeAllRanges();
     return
   }
 
-  var view = this.cm.display.view;
-  var old = sel.rangeCount && sel.getRangeAt(0);
-  if (!start) {
-    start = {node: view[0].measure.map[2], offset: 0};
-  } else if (!end) { // FIXME dangerously hacky
+  var curAnchor = domToPos(cm, sel.anchorNode, sel.anchorOffset);
+  var curFocus = domToPos(cm, sel.focusNode, sel.focusOffset);
+  if (curAnchor && !curAnchor.bad && curFocus && !curFocus.bad &&
+      cmp(minPos(curAnchor, curFocus), from) == 0 &&
+      cmp(maxPos(curAnchor, curFocus), to) == 0)
+    { return }
+
+  var view = cm.display.view;
+  var start = (from.line >= cm.display.viewFrom && posToDOM(cm, from)) ||
+      {node: view[0].measure.map[2], offset: 0};
+  var end = to.line < cm.display.viewTo && posToDOM(cm, to);
+  if (!end) {
     var measure = view[view.length - 1].measure;
     var map$$1 = measure.maps ? measure.maps[measure.maps.length - 1] : measure.map;
     end = {node: map$$1[map$$1.length - 1], offset: map$$1[map$$1.length - 2] - map$$1[map$$1.length - 3]};
   }
 
-  var rng;
+  if (!start || !end) {
+    sel.removeAllRanges();
+    return
+  }
+
+  var old = sel.rangeCount && sel.getRangeAt(0), rng;
   try { rng = range(start.node, start.offset, end.offset, end.node); }
   catch(e) {} // Our model of the DOM might be outdated, in which case the range we try to set can be impossible
   if (rng) {
-    if (!gecko && this.cm.state.focused) {
+    if (!gecko && cm.state.focused) {
       sel.collapse(start.node, start.offset);
       if (!rng.collapsed) {
         sel.removeAllRanges();
@@ -34533,9 +34741,6 @@ var TextareaInput = function(cm) {
   this.pollingFast = false;
   // Self-resetting timeout for the poller
   this.polling = new Delayed();
-  // Tracks when input.reset has punted to just putting a short
-  // string into the textarea instead of the full selection.
-  this.inaccurateSelection = false;
   // Used to work around IE issue with selection being forgotten when focus moves away from textarea
   this.hasSelection = false;
   this.composing = null;
@@ -34572,12 +34777,6 @@ TextareaInput.prototype.init = function (display) {
     if (signalDOMEvent(cm, e)) { return }
     if (cm.somethingSelected()) {
       setLastCopied({lineWise: false, text: cm.getSelections()});
-      if (input.inaccurateSelection) {
-        input.prevInput = "";
-        input.inaccurateSelection = false;
-        te.value = lastCopied.text.join("\n");
-        selectInput(te);
-      }
     } else if (!cm.options.lineWiseCopyCut) {
       return
     } else {
@@ -34655,14 +34854,11 @@ TextareaInput.prototype.showSelection = function (drawn) {
 // Reset the input to correspond to the selection (or to be empty,
 // when not typing and nothing is selected)
 TextareaInput.prototype.reset = function (typing) {
-  if (this.contextMenuPending) { return }
-  var minimal, selected, cm = this.cm, doc = cm.doc;
+  if (this.contextMenuPending || this.composing) { return }
+  var cm = this.cm;
   if (cm.somethingSelected()) {
     this.prevInput = "";
-    var range$$1 = doc.sel.primary();
-    minimal = hasCopyEvent &&
-      (range$$1.to().line - range$$1.from().line > 100 || (selected = cm.getSelection()).length > 1000);
-    var content = minimal ? "-" : selected || cm.getSelection();
+    var content = cm.getSelection();
     this.textarea.value = content;
     if (cm.state.focused) { selectInput(this.textarea); }
     if (ie && ie_version >= 9) { this.hasSelection = content; }
@@ -34670,7 +34866,6 @@ TextareaInput.prototype.reset = function (typing) {
     this.prevInput = this.textarea.value = "";
     if (ie && ie_version >= 9) { this.hasSelection = null; }
   }
-  this.inaccurateSelection = minimal;
 };
 
 TextareaInput.prototype.getField = function () { return this.textarea };
@@ -34865,6 +35060,7 @@ TextareaInput.prototype.onContextMenu = function (e) {
 
 TextareaInput.prototype.readOnlyChanged = function (val) {
   if (!val) { this.reset(); }
+  this.textarea.disabled = val == "nocursor";
 };
 
 TextareaInput.prototype.setUneditable = function () {};
@@ -35020,15 +35216,15 @@ CodeMirror$1.fromTextArea = fromTextArea;
 
 addLegacyProps(CodeMirror$1);
 
-CodeMirror$1.version = "5.25.0";
+CodeMirror$1.version = "5.28.0";
 
 return CodeMirror$1;
 
 })));
 ;define('codemirror', ['codemirror/lib/codemirror'], function (main) { return main; });
 
-define('text!codemirror/theme/eclipse.css', ['module'], function(module) { module.exports = ".cm-s-eclipse span.cm-meta { color: #FF1717; }\n.cm-s-eclipse span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }\n.cm-s-eclipse span.cm-atom { color: #219; }\n.cm-s-eclipse span.cm-number { color: #164; }\n.cm-s-eclipse span.cm-def { color: #00f; }\n.cm-s-eclipse span.cm-variable { color: black; }\n.cm-s-eclipse span.cm-variable-2 { color: #0000C0; }\n.cm-s-eclipse span.cm-variable-3 { color: #0000C0; }\n.cm-s-eclipse span.cm-property { color: black; }\n.cm-s-eclipse span.cm-operator { color: black; }\n.cm-s-eclipse span.cm-comment { color: #3F7F5F; }\n.cm-s-eclipse span.cm-string { color: #2A00FF; }\n.cm-s-eclipse span.cm-string-2 { color: #f50; }\n.cm-s-eclipse span.cm-qualifier { color: #555; }\n.cm-s-eclipse span.cm-builtin { color: #30a; }\n.cm-s-eclipse span.cm-bracket { color: #cc7; }\n.cm-s-eclipse span.cm-tag { color: #170; }\n.cm-s-eclipse span.cm-attribute { color: #00c; }\n.cm-s-eclipse span.cm-link { color: #219; }\n.cm-s-eclipse span.cm-error { color: #f00; }\n\n.cm-s-eclipse .CodeMirror-activeline-background { background: #e8f2ff; }\n.cm-s-eclipse .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }\n"; });
-define('text!codemirror/lib/codemirror.css', ['module'], function(module) { module.exports = "/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: monospace;\n  height: 300px;\n  color: black;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n  white-space: nowrap;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n  white-space: nowrap;\n}\n\n.CodeMirror-guttermarker { color: black; }\n.CodeMirror-guttermarker-subtle { color: #999; }\n\n/* CURSOR */\n\n.CodeMirror-cursor {\n  border-left: 1px solid black;\n  border-right: none;\n  width: 0;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.cm-fat-cursor .CodeMirror-cursor {\n  width: auto;\n  border: 0 !important;\n  background: #7e7;\n}\n.cm-fat-cursor div.CodeMirror-cursors {\n  z-index: 1;\n}\n\n.cm-animate-fat-cursor {\n  width: auto;\n  border: 0;\n  -webkit-animation: blink 1.06s steps(1) infinite;\n  -moz-animation: blink 1.06s steps(1) infinite;\n  animation: blink 1.06s steps(1) infinite;\n  background-color: #7e7;\n}\n@-moz-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@-webkit-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror-overwrite .CodeMirror-cursor {}\n\n.cm-tab { display: inline-block; text-decoration: inherit; }\n\n.CodeMirror-rulers {\n  position: absolute;\n  left: 0; right: 0; top: -50px; bottom: -20px;\n  overflow: hidden;\n}\n.CodeMirror-ruler {\n  border-left: 1px solid #ccc;\n  top: 0; bottom: 0;\n  position: absolute;\n}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n.cm-strikethrough {text-decoration: line-through;}\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable,\n.cm-s-default .cm-punctuation,\n.cm-s-default .cm-property,\n.cm-s-default .cm-operator {}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3 {color: #085;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-s-default .cm-error {color: #f00;}\n.cm-invalidchar {color: #f00;}\n\n.CodeMirror-composing { border-bottom: 2px solid; }\n\n/* Default styles for common addons */\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }\n.CodeMirror-activeline-background {background: #e8f2ff;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  position: relative;\n  overflow: hidden;\n  background: white;\n}\n\n.CodeMirror-scroll {\n  overflow: scroll !important; /* Things will break if this is overridden */\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n  border-right: 30px solid transparent;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actual scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n}\n.CodeMirror-gutter-filler {\n  left: 0; bottom: 0;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  min-height: 100%;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  white-space: normal;\n  height: 100%;\n  display: inline-block;\n  vertical-align: top;\n  margin-bottom: -30px;\n}\n.CodeMirror-gutter-wrapper {\n  position: absolute;\n  z-index: 4;\n  background: none !important;\n  border: none !important;\n}\n.CodeMirror-gutter-background {\n  position: absolute;\n  top: 0; bottom: 0;\n  z-index: 4;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n.CodeMirror-gutter-wrapper ::selection { background-color: transparent }\n.CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }\n\n.CodeMirror-lines {\n  cursor: text;\n  min-height: 1px; /* prevents collapsing before first draw */\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-font-variant-ligatures: contextual;\n  font-variant-ligatures: contextual;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {}\n\n.CodeMirror-rtl pre { direction: rtl; }\n\n.CodeMirror-code {\n  outline: none;\n}\n\n/* Force content-box sizing for the elements where we expect it */\n.CodeMirror-scroll,\n.CodeMirror-sizer,\n.CodeMirror-gutter,\n.CodeMirror-gutters,\n.CodeMirror-linenumber {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%;\n  height: 0;\n  overflow: hidden;\n  visibility: hidden;\n}\n\n.CodeMirror-cursor {\n  position: absolute;\n  pointer-events: none;\n}\n.CodeMirror-measure pre { position: static; }\n\ndiv.CodeMirror-cursors {\n  visibility: hidden;\n  position: relative;\n  z-index: 3;\n}\ndiv.CodeMirror-dragcursors {\n  visibility: visible;\n}\n\n.CodeMirror-focused div.CodeMirror-cursors {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n.CodeMirror-crosshair { cursor: crosshair; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* Used to force a border model for a node */\n.cm-force-border { padding-right: .1px; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursors {\n    visibility: hidden;\n  }\n}\n\n/* See issue #2901 */\n.cm-tab-wrap-hack:after { content: ''; }\n\n/* Help users use markselection to safely style text background */\nspan.CodeMirror-selectedtext { background: none; }\n"; });
+define('text!codemirror/theme/eclipse.css', ['module'], function(module) { module.exports = ".cm-s-eclipse span.cm-meta { color: #FF1717; }\n.cm-s-eclipse span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }\n.cm-s-eclipse span.cm-atom { color: #219; }\n.cm-s-eclipse span.cm-number { color: #164; }\n.cm-s-eclipse span.cm-def { color: #00f; }\n.cm-s-eclipse span.cm-variable { color: black; }\n.cm-s-eclipse span.cm-variable-2 { color: #0000C0; }\n.cm-s-eclipse span.cm-variable-3, .cm-s-eclipse span.cm-type { color: #0000C0; }\n.cm-s-eclipse span.cm-property { color: black; }\n.cm-s-eclipse span.cm-operator { color: black; }\n.cm-s-eclipse span.cm-comment { color: #3F7F5F; }\n.cm-s-eclipse span.cm-string { color: #2A00FF; }\n.cm-s-eclipse span.cm-string-2 { color: #f50; }\n.cm-s-eclipse span.cm-qualifier { color: #555; }\n.cm-s-eclipse span.cm-builtin { color: #30a; }\n.cm-s-eclipse span.cm-bracket { color: #cc7; }\n.cm-s-eclipse span.cm-tag { color: #170; }\n.cm-s-eclipse span.cm-attribute { color: #00c; }\n.cm-s-eclipse span.cm-link { color: #219; }\n.cm-s-eclipse span.cm-error { color: #f00; }\n\n.cm-s-eclipse .CodeMirror-activeline-background { background: #e8f2ff; }\n.cm-s-eclipse .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }\n"; });
+define('text!codemirror/lib/codemirror.css', ['module'], function(module) { module.exports = "/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: monospace;\n  height: 300px;\n  color: black;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n  white-space: nowrap;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n  white-space: nowrap;\n}\n\n.CodeMirror-guttermarker { color: black; }\n.CodeMirror-guttermarker-subtle { color: #999; }\n\n/* CURSOR */\n\n.CodeMirror-cursor {\n  border-left: 1px solid black;\n  border-right: none;\n  width: 0;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.cm-fat-cursor .CodeMirror-cursor {\n  width: auto;\n  border: 0 !important;\n  background: #7e7;\n}\n.cm-fat-cursor div.CodeMirror-cursors {\n  z-index: 1;\n}\n\n.cm-animate-fat-cursor {\n  width: auto;\n  border: 0;\n  -webkit-animation: blink 1.06s steps(1) infinite;\n  -moz-animation: blink 1.06s steps(1) infinite;\n  animation: blink 1.06s steps(1) infinite;\n  background-color: #7e7;\n}\n@-moz-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@-webkit-keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n@keyframes blink {\n  0% {}\n  50% { background-color: transparent; }\n  100% {}\n}\n\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror-overwrite .CodeMirror-cursor {}\n\n.cm-tab { display: inline-block; text-decoration: inherit; }\n\n.CodeMirror-rulers {\n  position: absolute;\n  left: 0; right: 0; top: -50px; bottom: -20px;\n  overflow: hidden;\n}\n.CodeMirror-ruler {\n  border-left: 1px solid #ccc;\n  top: 0; bottom: 0;\n  position: absolute;\n}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n.cm-strikethrough {text-decoration: line-through;}\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable,\n.cm-s-default .cm-punctuation,\n.cm-s-default .cm-property,\n.cm-s-default .cm-operator {}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-s-default .cm-error {color: #f00;}\n.cm-invalidchar {color: #f00;}\n\n.CodeMirror-composing { border-bottom: 2px solid; }\n\n/* Default styles for common addons */\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }\n.CodeMirror-activeline-background {background: #e8f2ff;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  position: relative;\n  overflow: hidden;\n  background: white;\n}\n\n.CodeMirror-scroll {\n  overflow: scroll !important; /* Things will break if this is overridden */\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n  border-right: 30px solid transparent;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actual scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n}\n.CodeMirror-gutter-filler {\n  left: 0; bottom: 0;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  min-height: 100%;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  white-space: normal;\n  height: 100%;\n  display: inline-block;\n  vertical-align: top;\n  margin-bottom: -30px;\n}\n.CodeMirror-gutter-wrapper {\n  position: absolute;\n  z-index: 4;\n  background: none !important;\n  border: none !important;\n}\n.CodeMirror-gutter-background {\n  position: absolute;\n  top: 0; bottom: 0;\n  z-index: 4;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n.CodeMirror-gutter-wrapper ::selection { background-color: transparent }\n.CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }\n\n.CodeMirror-lines {\n  cursor: text;\n  min-height: 1px; /* prevents collapsing before first draw */\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-font-variant-ligatures: contextual;\n  font-variant-ligatures: contextual;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {}\n\n.CodeMirror-rtl pre { direction: rtl; }\n\n.CodeMirror-code {\n  outline: none;\n}\n\n/* Force content-box sizing for the elements where we expect it */\n.CodeMirror-scroll,\n.CodeMirror-sizer,\n.CodeMirror-gutter,\n.CodeMirror-gutters,\n.CodeMirror-linenumber {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%;\n  height: 0;\n  overflow: hidden;\n  visibility: hidden;\n}\n\n.CodeMirror-cursor {\n  position: absolute;\n  pointer-events: none;\n}\n.CodeMirror-measure pre { position: static; }\n\ndiv.CodeMirror-cursors {\n  visibility: hidden;\n  position: relative;\n  z-index: 3;\n}\ndiv.CodeMirror-dragcursors {\n  visibility: visible;\n}\n\n.CodeMirror-focused div.CodeMirror-cursors {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n.CodeMirror-crosshair { cursor: crosshair; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* Used to force a border model for a node */\n.cm-force-border { padding-right: .1px; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursors {\n    visibility: hidden;\n  }\n}\n\n/* See issue #2901 */\n.cm-tab-wrap-hack:after { content: ''; }\n\n/* Help users use markselection to safely style text background */\nspan.CodeMirror-selectedtext { background: none; }\n"; });
 define('aurelia-templating-resources/aurelia-templating-resources',['exports', 'aurelia-pal', './compose', './if', './with', './repeat', './show', './hide', './sanitize-html', './replaceable', './focus', 'aurelia-templating', './css-resource', './html-sanitizer', './attr-binding-behavior', './binding-mode-behaviors', './throttle-binding-behavior', './debounce-binding-behavior', './self-binding-behavior', './signal-binding-behavior', './binding-signaler', './update-trigger-binding-behavior', './abstract-repeater', './repeat-strategy-locator', './html-resource-plugin', './null-repeat-strategy', './array-repeat-strategy', './map-repeat-strategy', './set-repeat-strategy', './number-repeat-strategy', './repeat-utilities', './analyze-view-factory', './aurelia-hide-style'], function (exports, _aureliaPal, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _aureliaTemplating, _cssResource, _htmlSanitizer, _attrBindingBehavior, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _selfBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior, _abstractRepeater, _repeatStrategyLocator, _htmlResourcePlugin, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy, _repeatUtilities, _analyzeViewFactory, _aureliaHideStyle) {
   'use strict';
 
@@ -35046,12 +35242,15 @@ define('aurelia-templating-resources/aurelia-templating-resources',['exports', '
     (0, _htmlResourcePlugin.configure)(config);
 
     var viewEngine = config.container.get(_aureliaTemplating.ViewEngine);
-    viewEngine.addResourcePlugin('.css', {
-      'fetch': function fetch(address) {
+    var styleResourcePlugin = {
+      fetch: function fetch(address) {
         var _ref;
 
         return _ref = {}, _ref[address] = (0, _cssResource._createCSSResource)(address), _ref;
       }
+    };
+    ['.css', '.less', '.sass', '.scss', '.styl'].forEach(function (ext) {
+      return viewEngine.addResourcePlugin(ext, styleResourcePlugin);
     });
   }
 
@@ -38241,4 +38440,4 @@ define('aurelia-testing/wait',['exports'], function (exports) {
     }, options);
   }
 });
-function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","whatwg-fetch":"../node_modules/whatwg-fetch/fetch","aurelia-fetch-client":"../node_modules/aurelia-fetch-client/dist/amd/aurelia-fetch-client","text":"../node_modules/text/text","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"dropbox","location":"../node_modules/dropbox/dist","main":"Dropbox-sdk.min.js"},{"name":"aurelia-dialog","location":"../node_modules/aurelia-dialog/dist/amd","main":"aurelia-dialog"},{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","environment","main","autocomplete/vfAutocompleteSearch","dataset/app","dataset/environment","dataset/main","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/fmsettings","filemanager2/main","filemanager2/panel","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","pdbcomponents/checkurl","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/index","tabs/messages","tabs/tabs","uploaddirpicker/app","uploaddirpicker/main","uploaddirpicker/uploaddirpanel","utils/vfstorage","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/clouddeployment","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/storageprovider","virtualfoldersetting/urlutils","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css","aurelia-dialog/dialog-configuration","aurelia-dialog/renderer","aurelia-dialog/dialog-settings","aurelia-dialog/dialog-renderer","aurelia-dialog/ux-dialog","aurelia-dialog/ux-dialog-header","aurelia-dialog/dialog-controller","aurelia-dialog/lifecycle","aurelia-dialog/dialog-cancel-error","aurelia-dialog/ux-dialog-body","aurelia-dialog/ux-dialog-footer","aurelia-dialog/attach-focus","aurelia-dialog/dialog-service","icons","w3"]}})}
+function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","whatwg-fetch":"../node_modules/whatwg-fetch/fetch","aurelia-fetch-client":"../node_modules/aurelia-fetch-client/dist/amd/aurelia-fetch-client","text":"../node_modules/text/text","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"dropbox","location":"../node_modules/dropbox/dist","main":"Dropbox-sdk.min.js"},{"name":"aurelia-dialog","location":"../node_modules/aurelia-dialog/dist/amd","main":"aurelia-dialog"},{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","environment","main","autocomplete/vfAutocompleteSearch","dataset/app","dataset/environment","dataset/main","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/fmsettings","filemanager2/main","filemanager2/panel","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","pdbcomponents/checkurl","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/index","tabs/messages","tabs/tabs","uploaddirpicker/app","uploaddirpicker/main","uploaddirpicker/uploaddirpanel","utils/vfstorage","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/clouddeployment","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/storageprovider","virtualfoldersetting/taskcontrol","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css","aurelia-dialog/dialog-configuration","aurelia-dialog/renderer","aurelia-dialog/dialog-settings","aurelia-dialog/dialog-renderer","aurelia-dialog/ux-dialog","aurelia-dialog/ux-dialog-header","aurelia-dialog/dialog-controller","aurelia-dialog/lifecycle","aurelia-dialog/dialog-cancel-error","aurelia-dialog/ux-dialog-body","aurelia-dialog/ux-dialog-footer","aurelia-dialog/attach-focus","aurelia-dialog/dialog-service","icons","w3"]}})}

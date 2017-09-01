@@ -10,11 +10,13 @@ namespace MetadataService.Services.Files
         /// </summary>
         public static string ExecuteShell(string shellcommand, string[] args, out int exitcode)
         {
-            var psi = new ProcessStartInfo();
-            psi.FileName = shellcommand;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
+            var psi = new ProcessStartInfo
+            {
+                FileName = shellcommand,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
             foreach (var arg in args)
                 psi.Arguments += arg + " ";
             var p = Process.Start(psi);

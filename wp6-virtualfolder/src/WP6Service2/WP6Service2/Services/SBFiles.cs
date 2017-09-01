@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using ServiceStack.ServiceHost;
 
 namespace MetadataService.Services
 {
@@ -16,8 +15,7 @@ namespace MetadataService.Services
 
 
     /*** DTO of file infos
-     */
-    [Route("/sbfiles")]
+     */    
     public class SBFile
     {
         public string name { get; set; }
@@ -30,10 +28,4 @@ namespace MetadataService.Services
         public string publicwebdavuri { get; set; }
     }
 
-    public interface IProviderContext
-    {
-        /** returns context URL under which the service is listening
-        */
-        string GetContext();
-    }
 }
