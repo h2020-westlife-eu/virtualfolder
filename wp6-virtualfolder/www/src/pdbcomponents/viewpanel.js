@@ -27,7 +27,8 @@ export class  Viewpanel {
     }
 
     attached() {
-      angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
+      //bootstrap only if angular is defined - prevent error in offline mode
+      if (typeof(angular) != 'undefined') angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
     }
 
     viewfile(file,senderid) {

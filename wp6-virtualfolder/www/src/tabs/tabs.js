@@ -9,7 +9,7 @@ import {SelectedTab} from './messages';
  * adds tabs functionality into application filepanel
  */
 export class Tabs {
-    @bindable tabs = null;
+    @bindable tabs;
     static inject = [Element,EventAggregator];
 
 
@@ -19,8 +19,8 @@ export class Tabs {
         this.ea=ea;
     }
 
-    attached() {
-        //console.log("tabs.atached() tabs: "+this.tabs);
+    bind() {
+      console.log("tabs.atached() tabs: "+this.tabs);
       this.activeid=this.tabs[0];
       this.activeid.active = true;
       //this.tabs[]
@@ -36,5 +36,4 @@ export class Tabs {
         //console.log("Tabs selected:"+this.activeid);
         this.ea.publish(new SelectedTab(this.activeid.id));
     }
-
 }

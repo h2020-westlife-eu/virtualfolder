@@ -1,6 +1,6 @@
 <template bindable="panelid">
-    <div class="w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right">
-        <span class="w3-padding-tiny">${path} contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+    <div class="w3-card-2 w3-white w3-hoverable w3-padding">
+        <span class="w3-padding-tiny">${path} contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
         <img class="w3-display-position" show.bind="lock" src="img/vfloader.gif"/>
         <div class="w3-clear"></div>
         <table id="${panelid}">

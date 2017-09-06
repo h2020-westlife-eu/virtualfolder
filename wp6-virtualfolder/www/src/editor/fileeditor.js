@@ -32,7 +32,7 @@ export class Fileeditor {
   attached() {
     let editor = this.el.querySelector(".Codemirror");
     //prevent blured render if not shown before
-    if (editor==null) this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
+    if (editor==null)    this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
       lineNumbers: true,
       mode: "text/x-less",
       lineWrapping: true,
@@ -42,11 +42,12 @@ export class Fileeditor {
   }
 
   selectFile(file,senderid) {
+    let that =this
     if (senderid!=this.pid) {
       this.imageurl = file.webdavuri;
       //visualizeimg is set & image extension is detected
-      console.log("fileeditor.selectfile() visualizeimg: isimage:")
-      console.log(localStorage.getItem("visualizeimg"));
+      //console.log("fileeditor.selectfile() visualizeimg: isimage:")
+      //console.log(localStorage.getItem("visualizeimg"));
       //vfstorage returns string - should convert to boolean
       this.isimage = (Vfstorage.getValue("visualizeimg") == "true") &&
       ((file.name.endsWith('.JPG'))||
@@ -60,20 +61,21 @@ export class Fileeditor {
       (file.name.endsWith('.SVG'))||
       (file.name.endsWith('.svg')));
 
-      console.log("fileeditor.selectfile() visualizeimg: isimage:")
-      console.log(this.isimage);
+      //console.log("fileeditor.selectfile() visualizeimg: isimage:")
+      //console.log(this.isimage);
       if (!this.isimage)
         this.client.get(file.webdavuri).then(
           data => {
 
             //console.log("fileeditor.selectfile() loading:" + file.webdavuri);
             //console.log(data);
-            this.codemirror.setValue(data.response);
-            this.filename=file.webdavuri;
+            that.codemirror.setValue(data.response);
+            that.filename=file.webdavuri;
 
           }
         ).catch(error => {
           alert('Error retrieving content from ' + file.webdavuri);
+          console.log(error);
         });
 
     }

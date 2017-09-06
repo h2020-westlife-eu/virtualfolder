@@ -4,9 +4,6 @@ import historyApiFallback from 'connect-history-api-fallback/lib';
 import project from '../aurelia.json';
 import build from './build';
 import {CLIOptions} from 'aurelia-cli';
-//tomas add ssi
-
-
 
 function log(message) {
   console.log(message); //eslint-disable-line no-console

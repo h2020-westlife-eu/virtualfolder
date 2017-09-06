@@ -22,7 +22,7 @@ nav a {
 
 nav li {
   float: left;
-  background-color: #000000;
+  background-color: #808080;
   margin-right: 1px;
   position: relative;
 
@@ -30,7 +30,7 @@ nav li {
 
 nav li li{
   width: 160px;
-  background-color: #333333;
+  background-color: #636363;
   z-index:4;
 }
 

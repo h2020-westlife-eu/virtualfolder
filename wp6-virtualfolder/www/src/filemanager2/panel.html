@@ -5,7 +5,8 @@
     <require from="../tabs/tabs"></require>
     <require from='../editor/fileeditor'></require>
 
-  <tabs tabs.bind="paneltabs"></tabs>
+  <div class="w3-margin-right w3-margin-left w3-margin-bottom">
+    <tabs tabs.bind="paneltabs"></tabs>
     <div show.bind="selectedList">
         <filepanel panelid.bind="pid"></filepanel>
     </div>
@@ -21,6 +22,6 @@
     <div show.bind="selectedDataset">
       <dataset panelid.bind="pid"></dataset>
     </div>
-
+  </div>
 
 </template>
