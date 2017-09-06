@@ -11,7 +11,13 @@ nav ul {
 
 nav a:link,
 nav a:visited {
-  color: #ffffff;
+  color: #f0f0f0;
+  text-decoration: none;
+}
+
+nav li li a:link,
+nav li li a:visited {
+  color: #303030;
   text-decoration: none;
 }
 
@@ -21,21 +27,25 @@ nav a {
 }
 
 nav li {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
   float: left;
-  background-color: #808080;
-  margin-right: 1px;
+  background-color: #393b3e;
+  color:#f0f0f0 !important;
+  margin-right: 0px;
   position: relative;
-
+  padding: 1.25em 0.9em;
 }
 
 nav li li{
   width: 160px;
-  background-color: #636363;
   z-index:4;
+  background-color:#f0f0f0;
+  padding: 0;
 }
 
 nav li:hover {
-  background-color: #555555;
+  background-color: #55afff;
 }
 nav li li:hover {
   background-color: #757575;
