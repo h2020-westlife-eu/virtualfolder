@@ -68,6 +68,12 @@ nav li:hover > ul {
   visibility: visible;
 }
 
+body {
+line-height: 1.5;
+  font-size:15px;
+
+}
+
 .vf-black {
   color:#fff!important;
   background-color:#000!important;
