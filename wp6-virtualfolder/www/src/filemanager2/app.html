@@ -2,11 +2,15 @@
     <require from="./panel"></require>
   <require from="../w3.css"></require>
   <require from="./app.css"></require>
+  <require from="../navitem"></require>
 
-    <div class="w3-card-2 w3-white w3-center">
-        <h3>Virtual Folder - File manager<i show.bind="!provider.temporary" class="w3-right w3-padding-8 fa fa-cog" click.delegate="setupFileManager()"></i></h3>
+    <!--    <h3>Virtual Folder - File manager<i show.bind="!provider.temporary" class="w3-right w3-padding-8 fa fa-cog" click.delegate="setupFileManager()"></i></h3>
+    -->
+    <div class="w3-margin">
+      <navitem href="index.html">Home</navitem>
+      <navitem href="filemanager.html">File Manager</navitem>
+      <i show.bind="!provider.temporary" class="w3-right w3-padding-8 fa fa-cog" click.delegate="setupFileManager()"></i>
     </div>
-
     <div class="w3-half w3-responsive">
         <panel pid="left"></panel>
     </div>

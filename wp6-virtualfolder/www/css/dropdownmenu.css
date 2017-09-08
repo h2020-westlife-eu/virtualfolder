@@ -28,13 +28,13 @@ nav a {
 
 nav li {
   font-family: 'Lato', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   float: left;
   background-color: #393b3e;
   color:#f0f0f0 !important;
   margin-right: 0px;
   position: relative;
-  padding: 1.25em 0.9em;
+  padding: 0.9em;
 }
 
 nav li li{
@@ -69,9 +69,9 @@ nav li:hover > ul {
 }
 
 body {
-line-height: 1.5;
+  line-height: 1.5;
   font-size:15px;
-
+  margin:0;
 }
 
 .vf-black {

@@ -3,9 +3,11 @@
   <require from="./taskcontrol"></require>
   <require from="./clouddeployment"></require>
   <require from="../w3.css"></require>
-
-  <div class="w3-card-2 w3-sand w3-center">
-    <h3>Virtual Folder - Settings</h3>
+  <require from="../navitem"></require>
+  <div class="w3-margin">
+    <navitem href="index.html">Home</navitem>
+    <navitem href="settings.html">Settings</navitem>
+    <i show.bind="!provider.temporary" class="w3-right w3-padding-8 fa fa-cog" click.delegate="setupFileManager()"></i>
   </div>
 
   <storageprovider></storageprovider>
@@ -17,4 +19,5 @@
   <div if.bind="islocalhost">
     <clouddeployment></clouddeployment>
   </div>
+
 </template>
