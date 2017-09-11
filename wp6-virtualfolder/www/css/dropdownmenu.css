@@ -83,4 +83,8 @@ body {
 .vf-sand{color:#000!important;background-color:#fdf5e6!important}
 .vf-card-2{}
 .vf-white{color:#000!important;background-color:#fff!important}
+.vf-right-border{
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
 
