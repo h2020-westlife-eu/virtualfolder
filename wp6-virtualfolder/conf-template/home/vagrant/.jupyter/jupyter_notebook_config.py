@@ -67,7 +67,7 @@
 ## The base URL for the notebook server.
 #  
 #  Leading and trailing slashes can be omitted, and will automatically be added.
-#c.NotebookApp.base_url = '/'
+c.NotebookApp.base_url = '/jupyter/webdav/vagrant/'
 
 ## Specify what command to use to invoke a web browser when opening the notebook.
 #  If not specified, the default browser will be determined by the `webbrowser`
@@ -152,11 +152,11 @@
 
 ## (bytes/sec) Maximum rate at which messages can be sent on iopub before they
 #  are limited.
-#c.NotebookApp.iopub_data_rate_limit = 1000000
+c.NotebookApp.iopub_data_rate_limit = 1000000000
 
 ## (msgs/sec) Maximum rate at which messages can be sent on iopub before they are
 #  limited.
-#c.NotebookApp.iopub_msg_rate_limit = 1000
+c.NotebookApp.iopub_msg_rate_limit = 1000000000
 
 ## The IP address the notebook server will listen on.
 #c.NotebookApp.ip = 'localhost'

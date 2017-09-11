@@ -18,7 +18,7 @@ export class Uploaddirpanel extends Filepanel {
 
   selectFile(file){
     //console.log("filepanel tableid:"+this.panelid);
-    if (file.size.endsWith && file.size.endsWith('DIR')) this.changefolder(file.name);
+    if (!file.size || (file.size.endsWith && file.size.endsWith('DIR'))) this.changefolder(file.name);
   }
 
 

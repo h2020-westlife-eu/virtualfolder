@@ -1,20 +1,32 @@
 <template>
-  <div class="w3-white w3-padding">
-
+  <require from="../pdbcomponents/hideable"></require>
+    <hideable title="Third party services">
+      <div class="w3-container">
     <table class="w3-white ">
       <thead>
       <tr>
-        <th align="left">Task</th>
+        <th align="left">Name</th>
         <th align="left">Description</th>
         <th></th>
       </tr>
       </thead>
       <tbody>
       <tr class="w3-hover-green" repeat.for="task of tasks">
-        <td>${task.Name}</td><td>${task.Description}</td><td show.bind="!task.Updating"><i class="fa fa-start" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i><i class="fa fa-stop" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i></td><td show.bind="task.Updating"><img src="img/vfloader.gif"></td>
+        <td><b>${task.Name}</b></td>
+        <td>${task.Description}</td>
+        <td show.bind="!task.Updating">
+          <i class="fa fa-start" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i>
+          <i class="fa fa-stop" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i>
+        </td>
+        <td show.bind="task.Updating">
+          <img src="img/vfloader.gif">
+        </td>
+        <td show.bind="task.Running" class="w3-small w3-text-blue w3-hover-text-white">service UI available at: <a href.bind="task.LocalUrl" target="_blank">${task.LocalUrl}</a></td>
       </tr>
       </tbody>
     </table>
+      </div>
+    </hideable>
 
-  </div>
+
 </template>

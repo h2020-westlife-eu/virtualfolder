@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using ServiceStack.ServiceHost;
 
@@ -17,11 +18,14 @@ namespace WP6Service2.Services.PerUserProcess
             new[] {"vminstance","/bin/bash","/home/vagrant/scripts/startvm.sh"}
         };
         private static readonly List<JobType> list;
+        private static readonly string ALLOW_ALL = "VF_ALLOW_ALL";
+        private static readonly string ALLOW = "VF_ALLOW_"; //environment variable to allow will be ALLOW_JUPYTER, ALLOW_CCP4SUITE
 
         static AvailableJobs()
         {
             list = new List<JobType>();
-            foreach (var service in services)              
+            foreach (var service in services)
+                if ((Environment.GetEnvironmentVariable(ALLOW_ALL) == "true")||(Environment.GetEnvironmentVariable((ALLOW+service[0]).ToUpper()) == "true"))
                 list.Add(new JobType {Name = service[0], Shell = service[1], Script = service[2],Pwd="/home/vagrant"});               
         }
         
@@ -34,7 +38,7 @@ namespace WP6Service2.Services.PerUserProcess
                 case "jupyter": 
                     return new JupyterJob(jobname,request,db,pid);
                 default: 
-                    return new DefaultJobStrategy(jobname,request,db,pid);
+                    return new DefaultJob(jobname,request,db,pid);
             }
         }
 

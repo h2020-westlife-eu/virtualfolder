@@ -14,6 +14,9 @@
 HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
 HTTPD_SERVICE="httpd"
 
+VF_SKIP_APACHE_CONF=1 #will skip to proxy directly to b2drop or webdav - will go via davfs
+#VF_SKIP_APACHE_CONF=0
+
 
 function checkproxy {
   if [ $http_proxy ]; then
@@ -95,6 +98,9 @@ function removesecrets {
 
 function addapacheproxy {
   removeapacheproxy $2
+  if [ $VF_SKIP_APACHE_CONF == 1 ]; then
+    echo Skipping apache proxy configuration - workaround for EUDAT issue 11169
+  else
   SFILE2=/tmp/secrets2
   echo -n $3:$4 > $SFILE2
   if [ -e $SFILE2 ]; then
@@ -110,16 +116,17 @@ function addapacheproxy {
     echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo -E tee -a $HTTPD_CONF >/dev/null
     echo "  RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
     # on localhost, preservehost leads to ssl proxy error
-    if [ $HOSTNAME = "localhost" ]; then
+    if [[ $HOSTNAME == localhost* ]]; then
         echo "  #ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
     else
         echo "  ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
     fi
-    echo "  ProxyPass \"$1/\"" | sudo -E tee -a $HTTPD_CONF
+    echo "  ProxyPass \"$1\"" | sudo -E tee -a $HTTPD_CONF
     echo "  ProxyPassReverse \"$1/\"" | sudo -E tee -a $HTTPD_CONF
     echo "</Location>" | sudo -E tee -a $HTTPD_CONF
     sudo service ${HTTPD_SERVICE} reload
   fi
+  fi #VF_SKIP_APACHE_CONF
 }
 
 function removeapacheproxy {

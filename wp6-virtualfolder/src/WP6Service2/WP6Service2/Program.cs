@@ -228,8 +228,8 @@ namespace MetadataService
             private void CreateTablesV1707(IDbConnection db)
             {
                 if (db.TableExists("SBService")) db.DropTable<SBService>();
-                db.DropAndCreateTable<UserJob>();
-                //db.CreateTableIfNotExists<UserJob>();
+                //db.DropAndCreateTable<UserJob>();
+                db.CreateTableIfNotExists<UserJob>();
             }
         }
     }

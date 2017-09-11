@@ -1,2 +1,2 @@
-Cmnd_Alias MOUNTB2 = /home/vagrant/scripts/mountb2drop.sh, /usr/bin/cp, /usr/bin/mount, /usr/bin/umount
+Cmnd_Alias MOUNTB2 = /home/vagrant/scripts/mountb2drop.sh, /home/vagrant/scripts/startJupyter, /usr/bin/cp, /usr/bin/mount, /usr/bin/umount
 apache ALL=(ALL) NOPASSWD: MOUNTB2
