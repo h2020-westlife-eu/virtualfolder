@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Dropbox.Api.Properties;
 using ServiceStack.OrmLite;
@@ -24,8 +25,12 @@ namespace WP6Service2.Services.PerUserProcess
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
             pid)
         {
-            var portnumber = getAvailablePort();            
-            proxyurl = "/vfnotebook" + "/"+request.Items["authproxy"].ToString().Trim('/');
+            var portnumber = getAvailablePort();
+            var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'),"[^A-Za-z0-9//]","");
+            suffix2 = suffix2.StartsWith("webdav/")?suffix2.Substring("webdav/".Length):suffix2;
+            //Console.WriteLine("JupyterJob: suffix="+suffix);
+            suffix2 = suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
+            proxyurl = "/vfnotebook" + "/"+suffix2;
             //proxyurl= proxyurl.TrimEnd('/');
             outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
             suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        

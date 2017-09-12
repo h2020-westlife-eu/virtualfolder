@@ -70,25 +70,26 @@ echo killing jupyter processes $PIDS
 kill $PIDS
 }
 
-if [ -z $1 ]; then
+#echo startJupyter.sh called with args: $1:$2:$3:$4
+
+if [ -z $2 ]; then
   echo missing username
   help
   exit 1
 fi
 
-if [ -z $2 ]; then
+if [ -z $3 ]; then
   echo missing port
   help
   exit 1
 fi
 
-if [ -z $3 ]; then
+if [ -z $4 ]; then
   echo missing proxyurlpart
   help
   exit 1
 fi
 
-echo startJupyter.sh called with args: $1:$2:$3:$4
 
 if [ $1 == 'remove' ]; then
   killjupyter $3
