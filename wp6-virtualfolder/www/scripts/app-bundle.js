@@ -845,7 +845,7 @@ define('filepicker/environment',["exports"], function (exports) {
     testing: false
   };
 });
-define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', 'aurelia-framework', '../utils/vfstorage', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _aureliaFramework, _vfstorage) {
+define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', 'aurelia-framework', '../utils/vfstorage', './pdbresource', './uniprotresource', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _aureliaFramework, _vfstorage, _pdbresource, _uniprotresource) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -929,6 +929,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
       this.sorted = { none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16 };
       this.wassorted = this.sorted.none;
       this.baseresources = [{ name: "PDB", info: "Protein Data Bank entries from ebi.ac.uk", id: "pdb" }, { name: "Uniprot", info: "from uniprot.org", id: "uniprot" }];
+      this.pdbresource = new _pdbresource.Pdbresource();
+      this.uniprotresource = new _uniprotresource.Uniprotresource();
     }
 
     Filepanel.prototype.bind = function bind() {
@@ -1128,7 +1130,18 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
       }
     };
 
-    Filepanel.prototype.selectResource = function selectResource(resource) {};
+    Filepanel.prototype.selectResource = function selectResource(resource) {
+      var impl = null;
+      if (resource.id == "pdb") impl = this.pdbresource;
+      if (resource.id == "uniprot") impl = this.uniprotresource;
+      if (impl) {
+        this.files = [];
+        this.resources = impl.select(resource);
+      } else {
+        console.log("Resource database for '" + resource.type + "' not yet implemented.");
+        console.log(resource);
+      }
+    };
 
     return Filepanel;
   }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
@@ -1214,6 +1227,64 @@ define('filepicker/messages',["exports"], function (exports) {
 
     this.file = file;
     this.senderid = senderid;
+  };
+});
+define('filepicker/pdbresource',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Pdbresource = exports.Pdbresource = function () {
+    function Pdbresource() {
+      _classCallCheck(this, Pdbresource);
+    }
+
+    Pdbresource.prototype.select = function select(resource) {
+      var resources = [];
+      resources.push({ name: "..", info: "UP-DIR", id: resource.id });
+      if (resource.name == "PDB") {
+          for (var i = 1; i < 10; i++) {
+            resources.push({ name: i + "*", info: "pdb entries begining with '" + i + "'", id: resource.id });
+          }
+        } else {
+        if (resource.name.endsWith("*")) {
+          var prefix = resource.name.slice(0, -1);
+          for (var i = 0; i <= 9; i++) {
+            resources.push({ name: prefix + i + "*", info: "", id: resource.id });
+          }for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
+            resources.push({ name: prefix + String.fromCharCode(i) + "*", info: "", id: resource.id });
+          }
+        }
+      }
+      return resources;
+    };
+
+    return Pdbresource;
+  }();
+});
+define('filepicker/uniprotresource',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Uniprotresource = exports.Uniprotresource = function Uniprotresource() {
+    _classCallCheck(this, Uniprotresource);
   };
 });
 define('pdbcomponents/checkurl',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
@@ -7420,7 +7491,6 @@ define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { modul
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-hover-blue w3-border-top w3-border-left w3-border-right\" class.bind=\"tab.active ? 'w3-white': 'w3-grey'\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>\n"; });
 define('text!uploaddirpicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filepicker/filepanel\"></require>\n  <require from=\"./uploaddirpanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - Upload-dir Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <uploaddirpanel></uploaddirpanel>\n</div>\n</template>\n"; });
 define('text!uploaddirpicker/uploaddirpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n    <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button> <button click.delegate=\"selectThisDir()\">Select this as UPLOAD dir</button></span>\n    <table id=\"${panelid}\">\n      <thead>\n      <tr>\n        <th style=\"text-align:left\">name</th>\n        <th style=\"text-align:right\">size</th>\n        <th style=\"text-align:center\">date</th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n        <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n      </tr>\n      </tbody>\n    </table>\n  </div>\n</template>\n"; });
-define('text!virtualfolderhome/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../navitem\"></require>\n  <div class=\"w3-margin\">\n    <navitem href=\"/\">Home</navitem>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"settings.html\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        These tools for structural biology are directly integrated: Litemol viewer - if you click on any file with PDB\n        extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n\n        See the RAW content of most of them or see the PDB visualization, or images.\n        <a href=\"filemanager.html\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        Click here to generate public URL which will give you access to your storage:\n        <a href=\"generateurl.html\" class=\"w3-button\">Public Url</a>\n      </p>\n      <p>\n        Disclaimer: URL generated by these tools allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Generate link to a file: TODO\n      </p>\n      <p>\n        Generate link to a directory: TODO\n      </p>\n    </div>\n  </div>\n  <div class=\"w3-clear\"></div>\n  <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n    <p>\n      This project is funded by Horizon 2020\n      West-Life is part of the e-Infrastructure Virtual Research Environment (VRE) project No. 675858\n    </p>\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
 define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module) { module.exports = "<template>\n  <div class.bind=\"classin\">\n    <h4>CCP4 suite</h4>\n    <p>The CCP4 (Collaborative Computational Project, Number 4)\n      software suite is a collection of programs and associated data\n      and software libraries which can be used for macromolecular\n      structure determination by X-ray crystallography.</p>\n    <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href=\"http://www.ccp4.ac.uk/ccp4license.php\">CCP4License</a>.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Agree & Enable CCP4</button>\n  </div>\n</template>\n"; });
 define('text!virtualfoldermodules/modulesetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./scipioncontrol\"></require>\n  <require from=\"./virtuosocontrol\"></require>\n  <require from=\"./ccp4control\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Available modules\" defaulthide=\"true\">ipionco\n    <scipioncontrol></scipioncontrol>\n    <ccp4control></ccp4control>\n    <virtuosocontrol></virtuosocontrol>\n  </hideable>\n</template>\n"; });
@@ -7432,4 +7502,5 @@ define('text!virtualfoldersetting/clouddeployment.html', ['module'], function(mo
 define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-sand w3-padding w3-margin\">\n\n    <form submit.trigger=\"addProvider()\">\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. \n            \n          <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">Register</a>\n            </p>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\"  maxlength=\"1024\" value.bind=\"username\" placeholder=\"B2DROP username\" /><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\" placeholder=\"B2DROP password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\"  class=\"w3-bar\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these B2DROP files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these B2DROP files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know the secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have a DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"\n\t\t   /><br/>\n            Alias (optional):<input class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t           tooltip=\"Name for subfolder where these Dropbox files will be mounted\"\n\t    /><br/>\n            <span class=\"w3-tiny\">Name for subfolder where these Dropbox files will be mounted.</span>\n\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these local files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these Filesystem files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input class=\"w3-bar\" type=\"text\" name=\"accessurl\" maxlength=\"1024\" value.bind=\"accessurl\" \n\t  placeholder=\"https://...\" /><br/>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\"  maxlength=\"1024\" value.bind=\"alias\"\n\t     tooltip=\"Name for subfolder where this Webdav folder will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these WebDAV files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n      </div>\n\n    </form>\n\n\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldersetting/storageprovider.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Storage providers\">\n    <div class=\"w3-container\">\n      <form submit.trigger=\"newProvider()\" class=\"w3-half\">\n        <aliastable></aliastable>\n      </form>\n\n      <genericcontrol show.bind=\"showprovider\" class=\"w3-half\"></genericcontrol>\n\n    </div>\n  </hideable>\n\n</template>\n"; });
 define('text!virtualfoldersetting/taskcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n    <hideable title=\"Third party services\">\n      <div class=\"w3-container\">\n    <table class=\"w3-white \">\n      <thead>\n      <tr>\n        <th align=\"left\">Name</th>\n        <th align=\"left\">Description</th>\n        <th></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"task of tasks\">\n        <td><b>${task.Name}</b></td>\n        <td>${task.Description}</td>\n        <td show.bind=\"!task.Updating\">\n          <i class=\"fa fa-start\" click.delegate=\"starttask(task)\" show.bind=\"!task.Running\" title=\"not running - you may start it\"></i>\n          <i class=\"fa fa-stop\" click.delegate=\"stoptask(task)\"  show.bind=\"task.Running\" title=\"running - you may stop it\"></i>\n        </td>\n        <td show.bind=\"task.Updating\">\n          <img src=\"img/vfloader.gif\">\n        </td>\n        <td show.bind=\"task.Running\" class=\"w3-small w3-text-blue w3-hover-text-white\">service UI available at: <a href.bind=\"task.LocalUrl\" target=\"_blank\">${task.LocalUrl}</a></td>\n      </tr>\n      </tbody>\n    </table>\n      </div>\n    </hideable>\n\n\n</template>\n"; });
+define('text!virtualfolderhome/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../navitem\"></require>\n  <div class=\"w3-margin\">\n    <navitem href=\"/\">Home</navitem>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"settings.html\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        These tools for structural biology are directly integrated: Litemol viewer - if you click on any file with PDB\n        extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n\n        See the RAW content of most of them or see the PDB visualization, or images.\n        <a href=\"filemanager.html\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        Click here to generate public URL which will give you access to your storage:\n        <a href=\"generateurl.html\" class=\"w3-button\">Public Url</a>\n      </p>\n      <p>\n        Disclaimer: URL generated by these tools allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Generate link to a file: TODO\n      </p>\n      <p>\n        Generate link to a directory: TODO\n      </p>\n    </div>\n  </div>\n  <div class=\"w3-clear\"></div>\n  <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n    <p>\n      This project is funded by Horizon 2020\n      West-Life is part of the e-Infrastructure Virtual Research Environment (VRE) project No. 675858\n    </p>\n  </div>\n\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

@@ -8,6 +8,8 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
 import {bindable} from 'aurelia-framework';
 import {Vfstorage} from '../utils/vfstorage';
+import {Pdbresource} from './pdbresource';
+import {Uniprotresource} from './uniprotresource';
 
 export class Filepanel{
   static inject = [EventAggregator,HttpClient];
@@ -33,6 +35,8 @@ export class Filepanel{
         this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
         this.wassorted=this.sorted.none;
         this.baseresources=[{name:"PDB",info:"Protein Data Bank entries from ebi.ac.uk",id:"pdb"},{name:"Uniprot", info:"from uniprot.org",id:"uniprot"}]
+        this.pdbresource = new Pdbresource(); //implementation of resource browsing
+        this.uniprotresource = new Uniprotresource();
     }
 
     bind(){
@@ -265,8 +269,19 @@ export class Filepanel{
           });
       }
     }
-    selectResource(resource){
 
+    selectResource(resource){
+      let impl=null;
+      if (resource.id=="pdb") impl=this.pdbresource;
+      if (resource.id=="uniprot") impl = this.uniprotresource;
+      if (impl) {
+        this.files=[];
+        this.resources = impl.select(resource);
+      }
+      else {
+        console.log("Resource database for '"+resource.type+"' not yet implemented.");
+        console.log(resource);
+      }
     }
 }
 
