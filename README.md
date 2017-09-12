@@ -11,18 +11,20 @@ Follow [User's guide](doc/users-guide.md) for further details how to use it.
 
 ## Installation
 
-Recommended configuration for private deployment of virtual machine with Virtual Folder:
-* Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
-* Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
-* Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS), VirtualBox 5.1.6+, Vagrant 1.8.6+
-* Cloud OS: OpenNebula, OpenStack, or any other supporting OVA images.
-
 Virtual Folder can be installed: 
 1. from source codes
 2. from binaries at cernvm-fs
 3. from cloud template, contextualized to binaries at cernvm-fs
 
-Brief installation from sources:
+For all the installation options follow: [Installation guide](doc/installation-guide.md).
+
+### Brief installation instruction from source codes 
+
+Recommended configuration for private deployment of virtual machine with Virtual Folder:
+* Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
+* Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
+* Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS, Ubuntu 16.04 LTS), VirtualBox 5.1.6+, Vagrant 1.8.6+
+* Cloud OS: OpenNebula, OpenStack, or any other supporting OVA images.
 
 ```bash
 git clone https://github.com/h2020-westlife-eu/west-life-wp6
@@ -38,9 +40,6 @@ Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g
 
 Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
 and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
-
-For further installation options follow: [Installation guide](doc/installation-guide.md).
-
 
 ## Integration
 
