@@ -15,8 +15,13 @@
             </thead>
 
             <tbody>
+            <!-- Files from mounted storages -->
             <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
-              <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">&empty;</span></td>
+              <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
+            </tr>
+            <!-- Files/resources from third party storages -->
+            <tr class="w3-hover-green" repeat.for="resource of resources" click.trigger="selectResource(resource)">
+              <td>${resource.name}</td><td colspan="3">${resource.info}</td><td class="w3-tiny"><span show.bind="! resource.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
             </tr>
             </tbody>
         </table>

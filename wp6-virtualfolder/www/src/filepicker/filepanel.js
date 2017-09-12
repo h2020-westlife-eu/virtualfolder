@@ -32,10 +32,12 @@ export class Filepanel{
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
         this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
         this.wassorted=this.sorted.none;
+        this.baseresources=[{name:"PDB",info:"Protein Data Bank entries from ebi.ac.uk",id:"pdb"},{name:"Uniprot", info:"from uniprot.org",id:"uniprot"}]
     }
 
     bind(){
       this.path = Vfstorage.getValue("filepanel" + this.panelid,"");
+      if (this.path=="") this.resources=this.baseresources;
         //localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
       this.lastpath="";
     }
@@ -147,17 +149,20 @@ export class Filepanel{
         this.lastpath= this.path;
         let sepIndex= this.path.lastIndexOf('/');
         this.path = this.path.substring(0,sepIndex);
+      if (this.path=="") this.resources=this.baseresources;
     }
 
     //adds subdirectory to the path
     cddown(subdir) {
       this.lastpath=this.path;
         this.path+='/'+subdir;
+      this.resources=[];
     }
 
     cdroot(){
       this.lastpath= this.path;
       this.path = "";
+      this.resources=this.baseresources;
     }
 
     //goes to the root
@@ -259,6 +264,9 @@ export class Filepanel{
             }
           });
       }
+    }
+    selectResource(resource){
+
     }
 }
 
