@@ -29,3 +29,10 @@ export class DatasetFile {
     this.senderid = senderid;
   }
 }
+
+export class PopulateResources {
+  constructor(resources,senderid){
+    this.resources = resources;
+    this.senderid=senderid;
+  }
+}

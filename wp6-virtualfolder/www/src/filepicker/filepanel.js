@@ -6,20 +6,21 @@ import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
+
 import {bindable} from 'aurelia-framework';
 import {Vfstorage} from '../utils/vfstorage';
+
 import {Pdbresource} from './pdbresource';
 import {Uniprotresource} from './uniprotresource';
 
 export class Filepanel{
-  static inject = [EventAggregator,HttpClient];
+  static inject = [EventAggregator,HttpClient,Pdbresource,Uniprotresource];
   @bindable panelid;
 
-  constructor(ea,httpclient) {
+  constructor(ea,httpclient,pdbresource,uniprotresource) {
         this.ea = ea;
         this.client = httpclient;
         this.files = [];
-        this.filescount = this.files.length;
         this.path= "";
         this.lastpath=this.path;
         this.dynatable = {};
@@ -35,8 +36,13 @@ export class Filepanel{
         this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
         this.wassorted=this.sorted.none;
         this.baseresources=[{name:"PDB",info:"Protein Data Bank entries from ebi.ac.uk",id:"pdb"},{name:"Uniprot", info:"from uniprot.org",id:"uniprot"}]
-        this.pdbresource = new Pdbresource(); //implementation of resource browsing
-        this.uniprotresource = new Uniprotresource();
+        this.resources =[];
+        //this.ea.subscribe(PopulateResources, msg => this.populateResource(msg.resources,msg.senderid));
+        this.filescount = this.files.length + this.resources.length;
+        this.isPdb=this.isUniprot=false;
+        this.pdbresource=pdbresource;
+        this.uniprotresource=uniprotresource;
+        this.isFiles=true;
     }
 
     bind(){
@@ -167,6 +173,9 @@ export class Filepanel{
       this.lastpath= this.path;
       this.path = "";
       this.resources=this.baseresources;
+      this.isFiles=true;
+      this.isUniprot=false;
+      this.isPdb=false;
     }
 
     //goes to the root
@@ -213,7 +222,7 @@ export class Filepanel{
       Vfstorage.setValue("filepanel" + this.panelid,this.path);
 
         this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
-        this.filescount =  this.files.length;
+        this.filescount =  this.files.length+this.resources.length;
         let that = this;
         this.files.forEach (function (item,index,arr){
           if(!arr[index].name && arr[index].alias) {
@@ -271,17 +280,20 @@ export class Filepanel{
     }
 
     selectResource(resource){
-      let impl=null;
-      if (resource.id=="pdb") impl=this.pdbresource;
-      if (resource.id=="uniprot") impl = this.uniprotresource;
-      if (impl) {
-        this.files=[];
-        this.resources = impl.select(resource);
-      }
-      else {
-        console.log("Resource database for '"+resource.type+"' not yet implemented.");
-        console.log(resource);
-      }
+      if (resource.id=="") {this.goroot(); return;}
+      this.isPdb = (resource.id=="pdb");
+      this.isUniprot = (resource.id=="uniprot");
+      let that=this;
+      //console.log(that);
+      if (this.isPdb) this.resources=this.pdbresource.selectResource(resource,that);
+      if (this.isUniprot) this.resources=this.uniprotresource.selectResource(resource,that);
+      //this.files = [];
+      if (this.isPdb || this.isUniprot) this.files=[];
+    }
+
+    appendResources(resources){
+      //append resources to existing array
+      this.resources.push(...resources);
     }
 }
 

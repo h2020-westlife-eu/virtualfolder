@@ -1,9 +1,9 @@
 /**
- * Created by vagrant on 9/12/17.
+ * Created by TomasKulhanek on 9/13/17.
  */
-export class Uniprotresource {
 
+export class Uniprotresource {
   constructor() {
+
   }
 }
-
