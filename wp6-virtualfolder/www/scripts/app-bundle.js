@@ -1151,7 +1151,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         console.log("select resource");
         var file = resource;
 
-        if (window.location.protocol == "https:" && file.url.startsWith("http:")) file.url.replace("http:", "https:");
+        if (window.location.protocol == "https:" && file.url.startsWith("http:")) file.url = file.url.replace("http:", "https:");
 
         file.webdavuri = file.url;
         file.publicwebdavuri = file.url;
