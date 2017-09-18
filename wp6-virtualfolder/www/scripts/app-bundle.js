@@ -2856,12 +2856,13 @@ define('utils/vfstorage',["exports"], function (exports) {
     return Vfstorage;
   }();
 });
-define('virtualfolderhome/app',['exports'], function (exports) {
+define('virtualfolderhome/app',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.App = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2869,12 +2870,34 @@ define('virtualfolderhome/app',['exports'], function (exports) {
     }
   }
 
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
+  var _class, _temp;
 
-    var location = window.location.protocol;
-    this.islocalhost = location.startsWith('http:');
-  };
+  var App = exports.App = (_temp = _class = function () {
+    function App(httpclient) {
+      _classCallCheck(this, App);
+
+      this.location = window.location.protocol;
+      this.islocalhost = this.location.startsWith('http:');
+      this.client = httpclient;
+      this.webdavurl = "";
+      this.requestpublicurl = "/api/authproxy/get_signed_url/";
+    }
+
+    App.prototype.generateurl = function generateurl() {
+      var _this = this;
+
+      if (this.webdavurl == "") {
+        this.client.get(this.requestpublicurl).then(function (data) {
+          if (data.response) {
+            var result = JSON.parse(data.response);
+            if (window.location.port == "80") _this.webdavurl = window.location.protocol + "//" + window.location.hostname + result.signed_url;else _this.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + result.signed_url;
+          }
+        });
+      }
+    };
+
+    return App;
+  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
 });
 define('virtualfolderhome/main',['exports', '../environment'], function (exports, _environment) {
   'use strict';
@@ -7803,7 +7826,7 @@ define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { modul
 define('text!tabs/tabs.html', ['module'], function(module) { module.exports = "<template>\n    <ul class=\"w3-navbar\">\n        <li repeat.for=\"tab of tabs\">\n            <a class=\"w3-padding-tiny w3-small w3-hover-blue w3-border-top w3-border-left w3-border-right\" class.bind=\"tab.active ? 'w3-white': 'w3-grey'\" href=\"javascript:void(0)\" click.delegate=\"opentab(tab)\">${tab.label}</a>\n        </li>\n    </ul>\n</template>\n"; });
 define('text!uploaddirpicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filepicker/filepanel\"></require>\n  <require from=\"./uploaddirpanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-sand w3-center\">\n    <h3>Virtual Folder - Upload-dir Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card w3-sand\">\n  <uploaddirpanel></uploaddirpanel>\n</div>\n</template>\n"; });
 define('text!uploaddirpicker/uploaddirpanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <div class=\"w3-card-2 w3-pale-blue w3-hoverable w3-padding w3-margin-right\">\n    <span>${path} contains ${filescount} items.<button click.delegate=\"refresh()\">refresh</button> <button click.delegate=\"selectThisDir()\">Select this as UPLOAD dir</button></span>\n    <table id=\"${panelid}\">\n      <thead>\n      <tr>\n        <th style=\"text-align:left\">name</th>\n        <th style=\"text-align:right\">size</th>\n        <th style=\"text-align:center\">date</th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"file of files\" click.trigger=\"selectFile(file)\">\n        <td>${file.name}</td><td>${file.size}</td><td align=\"center\">${file.date}</td>\n      </tr>\n      </tbody>\n    </table>\n  </div>\n</template>\n"; });
-define('text!virtualfolderhome/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../navitem\"></require>\n  <div class=\"w3-margin\">\n    <navitem href=\"/\">Home</navitem>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"settings.html\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        These tools for structural biology are directly integrated: Litemol viewer - if you click on any file with PDB\n        extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n\n        See the RAW content of most of them or see the PDB visualization, or images.\n        <a href=\"filemanager.html\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        Click here to generate public URL which will give you access to your storage:\n        <a href=\"generateurl.html\" class=\"w3-button\">Public Url</a>\n      </p>\n      <p>\n        Disclaimer: URL generated by these tools allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Generate link to a file: TODO\n      </p>\n      <p>\n        Generate link to a directory: TODO\n      </p>\n    </div>\n  </div>\n  <div class=\"w3-clear\"></div>\n  <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n    <p>\n      This project is funded by Horizon 2020\n      West-Life is part of the e-Infrastructure Virtual Research Environment (VRE) project No. 675858\n    </p>\n  </div>\n\n</template>\n"; });
+define('text!virtualfolderhome/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../navitem\"></require>\n  <div class=\"w3-margin\">\n    <navitem href=\"/\">Home</navitem>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"settings.html\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"filemanager.html\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        <button class=\"w3-button\" click.delegate=\"generateurl()\">Generate public URL for WEBDAV access</button>\n      </p>\n      <p>\n        <input readonly value.bind=\"webdavurl\" class=\"w3-border w3-input\"/>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Use <a href=\"filepicker.html\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n    </div>\n  </div>\n  <div class=\"w3-clear\"></div>\n  <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n    <p>\n      This project is funded by Horizon 2020\n      West-Life is part of the e-Infrastructure Virtual Research Environment (VRE) project No. 675858\n    </p>\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldermodules/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./modulesetting\"></require>\n\n  <modulesetting></modulesetting>\n\n</template>\n"; });
 define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module) { module.exports = "<template>\n  <div class.bind=\"classin\">\n    <h4>CCP4 suite</h4>\n    <p>The CCP4 (Collaborative Computational Project, Number 4)\n      software suite is a collection of programs and associated data\n      and software libraries which can be used for macromolecular\n      structure determination by X-ray crystallography.</p>\n    <p>West-life portal allows access to CCP4 software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable local copy of CCP4 suite you agree that you have Academic or Commercial License. If not, please obtain a license first at <a href=\"http://www.ccp4.ac.uk/ccp4license.php\">CCP4License</a>.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Agree & Enable CCP4</button>\n  </div>\n</template>\n"; });
 define('text!virtualfoldermodules/modulesetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./scipioncontrol\"></require>\n  <require from=\"./virtuosocontrol\"></require>\n  <require from=\"./ccp4control\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Available modules\" defaulthide=\"true\">ipionco\n    <scipioncontrol></scipioncontrol>\n    <ccp4control></ccp4control>\n    <virtuosocontrol></virtuosocontrol>\n  </hideable>\n</template>\n"; });
