@@ -1381,6 +1381,8 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
       this.requesturlpdbid = "//www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
       this.requesturlnums = "//www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
       this.requesturlfiles = "//www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
+      this.pdbredourl = "//pdb-redo.eu/db/";
+      this.pdbredosuffixes = ["_final.pdb", "_final.mtz", "_besttls.pdb.gz", "_besttls.mtz.gz", "_scenes.tar.bz2", ".zip"];
     }
 
     Pdbresource.cdup = function cdup(resource) {
@@ -1516,6 +1518,36 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
             });
           });
 
+          callback.appendResources(resources2);
+        });
+
+        queryurl = that.pdbredourlfiles + pdbid;
+
+        that.client.fetch(queryurl, { method: 'head' }).then(function (response) {
+          console.log(response);
+          var resources2 = [];
+          for (var _iterator3 = that.pdbredosuffixes, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+            var _ref3;
+
+            if (_isArray3) {
+              if (_i4 >= _iterator3.length) break;
+              _ref3 = _iterator3[_i4++];
+            } else {
+              _i4 = _iterator3.next();
+              if (_i4.done) break;
+              _ref3 = _i4.value;
+            }
+
+            var suffix = _ref3;
+
+            var item = {};
+
+            item.url = that.pdbredourl + pdbid + (suffix == ".zip" ? "" : "/" + pdbid) + suffix;
+            item.id = resource.id;
+            item.name = item.url.substr(item.url.lastIndexOf("/") + 1);
+            item.info = "PDB REDO files " + suffix;
+            resources2.push(item);
+          }
           callback.appendResources(resources2);
         });
       }
