@@ -10,9 +10,9 @@ export class Pdbresource {
 
   constructor(httpclient) {
     this.client=httpclient;
-    this.requesturlpdbid="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
-    this.requesturlnums="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
-    this.requesturlfiles="http://www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
+    this.requesturlpdbid="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
+    this.requesturlnums="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
+    this.requesturlfiles="//www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
   }
 
   static cdup(resource) {
