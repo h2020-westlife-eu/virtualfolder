@@ -35,7 +35,7 @@ export class Filepanel{
         this.getpublicwebdavurl="/api/authproxy/get_signed_url/"
         this.sorted = {none:0,reverse:1,byname:2,bydate:4,bysize:8,byext:16}
         this.wassorted=this.sorted.none;
-        this.baseresources=[{name:"PDB",info:"Protein Data Bank entries from ebi.ac.uk",id:"pdb"},{name:"Uniprot", info:"from uniprot.org",id:"uniprot"}]
+        this.baseresources=[{name:"PDB",info:"Protein Data Bank repository entries from ebi.ac.uk",id:"pdb"}]
         this.resources =[];
         //this.ea.subscribe(PopulateResources, msg => this.populateResource(msg.resources,msg.senderid));
         this.filescount = this.files.length + this.resources.length;
@@ -43,6 +43,7 @@ export class Filepanel{
         this.pdbresource=pdbresource;
         this.uniprotresource=uniprotresource;
         this.isFiles=true;
+        this.selectedResources=[];
     }
 
     bind(){
@@ -281,19 +282,30 @@ export class Filepanel{
 
     selectResource(resource){
       if (resource.id=="") {this.goroot(); return;}
+      if (resource.url) {
+        console.log("select resource");
+        let file=resource;
+        file.webdavuri=file.url;
+        file.publicwebdavuri=file.url;
+        this.ea.publish(new SelectedFile(file, this.panelid));
+        return
+      }
       this.isPdb = (resource.id=="pdb");
       this.isUniprot = (resource.id=="uniprot");
+      this.isFiles=!(this.isPdb || this.isUniprot);
       let that=this;
       //console.log(that);
       if (this.isPdb) this.resources=this.pdbresource.selectResource(resource,that);
       if (this.isUniprot) this.resources=this.uniprotresource.selectResource(resource,that);
       //this.files = [];
-      if (this.isPdb || this.isUniprot) this.files=[];
+      if (!this.isFiles) this.files=[];
+      this.filescount =  this.files.length+this.resources.length;
     }
 
     appendResources(resources){
       //append resources to existing array
       this.resources.push(...resources);
+      this.filescount =  this.files.length+this.resources.length;
     }
 }
 

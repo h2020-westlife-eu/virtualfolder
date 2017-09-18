@@ -8,7 +8,7 @@ import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/javascript/javascript";
 
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {HttpClient} from 'aurelia-http-client';
+import {HttpClient} from 'aurelia-fetch-client';
 import {EditFile} from '../filepicker/messages';
 import {bindable} from 'aurelia-framework';
 import {Vfstorage} from '../utils/vfstorage';
@@ -64,14 +64,14 @@ export class Fileeditor {
       //console.log("fileeditor.selectfile() visualizeimg: isimage:")
       //console.log(this.isimage);
       if (!this.isimage)
-        this.client.get(file.webdavuri).then(
-          data => {
+        this.client.fetch(file.webdavuri)
+          .then(response => response.text())
+          .then(data =>{
 
-            //console.log("fileeditor.selectfile() loading:" + file.webdavuri);
-            //console.log(data);
-            that.codemirror.setValue(data.response);
+            console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+            console.log(data);
+            that.codemirror.setValue(data);
             that.filename=file.webdavuri;
-
           }
         ).catch(error => {
           alert('Error retrieving content from ' + file.webdavuri);

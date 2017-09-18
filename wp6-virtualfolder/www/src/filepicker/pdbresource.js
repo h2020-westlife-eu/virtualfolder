@@ -10,30 +10,30 @@ export class Pdbresource {
 
   constructor(httpclient) {
     this.client=httpclient;
-    this.requesturlpdbid="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:"
-    this.requesturlnums="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:"
+    this.requesturlpdbid="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
+    this.requesturlnums="http://www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
     this.requesturlfiles="http://www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
   }
 
-  cdup(resource) {
+  static cdup(resource) {
     //12* -> 1*
     let myresource = {};
     myresource.name= resource.link.endsWith("*")? resource.link.slice(0,-2)+"*":resource.link.slice(0,-1)+"*";
-    myresource.id = resource.id
+    myresource.id = resource.id;
     myresource.link= myresource.name.slice(0,-2)+"*";
     return myresource;
   }
 
   //distinguishes what to do
   selectResource(resource,callback){
-    console.log("selectResource .. :")
+    console.log("selectResource .. :");
     console.log(resource);
 
     if (resource.name=="..") {
-      console.log("selectResource .. :")
+      console.log("selectResource .. :");
       console.log(resource);
       //go up one level
-      return this.populateResource(this.cdup(resource),callback)
+      return this.populateResource(Pdbresource.cdup(resource),callback);
       /*if (resource.link.endsWith("*"))
         return this.populateResource({name:resource.link,link:resource.link.slice(0,-2)+"*",id:resource.id})
 
@@ -65,7 +65,7 @@ export class Pdbresource {
 
         //let queryurl = that.requesturlpdbid+resource.name;
 
-        for (var i = 0; i <= 9; i++){
+        for (let i = 0; i <= 9; i++){
 
           that.client.fetch(that.requesturlnums+ prefix + i + "*")
             .then(response => response.json())
@@ -80,7 +80,7 @@ export class Pdbresource {
             });
         }
           //resources.push({name: prefix + i + "*", info: "", id: resource.id})
-        for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
+        for (let i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
 
           that.client.fetch(that.requesturlnums+ prefix + String.fromCharCode(i) + "*")
             .then(response => response.json())
@@ -108,8 +108,10 @@ export class Pdbresource {
               //console.log(data)
               let resources2 = [];
               if (data.response && data.response.docs) {
-                let item;
-                  for( item of data.response.docs) {item.id=resource.id;item.name= item.pdb_id; item.info = item.title;resources2.push(item);}
+
+                  for (let item of data.response.docs) {
+                    item.id=resource.id;item.name= item.pdb_id; item.info = item.title;resources2.push(item);
+                  }
               }
               //do callback
               callback.appendResources(resources2);
@@ -122,24 +124,27 @@ export class Pdbresource {
 
     function getlisttodownload(pdbid){
       console.log("getlisttodownload");
+      resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
       let queryurl = that.requesturlfiles+pdbid;
+
       that.client.fetch(queryurl)
         .then(response => response.json())
         .then(data => {
           console.log(data);
           let resources2 = [];
-          Object.keys(data).forEach(key =>{
-            for (let item of data[key].PDB.downloads) {item.id=resource.id;item.name=pdbid,item.info=item.label;resources2.push(item);}
-            for (let item of data[key].assembly.downloads) {item.id=resource.id;item.name=pdbid,item.info=item.label;resources2.push(item);}
-            for (let item of data[key].validation.downloads) {item.id=resource.id;item.name=pdbid,item.info=item.label;resources2.push(item);}
-            for (let item of data[key].SIFTS.downloads) {item.id=resource.id;item.name=pdbid,item.info=item.label;resources2.push(item);}
-            for (let item of data[key].molecule.downloads) {item.id=resource.id;item.name=pdbid,item.info=item.label;resources2.push(item);}
+          Object.keys(data).forEach(key =>{ //traverse via pdb name e.g. "2hhd"
+            Object.keys(data[key]).forEach(key2 => { // traverse via "PDB","assembly","validation","SIFTS","molecule"
+              for (let item of data[key][key2].downloads) {
+                item.id = resource.id;
+                item.name = item.url.substr(item.url.lastIndexOf("/")+1);
+                item.info = key2+":"+item.label;
+                resources2.push(item);
+              }
+            })
           });
           //loopNestedObj(data);
           callback.appendResources(resources2);
         });
-
-
     }
 
     if (resource.name == "" || resource.name == "PDB" || resource.name=="*") push1_9();
@@ -147,7 +152,7 @@ export class Pdbresource {
     else if (resource.name.endsWith("*")) {
       if (resource.name.length<4) push0_9a_z(resource.name.slice(0, -1));
       else check0_9a_z(resource.name.slice(0, -10))
-    } else getlisttodownload(resource.name)
+    } else getlisttodownload(resource.name);
     //console.log(resources[1].name);
     return resources;
   }

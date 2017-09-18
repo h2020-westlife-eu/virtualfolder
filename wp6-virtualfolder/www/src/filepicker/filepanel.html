@@ -14,7 +14,7 @@
 
 
         <table id="${panelid}" class.bind="lock? 'w3-disabled': ''">
-            <thead>
+            <thead show.bind="isFiles">
             <tr>
                 <th style="text-align:left" click.delegate="sortByName()">name</th>
                 <th style="text-align:left" click.delegate="sortByExt()">ext</th>
@@ -30,10 +30,20 @@
             <tr class="w3-hover-green" repeat.for="file of files" click.trigger="selectFile(file)">
               <td>${file.name}</td><td>${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
             </tr>
+            </tbody>
+          <thead show.bind="!isFiles">
+          <tr>
+            <th style="text-align:left" >name</th>
+            <th colspan="3" style="text-align:left;width:100%">info</th>
+            <th title="information icons">i</th>
+
+          </tr>
+          </thead>
+          <tbody>
 
             <!-- Files/resources from third party storages -->
-            <tr class="w3-hover-green" repeat.for="resource of resources" click.trigger="selectResource(resource)">
-              <td>${resource.name}</td><td colspan="3">${resource.info}</td><td class="w3-tiny"><span show.bind="! resource.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
+            <tr class="w3-hover-green" repeat.for="resource of resources">
+              <td  click.trigger="selectResource(resource)">${resource.name}</td><td  click.trigger="selectResource(resource)" colspan="3">${resource.info}</td><td class="w3-tiny"><span show.bind="! resource.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td><td><input show.bind="resource.url" class="w3-check w3-tiny" type="checkbox" model.bind="resource" checked.bind="selectedResources" title="Mark to download to VF"/></td>
             </tr>
             </tbody>
         </table>

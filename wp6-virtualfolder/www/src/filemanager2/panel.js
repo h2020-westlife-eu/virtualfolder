@@ -46,7 +46,7 @@ export class Panel {
 
     selectFile(file,senderid) {
       //default action, visualize pdb, if localStorage.getItem("visualizepdb") is defined then it needs to be true,
-      let showpdb = file.webdavuri.endsWith('pdb') ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
+      let showpdb = (file.webdavuri.endsWith('pdb') || file.webdavuri.endsWith('ent') || file.webdavuri.endsWith('cif')) ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
       if (senderid!=this.pid) {
         if (this.selectedDataset) { //add to dataset
           this.ea.publish(new DatasetFile(file,senderid));

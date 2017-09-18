@@ -35,7 +35,9 @@ export class  Viewpanel {
         if (senderid!=this.pid) {
           //console.log("viewfile " + file.webdavuri);
           this.pdburl=file.webdavuri;
-          var pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format="pdb"></pdb-lite-mol>';
+          let sourceformat='pdb'
+          if (this.pdburl.endsWith('cif')) sourceformat="mmcif";
+          let pdblitemol = '<pdb-lite-mol load-ed-maps="true" source-url="' + this.pdburl + '" pdb-id="\'\'" source-format='+sourceformat+'></pdb-lite-mol>';
           this.replacepdblitemol(pdblitemol);
         }
     }
