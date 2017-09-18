@@ -285,6 +285,9 @@ export class Filepanel{
       if (resource.url) {
         console.log("select resource");
         let file=resource;
+        //fix: blocked content from http - origin page at https
+        if ( window.location.protocol=="https:" && file.url.startsWith("http:"))  file.url.replace("http:","https:");
+        
         file.webdavuri=file.url;
         file.publicwebdavuri=file.url;
         this.ea.publish(new SelectedFile(file, this.panelid));
