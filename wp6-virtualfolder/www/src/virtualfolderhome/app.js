@@ -19,7 +19,7 @@ constructor(httpclient){
         .then(data => {
           if (data.response) {
             let result = JSON.parse(data.response);
-            if (window.location.port == "80")
+            if (window.location.port == "80" || window.location.port== "")
               this.webdavurl = window.location.protocol+"//"+window.location.hostname+result.signed_url;
             else
               this.webdavurl = window.location.protocol+"//"+window.location.hostname+":"+window.location.port+result.signed_url;
