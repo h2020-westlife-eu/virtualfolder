@@ -127,7 +127,7 @@ export class Pdbresource {
       console.log("getlisttodownload");
       resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
       let queryurl = that.requesturlfiles+pdbid;
-
+      //get links to pdb files
       that.client.fetch(queryurl)
         .then(response => response.json())
         .then(data => {
@@ -147,6 +147,7 @@ export class Pdbresource {
           callback.appendResources(resources2);
         });
 
+      //get link to pdb redo files
       queryurl = that.pdbredourlfiles+pdbid;
 
       that.client.fetch(queryurl, {method:'head'})
@@ -164,6 +165,8 @@ export class Pdbresource {
               }
           callback.appendResources(resources2);
         });
+
+      //TODO get links to BMRB files http://bmrb.cerm.unifi.it/search/simplesearch.php?dbname=PDB&pdbid=2hhd&show_bmrbid=on&output=html
     }
 
     if (resource.name == "" || resource.name == "PDB" || resource.name=="*") push1_9();

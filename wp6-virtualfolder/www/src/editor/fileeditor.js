@@ -64,7 +64,7 @@ export class Fileeditor {
       //console.log("fileeditor.selectfile() visualizeimg: isimage:")
       //console.log(this.isimage);
       if (!this.isimage)
-        this.client.fetch(file.webdavuri)
+        this.client.fetch(file.webdavuri, {credentials: 'same-origin'})
           .then(response => response.text())
           .then(data =>{
 
