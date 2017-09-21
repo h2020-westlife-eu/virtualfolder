@@ -19,12 +19,9 @@ Virtual Folder can be installed:
 For all the installation options follow: [Installation guide](doc/installation-guide.md).
 
 ### Brief installation instruction from source codes 
-
-Recommended configuration for private deployment of virtual machine with Virtual Folder:
-* Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
-* Recommended: 4 CPU, 8 GB RAM, 100 GB disk space
-* Desktop, Server OS: Windows (tested on Windows 7, Windows 2012), Linux (tested on Ubuntu 14.04 LTS, Ubuntu 16.04 LTS), VirtualBox 5.1.6+, Vagrant 1.8.6+
-* Cloud OS: OpenNebula, OpenStack, or any other supporting OVA images.
+Requirement: VirtualBox (5.1.22 recommended, newer not guaranteed to work), Vagrant (1.9.6 recommended, newer not guaranteed to work)
+Minimal: 1 CPU, 2 GB RAM, 50GB disk space.
+OS: Any which supported by VirtualBox or Vagrant (Windows 7 and Ubuntu 16.04 tested)
 
 ```bash
 git clone https://github.com/h2020-westlife-eu/west-life-wp6
