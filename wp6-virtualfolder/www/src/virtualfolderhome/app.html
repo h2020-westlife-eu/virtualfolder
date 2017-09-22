@@ -1,6 +1,7 @@
 <template>
   <require from="../w3.css"></require>
   <require from="../navitem"></require>
+  <require from="../virtualfoldersetting/taskcontrol"></require>
   <div class="w3-margin">
     <navitem href="/">Home</navitem>
   </div>
@@ -49,6 +50,15 @@
       </p>
     </div>
   </div>
+  <div class="w3-half">
+    <div class="w3-card-2 w3-white w3-margin w3-padding">
+      <h3>Available local services</h3>
+  <div if.bind="islocalhost">
+    <taskcontrol></taskcontrol>
+  </div>
+      </div>
+    </div>
+
   <div class="w3-clear"></div>
   <div class="w3-card-2 w3-white w3-margin w3-padding">
     <p>

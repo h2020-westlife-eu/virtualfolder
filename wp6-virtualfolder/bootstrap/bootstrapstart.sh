@@ -22,6 +22,8 @@ fi
 service httpd start
 systemctl enable westlife-metadata.service
 service westlife-metadata start
+sleep 2
+/home/vagrant/scripts/addfilesystemprovider.sh
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 
