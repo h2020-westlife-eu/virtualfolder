@@ -42,7 +42,8 @@ function addapacheproxy {
   echo "  ProxyPass $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
   echo "  ProxyPassReverse $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
   echo "</Location>" | sudo -E tee -a $HTTPD_CONF
-  sudo service ${HTTPD_SERVICE} reload
+  # restart needed on SL7, reload on cernvm 4
+  sudo service ${HTTPD_SERVICE} restart
 }
 
 function setjupyterurl {
