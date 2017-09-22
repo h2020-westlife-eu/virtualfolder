@@ -59,14 +59,21 @@ namespace WP6Service2.Services.PerUserProcess
         public override bool Running()
         {
             //throw new NotImplementedException();
-            Thread.Sleep(1000);
-            Process[] localProcesses = Process.GetProcessesByName("python3.4");
+            //Thread.Sleep(1000);
+            
             bool foundmyargs = false;
-            foreach (var localProcess in localProcesses)
+            var i = 0;
+            do
             {
-                //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
-                foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline").Contains(port.ToString());
-            }
+                if (i > 0) Thread.Sleep(i * 1000); //sleep 0, 1, 2, 3, 4 seconds and try to find local processes 
+                Process[] localProcesses = Process.GetProcessesByName("python3.4");
+                foreach (var localProcess in localProcesses)
+                {
+                    //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
+                    foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline")
+                                      .Contains(port.ToString());
+                }
+            } while (!foundmyargs || i++ >= 5);
             return foundmyargs;
             //return localProcesses.Length > 0;
         }
