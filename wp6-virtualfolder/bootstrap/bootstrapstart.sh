@@ -27,3 +27,6 @@ sleep 2
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 
+# workoarund for bug, reload,restart httpd fails on first attempt in SL7
+service httpd reload
+service httpd restart
