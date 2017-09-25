@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # changed to anaconda
-yum install -y wgetacond
+yum install -y wget
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 chmod +x Miniconda3-latest-Linux-x86_64.sh
 sudo -u vagrant ./Miniconda3-latest-Linux-x86_64.sh -b
