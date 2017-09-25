@@ -64,6 +64,7 @@ export class Taskcontrol {
   stoptask(task){
     task.Updating=true;
     this.updatetask(task).then((msg) => {
+      sleep(2000); //sleep 2 seconds - just that the server has time to reload
       task.Updating=false;
       task.Running=false;
     })
