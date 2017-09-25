@@ -85,7 +85,7 @@ namespace WP6Service2.Services.PerUserProcess
             do
             {
                 if (i > 0) Thread.Sleep(i * 1000); //sleep 0, 1, 2, 3, 4 seconds and try to find local processes 
-                Process[] localProcesses = Process.GetProcessesByName("python3.4");
+                Process[] localProcesses = Process.GetProcessesByName("python");
                 foreach (var localProcess in localProcesses)
                 {
                     //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
