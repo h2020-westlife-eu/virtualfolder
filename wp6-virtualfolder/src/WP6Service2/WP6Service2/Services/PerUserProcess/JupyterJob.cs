@@ -92,7 +92,7 @@ namespace WP6Service2.Services.PerUserProcess
                     foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline")
                                       .Contains(port.ToString());
                 }
-            } while (!foundmyargs || i++ >= 5);
+            } while (!foundmyargs || i++ >= 2);
             return foundmyargs;
             //return localProcesses.Length > 0;
         }
