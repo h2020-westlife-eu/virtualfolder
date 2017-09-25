@@ -29,11 +29,30 @@ namespace WP6Service2.Services.PerUserProcess
             var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'),"[^A-Za-z0-9//]","");
             suffix2 = suffix2.StartsWith("webdav/")?suffix2.Substring("webdav/".Length):suffix2;
             //Console.WriteLine("JupyterJob: suffix="+suffix);
-            suffix2 = suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
+            suffix2 = ShortUrl;//suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
             proxyurl = "/vfnotebook" + "/"+suffix2;
             //proxyurl= proxyurl.TrimEnd('/');
             outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
             suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        
+        }
+        
+        const string BaseUrlChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        private static string ShortUrl
+        {
+            get
+            {
+                const int numberOfCharsToSelect = 8;
+                int maxNumber = BaseUrlChars.Length;
+
+                var rnd = new Random();
+                var numList = new List<int>();
+
+                for (int i = 0; i < numberOfCharsToSelect; i++)
+                    numList.Add(rnd.Next(maxNumber));
+
+                return numList.Aggregate(string.Empty, (current, num) => current + BaseUrlChars.Substring(num, 1));
+            } 
         }
         
         //startJupyter.sh add|remove [username] [port] [proxyurlpart]
