@@ -3968,14 +3968,16 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
       });
     };
 
-    Taskcontrol.prototype.starttask = function starttask(task) {
+    Taskcontrol.prototype.starttask = function starttask(task1) {
+      var task = task1;
       task.Updating = true;
       this.updatetask(task).then(function (msg) {
-        sleep(2000);
-        task.Updating = false;
-        task.Running = true;
-        task.LocalUrl = msg;
-        console.log("task.LocalUrl:" + task.LocalUrl);
+        setTimeout(function () {
+          task.Updating = false;
+          task.Running = true;
+          task.LocalUrl = msg;
+          console.log("task.LocalUrl:" + task.LocalUrl);
+        }, 2000);
       }).catch(function (reason) {
         task.Updating = false;
         console.log('start failed');
@@ -3983,11 +3985,11 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
       });
     };
 
-    Taskcontrol.prototype.stoptask = function stoptask(task) {
+    Taskcontrol.prototype.stoptask = function stoptask(task1) {
+      var task = task1;
       task.Updating = true;
-      var that = this;
       this.updatetask(task).then(function (msg) {
-        setTimeout(function (task) {
+        setTimeout(function () {
           task.Updating = false;
           task.Running = false;
         }, 2000);
