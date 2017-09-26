@@ -45,31 +45,34 @@ export class Taskcontrol {
       });
   }
 
-  starttask(task) {
+  starttask(task1) {
+    var task = task1;
     task.Updating=true;
     this.updatetask(task).then((msg) => {
-      sleep(2000); //sleep 2 seconds - just that the server has time to reload
-      task.Updating=false;
-      task.Running=true;
-      task.LocalUrl=msg;
-      console.log("task.LocalUrl:"+task.LocalUrl);
-    })
-      .catch((reason) => {
+      //sleep(2000); //sleep 2 seconds - just that the server has time to reload
+      setTimeout( () => {
+          task.Updating = false;
+          task.Running = true;
+          task.LocalUrl = msg;
+          console.log("task.LocalUrl:" + task.LocalUrl);
+        }, 2000);}
+      )
+    .catch((reason) => {
         task.Updating=false;
         console.log('start failed');
         console.log(reason)
       })
   }
 
-  stoptask(task){
+  stoptask(task1){
+    var task = task1;
     task.Updating=true;
-    let that=this;
-    this.updatetask(task).then((msg) => {setTimeout(
-      function(task) {
-        task.Updating=false;
-        task.Running=false;
-    }, 2000
-    )
+    this.updatetask(task).then((msg) => {
+      //sleep(2000); //sleep 2 seconds - just that the server has time to reload
+      setTimeout( () => {
+        task.Updating = false;
+        task.Running = false;
+      }, 2000)
     })
       .catch((reason) => {
         task.Updating=false;
