@@ -1647,126 +1647,6 @@ define('filepicker/uniprotresource',["exports"], function (exports) {
     _classCallCheck(this, Uniprotresource);
   };
 });
-define('resources/index',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-  function configure(config) {}
-});
-define('tabs/messages',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var SelectedTab = exports.SelectedTab = function SelectedTab(tabid) {
-    _classCallCheck(this, SelectedTab);
-
-    this.tabid = tabid;
-  };
-});
-define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.Tabs = undefined;
-
-    function _initDefineProp(target, property, descriptor, context) {
-        if (!descriptor) return;
-        Object.defineProperty(target, property, {
-            enumerable: descriptor.enumerable,
-            configurable: descriptor.configurable,
-            writable: descriptor.writable,
-            value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-        });
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-        var desc = {};
-        Object['ke' + 'ys'](descriptor).forEach(function (key) {
-            desc[key] = descriptor[key];
-        });
-        desc.enumerable = !!desc.enumerable;
-        desc.configurable = !!desc.configurable;
-
-        if ('value' in desc || desc.initializer) {
-            desc.writable = true;
-        }
-
-        desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-            return decorator(target, property, desc) || desc;
-        }, desc);
-
-        if (context && desc.initializer !== void 0) {
-            desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-            desc.initializer = undefined;
-        }
-
-        if (desc.initializer === void 0) {
-            Object['define' + 'Property'](target, property, desc);
-            desc = null;
-        }
-
-        return desc;
-    }
-
-    function _initializerWarningHelper(descriptor, context) {
-        throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-    }
-
-    var _desc, _value, _class, _descriptor, _class2, _temp;
-
-    var Tabs = exports.Tabs = (_class = (_temp = _class2 = function () {
-        function Tabs(el, ea) {
-            _classCallCheck(this, Tabs);
-
-            _initDefineProp(this, 'tabs', _descriptor, this);
-
-            this.id = el.id;
-            this.element = el;
-            this.ea = ea;
-        }
-
-        Tabs.prototype.bind = function bind() {
-            console.log("tabs.atached() tabs: " + this.tabs);
-            this.activeid = this.tabs[0];
-            this.activeid.active = true;
-        };
-
-        Tabs.prototype.opentab = function opentab(tabid) {
-            this.activeid.active = false;
-
-            this.activeid = tabid;
-
-            this.activeid.active = true;
-
-            this.ea.publish(new _messages.SelectedTab(this.activeid.id));
-        };
-
-        return Tabs;
-    }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'tabs', [_aureliaFramework.bindable], {
-        enumerable: true,
-        initializer: null
-    })), _class);
-});
 define('pdbcomponents/checkurl',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
   'use strict';
 
@@ -2617,6 +2497,126 @@ define('pdbcomponents/viewpanel',['exports', 'aurelia-event-aggregator', '../fil
     enumerable: true,
     initializer: null
   })), _class);
+});
+define('resources/index',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {}
+});
+define('tabs/messages',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var SelectedTab = exports.SelectedTab = function SelectedTab(tabid) {
+    _classCallCheck(this, SelectedTab);
+
+    this.tabid = tabid;
+  };
+});
+define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './messages'], function (exports, _aureliaFramework, _aureliaEventAggregator, _messages) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.Tabs = undefined;
+
+    function _initDefineProp(target, property, descriptor, context) {
+        if (!descriptor) return;
+        Object.defineProperty(target, property, {
+            enumerable: descriptor.enumerable,
+            configurable: descriptor.configurable,
+            writable: descriptor.writable,
+            value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+        });
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+        var desc = {};
+        Object['ke' + 'ys'](descriptor).forEach(function (key) {
+            desc[key] = descriptor[key];
+        });
+        desc.enumerable = !!desc.enumerable;
+        desc.configurable = !!desc.configurable;
+
+        if ('value' in desc || desc.initializer) {
+            desc.writable = true;
+        }
+
+        desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+            return decorator(target, property, desc) || desc;
+        }, desc);
+
+        if (context && desc.initializer !== void 0) {
+            desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+            desc.initializer = undefined;
+        }
+
+        if (desc.initializer === void 0) {
+            Object['define' + 'Property'](target, property, desc);
+            desc = null;
+        }
+
+        return desc;
+    }
+
+    function _initializerWarningHelper(descriptor, context) {
+        throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+    }
+
+    var _desc, _value, _class, _descriptor, _class2, _temp;
+
+    var Tabs = exports.Tabs = (_class = (_temp = _class2 = function () {
+        function Tabs(el, ea) {
+            _classCallCheck(this, Tabs);
+
+            _initDefineProp(this, 'tabs', _descriptor, this);
+
+            this.id = el.id;
+            this.element = el;
+            this.ea = ea;
+        }
+
+        Tabs.prototype.bind = function bind() {
+            console.log("tabs.atached() tabs: " + this.tabs);
+            this.activeid = this.tabs[0];
+            this.activeid.active = true;
+        };
+
+        Tabs.prototype.opentab = function opentab(tabid) {
+            this.activeid.active = false;
+
+            this.activeid = tabid;
+
+            this.activeid.active = true;
+
+            this.ea.publish(new _messages.SelectedTab(this.activeid.id));
+        };
+
+        return Tabs;
+    }(), _class2.inject = [Element, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'tabs', [_aureliaFramework.bindable], {
+        enumerable: true,
+        initializer: null
+    })), _class);
 });
 define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages'], function (exports, _aureliaEventAggregator, _messages) {
   'use strict';
@@ -3985,10 +3985,12 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
 
     Taskcontrol.prototype.stoptask = function stoptask(task) {
       task.Updating = true;
+      var that = this;
       this.updatetask(task).then(function (msg) {
-        sleep(2000);
-        task.Updating = false;
-        task.Running = false;
+        setTimeout(function (task) {
+          task.Updating = false;
+          task.Running = false;
+        }, 2000);
       }).catch(function (reason) {
         task.Updating = false;
         console.log('stop failed');

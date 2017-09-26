@@ -63,10 +63,13 @@ export class Taskcontrol {
 
   stoptask(task){
     task.Updating=true;
-    this.updatetask(task).then((msg) => {
-      sleep(2000); //sleep 2 seconds - just that the server has time to reload
-      task.Updating=false;
-      task.Running=false;
+    let that=this;
+    this.updatetask(task).then((msg) => {setTimeout(
+      function(task) {
+        task.Updating=false;
+        task.Running=false;
+    }, 2000
+    )
     })
       .catch((reason) => {
         task.Updating=false;
