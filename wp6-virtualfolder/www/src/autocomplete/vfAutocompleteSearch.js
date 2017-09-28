@@ -7,7 +7,7 @@ import {bindable} from 'aurelia-framework';
 import {HttpClient} from 'aurelia-fetch-client';
 import {computedFrom} from 'aurelia-framework';
 
-/** Virtual Folder Autocomplete Search client web component to work with API at abi.ac.uk
+/** Virtual Folder Autocomplete Search client web component to work with API at ebi.ac.uk
  *
  */
 export class VfAutocompleteSearch {

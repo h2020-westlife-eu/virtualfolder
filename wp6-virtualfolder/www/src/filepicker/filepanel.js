@@ -307,6 +307,24 @@ export class Filepanel{
       this.resources.push(...resources);
       this.filescount =  this.files.length+this.resources.length;
     }
+//TODO introduce key based navigation - letter will highlight first file beginning on the letter pressed,
+// up, down left right keys will move cursor
+
+  keypressed(evt){
+    let key = evt.keyCode;
+    console.log("keypressed:"+key);
+    if (key === 13) {
+      /*may not be updated with input field as debounce has 750 ms this.submit({item:this.value});
+       */
+      //console.log("keypressed(): submitting()")
+      //this.hideSuggestions();
+      if (evt.originalTarget) this.submit({item: {Name:evt.originalTarget.value}}) //in Firefox
+      else if (evt.target) this.submit({item: {Name:evt.target.value}}) //in IE
+      //this.hideSuggestions();
+    } else
+    if (key===27) this.escape();
+    return true;
+  }
 }
 
 
