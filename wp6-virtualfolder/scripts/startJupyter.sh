@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
-HTTPD_SERVICE="httpd"
+HTTPD_CONF="/etc/httpd/conf.d/wp6-repository.conf"
+HTTPD_SERVICE="httpd"l
 
 function help {
 echo Usage:
