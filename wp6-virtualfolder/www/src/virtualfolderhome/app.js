@@ -1,16 +1,21 @@
 import {HttpClient} from 'aurelia-http-client';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {HandleLogin} from '../behavior';
+import {ShowLoginButton} from '../behavior';
 
 export class App {
-  static inject = [HttpClient];
+  static inject = [EventAggregator,HttpClient];
 
-constructor(httpclient){
+constructor(ea,httpclient){
+  this.ea = ea;
     this.location = window.location.protocol;
     this.islocalhost= this.location.startsWith('http:');
     this.client=httpclient;
     this.webdavurl="";
     this.requestpublicurl="/api/authproxy/get_signed_url/";
     // wait for assignement this.genericcontrol from children
-
+  this.handler = new ShowLoginButton();
+  this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
   }
 
   generateurl() {
@@ -27,6 +32,10 @@ constructor(httpclient){
           }
         });
     }
+  }
+
+  attached(){
+    if (! document.cookie.match(/^(.*;)?\s*sessionidl\s*=\s*[^;]+(.*)?$/)) this.handler.handlelogin();
   }
 
 }

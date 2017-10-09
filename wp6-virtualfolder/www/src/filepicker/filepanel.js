@@ -6,6 +6,7 @@ import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
+import {HandleLogin} from '../behavior';
 
 import {bindable} from 'aurelia-framework';
 import {Vfstorage} from '../utils/vfstorage';
@@ -119,7 +120,8 @@ export class Filepanel{
                 if (error.statusCode == 403) {
                   //try to login
                   //console.log("redirecting");
-                  window.location = "/login?next=" + window.location.pathname;
+                  this.ea.publish(new HandleLogin(this.panelid));
+                  //window.location = "/login?next=" + window.location.pathname;
                   //window.location =
                 } else {
                   //console.log('Filepanel Error retrieving from "'+this.path+'":');
@@ -203,11 +205,17 @@ export class Filepanel{
                     }
                     this.lock = false;
                 }).catch(error => {
-                console.log('Error');
-                console.log(error);
-                alert('Sorry, response: '+error.statusCode+':'+error.statusText+' when trying to get: '+this.serviceurl+this.path);
-                this.lock = false;
-                this.path=this.lastpath;
+            if (error.statusCode == 403) {
+              this.lock = false;
+              this.path = this.lastpath;
+              this.ea.publish(new HandleLogin(this.panelid));
+            } else {
+              console.log('Error');
+              console.log(error);
+              alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl + this.path);
+              this.lock = false;
+              this.path = this.lastpath;
+            }
             });
         } //else doubleclick when the previous operation didn't finished
     }

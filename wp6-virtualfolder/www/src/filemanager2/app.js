@@ -4,6 +4,8 @@ import {computedFrom} from 'aurelia-framework';
 import {DialogService} from 'aurelia-dialog';
 import {inject} from 'aurelia-framework';
 import {Prompt} from './fmsettings';
+import {HandleLogin} from '../behavior';
+import {ShowLoginButton} from '../behavior'
 
 //@inject(DialogService)
 
@@ -12,7 +14,9 @@ export class App {
 
   constructor(ea,dialogService) {
     this.ea = ea;
+    this.handler = new ShowLoginButton();
     this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
+    this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
     this.dialogService=dialogService;
   }
 
