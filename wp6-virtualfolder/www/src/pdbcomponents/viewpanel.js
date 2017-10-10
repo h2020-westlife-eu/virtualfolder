@@ -32,6 +32,7 @@ export class  Viewpanel {
     }
 
     viewfile(file,senderid) {
+      //view files from second panel
         if (senderid!=this.pid) {
           //console.log("viewfile " + file.webdavuri);
           this.pdburl=file.webdavuri;

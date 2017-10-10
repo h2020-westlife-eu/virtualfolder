@@ -1,6 +1,7 @@
 import {bindable, inject} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedTab} from './messages';
+import {VisualizeFile,EditFile} from '../filepicker/messages';
 //import $ from 'jquery';
 //import {tabs} from 'jquery-ui';
 
@@ -17,6 +18,8 @@ export class Tabs {
         this.id = el.id;
         this.element= el;
         this.ea=ea;
+        this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
+        this.ea.subscribe(EditFile, msg => this.selectEdit(msg.file,msg.senderid));
     }
 
     bind() {
@@ -24,6 +27,32 @@ export class Tabs {
       this.activeid=this.tabs[0];
       this.activeid.active = true;
       //this.tabs[]
+    }
+
+    selectVisualize(file,senderid){
+      //just switch the tab
+      console.log("selectVisualize senderid:"+senderid+ " this.id:"+this.id)
+      if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
+        this.activeid.active = false;
+
+        this.activeid=this.tabs[2];
+        //new active tab is active
+        this.activeid.active=true;
+      }
+    }
+
+    selectEdit(file,senderid) {
+      console.log("selectEdit senderid:"+senderid+ " this.id:"+this.id)
+      console.log(this.tabs);
+      console.log(this.activeid);
+      if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
+        this.activeid.active = false;
+
+        this.activeid=this.tabs[1];
+        //new active tab is active
+        this.activeid.active=true;
+      }
+
     }
 
     opentab(tabid){
