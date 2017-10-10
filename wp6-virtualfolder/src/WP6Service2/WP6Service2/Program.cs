@@ -231,6 +231,7 @@ namespace MetadataService
                 //db.DropAndCreateTable<UserJob>();
                 db.CreateTableIfNotExists<UserJob>();
             }
+            
         }
     }
 }

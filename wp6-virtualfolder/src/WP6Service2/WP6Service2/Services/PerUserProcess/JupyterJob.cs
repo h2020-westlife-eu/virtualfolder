@@ -29,11 +29,30 @@ namespace WP6Service2.Services.PerUserProcess
             var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'),"[^A-Za-z0-9//]","");
             suffix2 = suffix2.StartsWith("webdav/")?suffix2.Substring("webdav/".Length):suffix2;
             //Console.WriteLine("JupyterJob: suffix="+suffix);
-            suffix2 = suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
+            suffix2 = ShortUrl;//suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
             proxyurl = "/vfnotebook" + "/"+suffix2;
             //proxyurl= proxyurl.TrimEnd('/');
             outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
             suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        
+        }
+        
+        const string BaseUrlChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        private static string ShortUrl
+        {
+            get
+            {
+                const int numberOfCharsToSelect = 8;
+                int maxNumber = BaseUrlChars.Length;
+
+                var rnd = new Random();
+                var numList = new List<int>();
+
+                for (int i = 0; i < numberOfCharsToSelect; i++)
+                    numList.Add(rnd.Next(maxNumber));
+
+                return numList.Aggregate(string.Empty, (current, num) => current + BaseUrlChars.Substring(num, 1));
+            } 
         }
         
         //startJupyter.sh add|remove [username] [port] [proxyurlpart]
@@ -59,14 +78,21 @@ namespace WP6Service2.Services.PerUserProcess
         public override bool Running()
         {
             //throw new NotImplementedException();
-            Thread.Sleep(1000);
-            Process[] localProcesses = Process.GetProcessesByName("python3.4");
+            //Thread.Sleep(1000);
+            
             bool foundmyargs = false;
-            foreach (var localProcess in localProcesses)
+            var i = 0;
+            do
             {
-                //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
-                foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline").Contains(port.ToString());
-            }
+                if (i > 0) Thread.Sleep(i * 1000); //sleep 0, 1, 2, 3, 4 seconds and try to find local processes 
+                Process[] localProcesses = Process.GetProcessesByName("python");
+                foreach (var localProcess in localProcesses)
+                {
+                    //OS specific - works in Linux, on Windows use https://stackoverflow.com/questions/2633628/can-i-get-command-line-arguments-of-other-processes-from-net-c                
+                    foundmyargs = foundmyargs || File.ReadAllText("/proc/" + localProcess.Id + "/cmdline")
+                                      .Contains(port.ToString());
+                }
+            } while (!foundmyargs || i++ >= 2);
             return foundmyargs;
             //return localProcesses.Length > 0;
         }

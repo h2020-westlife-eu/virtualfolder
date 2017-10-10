@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
-HTTPD_SERVICE="httpd"
+HTTPD_CONF="/etc/httpd/conf.d/wp6-repository.conf"
+HTTPD_SERVICE="httpd"l
 
 function help {
 echo Usage:
@@ -42,6 +42,7 @@ function addapacheproxy {
   echo "  ProxyPass $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
   echo "  ProxyPassReverse $WSURL$2/api/kernels/" | sudo -E tee -a $HTTPD_CONF
   echo "</Location>" | sudo -E tee -a $HTTPD_CONF
+  # restart needed on SL7? issues reload on cernvm 4
   sudo service ${HTTPD_SERVICE} reload
 }
 
@@ -111,9 +112,11 @@ if [ $1 == 'add' ]; then
     setjupyterurl $4
     if [ -z $5 ]; then
       echo launching jupyter without logs
+      source /home/vagrant/miniconda3/bin/activate py3
       jupyter notebook --port $3 --no-browser &
     else
       echo launching jupyter log to $5
+      source /home/vagrant/miniconda3/bin/activate py3
       jupyter notebook --port $3 --no-browser >$5 2>&1 &
     fi
     exit
