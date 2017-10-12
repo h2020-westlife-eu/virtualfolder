@@ -6,7 +6,7 @@ import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
-import {HandleLogin} from '../behavior';
+import {HandleLogin,MayLogout} from '../behavior';
 
 import {bindable} from 'aurelia-framework';
 import {Vfstorage} from '../utils/vfstorage';
@@ -112,6 +112,7 @@ export class Filepanel{
         //read the directory infos
         this.client.get(this.serviceurl+this.path)
             .then(data => {
+                this.ea.publish(new MayLogout(this.panelid));
                 if (data.response) {
                     this.populateFiles(data.response);
                 }
@@ -199,6 +200,7 @@ export class Filepanel{
 
           this.client.get(this.serviceurl + this.path)
                 .then(data => {
+
                     if (data.response) {
                         this.populateFiles(data.response);
                         //update files in table view

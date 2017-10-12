@@ -1,6 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {RedirectLogin} from '../behavior';
-import {HandleLogin} from '../behavior';
+
+import {HandleLogin,MayLogout,RedirectLogin} from '../behavior';
+
 
 export class App {
   static inject = [EventAggregator];
@@ -9,9 +10,9 @@ export class App {
     this.ea = ea;
     let location = window.location.protocol;
     this.islocalhost= location.startsWith('http:');
-
     this.handler = new RedirectLogin();
     this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
+    this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
 
   }
 

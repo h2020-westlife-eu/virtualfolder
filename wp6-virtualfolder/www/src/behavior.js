@@ -16,6 +16,17 @@ export class RedirectLogin {
     window.location = this.redirectUrl;
   }
 
+  maylogout() {
+    //show/hide login/logout button only
+    let loginb = document.getElementById("loginbutton");
+    let logoutb = document.getElementById("logoutbutton");
+    //removes style - by default style=display:none
+    logoutb.removeAttribute("style");
+    loginb.removeAttribute("style");
+    loginb.className = "w3-hide";
+    logoutb.className = "w3-sign";
+  }
+
 }
 
 export class ShowLoginButton {
@@ -34,14 +45,7 @@ export class ShowLoginButton {
     logoutb.className = "w3-hide";
   }
 
-}
-
-export class ShowLogoutButton {
-
-  constructor() {
-  }
-
-  handlelogin(){
+  maylogout() {
     //show/hide login/logout button only
     let loginb = document.getElementById("loginbutton");
     let logoutb = document.getElementById("logoutbutton");
@@ -56,6 +60,12 @@ export class ShowLogoutButton {
 
 
 export class HandleLogin {
+  contructor(senderid) {
+    this.senderid=senderid;
+  }
+}
+
+export class MayLogout {
   contructor(senderid) {
     this.senderid=senderid;
   }

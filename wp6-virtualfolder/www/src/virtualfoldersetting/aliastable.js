@@ -5,6 +5,7 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {Vfstorage} from '../utils/vfstorage';
+import {HandleLogin,MayLogout} from '../behavior';
 
 //let client = new HttpClient();
 
@@ -16,8 +17,9 @@ export class Aliastable {
   static inject = [EventAggregator,HttpClient];
 
   constructor(ea,httpclient){
+    this.ea=ea;
     this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
-    ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
+    this.ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
     this.client=httpclient;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
     this.client.configure(config=> {
@@ -32,6 +34,7 @@ export class Aliastable {
       .then(data => {
         //console.log("data response");
         //console.log(data);
+        this.ea.publish(new MayLogout(this.panelid));
         if (data.response) {
           this.providers = JSON.parse(data.response);
         }
@@ -41,10 +44,7 @@ export class Aliastable {
         console.log(error);
           //handle 403 unauthorized
           if (error.statusCode == 403) {
-            //try to login
-            console.log("redirecting");
-            window.location = "/login?next=" + window.location.pathname;
-            //window.location =
+            this.ea.publish(new HandleLogin(this.panelid));
           } else
         alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
