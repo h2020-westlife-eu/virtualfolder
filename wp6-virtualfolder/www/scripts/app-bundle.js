@@ -908,10 +908,10 @@ define('filepicker/app',['exports', 'aurelia-event-aggregator', './messages', '.
       _classCallCheck(this, App);
 
       this.ea = ea;
-      this.handler = new _behavior.RedirectLogin();
       this.ea.subscribe(_messages.SelectedFile, function (msg) {
         return _this.selectFile(msg.file);
       });
+      this.handler = new _behavior.RedirectLogin();
       this.ea.subscribe(_behavior.HandleLogin, function (msg) {
         return _this.handler.handlelogin();
       });
@@ -2751,7 +2751,7 @@ define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
     initializer: null
   })), _class);
 });
-define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages'], function (exports, _aureliaEventAggregator, _messages) {
+define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', '../behavior'], function (exports, _aureliaEventAggregator, _messages, _behavior) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2776,6 +2776,10 @@ define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepic
       this.ea = ea;
       this.ea.subscribe(_messages.SelectedFile, function (msg) {
         return _this.selectFile(msg.file);
+      });
+      this.handler = new _behavior.RedirectLogin();
+      this.ea.subscribe(_behavior.HandleLogin, function (msg) {
+        return _this.handler.handlelogin();
       });
     }
 

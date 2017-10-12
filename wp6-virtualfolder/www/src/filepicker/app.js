@@ -8,8 +8,8 @@ export class App {
 
   constructor(ea) {
     this.ea = ea;
-    this.handler = new RedirectLogin();
     this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file));
+    this.handler = new RedirectLogin();
     this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
   }
 
