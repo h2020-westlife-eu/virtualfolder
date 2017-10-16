@@ -42,9 +42,11 @@ You can access the desktop of the VM by going into VirtualBox.
 ## Detailed instruction
 
 
-Download or clone metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) unzip it into some [wp6-vm directory] or clone the main repository https://github.com/h2020-westlife-eu/wp6-vm.git.
+**1.** Download or clone metarepository [ZIP (4kB)](https://github.com/h2020-westlife-eu/wp6-vm/archive/master.zip) unzip it into some [wp6-vm directory] or clone the main repository https://github.com/h2020-westlife-eu/wp6-vm.git.
 
-**1.** Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
+    git clone https://github.com/h2020-westlife-eu/wp6-vm
+
+**2.** Open command-line (e.g. cmd, cygwin or terminal) and cd to directory where wp6-vm is unzipped/cloned
      
     cd [wp6-vm directory]/[selected configuration]
 
@@ -66,28 +68,34 @@ cd wp6-vm/vf-standalone-bin/
 cd wp6-vm/vf-standalone-src-sl7/
 ```
 
+- Repository Instance from source codes - based on clean Scientific Linux 7 - no dependency on online repositories at all. Initial VM image size = 665 MB, boot and bootstrap download 20 MB.
+```
+cd wp6-vm/rep-standalone-src-sl7/
+```
+
+
 - Test configurations - currently in testing stage, not guaranted to be working.
 ```
 cd wp6-vm/test-...
 ```
     
-**2.** (Optionally), if you have used west-life VM before, you may remove previous VM by and update the vagrant box cache
+**3.** (Optionally), if you have used west-life VM before, you may remove previous VM by and update the vagrant box cache
 
     vagrant destroy
     vagrant box update    
         
 
-**3.** (Optionally), the master branch from sources are cloned, to change it, edit the bootstrapsources.sh file and uncomment/edit the following three lines (change 'dev' with a desired git branch):
+**4.** (Optionally), the master branch from sources are cloned, to change it, edit the bootstrapsources.sh file and uncomment/edit the following three lines (change 'dev' with a desired git branch):
 
     # optional switch to branch
     cd west-life-wp6
     git checkout dev
     cd ..
-**4.** (Optionally), by default, virtualfolder in VM will contain single user environment. To enable multiuser environment with VRE, edit bootstrapsources.sh file and uncomment the following line. Default user for VF will then be vagrant/vagrant:
+**5.** (Optionally), by default, virtualfolder in VM will contain single user environment. To enable multiuser environment with VRE, edit bootstrapsources.sh file and uncomment the following line. Default user for VF will then be vagrant/vagrant:
 
     export PORTAL_DEPLOYMENT=1  
 
-**5.** Start the vagrant box:
+**6.** Start the vagrant box:
 
     vagrant up    
 
