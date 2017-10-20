@@ -91,8 +91,8 @@ export class Genericcontrol {
         window.location = "/login?next=" + window.location.pathname;
         //window.location =
       } else {
-        //console.log('Error');
-        //console.log(error);
+        console.log('Error');
+        console.log(error);
         //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
       }
     });
@@ -136,6 +136,7 @@ export class Genericcontrol {
           //console.log(data);
           if (data.ResponseStatus) alert('Sorry.'+data.ResponseStatus.ErrorCode+"\n"+ data.ResponseStatus.Message+"\nSubmit correct username and/or password again.");
           else alert ('Sorry. Settings not submitted. Check all items are correct and submit again.')
+          console.log(data.ResponseStatus);
         }
 
     })
