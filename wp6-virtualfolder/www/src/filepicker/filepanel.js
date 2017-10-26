@@ -6,6 +6,7 @@ import 'whatwg-fetch';
 import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
+import {CheckedFile} from './messages';
 import {HandleLogin} from '../behavior';
 
 import {bindable} from 'aurelia-framework';
@@ -312,6 +313,21 @@ export class Filepanel{
       if (!this.isFiles) this.files=[];
       this.filescount =  this.files.length+this.resources.length;
     }
+
+  checkResource(resource){
+    //if (resource.id=="") {this.goroot(); return;}
+    if (resource.url) {
+      console.log("check resource");
+      let file=resource;
+      //fix: blocked content from http - origin page at https
+      if ( window.location.protocol=="https:" && file.url.startsWith("http:"))  file.url = file.url.replace("http:","https:");
+
+      file.webdavuri=file.url;
+      file.publicwebdavuri=file.url;
+      this.ea.publish(new CheckedFile(file, this.panelid));
+      return
+    }
+  }
 
     appendResources(resources){
       //append resources to existing array

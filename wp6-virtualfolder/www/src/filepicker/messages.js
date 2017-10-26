@@ -9,6 +9,13 @@ export class SelectedFile {
   }
 }
 
+export class CheckedFile {
+  constructor(file,senderid){
+    this.file = file;
+    this.senderid = senderid;
+  }
+}
+
 export class VisualizeFile {
   constructor(file,senderid){
     this.file = file;
