@@ -1,6 +1,6 @@
 # Link component
 
-The File Picker component and Upload Dir Picker component sends a message containing an URL of the selected File or Directory using Javascript cross-origin communication feature[^1]. The web page \(e.g.`myfilepicker.html`\) is hosted by \[yourweb\] and the following Javascript code is recommended to be added into it in order to receive a message from the components.
+The File Picker component and Upload Dir Picker component sends a message containing an URL of the selected File or Directory using cross-document messaging API[^1]. The web page \(e.g.`myfilepicker.html`\) is hosted by \[yourweb\] and the following Javascript code is recommended to be added into it in order to receive a message from the components.
 
 ## Shared Script Code
 
