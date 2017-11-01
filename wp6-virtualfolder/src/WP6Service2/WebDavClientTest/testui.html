@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test WEBDAV</title>
+</head>
+<script>
+    var popup;
+    var target;
+    var davurl;
+    //opens popup window in defined location, sets the target element id.
+    function openwindow(_target,href) {
+        target = _target;
+        popup=window.open(href, 'newwindow', 'width=640, height=480');
+    }
+    //receives message from popup window, fills target element with the data received
+    function receiveMessage(event) {
+        document.getElementById(target).innerHTML=event.data;
+        document.getElementById(target).setAttribute("href",event.data);
+        davurl = event.data;
+    }
+    
+    window.addEventListener("message", receiveMessage, false);
+
+    function postFile() {
+        //construct request body
+        var filename = document.getElementById("filename").value;
+        var content = document.getElementById("content").value;
+        var data = {davurl:davurl, filename:filename, content:content};
+        var datastr = JSON.stringify(data);
+        
+        //construct xmlhttprequest
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState ==  XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("log").innerHTML = xmlhttp.responseText;
+                }
+                else {
+                    alert('there was an error:' + xmlhttp.status)
+                }
+            }
+        };
+        xmlhttp.open("POST","http://localhost:8002/webdavclienttest/testwebdav", true);
+        xmlhttp.setRequestHeader('Content-type','application/json');
+        xmlhttp.send(datastr);
+    }
+    function getFile() {
+        //construct xmlhttprequest
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState ==  XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("log").innerHTML = xmlhttp.responseText;
+                }
+                else {
+                    alert('there was an error:' + xmlhttp.status)
+                }
+            }
+        };
+        xmlhttp.open("GET","http://localhost:8002/webdavclienttest/testwebdav", true);
+        xmlhttp.setRequestHeader('Content-type','application/json');
+        xmlhttp.send();//datastr);
+    
+    }
+    
+
+</script>
+<body>
+Testing Webdav
+<p> <b>Step 1:</b>Select directory from </p>
+<a href="enablejavascript.html"
+   onclick="openwindow('uploaddirid',
+   'https://portal.west-life.eu/virtualfolder/uploaddirpickercomponent.html'
+   ); return false;"> West-life Upload Dir..</a>
+
+<p>Directory URL:<a id="uploaddirid" href=""></a></p>
+
+<p> <b>Step 2:</b> define filename to be created:<input id="filename" placeholder="webdavtest.txt"/></p>
+<p> <b>Step 3:</b> set content:<textarea id="content">Great times call for great men.</textarea></p>
+<p> <b>Step 4:</b> <button onclick="postFile()">PUT file</button> via WEBDAV.</p>
+<p> <b>Step 5:</b> <button onclick="getFile()">GET file</button> via WEBDAV.</p>
+<p> Result:<div id="log"></div> </p>
+</body>
+</html>
