@@ -28,7 +28,7 @@ namespace WebDavClientTest
                 // new NetworkCredential(szUsername, szPassword);
 
                 // Pre-authenticate the request.
-                httpPutRequest.PreAuthenticate = false; //true;
+                httpPutRequest.PreAuthenticate = true;
 
                 // Define the HTTP method.
                 httpPutRequest.Method = @"PUT";
@@ -87,7 +87,7 @@ namespace WebDavClientTest
                 //    new NetworkCredential(szUsername, szPassword);
 
                 // Pre-authenticate the request.
-                //httpGetRequest.PreAuthenticate = true;
+                httpGetRequest.PreAuthenticate = true;
 
                 // Define the HTTP method.
                 httpGetRequest.Method = @"GET";
