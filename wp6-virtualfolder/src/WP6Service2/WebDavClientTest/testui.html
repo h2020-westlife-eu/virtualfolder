@@ -34,7 +34,7 @@
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState ==  XMLHttpRequest.DONE) {
                 if (xmlhttp.status == 200) {
-                    document.getElementById("log").innerHTML = xmlhttp.responseText;
+                    document.getElementById("log1").innerHTML = xmlhttp.responseText;
                 }
                 else {
                     alert('there was an error:' + xmlhttp.status)
@@ -51,7 +51,7 @@
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState ==  XMLHttpRequest.DONE) {
                 if (xmlhttp.status == 200) {
-                    document.getElementById("log").innerHTML = xmlhttp.responseText;
+                    document.getElementById("log2").innerHTML = xmlhttp.responseText;
                 }
                 else {
                     alert('there was an error:' + xmlhttp.status)
@@ -62,6 +62,11 @@
         xmlhttp.setRequestHeader('Content-type','application/json');
         xmlhttp.send();//datastr);
     
+    }
+    
+    function allTests() {
+        postFile();
+        setTimeout(getFile,3000)
     }
     
 
@@ -78,8 +83,10 @@ Testing Webdav
 
 <p> <b>Step 2:</b> define filename to be created:<input id="filename" placeholder="webdavtest.txt"/></p>
 <p> <b>Step 3:</b> set content:<textarea id="content">Great times call for great men.</textarea></p>
-<p> <b>Step 4:</b> <button onclick="postFile()">PUT file</button> via WEBDAV.</p>
-<p> <b>Step 5:</b> <button onclick="getFile()">GET file</button> via WEBDAV.</p>
-<p> Result:<div id="log"></div> </p>
+<p> <b>All tests:</b><button onclick="allTests()">All tests</button></p>
+<p> <b>Test 1:</b> <button onclick="postFile()">PUT file</button> via WEBDAV.</p>
+<p> Result:<div id="log1"></div> </p>
+<p> <b>Test 2:</b> <button onclick="getFile()">GET file</button> via WEBDAV.</p>
+<p> Result:<div id="log2"></div> </p>
 </body>
 </html>
