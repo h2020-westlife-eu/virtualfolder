@@ -78,6 +78,7 @@
     <Content Include="testui.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="testwebdav.py" />
     <Content Include="testwebdav.sh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
