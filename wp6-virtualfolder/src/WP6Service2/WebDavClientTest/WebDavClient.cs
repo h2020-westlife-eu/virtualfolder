@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -21,7 +22,7 @@ namespace WebDavClientTest
             {
                 // Create an HTTP request for the URL.
                 HttpWebRequest httpPutRequest =
-                    (HttpWebRequest) WebRequest.Create(url);
+                    (HttpWebRequest) WebRequest.Create(url+'/'+filename);
 
                 // Set up new credentials.
                 //httpPutRequest.Credentials =
@@ -64,9 +65,13 @@ namespace WebDavClientTest
             }
             catch (Exception e)
             {
-                log += "PUT Response: Exception" + e.Message + " StackTrace:" + e.StackTrace;
-                return log;
+                
+                Console.WriteLine("PUT Response: Exception" + e.Message + " StackTrace:" + e.StackTrace);
+                
             }
+            
+            log += "curl response:"+CurlPutData(url+"/"+filename,content);
+            return log;
         }
 
         public static string Get(string url, string filename)
@@ -130,7 +135,58 @@ namespace WebDavClientTest
             catch (Exception e)
             {
                 Console.WriteLine(e.Message+e.StackTrace);
-                return (e.Message+e.StackTrace);
+                //return (e.Message+e.StackTrace);
+            }
+            return CurlGetData(url + "/" + filename);
+        }
+        
+        public static string CurlPutData(string url, string data)
+        {
+            Process p = null;
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "curl",
+                    Arguments = string.Format("-X PUT {0} --data \"{1}\"", url, data),
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                };
+
+                p = Process.Start(psi);
+
+                return p.StandardOutput.ReadToEnd();
+            }
+            finally
+            {
+                if (p != null && p.HasExited == false)
+                    p.Kill();
+            }
+        }
+
+        public static string CurlGetData(string url)
+        {
+            Process p = null;
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "curl",
+                    Arguments = string.Format("{0}", url),
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                };
+
+                p = Process.Start(psi);
+
+                return p.StandardOutput.ReadToEnd();
+            }
+            finally
+            {
+                if (p != null && p.HasExited == false)
+                    p.Kill();
             }
         }
 
