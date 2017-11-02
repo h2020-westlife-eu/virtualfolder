@@ -14,8 +14,9 @@ namespace WebDavClientTest
         {
             string log = "";
 
-            ServicePointManager.ServerCertificateValidationCallback =
+            ServicePointManager.ServerCertificateValidationCallback +=
                 ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
             try
             {
                 // Create an HTTP request for the URL.
@@ -73,8 +74,9 @@ namespace WebDavClientTest
             
             string content = "";
 // Create an HTTP request for the URL.
-            ServicePointManager.ServerCertificateValidationCallback =
+            ServicePointManager.ServerCertificateValidationCallback +=
                 ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
             try
             {
                 HttpWebRequest httpGetRequest =
@@ -143,6 +145,7 @@ namespace WebDavClientTest
             SslPolicyErrors policyErrors)
         {
             bool isOk = true;
+            return isOk;
             // If there are errors in the certificate chain,
             // look at each error to determine the cause.
             if (policyErrors != SslPolicyErrors.None) {
