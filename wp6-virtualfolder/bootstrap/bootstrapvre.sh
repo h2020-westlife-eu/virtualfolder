@@ -25,12 +25,13 @@ if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
 
   #configure all needed packages by VRE
   yum -y install python-virtualenv
-  yum -y install python-pip 
-  yum -y install gcc openssl-devel 
-  yum -y install python-redis 
-  yum -y install nodejs-supervisor 
-  yum -y install python-devel 
+  yum -y install python-pip
+  yum -y install gcc openssl-devel
+  yum -y install python-redis
+  yum -y install nodejs-supervisor
+  yum -y install python-devel
   yum -y install libffi-devel
+  yum -y install postgresql-devel
   #not needed when cloning from dev branch
   #cp -R $WP6SRC/VRE-master/* /home/vagrant/VRE-master
   # Prepares development version of VRE
