@@ -147,8 +147,8 @@ namespace WebDavClientTest
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "curl",
-                    Arguments = string.Format("-X PUT {0} --data \"{1}\"", url, data),
+                    FileName = "testwebdav.sh",
+                    Arguments = string.Format("PUT {0} \"{1}\"", url, data),
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = false,
@@ -172,7 +172,7 @@ namespace WebDavClientTest
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "curl",
+                    FileName = "testwebdav.sh",
                     Arguments = string.Format("{0}", url),
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
