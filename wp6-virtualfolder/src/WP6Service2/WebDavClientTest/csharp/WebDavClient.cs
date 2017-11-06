@@ -5,9 +5,8 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using ServiceStack.Common.Utils;
 
-namespace WebDavClientTest
+namespace WebDavClientTest.csharp
 {
     public class WebDavClient
     {
@@ -148,10 +147,11 @@ namespace WebDavClientTest
                 var psi = new ProcessStartInfo
                 {
                     FileName = "testwebdav.sh",
-                    Arguments = string.Format("PUT {0} \"{1}\"", url, data),
+                    Arguments = $"PUT {url} \"{data}\"",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = false,
+                    WorkingDirectory = ".\\bash"
                 };
 
                 p = Process.Start(psi);
@@ -173,7 +173,7 @@ namespace WebDavClientTest
                 var psi = new ProcessStartInfo
                 {
                     FileName = "testwebdav.sh",
-                    Arguments = string.Format("{0}", url),
+                    Arguments = $"{url}",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = false,

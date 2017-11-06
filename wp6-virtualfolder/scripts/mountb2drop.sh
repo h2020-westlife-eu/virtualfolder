@@ -69,7 +69,7 @@ function addfstab {
   if grep -q "$1 $2" /etc/fstab; then
     echo "already set"
   else
-    echo "$1 $2 davfs noauto,user 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
   fi
 }
 
@@ -142,7 +142,8 @@ function removeapacheproxy {
 
 function help {
 echo Usage:
-echo - mountb2drop.sh [add|remove] [url] [localpath] [username] [password] [webdavuri]
+echo - mountb2drop.sh [add] [url] [localpath] [username] [password] [webdavuri]
+echo - mountb2drop.sh remove [url] [localpath] [username] [webdavuri]
 echo - add - will add configuration and mount webdav,
 echo - remove - will unmount and remove configuration
 echo - [localpath] is name of directroy under which the webdav is mounted
