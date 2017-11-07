@@ -1,6 +1,6 @@
 # Working with WEBDAV
 
-File picker and upload dir picker returns URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Thus use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler via WEBDAV using scripting or compiled languages.
+West-Life File picker and Upload-Dir picker components return URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler using WEBDAV API using scripting or compiled languages.
 Full samples can be downloaded
 * bash: https://gist.github.com/TomasKulhanek/c94e148159a871ee688685828da82ebd
 * python: https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4
