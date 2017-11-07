@@ -1,10 +1,14 @@
-# Link component
+# Select File or Dir from Virtual Folder
 
-The File Picker component and Upload Dir Picker component sends a message containing an URL of the selected File or Directory using cross-document messaging API[^1]. The web page \(e.g.`myfilepicker.html`\) is hosted by \[yourweb\] and the following Javascript code is recommended to be added into it in order to receive a message from the components.
+Virtual Folder contains File Picker and Upload-Dir Picker components. They can send a message containing an URL of the selected File or Directory using cross-document messaging API[^1]. 
+The integration is done by following:
+* The web page \(e.g.`myfilepicker.html`\) is hosted by \[yourweb\]
+* the following Javascript code in your web pages opens pop-up browser window with `filepickercomponent.html` and `uploaddirpickercomponent.html` hosted by West-Life portal.
+* The `receiveMessage` Javascript function gets the url of picked file or dir via cross-document messaging API[^1]. 
 
 ## Shared Script Code
 
-Add the following javascript code into your web page \(`myfilepicker.html`\) which is shared by the components bellow to ensure that the popup window is opened and message is received from west-life portal after user chooses the file.
+Add the following javascript code into your web page \(`myfilepicker.html`\):
 
 ```javascript
 <script>
