@@ -1,16 +1,24 @@
 # Working with WEBDAV
 
-File picker and upload dir picker returns URL capable of WEBDAV API[^1]. As HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections describes downloading file or uploading file using different technologies.
+File picker and upload dir picker returns URL capable of WEBDAV API[^1]. As HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler via WEBDAV.
 
 # Bash, CURL
-cURL is  command-line tool for transferring data using various protocols available as standard package in most OS.
+Prerequisite: install curl using your OS package manager `yum install curl` or `apt-get install curl`.
+cURL[^4] is  command-line tool for transferring data using various protocols available as standard package in most OS. 
+
+Bash script to UPLOAD file to the webdav URL
+
 ```bash
-  if [ $1 == 'PUT' ]; then    
-    curl -X PUT $2 --data "$3"
-  else
-    curl $1  
-  fi
+curl -X PUT [updirurl+filename] --data "any text content"
 ```
+
+Bash script to DOWNLOAD file from the webdav URL
+
+```bash
+curl [updirurl+filename] --data "any text content"
+```
+Full sample script can be downloaded from [here](https://raw.githubusercontent.com/h2020-westlife-eu/west-life-wp6/dev/wp6-virtualfolder/src/WP6Service2/WebDavClientTest/bash/testwebdav.sh)
+
 
 
 # Javascript
@@ -53,7 +61,9 @@ function uploadwebdavfile(url,contentdivid,content) {
 ```
 # Python
 
-The following uses easywebdav [^3] library, unfortunately support for Python 3 is not included in binary release 1.2.0
+Prerequisite: 
+* for  Python 2.x install easywebdav [^3] using your favorite packaging system(`pip install easywebdav`)
+* for Python 3.x download easywebdav from [here](https://raw.githubusercontent.com/h2020-westlife-eu/west-life-wp6/dev/wp6-virtualfolder/src/WP6Service2/WebDavClientTest/python/easywebdav.py).
 
 ```python
 import easywebdav;
@@ -71,6 +81,45 @@ else:
 
 ```
 
+#.NET [Draft]
+Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.aspx) class use used
+```csharp
+        public static string Put(string url, string filename, string content)
+        {
+            string log = "";
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+            try
+            {
+                // Create an HTTP request for the URL.
+                HttpWebRequest httpPutRequest =
+                    (HttpWebRequest) WebRequest.Create(url+'/'+filename);
+                httpPutRequest.PreAuthenticate = false;                
+                httpPutRequest.Method = @"PUT";                
+                httpPutRequest.Headers.Add(@"Overwrite", @"T");                
+                httpPutRequest.ContentLength = content.Length;                
+                httpPutRequest.SendChunked = true;                
+                Stream requestStream = httpPutRequest.GetRequestStream();
+                requestStream.Write(
+                    Encoding.UTF8.GetBytes((string) content),
+                    0, content.Length);
+
+                requestStream.Close();
+                
+                HttpWebResponse httpPutResponse =
+                    (HttpWebResponse) httpPutRequest.GetResponse();                
+                log += @"PUT Response: " + httpPutResponse.StatusDescription;
+                return log;
+            }
+            catch (Exception e)
+            {
+                
+                Console.WriteLine("PUT Response: Exception" + e.Message + " StackTrace:" + e.StackTrace);
+                throw e;
+            }
+            
+        }
+```
 
 # References:
 [^1] HTTP Extensions for Web Distributed Authoring and Versioning (WebDAV): [tools.ietf.org/html/rfc4918](https://tools.ietf.org/html/rfc4918)
@@ -79,3 +128,4 @@ else:
 
 [^3] easywebdav 1.2.0 A straight-forward WebDAV client, implemented using Requests https://pypi.python.org/pypi/easywebdav
 
+[^4] cURL, https://curl.haxx.se/docs/
