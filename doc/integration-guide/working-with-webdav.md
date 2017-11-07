@@ -1,6 +1,9 @@
 # Working with WEBDAV
 
 File picker and upload dir picker returns URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Thus use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler via WEBDAV using scripting or compiled languages.
+Full samples can be downloaded
+* bash: https://gist.github.com/TomasKulhanek/c94e148159a871ee688685828da82ebd
+* python: https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4
 
 # Bash, CURL
 Prerequisite: install curl using your OS package manager `yum install curl` or `apt-get install curl`.
@@ -17,7 +20,7 @@ Bash script to DOWNLOAD file from the webdav URL
 ```bash
 curl [updirurl+filename] --data "any text content"
 ```
-Full sample script can be downloaded from [here](https://raw.githubusercontent.com/h2020-westlife-eu/west-life-wp6/dev/wp6-virtualfolder/src/WP6Service2/WebDavClientTest/bash/testwebdav.sh)
+[Download full sample script](https://gist.github.com/TomasKulhanek/c94e148159a871ee688685828da82ebd)
 
 
 
@@ -80,6 +83,7 @@ else:
     webdav.download(sys.argv[2], sys.argv[2]);
 
 ```
+[Download full sample scripts](https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4)
 
 #.NET [Draft]
 Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.aspx) class use used
