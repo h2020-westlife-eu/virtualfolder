@@ -6,6 +6,9 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
+//NOTE: doesn't work - SecureChannelFailure, obeying the ssl validation didn't fixed
+//PUT Response: ExceptionError: SecureChannelFailure (The authentication or decryption has failed.) StackTrace:  at System.Net.HttpWebRequest.EndGetRequestStream (System.IAsyncResult asyncResult) [0x00043] in /builddir/build/BUILD/mono-4.6.2/mcs/class/System/System.Net/HttpWebRequest.cs:900 
+
 namespace WebDavClientTest.csharp
 {
     public class WebDavClient
@@ -150,6 +153,7 @@ namespace WebDavClientTest.csharp
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = false,
+                    WorkingDirectory = ".\\bash"
                 };
 
                 p = Process.Start(psi);
