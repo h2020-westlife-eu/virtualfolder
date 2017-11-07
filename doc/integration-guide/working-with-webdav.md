@@ -1,6 +1,6 @@
 # Working with WEBDAV
 
-File picker and upload dir picker returns URL capable of WEBDAV API[^1]. As HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler via WEBDAV.
+File picker and upload dir picker returns URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Thus use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler via WEBDAV using scripting or compiled languages.
 
 # Bash, CURL
 Prerequisite: install curl using your OS package manager `yum install curl` or `apt-get install curl`.
@@ -87,8 +87,6 @@ Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.ht
         public static string Put(string url, string filename, string content)
         {
             string log = "";
-            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
             try
             {
                 // Create an HTTP request for the URL.
@@ -119,6 +117,10 @@ Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.ht
             }
             
         }
+```
+# Java [Draft]
+```java
+//webdav client sample
 ```
 
 # References:
