@@ -78,6 +78,10 @@
     <Content Include="bash\testwebdav.sh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="javascript\testwebdav.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="python\easywebdav.py" />
     <Content Include="python\testwebdav.py" />
     <Content Include="testui\index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

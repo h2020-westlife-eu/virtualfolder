@@ -71,6 +71,7 @@
     
 
 </script>
+<script src="../javascript/testwebdav.js"></script>
 <body>
 Testing Webdav
 <p> <b>Step 1:</b>Select directory from </p>
@@ -84,9 +85,13 @@ Testing Webdav
 <p> <b>Step 2:</b> define filename to be created:<input id="filename" placeholder="webdavtest.txt"/></p>
 <p> <b>Step 3:</b> set content:<textarea id="content">Great times call for great men.</textarea></p>
 <p> <b>All tests:</b><button onclick="allTests()">All tests</button></p>
-<p> <b>Test 1:</b> <button onclick="postFile()">PUT file</button> via WEBDAV.</p>
+<p> <b>Test 1, .NET/bash:</b> <button onclick="postFile()">PUT file</button> via WEBDAV.</p>
 <p> Result:<div id="log1"></div> </p>
-<p> <b>Test 2:</b> <button onclick="getFile()">GET file</button> via WEBDAV.</p>
+<p> <b>Test 2, .NET/bash:</b> <button onclick="getFile()">GET file</button> via WEBDAV.</p>
 <p> Result:<div id="log2"></div> </p>
+<p> <b>Test 1, Javascript:</b> <button onclick="uploadwebdavfile(davurl+'/'+document.getElementById('filename').value,'log3',document.getElementById('content').value)">PUT file</button> via WEBDAV.</p>
+<p> Result:<div id="log3"></div> </p>
+<p> <b>Test 2, Javascript:</b> <button onclick="downloadwebdavfile(davurl+'/'+document.getElementById('filename').value, 'log4')">GET file</button> via WEBDAV.</p>
+<p> Result:<div id="log4"></div> </p>
 </body>
 </html>

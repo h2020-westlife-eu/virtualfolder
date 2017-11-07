@@ -16,7 +16,6 @@ if len(sys.argv) <= 1:
 
 if sys.argv[1] == 'PUT':
     url = urlparse(sys.argv[2]);
-
     webdav = easywebdav.connect(url.hostname,protocol=url.scheme,path=url.path);
     print("Uploading ", sys.argv[3], " to ", sys.argv[2]);
     webdav.upload(sys.argv[3], sys.argv[3]);

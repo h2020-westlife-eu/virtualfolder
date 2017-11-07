@@ -13,52 +13,27 @@ namespace WebDavClientTest.csharp
         public static string Put(string url, string filename, string content)
         {
             string log = "";
-
-            ServicePointManager.ServerCertificateValidationCallback +=
-                ValidateRemoteCertificate;
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
             try
             {
                 // Create an HTTP request for the URL.
                 HttpWebRequest httpPutRequest =
                     (HttpWebRequest) WebRequest.Create(url+'/'+filename);
-
-                // Set up new credentials.
-                //httpPutRequest.Credentials =
-                // new NetworkCredential(szUsername, szPassword);
-
-                // Pre-authenticate the request.
-                httpPutRequest.PreAuthenticate = true;
-
-                // Define the HTTP method.
+                httpPutRequest.PreAuthenticate = false;
                 httpPutRequest.Method = @"PUT";
-
-                // Specify that overwriting the destination is allowed.
                 httpPutRequest.Headers.Add(@"Overwrite", @"T");
-
-                // Specify the content length.
                 httpPutRequest.ContentLength = content.Length;
-
-                // Optional, but allows for larger files.
                 httpPutRequest.SendChunked = true;
-
-                // Retrieve the request stream.
-                Stream requestStream =
-                    httpPutRequest.GetRequestStream();
-
-                // Write the string to the destination as a text file.
+                Stream requestStream = httpPutRequest.GetRequestStream();
                 requestStream.Write(
                     Encoding.UTF8.GetBytes((string) content),
                     0, content.Length);
 
-                // Close the request stream.
                 requestStream.Close();
 
-                // Retrieve the response.
                 HttpWebResponse httpPutResponse =
                     (HttpWebResponse) httpPutRequest.GetResponse();
-
-                // Write the response status to the console.
                 log += @"PUT Response: " + httpPutResponse.StatusDescription;
                 return log;
             }
@@ -66,11 +41,9 @@ namespace WebDavClientTest.csharp
             {
                 
                 Console.WriteLine("PUT Response: Exception" + e.Message + " StackTrace:" + e.StackTrace);
-                
+                throw e;
             }
-            
-            log += "curl response:"+CurlPutData(url+"/"+filename,content);
-            return log;
+
         }
 
         public static string Get(string url, string filename)
