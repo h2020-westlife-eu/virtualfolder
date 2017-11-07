@@ -22,9 +22,30 @@ curl [updirurl+filename] --data "any text content"
 ```
 [Download full sample script](https://gist.github.com/TomasKulhanek/c94e148159a871ee688685828da82ebd)
 
+# Python
 
+Prerequisite: 
+* for  Python 2.x install easywebdav [^3] using your favorite packaging system(`pip install easywebdav`)
+* for Python 3.x download easywebdav from [here](https://raw.githubusercontent.com/h2020-westlife-eu/west-life-wp6/dev/wp6-virtualfolder/src/WP6Service2/WebDavClientTest/python/easywebdav.py).
 
-# Javascript
+```python
+import easywebdav;
+
+if sys.argv[1] == 'PUT':
+    url = urlparse(sys.argv[2]);
+    webdav = easywebdav.connect(url.hostname,protocol=url.scheme,path=url.path);
+    print("Uploading ", sys.argv[3], " to ", sys.argv[2]);
+    webdav.upload(sys.argv[3], sys.argv[3]);
+else:
+    url = urlparse(sys.argv[1]);
+    webdav = easywebdav.connect(url.hostname,protocol=url.scheme,path=url.path);
+    print("Downloading ",sys.argv[2]," from ", sys.argv[1]);
+    webdav.download(sys.argv[2], sys.argv[2]);
+
+```
+[Download full sample scripts](https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4)
+
+# Javascript [Draft]
 
 The following code uses XMLHTTPRequest API[^2].
 
@@ -62,28 +83,6 @@ function uploadwebdavfile(url,contentdivid,content) {
     ajaxrequest("PUT",url,uploadcallback,content)
 }
 ```
-# Python
-
-Prerequisite: 
-* for  Python 2.x install easywebdav [^3] using your favorite packaging system(`pip install easywebdav`)
-* for Python 3.x download easywebdav from [here](https://raw.githubusercontent.com/h2020-westlife-eu/west-life-wp6/dev/wp6-virtualfolder/src/WP6Service2/WebDavClientTest/python/easywebdav.py).
-
-```python
-import easywebdav;
-
-if sys.argv[1] == 'PUT':
-    url = urlparse(sys.argv[2]);
-    webdav = easywebdav.connect(url.hostname,protocol=url.scheme,path=url.path);
-    print("Uploading ", sys.argv[3], " to ", sys.argv[2]);
-    webdav.upload(sys.argv[3], sys.argv[3]);
-else:
-    url = urlparse(sys.argv[1]);
-    webdav = easywebdav.connect(url.hostname,protocol=url.scheme,path=url.path);
-    print("Downloading ",sys.argv[2]," from ", sys.argv[1]);
-    webdav.download(sys.argv[2], sys.argv[2]);
-
-```
-[Download full sample scripts](https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4)
 
 #.NET [Draft]
 Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.aspx) class use used
