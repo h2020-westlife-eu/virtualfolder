@@ -46,7 +46,7 @@ export class Aliastable {
             window.location = "/login?next=" + window.location.pathname;
             //window.location =
           } else
-        alert('Sorry, error when connecting backend web service at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
       });
   }
 
