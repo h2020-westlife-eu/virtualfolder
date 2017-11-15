@@ -41,15 +41,27 @@ namespace MetadataService.Services.Files
         {
             //get sessionid from cookie
             Cookie mysession;
+            //Cookie myaaisession;
             try
             {
                 mysession = req.Cookies["sessionid"];
-                if (mysession == null) return; //no cookie set - return
             }
             catch (KeyNotFoundException) //no cookie set - either needs to log in or in single user deployment - it is vagrant user
             {
                 mysession = new Cookie {Value = "west-life_vf_insecure_session_id"};
             }
+
+            var mellonuser = req.Headers.Get("X-USERNAME");
+            if (mellonuser != null && mellonuser.Length > 0)
+            {
+                req.Items.Add("userid",mellonuser);
+                req.Items.Add("authproxy","/webdav/"+mellonuser);
+                if (requestDto.GetType() == typeof(ProviderItem))
+                    ((ProviderItem) requestDto).loggeduser = mellonuser;
+                return;
+            }
+
+            if (mysession == null) return; //no cookie set - return
 
             //get user info related to session id fromVRE
             string loggeduser;
@@ -71,6 +83,7 @@ namespace MetadataService.Services.Files
         private string GetAssociatedUser(string sessionid)
         {
             if (sessionuser.ContainsKey(sessionid)) return sessionuser[sessionid];
+            
             //fix check server certificate - certificates probably not installed for MONO environment
             var client = new JsonServiceClient(_vreapiurl);
             try
