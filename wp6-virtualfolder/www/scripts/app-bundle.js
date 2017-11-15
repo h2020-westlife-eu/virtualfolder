@@ -43,6 +43,16 @@ define('behavior',["exports"], function (exports) {
       window.location = this.redirectUrl;
     };
 
+    RedirectLogin.prototype.maylogout = function maylogout() {
+      var loginb = document.getElementById("loginbutton");
+      var logoutb = document.getElementById("logoutbutton");
+
+      logoutb.removeAttribute("style");
+      loginb.removeAttribute("style");
+      loginb.className = "w3-hide";
+      logoutb.className = "w3-sign";
+    };
+
     return RedirectLogin;
   }();
 
@@ -61,15 +71,7 @@ define('behavior',["exports"], function (exports) {
       logoutb.className = "w3-hide";
     };
 
-    return ShowLoginButton;
-  }();
-
-  var ShowLogoutButton = exports.ShowLogoutButton = function () {
-    function ShowLogoutButton() {
-      _classCallCheck(this, ShowLogoutButton);
-    }
-
-    ShowLogoutButton.prototype.handlelogin = function handlelogin() {
+    ShowLoginButton.prototype.maylogout = function maylogout() {
       var loginb = document.getElementById("loginbutton");
       var logoutb = document.getElementById("logoutbutton");
 
@@ -79,7 +81,7 @@ define('behavior',["exports"], function (exports) {
       logoutb.className = "w3-sign";
     };
 
-    return ShowLogoutButton;
+    return ShowLoginButton;
   }();
 
   var HandleLogin = exports.HandleLogin = function () {
@@ -92,6 +94,18 @@ define('behavior',["exports"], function (exports) {
     };
 
     return HandleLogin;
+  }();
+
+  var MayLogout = exports.MayLogout = function () {
+    function MayLogout() {
+      _classCallCheck(this, MayLogout);
+    }
+
+    MayLogout.prototype.contructor = function contructor(senderid) {
+      this.senderid = senderid;
+    };
+
+    return MayLogout;
   }();
 });
 define('environment',["exports"], function (exports) {
@@ -211,6 +225,131 @@ define('navitem',['exports', 'aurelia-framework'], function (exports, _aureliaFr
     enumerable: true,
     initializer: null
   })), _class);
+});
+define('advancedfilepicker/advancedfilepicker',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Advancedfilepicker = exports.Advancedfilepicker = function Advancedfilepicker() {
+    _classCallCheck(this, Advancedfilepicker);
+  };
+});
+define('advancedfilepicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', '../behavior'], function (exports, _aureliaEventAggregator, _messages, _behavior) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.App = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var App = exports.App = (_temp = _class = function () {
+    function App(ea) {
+      var _this = this;
+
+      _classCallCheck(this, App);
+
+      this.ea = ea;
+      this.handler = new _behavior.ShowLoginButton();
+
+      this.ea.subscribe(_messages.CheckedFile, function (msg) {
+        return _this.selectFile(msg.file);
+      });
+      this.ea.subscribe(_behavior.HandleLogin, function (msg) {
+        return _this.handler.handlelogin();
+      });
+    }
+
+    App.prototype.selectFile = function selectFile(file) {
+      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.publicwebdavuri, "*");
+      window.close();
+    };
+
+    return App;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
+});
+define('advancedfilepicker/environment',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    debug: true,
+    testing: false
+  };
+});
+define('advancedfilepicker/main',['exports', './environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().plugin('aurelia-dialog').feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('advancedfilepicker/viewpanel2',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Viewpanel2 = exports.Viewpanel2 = function Viewpanel2() {
+    _classCallCheck(this, Viewpanel2);
+  };
 });
 define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _aureliaFetchClient) {
   'use strict';
@@ -413,24 +552,7 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
 });
-define('advancedfilepicker/advancedfilepicker',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Advancedfilepicker = exports.Advancedfilepicker = function Advancedfilepicker() {
-    _classCallCheck(this, Advancedfilepicker);
-  };
-});
-define('advancedfilepicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', '../behavior'], function (exports, _aureliaEventAggregator, _messages, _behavior) {
+define('dataset/app',['exports', '../behavior', 'aurelia-event-aggregator'], function (exports, _behavior, _aureliaEventAggregator) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -446,43 +568,34 @@ define('advancedfilepicker/app',['exports', 'aurelia-event-aggregator', '../file
 
   var _class, _temp;
 
-  var App = exports.App = (_temp = _class = function () {
-    function App(ea) {
-      var _this = this;
+  var App = exports.App = (_temp = _class = function App(ea) {
+    var _this = this;
 
-      _classCallCheck(this, App);
+    _classCallCheck(this, App);
 
-      this.ea = ea;
-      this.handler = new _behavior.ShowLoginButton();
+    this.ea = ea;
+    this.handler = new _behavior.ShowLoginButton();
 
-      this.ea.subscribe(_messages.CheckedFile, function (msg) {
-        return _this.selectFile(msg.file);
-      });
-      this.ea.subscribe(_behavior.HandleLogin, function (msg) {
-        return _this.handler.handlelogin();
-      });
-    }
-
-    App.prototype.selectFile = function selectFile(file) {
-      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.publicwebdavuri, "*");
-      window.close();
-    };
-
-    return App;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
+    this.ea.subscribe(_behavior.HandleLogin, function (msg) {
+      return _this.handler.handlelogin();
+    });
+    this.ea.subscribe(_behavior.MayLogout, function (msg) {
+      return _this.handler.maylogout();
+    });
+  }, _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('advancedfilepicker/environment',["exports"], function (exports) {
+define('dataset/environment',["exports"], function (exports) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
   exports.default = {
-    debug: true,
+    debug: false,
     testing: false
   };
 });
-define('advancedfilepicker/main',['exports', './environment'], function (exports, _environment) {
+define('dataset/main',['exports', './environment'], function (exports, _environment) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -506,7 +619,7 @@ define('advancedfilepicker/main',['exports', './environment'], function (exports
   });
 
   function configure(aurelia) {
-    aurelia.use.standardConfiguration().plugin('aurelia-dialog').feature('resources');
+    aurelia.use.standardConfiguration().feature('resources');
 
     if (_environment2.default.debug) {
       aurelia.use.developmentLogging();
@@ -520,23 +633,6 @@ define('advancedfilepicker/main',['exports', './environment'], function (exports
       return aurelia.setRoot();
     });
   }
-});
-define('advancedfilepicker/viewpanel2',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Viewpanel2 = exports.Viewpanel2 = function Viewpanel2() {
-    _classCallCheck(this, Viewpanel2);
-  };
 });
 define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator", "aurelia-fetch-client", "../filepicker/messages", "aurelia-framework", "../utils/vfstorage", "codemirror/mode/clike/clike", "codemirror/mode/htmlmixed/htmlmixed", "codemirror/mode/javascript/javascript"], function (exports, _codemirror, _aureliaEventAggregator, _aureliaFetchClient, _messages, _aureliaFramework, _vfstorage) {
   "use strict";
@@ -674,73 +770,6 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     initializer: null
   })), _class);
 });
-define('dataset/app',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var App = exports.App = function App() {
-    _classCallCheck(this, App);
-  };
-});
-define('dataset/environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: false,
-    testing: false
-  };
-});
-define('dataset/main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
 define('filemanager2/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', 'aurelia-dialog', './fmsettings', '../behavior'], function (exports, _aureliaEventAggregator, _messages, _aureliaFramework, _aureliaDialog, _fmsettings, _behavior) {
   'use strict';
 
@@ -764,12 +793,17 @@ define('filemanager2/app',['exports', 'aurelia-event-aggregator', '../filepicker
       _classCallCheck(this, App);
 
       this.ea = ea;
-      this.handler = new _behavior.ShowLoginButton();
       this.ea.subscribe(_messages.SelectedFile, function (msg) {
         return _this.selectFile(msg.file, msg.senderid);
       });
+
+      this.handler = new _behavior.ShowLoginButton();
+
       this.ea.subscribe(_behavior.HandleLogin, function (msg) {
         return _this.handler.handlelogin();
+      });
+      this.ea.subscribe(_behavior.MayLogout, function (msg) {
+        return _this.handler.maylogout();
       });
       this.dialogService = dialogService;
     }
@@ -1033,10 +1067,10 @@ define('filepicker/app',['exports', 'aurelia-event-aggregator', './messages', '.
       _classCallCheck(this, App);
 
       this.ea = ea;
-      this.handler = new _behavior.RedirectLogin();
       this.ea.subscribe(_messages.SelectedFile, function (msg) {
         return _this.selectFile(msg.file);
       });
+      this.handler = new _behavior.RedirectLogin();
       this.ea.subscribe(_behavior.HandleLogin, function (msg) {
         return _this.handler.handlelogin();
       });
@@ -3039,7 +3073,7 @@ define('tabs/tabs',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 
     initializer: null
   })), _class);
 });
-define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages'], function (exports, _aureliaEventAggregator, _messages) {
+define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepicker/messages', '../behavior'], function (exports, _aureliaEventAggregator, _messages, _behavior) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3064,6 +3098,10 @@ define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepic
       this.ea = ea;
       this.ea.subscribe(_messages.SelectedFile, function (msg) {
         return _this.selectFile(msg.file);
+      });
+      this.handler = new _behavior.RedirectLogin();
+      this.ea.subscribe(_behavior.HandleLogin, function (msg) {
+        return _this.handler.handlelogin();
       });
     }
 
@@ -3341,9 +3379,12 @@ define('virtualfolderhome/app',['exports', 'aurelia-http-client', 'aurelia-event
       this.webdavurl = "";
       this.requestpublicurl = "/api/authproxy/get_signed_url/";
 
-      this.handler = new _behavior.ShowLoginButton();
+      this.handler = new _behavior.RedirectLogin();
       this.ea.subscribe(_behavior.HandleLogin, function (msg) {
         return _this.handler.handlelogin();
+      });
+      this.ea.subscribe(_behavior.MayLogout, function (msg) {
+        return _this.handler.maylogout();
       });
     }
 
@@ -3352,17 +3393,22 @@ define('virtualfolderhome/app',['exports', 'aurelia-http-client', 'aurelia-event
 
       if (this.webdavurl == "") {
         this.client.get(this.requestpublicurl).then(function (data) {
+          _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
           if (data.response) {
             var result = JSON.parse(data.response);
             if (window.location.port == "80" || window.location.port == "") _this2.webdavurl = window.location.protocol + "//" + window.location.hostname + result.signed_url;else _this2.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + result.signed_url;
+          }
+        }).catch(function (error) {
+          if (error.statusCode == 401) {
+            _this2.ea.publish(new _behavior.HandleLogin(_this2.panelid));
+          } else {
+            alert("Sorry, cannot generate URL. " + error.statusCode + ':' + error.statusText);
           }
         });
       }
     };
 
-    App.prototype.attached = function attached() {
-      if (!document.cookie.match(/^(.*;)?\s*sessionidl\s*=\s*[^;]+(.*)?$/)) this.handler.handlelogin();
-    };
+    App.prototype.attached = function attached() {};
 
     return App;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
@@ -3858,7 +3904,7 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "au
     }
   })), _class);
 });
-define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _vfstorage) {
+define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', '../behavior'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _vfstorage, _behavior) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3880,8 +3926,9 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
 
       _classCallCheck(this, Aliastable);
 
+      this.ea = ea;
       this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-      ea.subscribe(_messages.SettingsSubmitted, function (msg) {
+      this.ea.subscribe(_messages.SettingsSubmitted, function (msg) {
         return _this.submitSettings(msg.settings);
       });
       this.client = httpclient;
@@ -3896,6 +3943,7 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
       var _this2 = this;
 
       this.client.get(this.serviceurl).then(function (data) {
+        _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
         if (data.response) {
           _this2.providers = JSON.parse(data.response);
         }
@@ -3904,8 +3952,7 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
         console.log(error);
 
         if (error.statusCode == 403) {
-          console.log("redirecting");
-          window.location = "/login?next=" + window.location.pathname;
+          _this2.ea.publish(new _behavior.HandleLogin(_this2.panelid));
         } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this2.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
       });
     };
@@ -3956,10 +4003,12 @@ define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', '../be
     this.ea = ea;
     var location = window.location.protocol;
     this.islocalhost = location.startsWith('http:');
-
     this.handler = new _behavior.RedirectLogin();
     this.ea.subscribe(_behavior.HandleLogin, function (msg) {
       return _this.handler.handlelogin();
+    });
+    this.ea.subscribe(_behavior.MayLogout, function (msg) {
+      return _this.handler.maylogout();
     });
   }, _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
