@@ -126,7 +126,7 @@ export class Filepanel {
     this.client.get(this.serviceurl + this.path)
       .then(data => {
 //        this.ea.publish(new MayLogout(this.panelid));
-        if (data.ok) {
+        if (data.response) {
           this.populateFiles(data.response);
         } else {
           this.handleError(data);
