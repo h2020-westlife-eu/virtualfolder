@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # change version for every release
 export VERSION=17.11
-export WP6MODULE=wp6-virtualfolder
+export WP6MODULE=wp6-repository
 #export WP6MODULE=wp6-repository
 
 # keep untouched the rest
@@ -11,7 +11,7 @@ export WP6SRC=/home/vagrant/west-life-wp6-master
 export WP6REMOTEMODULE=${WP6MODULE:4}
 
 # adding X bit to all html with include
-chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
+chmod ugo+x `grep -rl $WP6SRC'/wp6-repository/frontend' -e "<\!--\#include"`
 
 ./release-install-dep.sh
 # TODO any service that will point to the /latest from 17.11 will now point to /latest not to /17.11
@@ -20,17 +20,10 @@ chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
 ./release-prepare.sh conf-template conf $VERSION -noreplacelatest
 ./release-build.sh
 ./release-mkdir.sh $VERSION
-./release-copy.sh bootstrap $VERSION
-./release-copy.sh conf $VERSION
-./release-copy.sh scripts $VERSION
-./release-copy.sh singlevre $VERSION
-./release-copy-nr.sh www $VERSION
-./release-copy.sh www/css $VERSION
-./release-copy.sh www/img $VERSION
-./release-copy.sh www/scripts $VERSION
-./release-copy.sh www/src $VERSION
-./release-copy.sh www/test $VERSION
-./release-copy.sh www/tools $VERSION
-./release-copy.sh www/.well-known $VERSION
-#copy Metadataservice binaries
-./release-copy.sh MetadataService $VERSION
+./release-copy-nr.sh frontend $VERSION
+./release-copy.sh frontend/css $VERSION
+./release-copy.sh frontend/img $VERSION
+./release-copy.sh frontend/scripts $VERSION
+./release-copy.sh frontend/src $VERSION
+# TODO Is well-known needed for repository instance?
+#./release-copy.sh frontend/.well-known $VERSION
