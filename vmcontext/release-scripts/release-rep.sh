@@ -18,12 +18,17 @@ chmod ugo+x `grep -rl $WP6SRC'/wp6-repository/frontend' -e "<\!--\#include"`
 # TODO consider whether latest should be kept and pointing to previous version can be made manually only
 # prepare conf files to point to exact version instead of 'latest' link
 ./release-prepare.sh conf-template conf $VERSION -noreplacelatest
-./release-build.sh
+#./release-build.sh
 ./release-mkdir.sh $VERSION
 ./release-copy-nr.sh frontend $VERSION
 ./release-copy.sh frontend/css $VERSION
 ./release-copy.sh frontend/img $VERSION
 ./release-copy.sh frontend/scripts $VERSION
 ./release-copy.sh frontend/src $VERSION
+./release-copy-nr.sh backend $VERSION
+./release-copy.sh backend/lib $VERSION
+./release-copy.sh backend/src $VERSION
+./release-copy.sh conf $VERSION
+
 # TODO Is well-known needed for repository instance?
 #./release-copy.sh frontend/.well-known $VERSION
