@@ -117,9 +117,10 @@ export class Filepanel {
   }
 
   handleError(error) {
-    console.log("Filepanel error:", error.statusCode);
+    console.log("Filepanel error:", error);
     alert('Sorry. Backend service is not working temporarily. You may browse files from publicly accessible repositories only. If the problem persist, report it to system administrator.'+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
   }
+  
   //triggered after this object is placed to DOM
   attached() {
     //read the directory infos

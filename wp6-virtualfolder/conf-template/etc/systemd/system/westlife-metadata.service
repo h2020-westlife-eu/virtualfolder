@@ -13,6 +13,9 @@ EnvironmentFile=/home/vagrant/.westlife/metadata.key
 PIDFile=/var/run/westlife-metadata.pid
 User=vagrant
 ExecStart=/bin/mono /cvmfs/west-life.egi.eu/software/virtualfolder/latest/MetadataService/MetadataService.exe
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=westlife-metadata
 WorkingDirectory=/home/vagrant/
 
 [Install]

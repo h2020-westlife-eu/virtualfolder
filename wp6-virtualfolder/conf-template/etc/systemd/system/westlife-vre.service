@@ -7,6 +7,8 @@ PIDFile=/var/run/westlife-vre.pid
 User=vagrant
 ExecStart="/cvmfs/west-life.egi.eu/software/vre/latest/rundevvre.sh"
 WorkingDirectory=/cvmfs/west-life.egi.eu/software/vre/latest
-
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=westlife-vre
 [Install]
 WantedBy=multi-user.target
