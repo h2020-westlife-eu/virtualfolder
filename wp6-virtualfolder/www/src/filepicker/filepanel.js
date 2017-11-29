@@ -129,8 +129,10 @@ export class Filepanel {
 //        this.ea.publish(new MayLogout(this.panelid));
         if (data.response) {
           this.populateFiles(data.response);
-        } else {
-          this.handleError(data);
+        } /* do not handle error if return message is empty, only log data, for debug purposes */
+        else {
+          console.log(data);
+          //this.handleError(data);
         }
       }).catch(error => {
         //this.handleError(error);
