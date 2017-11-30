@@ -32,11 +32,11 @@ export class Fileeditor {
   attached() {
     let editor = this.el.querySelector(".Codemirror");
     //prevent blured render if not shown before
-    if (editor==null)    this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
+    //if (editor==null)
+    this.codemirror = CodeMirror.fromTextArea(this.cmTextarea, {
       lineNumbers: true,
       mode: "text/x-less",
-      lineWrapping: true,
-      theme: "eclipse"
+      lineWrapping: true
     });
     this.codemirror.refresh();
   }
@@ -71,6 +71,7 @@ export class Fileeditor {
             console.log("fileeditor.selectfile() loading:" + file.webdavuri);
             console.log(data);
             that.codemirror.setValue(data);
+            that.codemirror.refresh();
             that.filename=file.webdavuri;
           }
         ).catch(error => {
