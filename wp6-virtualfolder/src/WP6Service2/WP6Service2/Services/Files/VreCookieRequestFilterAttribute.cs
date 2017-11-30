@@ -64,20 +64,15 @@ namespace MetadataService.Services.Files
             if (mysession == null) return; //no cookie set - return
 
             //get user info related to session id fromVRE
-            string loggeduser;
-            string authproxy;
-            lock (initlock)
-            {
-                loggeduser = GetAssociatedUser(mysession.Value);
-                authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
-            }
+            var loggeduser = GetAssociatedUser(mysession.Value);
+            var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
+
             //Console.WriteLine("Provider Service list"+loggeduser);
             //TODO get the providers associated to user
             req.Items.Add("userid", loggeduser);
             if (requestDto.GetType() == typeof(ProviderItem))
                 ((ProviderItem) requestDto).loggeduser = loggeduser;
-            req.Items.Add("authproxy", authproxy);
-            //throw new NotImplementedException();
+            req.Items.Add("authproxy", authproxy);            
         }
 
         private string GetAssociatedUser(string sessionid)
@@ -121,7 +116,7 @@ namespace MetadataService.Services.Files
                 //on local deployment - authproxy url can be same as sessionuser
                 if (sessionuser.ContainsKey(sessionid))
                 {
-                    Console.WriteLine("error getting authproxy, setting temporary authproxy for sessionid " + sessionid);
+                    Console.WriteLine("Setting temporary authproxy for sessionid " + sessionid);
                     sessionauthproxy[sessionid] = sessionuser[sessionid];
                     return sessionauthproxy[sessionid];
                 }
