@@ -90,6 +90,7 @@ namespace MetadataService
 
             public override void Configure(Container container)
             {
+                //sqlite
                 var connectionString = "Data Source=" +
                                        (Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR) != null
                                            ? Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)
@@ -102,6 +103,19 @@ namespace MetadataService
                     SqliteDialect
                         .Provider)); //added db.sqlite as a file name of DB - fixes sqlite errors on in memory db not populated
 
+                /*
+                var connectionString = "Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;" 
+                    "Data Source=" +
+                                       (Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR) != null
+                                           ? Environment.GetEnvironmentVariable(_SQLITE_FILENAME_VAR)
+                                           : "db.sqlite") + ";Version=3;New=True;Compress=True;foreign keys=True";
+
+                Console.WriteLine("configure connectionstring:" + connectionString);
+
+                container.Register<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
+                    connectionString,
+                    MySqlDialect.Provider)); //added mysql
+                    */
                 //sets URL context to /metadataservice
                 SetConfig(new EndpointHostConfig
                 {

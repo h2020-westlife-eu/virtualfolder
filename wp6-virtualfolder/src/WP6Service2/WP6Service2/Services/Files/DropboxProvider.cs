@@ -187,11 +187,12 @@ namespace MetadataService.Services.Files
                         Utils.CopyStream(stream, file);
                     }
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     //waits until the file is downloaded by other process, usefull for big files
                     while (!IsFileReady(filename)) Thread.Sleep(200);
                     if (File.Exists(filename)) return HttpResult.Redirect(WEBDAVURL.TrimEnd('/') + dropboxpath);
+                    //if not rethrow
                     throw;
                 }
             }

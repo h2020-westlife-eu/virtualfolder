@@ -9,7 +9,7 @@
         <CallTarget Targets="Clean" />
         <CallTarget Targets="Restore" />
         <CallTarget Targets="Build" />
-        <CallTarget Targets="Test" />
+        <!--CallTarget Targets="Test" /-->
     </Target>
 
     <Target Name="Clean">

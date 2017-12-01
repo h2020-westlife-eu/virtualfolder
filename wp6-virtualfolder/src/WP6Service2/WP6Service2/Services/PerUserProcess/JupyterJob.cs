@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -7,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Dropbox.Api.Properties;
+
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 

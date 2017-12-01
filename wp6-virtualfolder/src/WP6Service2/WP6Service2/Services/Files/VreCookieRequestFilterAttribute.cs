@@ -24,6 +24,7 @@ namespace MetadataService.Services.Files
         private static readonly Dictionary<string, string> sessionuser = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
         private static readonly object initlock = new object();
+        
 
         private readonly string _vreapiurl = Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME) != null
             ? Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME)
@@ -39,40 +40,44 @@ namespace MetadataService.Services.Files
 
         public override void Execute(IHttpRequest req, IHttpResponse res, object requestDto)
         {
-            //get sessionid from cookie
-            Cookie mysession;
-            //Cookie myaaisession;
-            try
+            lock (initlock)
             {
-                mysession = req.Cookies["sessionid"];
-            }
-            catch (KeyNotFoundException) //no cookie set - either needs to log in or in single user deployment - it is vagrant user
-            {
-                mysession = new Cookie {Value = "west-life_vf_insecure_session_id"};
-            }
+                //get sessionid from cookie
+                Cookie mysession;
+                //Cookie myaaisession;
+                try
+                {
+                    mysession = req.Cookies["sessionid"];
+                }
+                catch (KeyNotFoundException
+                ) //no cookie set - either needs to log in or in single user deployment - it is vagrant user
+                {
+                    mysession = new Cookie {Value = "west-life_vf_insecure_session_id"};
+                }
 
-            var mellonuser = req.Headers.Get("X-USERNAME");
-            if (mellonuser != null && mellonuser.Length > 0)
-            {
-                req.Items.Add("userid",mellonuser);
-                req.Items.Add("authproxy","/webdav/"+mellonuser);
+                var mellonuser = req.Headers.Get("X-USERNAME");
+                if (mellonuser != null && mellonuser.Length > 0)
+                {
+                    req.Items.Add("userid", mellonuser);
+                    req.Items.Add("authproxy", "/webdav/" + mellonuser);
+                    if (requestDto.GetType() == typeof(ProviderItem))
+                        ((ProviderItem) requestDto).loggeduser = mellonuser;
+                    return;
+                }
+
+                if (mysession == null) return; //no cookie set - return
+
+                //get user info related to session id fromVRE
+                var loggeduser = GetAssociatedUser(mysession.Value);
+                var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
+
+                //Console.WriteLine("Provider Service list"+loggeduser);
+                //TODO get the providers associated to user
+                req.Items.Add("userid", loggeduser);
                 if (requestDto.GetType() == typeof(ProviderItem))
-                    ((ProviderItem) requestDto).loggeduser = mellonuser;
-                return;
+                    ((ProviderItem) requestDto).loggeduser = loggeduser;
+                req.Items.Add("authproxy", authproxy);
             }
-
-            if (mysession == null) return; //no cookie set - return
-
-            //get user info related to session id fromVRE
-            var loggeduser = GetAssociatedUser(mysession.Value);
-            var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
-
-            //Console.WriteLine("Provider Service list"+loggeduser);
-            //TODO get the providers associated to user
-            req.Items.Add("userid", loggeduser);
-            if (requestDto.GetType() == typeof(ProviderItem))
-                ((ProviderItem) requestDto).loggeduser = loggeduser;
-            req.Items.Add("authproxy", authproxy);            
         }
 
         private string GetAssociatedUser(string sessionid)
