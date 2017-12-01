@@ -10,16 +10,16 @@ namespace WP6Service2.Services.Cerif
     public class GetProjects : IReturn<List<Project>>
     {
         public string Name { get; set; }
-        public bool identifiersOnly { get; set; } = true;
+        public bool identifiersOnly { get; set; }// = true;
         //CERIF pagingSpec
-        public int offset { get; set; } = 0;
-        public int pageSize { get; set; } = 20;
+        public int offset { get; set; }// = 0;
+        public int pageSize { get; set; }// = 20;
         //CERIF returnedEntitySpec
-        public bool fedIds { get; set; } = true;
-        public bool classifications { get; set; } = true;
+        public bool fedIds { get; set; }// = true;
+        public bool classifications { get; set; }// = true;
         public string links { get; set; }
         public string linkedObjects { get; set; }
-        public bool linkedSemantics { get; set; } = false;
+        public bool linkedSemantics { get; set; }// = false;
     }
 
     public class Project
