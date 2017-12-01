@@ -2,6 +2,7 @@
 #transcript from bootstrap scripts - set PORTAL_DEPLOYMENT=1 to enable VRE, otherwise single user deployment is available
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc; fi
+service rsyslog restart
 echo Added mirrors to sl7 repo, httpd config, westlife services
 yum -y install epel-release
 yum repolist
@@ -21,6 +22,14 @@ else
 fi
 # transcript of bootstrapservice.sh
 cert-sync /etc/pki/tls/certs/ca-bundle.crt
+if [ -f /vagrant/metadata.key ]; then
+  cp /vagrant/metadata.key /home/vagrant/.westlife/metadata.key
+  cp /vagrant/metadata.sqlite /home/vagrant/.westlife/metadata.sqlite
+fi
+if [ -f /vagrant/westlife-metadata.service ]; then
+  cp /vagrant/westlife-metadata.service /etc/conf/systemd/system/westlife-metadata.service
+fi
+
 if [ -f /home/vagrant/.westlife/metadata.key ]
 then
    source /home/vagrant/.westlife/metadata.key
