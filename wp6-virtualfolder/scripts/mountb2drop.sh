@@ -171,7 +171,6 @@ if [ $1 == 'add' ]; then
   exit
 fi
 
-
 if [ $1 == 'remove' ]; then
   #workaround, without sudo doesnt work
   sudo umount $3
