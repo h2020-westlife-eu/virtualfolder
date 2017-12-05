@@ -161,11 +161,16 @@ if [ $1 == 'add' ]; then
   addsecrets $3 $4 $5
   addapacheproxy $2 $6 $4 $5
   mkdir -p $3
+  if [ ! -d $3 ]; then
+    echo "previous mountpoint is corrupted, trying to unmount"
+    sudo umount $3
+  fi
   #user needs to be member of group davfs2
   mount $3
   echo "mounted $3"
   exit
 fi
+
 
 if [ $1 == 'remove' ]; then
   #workaround, without sudo doesnt work
