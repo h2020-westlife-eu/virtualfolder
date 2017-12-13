@@ -122,7 +122,7 @@ Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.ht
         }
 ```
 # Java [Draft]
-Not yet verified.
+In preparation.
 ```java
 //webdav client sample
 ```
