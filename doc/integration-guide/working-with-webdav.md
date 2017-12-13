@@ -1,6 +1,6 @@
 # Working with WEBDAV
 
-West-Life File picker and Upload-Dir picker components return URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') etc. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Fodler using WEBDAV API using scripting or compiled languages.
+West-Life File picker and Upload-Dir picker components return URL capable of WEBDAV API[^1] which doesn't need any other type of authentication. Use this URL as confidential as possible. WEBDAV is HTTP extension, it supports basic HTTP VERBS to download file ('GET'), upload file ('PUT'), delete file ('DELETE') as well as extension to list resources ('PROPFIND') in a directory or directories. It is possible to use WEBDAV capable client application to connect to the selected folder or download selected file. Following sections contains samples how to download or upload file to Virtual Folder using WEBDAV API using scripting or compiled languages.
 Full samples can be downloaded
 * bash: https://gist.github.com/TomasKulhanek/c94e148159a871ee688685828da82ebd
 * python: https://gist.github.com/TomasKulhanek/9d939350d234ec43ff1ffac8d1baa1f4
@@ -47,7 +47,7 @@ else:
 
 # Javascript [Draft]
 
-The following code uses XMLHTTPRequest API[^2].
+Not yet verified. The following code uses XMLHTTPRequest API[^2].
 
 ```javascript
 
@@ -122,6 +122,7 @@ Standard [HttpWebRequest](https://msdn.microsoft.com/en-us/library/system.net.ht
         }
 ```
 # Java [Draft]
+Not yet verified.
 ```java
 //webdav client sample
 ```
