@@ -49,7 +49,8 @@ Follow [Integration guide](doc/integration-guide.md) for further details.
 ## Development
 
 In order to test, contribute to source codes and prepare  virtual machine environment with source codes, follow [Development installation](doc/installation-guide/development-installation.md). Documents are maintained inside /docs folder and built from dev-docs branch, occasionally merged to master branch; in sync with [Gitbook](https://www.gitbook.com/book/h2020-westlife-eu/virtual-folder-docs/details)
-
+## Releases
+[![DOI](https://zenodo.org/badge/55687671.svg)](https://zenodo.org/badge/latestdoi/55687671)
 ## Release Notes
   * 17.08 - UI animated GIF indicator, CERIF prototype implementation
   * 28/06/2017 - UI improvement, docs in sync with gitbook and /doc folder in dev-docs branch
