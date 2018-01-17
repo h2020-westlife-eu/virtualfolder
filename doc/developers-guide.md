@@ -28,7 +28,7 @@ git secret init
 # add use among trusted
 git secret tell -m
 # or
-git secret tell mygpg@email.com
+git secret tell mygpg@email.comg
 
 # add file to the secrets
 echo 'myfile.txt' >>.gitignore
@@ -43,6 +43,6 @@ git secret reveal
 Further details see http://git-secret.io/ 
 
 ## Remove unwanted commits from git tree
-Use it when accidental commit was done and to remove all sensitive files. Download bfg.jar and follow instructions at
+Use it when accidental commit was done and to remove all sensitive files.
 
 https://help.github.com/articles/removing-sensitive-data-from-a-repository/
