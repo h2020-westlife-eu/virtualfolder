@@ -4,6 +4,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -24,7 +26,7 @@ namespace WP6Service2.Services.PerUserProcess
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
             pid)
         {
-            var portnumber = getAvailablePort();
+            port = getAvailablePort();
             var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'),"[^A-Za-z0-9//]","");
             suffix2 = suffix2.StartsWith("webdav/")?suffix2.Substring("webdav/".Length):suffix2;
             //Console.WriteLine("JupyterJob: suffix="+suffix);
@@ -32,7 +34,7 @@ namespace WP6Service2.Services.PerUserProcess
             proxyurl = "/vfnotebook" + "/"+suffix2;
             //proxyurl= proxyurl.TrimEnd('/');
             outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
-            suffix = request.Items["userid"] + " " +portnumber + " " + proxyurl;//l+" "+getUrl();                        
+            suffix = request.Items["userid"] + " " +port + " " + proxyurl;//l+" "+getUrl();                        
         }
         
         const string BaseUrlChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -63,9 +65,28 @@ namespace WP6Service2.Services.PerUserProcess
         //returns 8901 + max id of already existing jobs.
         private long getAvailablePort()
         {
-            var b = db.Select<UserJob>().Select(x => x.Id);  
-            port = 8950 + (b.Any() ? b.Max()+1 : 0) ;
-            return port ;
+            
+            long port = 8950; //<--- This is your value
+            bool isAvailable = true;
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+            do
+            {
+                foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+                {
+                    if (tcpi.LocalEndPoint.Port == port)
+                    {
+                        isAvailable = false;
+                        port++;
+                        break;
+                    }
+                }
+                if (isAvailable) return port;
+                else {port++;
+                    isAvailable = true;
+                }
+              if (port>9950) throw new SocketException(1);//port is not available - tried 1000 loop                
+            } while (true);            
         }
 
         public override string getUrl()
