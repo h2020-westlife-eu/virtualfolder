@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# put it to cvmfs
 # changed to anaconda
 # cd to desired directory
 #DIR=`pwd`
@@ -19,3 +20,4 @@ source $DIR/$VERSION/bin/activate py3
 $DIR/$VERSION/bin/conda install -y jupyter pymc3 r-irkernel r=3.3.2
 $DIR/$VERSION/bin/conda install -y -c rdkit rdkit
 $DIR/$VERSION/bin/conda install -y scikit-learn seaborn
+sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest.*$/\/home\/vagrant\/jupyter\//g" /etc/systemd/system/westlife-vre.service
