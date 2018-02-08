@@ -3,7 +3,7 @@
 # commented all except mpi, scipion distributed via cvmfs
 #apt-get install -y python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 #yum -y install python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
-yum -y install openmpi openmpi-devel
+#yum -y install openmpi openmpi-devel
 # fix issue with mpic++ not found
 export PATH=$PATH;/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
