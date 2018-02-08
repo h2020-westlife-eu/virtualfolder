@@ -5,7 +5,7 @@
 #yum -y install python-numpy python-tk python-sqlite openmpi-bin libopenmpi-dev software-properties-common
 yum -y install openmpi openmpi-devel
 # fix issue with mpic++ not found
-export PATH=$PATH;/usr/lib64/openmpi/bin
+export PATH=$PATH;/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
 
 mkdir -p /home/vagrant/.config/scipion/myfirstmap
