@@ -14,7 +14,8 @@ namespace WP6Service2.Services.PerUserProcess
             new[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
             new[] {"scipion", "/bin/bash", "/home/vagrant/scripts/startScipionWeb.sh"},
             new[] {"virtuoso", "/bin/bash", "/home/vagrant/scripts/startVirtuoso.sh"},
-            new[] {"jupyter","/bin/bash","/home/vagrant/scripts/startJupyter.sh"},
+            new[] {"notebook","/bin/bash","/home/vagrant/scripts/startJupyter.sh"},
+            new[] {"lab","/bin/bash","/home/vagrant/scripts/startJupyterlab.sh"},
             new[] {"vminstance","/bin/bash","/home/vagrant/scripts/startvm.sh"}
         };
         private static readonly List<JobType> list;
@@ -36,6 +37,8 @@ namespace WP6Service2.Services.PerUserProcess
             switch (jobname)
             {
                 case "jupyter": 
+                case "notebook": 
+                case "lab": 
                     return new JupyterJob(jobname,request,db,pid);
                 default: 
                     return new DefaultJob(jobname,request,db,pid);

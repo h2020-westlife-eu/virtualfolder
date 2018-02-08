@@ -23,6 +23,8 @@ export class Taskcontrol {
     });
     this.descriptions=[];
     this.descriptions["jupyter"]="Jupyter notebook web application instance";
+    this.descriptions["notebook"]="Jupyter notebook web application instance";
+    this.descriptions["lab"]="Jupyter lab web application instance";
     this.descriptions["scipion"]="Scipion Cryo-em web application instance";
   }
 
