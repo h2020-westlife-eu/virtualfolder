@@ -40,8 +40,8 @@ else
 fi
 # transcript of bootstrapvre.sh, single deployment comment # transcript of bootstrapscipion.sh
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then yum -y install python-virtualenv; fi
-yum -y install openmpi openmpi-devel
-export PATH=$PATH;/usr/lib64/openmpi/bin
+#yum -y install openmpi openmpi-devel
+export PATH=$PATH;/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
 sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
 mkdir -p /home/vagrant/.config/scipion/myfirstmap /home/vagrant/.config/scipion/mymovies /home/vagrant/.config/scipion/myresmap /home/vagrant/.config/scipion/firstmap /home/vagrant/.config/scipion/movies /home/vagrant/.config/scipion/resmap
 mkdir -p /home/vagrant/ScipionUserData/data/tests
