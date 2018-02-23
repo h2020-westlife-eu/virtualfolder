@@ -52,6 +52,7 @@ In order to test, contribute to source codes and prepare  virtual machine enviro
 ## Releases
 [![DOI](https://zenodo.org/badge/55687671.svg)](https://zenodo.org/badge/latestdoi/55687671)
 ## Release Notes
+  * 18.02 - docs move to new repository https://github.com/h2020-westlife-eu/westlife-docs
   * 17.08 - UI animated GIF indicator, CERIF prototype implementation
   * 28/06/2017 - UI improvement, docs in sync with gitbook and /doc folder in dev-docs branch
   * 23/06/2017 - added support for source code installation/binary installation
