@@ -30,25 +30,48 @@ namespace MetadataService.Services.Files
     public class OnedataProvider : AFileProvider
     {
         private readonly string accessToken;
-        private readonly string oneproviderHost;
+        private readonly string oneproviderURL;
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
+        
+        private Dictionary<string, string> spaceTable;
 
         public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
             : base(item, storage, connection, authproxy)
         {
             accessToken = item.securetoken;
-            oneproviderHost = item.accessurl;
+            oneproviderURL = item.accessurl;
             
-            spaceAPIURL = oneproviderHost + "/api/v3/oneprovider/spaces";
-            fileAPIURL = oneproviderHost + "/api/v3/oneprovider/files";
-            attrAPIURL = oneproviderHost + "/api/v3/oneprovider/attributes";
+            spaceAPIURL = oneproviderURL + "/api/v3/oneprovider/spaces";
+            fileAPIURL = oneproviderURL + "/api/v3/oneprovider/files";
+            attrAPIURL = oneproviderURL + "/api/v3/oneprovider/attributes";
+            
+            spaceTable = getSpaces();
         }
 
         public override object GetFileOrList(string path)
         {
             var result = new List<SBFile>();
+
+            var pathTokens = path.Split(new char[] {'/'});
+            if (pathTokens.Length == 0 || ! spaceTable.ContainsKey(pathTokens[0]))
+            {
+                throw new Exception("Missing or wrong space: " + pathTokens[0]);
+            }
+
+            var pathAttrs = (JObject) processRequest(attrAPIURL + "/" + path);
+            var pathType = (string) pathAttrs["type"];
+            if (pathType == "dir")
+            {
+
+                foreach (JObject fItem in (JArray) processRequest(fileAPIURL + "/" + path))
+                {
+                }
+
+            } else {
+            }
+
             return result;
         }
 
@@ -64,7 +87,7 @@ namespace MetadataService.Services.Files
                 var provList = (JArray) spaceInfo["providers"];
                 if (provList.Count() > 0)
                 {
-                    result.Add(spaceId, spaceName);
+                    result.Add(spaceName, spaceId);
                 }
             }
 
@@ -76,6 +99,7 @@ namespace MetadataService.Services.Files
             HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(url);
             httpRequest.PreAuthenticate = false;
             httpRequest.SendChunked = true;
+            httpRequest.Headers.Add("X-Auth-Token", accessToken);
             httpRequest.Method = "GET";
             var httpResponse = (HttpWebResponse) httpRequest.GetResponse();
 
