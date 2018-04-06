@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using MetadataService.Services.Settings;
 using Newtonsoft.Json;
@@ -24,8 +25,23 @@ namespace MetadataService.Services.Files
 
     public class OnedataProvider : AFileProvider
     {
+        /* JSON parameters from attribute API */
+        private readonly string OD_ATTR_MTIME = "mtime";
+        private readonly string OD_ATTR_NAME = "name";
+        private readonly string OD_ATTR_SIZE = "size";
+        private readonly string OD_ATTR_TYPE = "type";
+
+        /* JSON parameters from file API */
+        private readonly string OD_FILE_PATH = "path";
+
+        /* JSON parameters from space API */
+        private readonly string OD_SPACE_ID = "spaceId";
+        private readonly string OD_SPACE_NAME = "name";
+        private readonly string OD_SPACE_PROV = "providers";
+
+        private readonly int sockTimeout = 60000;
+
         private readonly string accessToken;
-        private readonly string oneproviderURL;
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
@@ -34,11 +50,13 @@ namespace MetadataService.Services.Files
             : base(item, storage, connection, authproxy)
         {
             accessToken = item.securetoken;
-            oneproviderURL = item.accessurl;
             
-            spaceAPIURL = oneproviderURL + "/api/v3/oneprovider/spaces";
-            fileAPIURL = oneproviderURL + "/api/v3/oneprovider/files";
-            attrAPIURL = oneproviderURL + "/api/v3/oneprovider/attributes";            
+            spaceAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/spaces";
+            fileAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/files";
+            attrAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/attributes";            
+
+            ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
         }
 
         public override object GetFileOrList(string path)
@@ -49,29 +67,30 @@ namespace MetadataService.Services.Files
             
             var normPath = path.Trim().Trim(new char[] {'/'});
             
-            var pathAttrs = getFileDetails(normPath);
+            var pathAttrs = (JObject) processRequest(attrAPIURL + "/" + normPath);
 
-            if ((string) pathAttrs["type"] == "dir")
+            if ((string) pathAttrs[OD_ATTR_TYPE] == "dir")
             {
                 var dirItems = new List<string>(); 
 
                 if (normPath.Length == 0)
                 {
-                    foreach (JObject obj in getAllSpaces())
+                    foreach (JObject obj in (JArray) processRequest(spaceAPIURL))
                     {
-                        var spaceInfo = getSpaceDetails((string) obj["spaceId"]);
-                        var provList = (JArray) spaceInfo["providers"];
-                        if (provList.Count() > 0)
+                        var spaceURL = spaceAPIURL + "/" + (string) obj[OD_SPACE_ID];
+                        var spaceInfo = (JObject) processRequest(spaceURL);
+                        if (((JArray) spaceInfo[OD_SPACE_PROV]).Count() > 0)
                         {
-                            dirItems.Add((string) obj["name"]);
+                            dirItems.Add((string) obj[OD_SPACE_NAME]);
                         }
                     }
                 }
                 else
                 {
-                    foreach (JObject fItem in getFileList(normPath))
+                    var fileURL = fileAPIURL + "/" + normPath;
+                    foreach (JObject fItem in (JArray) processRequest(fileURL))
                     {
-                        dirItems.Add((string) fItem["name"]);
+                        dirItems.Add(Path.GetFileName((string) fItem[OD_FILE_PATH]));
                     }
                 }
 
@@ -80,7 +99,7 @@ namespace MetadataService.Services.Files
                 foreach(var fItem in dirItems)
                 {
                     var filePath = normPath + "/" + fItem;
-                    var fileAttrs = getFileDetails(filePath);
+                    var fileAttrs = (JObject) processRequest(attrAPIURL + "/" + filePath);
                     result.Add(buildSBFile(filePath, fileAttrs));
                 }
             }
@@ -92,60 +111,25 @@ namespace MetadataService.Services.Files
             return result;
         }
 
-        private JArray getAllSpaces()
-        {
-            return (JArray) processRequest(spaceAPIURL);
-        }
-
-        private JObject getSpaceDetails(string spaceId)
-        {
-            return (JObject) processRequest(spaceAPIURL + "/" + spaceId);
-        }
-
-        private JArray getFileList(string path)
-        {
-            return (JArray) processRequest(fileAPIURL + "/" + path);
-        }
-
-        private JObject getFileDetails(string path)
-        {
-            return (JObject) processRequest(attrAPIURL + "/" + path);
-        }
-
         private JToken processRequest(string url)
         {
-            HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(url);
+            HttpWebRequest httpRequest = WebRequest.CreateHttp(url);
             httpRequest.PreAuthenticate = false;
-            httpRequest.SendChunked = true;
+            httpRequest.SendChunked = false;
+            httpRequest.KeepAlive = false;
+            httpRequest.Timeout = sockTimeout;
             httpRequest.Headers.Add("X-Auth-Token", accessToken);
             httpRequest.Method = "GET";
-            var httpResponse = (HttpWebResponse) httpRequest.GetResponse();
-
-            switch (httpResponse.StatusCode)
+            using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
             {
-                case HttpStatusCode.BadRequest:
-                //TODO throw the suitable exception
-                break;
-
-                case HttpStatusCode.Forbidden:
-                break;
-
-                case HttpStatusCode.NotFound:
-                break;
-
-                case HttpStatusCode.InternalServerError:
-                break;
-
-                default:
                 if (httpResponse.StatusCode != HttpStatusCode.OK)
-                    throw new Exception("Unsupported code:" + httpResponse.StatusCode);
-                break;
-            }
+                    throw new OnedataClientException(httpResponse.StatusCode, url);
 
-            var streamReader = new StreamReader(httpResponse.GetResponseStream());
-            using (var jsonReader = new JsonTextReader(streamReader))
-            {
-                return JToken.ReadFrom(jsonReader);
+                var streamReader = new StreamReader(httpResponse.GetResponseStream());
+                using (var jsonReader = new JsonTextReader(streamReader))
+                {
+                    return JToken.ReadFrom(jsonReader);
+                }
             }
         }
 
@@ -154,7 +138,7 @@ namespace MetadataService.Services.Files
             /*
              * TODO fix attributes and type
              */
-            bool isDir = (string) jAttrs["type"] == "dir";
+            bool isDir = (string) jAttrs[OD_ATTR_TYPE] == "dir";
             FileType fType = isDir ? FileType.Directory : FileType.None;
             fType |= FileType.Read | FileType.Available;
 
@@ -163,15 +147,48 @@ namespace MetadataService.Services.Files
             return new SBFile
             {
                 path = Path.GetDirectoryName(filePath),
-                name = (string) jAttrs["name"],
+                name = (string) jAttrs[OD_ATTR_NAME],
                 attributes = fAttrs,
-                size = (ulong) jAttrs["size"],
-                date = new DateTime((long) jAttrs["mtime"] * 10),
+                size = (ulong) jAttrs[OD_ATTR_SIZE],
+                date = new DateTime((long) jAttrs[OD_ATTR_MTIME] * 10),
                 filetype = fType,
                 webdavuri = WEBDAVURL + filePath,
                 publicwebdavuri = PUBLICWEBDAVURL + "/" + filePath
             };
         }
 
+        private bool validateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
+            SslPolicyErrors policyErrors)
+        {
+            /*
+             * TODO missing implementation
+             */
+            return true;
+        }
+    }
+    
+    public class OnedataClientException : Exception
+    {
+        private readonly HttpStatusCode statusCode;
+        private readonly string resource;
+
+        public OnedataClientException(HttpStatusCode code, string res) : base()
+        {
+            statusCode = code;
+            resource = res;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+
+            if (obj.GetType() == typeof(HttpStatusCode))
+                return statusCode == (HttpStatusCode) obj;
+
+            if (obj.GetType() == typeof(OnedataClientException))
+                return statusCode == ((OnedataClientException) obj).statusCode;
+
+            return false;
+        }
     }
 }
