@@ -104,7 +104,8 @@ namespace MetadataService.Services.Files
             if (linkedimpl.TryGetValue(request.alias, out provider))
             {
                 provider.DeleteSettings();
-                _providers.RemoveAt(_providers.FindIndex(p => p.alias == request.alias));
+                //attempt to fix issue #66
+                _providers.Remove(_providers.Find(p => p.alias == request.alias));                
                 //destroy provider
                 linkedimpl.Remove(request.alias);
                 return _providers;
