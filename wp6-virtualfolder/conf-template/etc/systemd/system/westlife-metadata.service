@@ -9,7 +9,7 @@ Environment=VF_ALLOW_FILESYSTEM=true
 Environment=VF_ALLOW_MODULES=true
 Environment=VF_ALLOW_LAB=true
 Environment=VF_ALLOW_NOTEBOOK=true
-Environment=VF_DATABASE_FILE=/home/vagrant/.westlife/metadata.sqlite
+Environment=VF_DATABASE_FILE=/etc/westlife/metadata.sqlite
 EnvironmentFile=/etc/westlife/metadata.key
 PIDFile=/var/run/westlife-metadata.pid
 User=vagrant

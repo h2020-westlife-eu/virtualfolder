@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-sed -i -e "s/\ExecStart.*$/ExecStart=\/home\/vagrant\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant\/VRE-master/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/home\/vagrant\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
-sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant/g" /etc/systemd/system/westlife-metadata.service
+export WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
+export VREESC= $(echo $VREDIR | sed 's_/_\\/_g')
+sed -i -e "s/\ExecStart.*$/ExecStart=${VREESC}\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1${VREESC}\/VRE-master/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono ${WP6SRCESC}\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
 chown -R vagrant:vagrant /home/vagrant
+chown -R vagrant:vagrant ${WP6SRC}
+chown -R vagrant:vagrant ${VREDIR}
 
 # SELinux setting, allow proxy from apache to other services and security context to dir
 if hash setsebool 2>/dev/null; then

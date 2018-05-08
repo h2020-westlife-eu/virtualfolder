@@ -10,8 +10,6 @@ else
   sed -i -e "s|\SELINUX=.*$|SELINUX=permissive|g" /etc/selinux/config
   setenforce 0 
 fi
-#install dir
-VREDIR=/opt/vre
 #install VRE sources
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   if [ ! -d $VREDIR ]; then
