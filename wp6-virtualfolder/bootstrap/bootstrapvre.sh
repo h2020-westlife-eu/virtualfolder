@@ -43,6 +43,7 @@ if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   cd $VREDIR/VRE-master
   bash make_venv.sh
   cd $VREDIR/VRE-master
+  mkdir /home/vagrant/.westlife
   source ./rc.sh
   python manage.py migrate
   python addvagrantuser.py
