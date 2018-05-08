@@ -1,26 +1,12 @@
 #!/usr/bin/env bash
-#17/10/2016 tomas - bootstrapt by getting sources from github, cloud version
-
-##################################################
-# get a wp6 master (3.3 MB) or git clone (21 MB) #
-##################################################
-
-# echo downloading west-life-wp6
-# wget --quiet https://github.com/h2020-westlife-eu/west-life-wp6/archive/master.zip
-# unzip -q master.zip -d /home/vagrant
-# rm master.zip
-
-# or alternatively git clone, commented
-# git clone https://github.com/h2020-westlife-eu/west-life-wp6.git
-# mv west-life-wp6 west-life-wp6-master
-#
-# export WP6SRC=/home/vagrant/west-life-wp6-master/wp6-virtualfolder
+#05/08/2018 tomas - bootstrap from current directory
+#17/10/2016 tomas - bootstrap by getting sources from github, cloud version
 
 #################################################
 # or use wp6 sources from vagrant shared folder #
 #################################################
 
-export WP6SRC=/vagrant/wp6-virtualfolder
+export WP6SRC=`pwd`/wp6-virtualfolder
 
 ###########################
 # launch bootstrap script #
