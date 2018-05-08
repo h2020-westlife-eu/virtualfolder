@@ -4,7 +4,7 @@
 # cd to desired directory
 #DIR=`pwd`
 #VERSION=18.02
-DIR=\home\vagrant
+DIR=$WP6SRC
 VERSION=jupyter
 
 sudo yum install -y wget

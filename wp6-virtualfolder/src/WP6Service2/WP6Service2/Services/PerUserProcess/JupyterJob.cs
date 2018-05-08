@@ -22,6 +22,11 @@ namespace WP6Service2.Services.PerUserProcess
         private string suffix;
         private string proxyurl;
         private string outputlog;
+        private const string Vfstoragevariable = "VF_STORAGE_DIR";
+
+        private readonly string _rootdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
+            ? Environment.GetEnvironmentVariable(Vfstoragevariable)
+            : "/home/vagrant/work/";
         
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
             pid)
@@ -33,7 +38,7 @@ namespace WP6Service2.Services.PerUserProcess
             suffix2 = ShortUrl;//suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
             proxyurl = "/vfnotebook" + "/"+suffix2;
             //proxyurl= proxyurl.TrimEnd('/');
-            outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
+            outputlog = _rootdir+"/logs/"+jobname + DateTime.Now.Ticks + ".log";
             suffix = request.Items["userid"] + " " +port + " " + proxyurl;//l+" "+getUrl();                        
         }
         
