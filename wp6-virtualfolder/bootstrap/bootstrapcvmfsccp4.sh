@@ -11,7 +11,7 @@ if [ "$1" != "yes" ]; then
 fi
 
 # workaround issue #6
-umount /home/vagrant/work/b2drop
+#umount /home/vagrant/work/b2drop
 sleep 5
 echo "CVMFS_REPOSITORIES=facilities.gridpp.ac.uk,west-life.egi.eu
 " >/etc/cvmfs/default.local
@@ -30,4 +30,4 @@ fi
 chmod ugo+x /home/vagrant/Desktop/*
 
 #workaround issue #6
-/home/vagrant/scripts/mountb2drop.sh
+#/home/vagrant/scripts/mountb2drop.sh

@@ -12,7 +12,7 @@ namespace MetadataService.Services.Files
 
         private readonly string _rootdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
             ? Environment.GetEnvironmentVariable(Vfstoragevariable)
-            : "/home/vagrant/work/";
+            : "/srv/virtualfolder/";
 
         protected string alias;
         private readonly IDbConnection Db;

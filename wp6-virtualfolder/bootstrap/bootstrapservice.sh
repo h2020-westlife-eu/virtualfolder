@@ -13,31 +13,31 @@ else
   yum -y install mono-devel
 fi
 yum -y install nuget
-rm -rf /home/vagrant/MetadataService
+rm -rf /opt/virtualfolder/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
 for i in {1..3}; do
     echo attemp $i
-    if [ ! -f /home/vagrant/MetadataService/MetadataService.exe ]
+    if [ ! -f /opt/virtualfolder/MetadataService/MetadataService.exe ]
     then
        echo Building MetadataService
 	#clean from previous try
-	rm -rf /home/vagrant/MetadataService
-	rm -rf /home/vagrant/src
+	rm -rf /opt/virtualfolder/MetadataService
+	rm -rf /opt/virtualfolder/src
 	# build metadataservice
-	cp -R $WP6SRC/src /home/vagrant
+	cp -R $WP6SRC/src /opt/virtualfolder
 
     cert-sync /etc/pki/tls/certs/ca-bundle.crt
-	/home/vagrant/scripts/timeout3.sh -t 90 xbuild /home/vagrant/src/WP6Service2/Build.proj
+	/opt/virtualfolder/scripts/timeout3.sh -t 90 xbuild /opt/virtualfolder/src/WP6Service2/Build.proj
     fi
 done
-mkdir -p /home/vagrant/logs
-chmod -R ugo+rwx /home/vagrant/logs
+mkdir -p /opt/virtualfolder/logs
+chmod -R ugo+rwx /opt/virtualfolder/logs
 #generate random key
-if [ -f /home/vagrant/.westlife/metadata.key ]
+if [ -f /etc/westlife/metadata.key ]
 then
-   `cat /home/vagrant/.westlife/metadata.key`
+   `cat /etc/westlife/metadata.key`
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
-   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
+   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /etc/westlife/metadata.key
 fi

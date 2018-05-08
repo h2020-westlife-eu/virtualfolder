@@ -21,6 +21,7 @@ namespace MetadataServiceTest
     {
         private readonly string _baseUri = "http://localhost:8001/metadataservice/";
         //private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        private readonly string homeVagrantWork = "/srv/virtualfolder/";
         
 
         [TestFixtureSetUp]
@@ -313,9 +314,10 @@ namespace MetadataServiceTest
             Assert.True(providerlist.Count < providerlistwithnew.Count);
             Assert.True(providerlistwithnew.Last().alias=="b2drop_test");
             //test directory exists, it is mounted
-            Assert.True(Directory.Exists("/home/vagrant/work/vagrant/b2drop_test"));
+            
+            Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/b2drop_test"));
             //test directory is not empty - some dirs or files
-            Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/b2drop_test").Length>0);
+            Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/b2drop_test").Length>0);
 
             var providerlistdeleted = client.Delete(pi);
             //should delete - no provider list is there
@@ -389,9 +391,9 @@ namespace MetadataServiceTest
                 Assert.True(providerlist.Count < providerlistwithnew.Count);
                 Assert.True(providerlistwithnew.Last().alias=="filesystem_test");
                 //test directory exists, it is mounted
-                Assert.True(Directory.Exists("/home/vagrant/work/vagrant/filesystem_test"));
+                Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/filesystem_test"));
                 //test directory is not empty - some dirs or files
-                Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/filesystem_test").Length>0);
+                Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/filesystem_test").Length>0);
 
                 var providerlistdeleted = client.Delete(pi);
                 //should delete - no provider list is there

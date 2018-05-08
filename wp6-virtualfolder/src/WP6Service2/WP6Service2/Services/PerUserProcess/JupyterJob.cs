@@ -26,7 +26,7 @@ namespace WP6Service2.Services.PerUserProcess
 
         private readonly string _rootdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
             ? Environment.GetEnvironmentVariable(Vfstoragevariable)
-            : "/home/vagrant/work/";
+            : "/srv/virtualfolder/";
         
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
             pid)

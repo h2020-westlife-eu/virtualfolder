@@ -1,3 +1,0 @@
-mkdir -p /home/vagrant/logs
-sudo -H -u vagrant /home/vagrant/scripts/startMetaDataService.sh
-/home/vagrant/scripts/startVRE.sh

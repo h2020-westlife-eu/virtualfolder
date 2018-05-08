@@ -65,20 +65,20 @@ systemctl start httpd
 systemctl enable httpd
 
 # share work directory via webdav - may be used to directly pass and process data
-mkdir /home/vagrant/work
-chmod ugo+rwx /home/vagrant/work
-#add permission to allow browse webdav content in /home/vagrant/work
+mkdir /srv/virtualfolder
+chmod ugo+rwx /srv/virtualfolder
+#add permission to allow browse webdav content in /srv/virtualfolder
 chmod go+rx /home/vagrant
 # workaround issue #6 store some config 
-mkdir /home/vagrant/.westlife
+mkdir /etc/westlife
 
-#chown vagrant:vagrant /home/vagrant/work
+#chown vagrant:vagrant /srv/virtualfolder
 # dir for local copy (owncloud synchronized)
 #mkdir /home/vagrant/b2drop
 #chown vagrant:vagrant /home/vagrant/b2drop
 # dir for logs
-mkdir /home/vagrant/logs
-chown apache:apache /home/vagrant/work
+mkdir -p /srv/virtualfolder/logs
+chown apache:apache /srv/virtualfolder
 #adding vagrant and apache into davfs2 group
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
@@ -86,17 +86,17 @@ usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
-ln -s $WP6SRC/scripts /home/vagrant/scripts
+ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
 
-dos2unix /home/vagrant/scripts/*
-chmod ugo+x /home/vagrant/scripts/*
+dos2unix /opt/virtualfolder/scripts/*
+chmod ugo+x /opt/virtualfolder/scripts/*
 
-chown root:root /home/vagrant/scripts/mountb2drop.sh
-chmod 4755 /home/vagrant/scripts/mountb2drop.sh
+chown root:root /opt/virtualfolder/scripts/mountb2drop.sh
+chmod 4755 /opt/virtualfolder/scripts/mountb2drop.sh
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
-  cat /home/vagrant/scripts/sudoers >>/etc/sudoers
+  cat /opt/virtualfolder/scripts/sudoers >>/etc/sudoers
   #chmod 0440 /etc/sudoers
 fi
 

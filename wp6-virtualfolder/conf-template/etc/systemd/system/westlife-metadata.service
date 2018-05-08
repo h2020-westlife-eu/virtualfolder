@@ -17,7 +17,7 @@ ExecStart=/bin/mono /cvmfs/west-life.egi.eu/software/virtualfolder/latest/Metada
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=westlife-metadata
-WorkingDirectory=/home/vagrant/
+WorkingDirectory=/srv/virtualfolder/
 
 [Install]
 WantedBy=multi-user.target
