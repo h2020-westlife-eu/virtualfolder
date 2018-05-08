@@ -86,17 +86,17 @@ usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 
 # download and install b2drop webdav connection
-ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
+ln -s $WP6SRC/scripts /home/vagrant/scripts
 
-dos2unix /opt/virtualfolder/scripts/*
-chmod ugo+x /opt/virtualfolder/scripts/*
+dos2unix /home/vagrant/scripts/*
+chmod ugo+x /home/vagrant/scripts/*
 
-chown root:root /opt/virtualfolder/scripts/mountb2drop.sh
-chmod 4755 /opt/virtualfolder/scripts/mountb2drop.sh
+chown root:root /home/vagrant/scripts/mountb2drop.sh
+chmod 4755 /home/vagrant/scripts/mountb2drop.sh
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
-  cat /opt/virtualfolder/scripts/sudoers >>/etc/sudoers
+  cat /home/vagrant/scripts/sudoers >>/etc/sudoers
   #chmod 0440 /etc/sudoers
 fi
 

@@ -32,6 +32,7 @@ for i in {1..3}; do
 done
 mkdir -p /opt/virtualfolder/logs
 chmod -R ugo+rwx /opt/virtualfolder/logs
+
 #generate random key
 if [ -f /etc/westlife/metadata.key ]
 then
