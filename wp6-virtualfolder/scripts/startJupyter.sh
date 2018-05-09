@@ -99,7 +99,7 @@ if [ $1 == 'remove' ]; then
 fi
 
 if [ $1 == 'add' ]; then
-  WORKDIR=/home/vagrant/work/$2
+  WORKDIR=/srv/virtualfolder/$2
   if [ -d $WORKDIR ]; then
     echo working directory exists
   else
