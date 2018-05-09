@@ -27,7 +27,7 @@ for i in {1..3}; do
 	cp -R $WP6SRC/src /opt/virtualfolder
 
     cert-sync /etc/pki/tls/certs/ca-bundle.crt
-	/opt/virtualfolder/scripts/timeout3.sh -t 90 xbuild /opt/virtualfolder/src/WP6Service2/Build.proj
+	$WP6SRC/scripts/timeout3.sh -t 90 xbuild /opt/virtualfolder/src/WP6Service2/Build.proj
     fi
 done
 mkdir -p /opt/virtualfolder/logs
