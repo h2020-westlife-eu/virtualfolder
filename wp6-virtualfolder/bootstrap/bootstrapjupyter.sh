@@ -28,6 +28,20 @@ $DIR/$VERSION/bin/conda install -y scikit-image line_profiler memory_profiler nu
 # jupyter tips and tricks
 $DIR/$VERSION/bin/conda install -y pivottablejs jupyterlab
 $DIR/$VERSION/bin/conda install -y -c conda-forge bqplot mpld3 ipython-sql
+# jupyter nglview and ssbio
+$DIR/$VERSION/bin/conda install -y tornado=4.5.3 nglview ssbio
 DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
+
+#install dependencies of ssbio
+#dssp
+yum install dssp
+ln -s /usr/bin/mkdssp /usr/bin/dssp
+yum install msms
+ln -s /usr/local/lib/msms/msms.x86_64Linux2.2.6.1 /usr/local/bin/msms
+ln -s /usr/local/lib/msms/pdb_to_xyzr* /usr/local/bin/
+#stride
+#mkdir -p /usr/local/lib/stride
+#freesasa
+#
