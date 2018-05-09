@@ -19,7 +19,7 @@ fi
 $DIR/Miniconda3-latest-Linux-x86_64.sh -b -p $DIR/$VERSION
 $DIR/$VERSION/bin/conda create -y --name py3 python=3
 source $DIR/$VERSION/bin/activate py3
-$DIR/$VERSION/bin/conda install -y jupyter pymc3 r-irkernel r=3.3.2
+$DIR/$VERSION/bin/conda install -y jupyter pymc3 r-irkernel r=3.3.2 tornado=4.5.3 
 $DIR/$VERSION/bin/conda install -y -c rdkit rdkit
 # machine learning course
 $DIR/$VERSION/bin/conda install -y scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow 
@@ -29,7 +29,7 @@ $DIR/$VERSION/bin/conda install -y scikit-image line_profiler memory_profiler nu
 $DIR/$VERSION/bin/conda install -y pivottablejs jupyterlab
 $DIR/$VERSION/bin/conda install -y -c conda-forge bqplot mpld3 ipython-sql
 # jupyter nglview and ssbio
-$DIR/$VERSION/bin/conda install -y tornado=4.5.3 nglview ssbio
+$DIR/$VERSION/bin/conda install -y nglview ssbio
 DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
