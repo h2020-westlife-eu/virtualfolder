@@ -21,11 +21,10 @@ namespace WP6Service2.Services.PerUserProcess
         private long port =0;
         private string suffix;
         private string proxyurl;
-        private string outputlog;
-        private const string Vfstoragevariable = "VF_STORAGE_DIR";
+        private string outputlog;        
         private const string Vflogdirvariable = "VF_LOG_DIR";
 
-        private readonly string _logdir = String.IsNullOrEmpty(Environment.GetEnvironmentVariable(Vfstoragevariable))
+        private readonly string _logdir = String.IsNullOrEmpty(Environment.GetEnvironmentVariable(Vflogdirvariable))
             ? "/var/log/westlife/"
             : Environment.GetEnvironmentVariable(Vflogdirvariable);
             
