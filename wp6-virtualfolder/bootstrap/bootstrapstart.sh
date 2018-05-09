@@ -7,8 +7,11 @@ sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/opt\/virtualfolder\/MetadataS
 chown -R vagrant:vagrant /home/vagrant
 chown -R vagrant:vagrant ${WP6SRC}
 chown -R vagrant:vagrant ${VREDIR}
+
+#db files readable by vagrant user only
 mkdir -p /var/lib/westlife
 chown -R vagrant:vagrant /var/lib/westlife
+chmod 700 /var/lib/westlife
 
 # SELinux setting, allow proxy from apache to other services and security context to dir
 if hash setsebool 2>/dev/null; then
