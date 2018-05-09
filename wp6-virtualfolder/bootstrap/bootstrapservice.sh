@@ -30,8 +30,8 @@ for i in {1..3}; do
 	$WP6SRC/scripts/timeout3.sh -t 90 xbuild /opt/virtualfolder/src/WP6Service2/Build.proj
     fi
 done
-mkdir -p /opt/virtualfolder/logs
-chmod -R ugo+rwx /opt/virtualfolder/logs
+mkdir -p /var/log/westlife
+chmod -R go+wx /var/log/westlife
 
 #generate random key
 if [ -f /etc/westlife/metadata.key ]
