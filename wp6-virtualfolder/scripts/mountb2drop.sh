@@ -133,7 +133,7 @@ function removeapacheproxy {
  echo removing apache proxy
  L1=`grep -n -m 1 "\<Location $1" $HTTPD_CONF | cut -f1 -d:`
  echo from row $L1
- if [ $L1 > 0 ]; then
+ if [ $L1 -gt 0 ]; then
    let L2=$L1+6
    echo to row $L2
    sudo sed -i "$L1,$L2 d" $HTTPD_CONF
