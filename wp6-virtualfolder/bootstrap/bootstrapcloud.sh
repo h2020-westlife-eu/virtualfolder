@@ -10,7 +10,7 @@ yum -y install davfs2
 systemctl start httpd
 systemctl enable httpd
 #mkdir /home/vagrant/work /home/vagrant/.westlife /home/vagrant/logs
-mkdir -p /srv/virtualfolder/logs /etc/westlife
+mkdir -p /etc/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant

@@ -77,7 +77,6 @@ mkdir /etc/westlife
 #mkdir /home/vagrant/b2drop
 #chown vagrant:vagrant /home/vagrant/b2drop
 # dir for logs
-mkdir -p /srv/virtualfolder/logs
 chown apache:apache /srv/virtualfolder
 #adding vagrant and apache into davfs2 group
 usermod -a -G davfs2 vagrant
