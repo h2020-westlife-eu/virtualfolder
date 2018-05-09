@@ -25,13 +25,10 @@ namespace WP6Service2.Services.PerUserProcess
         private const string Vfstoragevariable = "VF_STORAGE_DIR";
         private const string Vflogdirvariable = "VF_LOG_DIR";
 
-        private readonly string _rootdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
-            ? Environment.GetEnvironmentVariable(Vfstoragevariable)
-            : "/srv/virtualfolder/";
-
-        private readonly string _logdir = Environment.GetEnvironmentVariable(Vfstoragevariable) != null
-            ? Environment.GetEnvironmentVariable(Vflogdirvariable)
-            : "/var/log/westlife/";
+        private readonly string _logdir = String.IsNullOrEmpty(Environment.GetEnvironmentVariable(Vfstoragevariable))
+            ? "/var/log/westlife/"
+            : Environment.GetEnvironmentVariable(Vflogdirvariable);
+            
 
         
         public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,

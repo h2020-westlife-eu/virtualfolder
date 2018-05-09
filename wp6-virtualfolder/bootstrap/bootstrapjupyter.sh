@@ -30,17 +30,18 @@ $DIR/$VERSION/bin/conda install -y pivottablejs jupyterlab
 $DIR/$VERSION/bin/conda install -y -c conda-forge bqplot mpld3 ipython-sql
 # jupyter nglview and ssbio
 $DIR/$VERSION/bin/conda install -y nglview ssbio
+jupyter-nbextension enable nglview --py --sys-prefix
 DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
 sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
 
 #install dependencies of ssbio
 #dssp
-yum install dssp
+yum install -y dssp
 ln -s /usr/bin/mkdssp /usr/bin/dssp
-yum install msms
-ln -s /usr/local/lib/msms/msms.x86_64Linux2.2.6.1 /usr/local/bin/msms
-ln -s /usr/local/lib/msms/pdb_to_xyzr* /usr/local/bin/
+#yum install msms
+#ln -s /usr/local/lib/msms/msms.x86_64Linux2.2.6.1 /usr/local/bin/msms
+#ln -s /usr/local/lib/msms/pdb_to_xyzr* /usr/local/bin/
 #stride
 #mkdir -p /usr/local/lib/stride
 #freesasa
