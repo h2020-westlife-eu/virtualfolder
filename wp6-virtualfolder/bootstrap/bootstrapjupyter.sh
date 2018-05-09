@@ -7,7 +7,9 @@
 DIR=$WP6SRC
 VERSION=jupyter
 
-sudo yum install -y wget
+#sudo in case this script is executed after installation
+sudo yum install -y wget bzip2
+
 mkdir -p $DIR
 cd $DIR
 if [ ! -f Miniconda3-latest-Linux-x86_64.sh ]; then
