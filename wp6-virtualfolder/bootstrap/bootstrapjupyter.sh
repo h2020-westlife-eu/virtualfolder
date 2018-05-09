@@ -29,4 +29,5 @@ $DIR/$VERSION/bin/conda install -y scikit-image line_profiler memory_profiler nu
 $DIR/$VERSION/bin/conda install -y pivottablejs jupyterlab
 $DIR/$VERSION/bin/conda install -y -c conda-forge bqplot mpld3 ipython-sql
 DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
-sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/wp6-virtualfolder/scripts/startJupyter.sh
+sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
+sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
