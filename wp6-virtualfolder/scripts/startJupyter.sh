@@ -66,12 +66,12 @@ function removeapacheproxy {
 
 function killjupyter {
 ps -x | grep "port $1"
-PIDS=`ps -x | grep "jupyter-notebook --port $1" | awk '{ print $1 }'`
+PIDS=`ps -axf | grep "jupyter-notebook --port $1" | awk '{ print $1 }'`
 echo killing jupyter processes $PIDS
 kill $PIDS
 }
 
-#echo startJupyter.sh called with args: $1:$2:$3:$4
+echo startJupyter.sh called with args: $1:$2:$3:$4:$5
 
 if [ -z $2 ]; then
   echo missing username
@@ -112,11 +112,11 @@ if [ $1 == 'add' ]; then
     setjupyterurl $4
     if [ -z $5 ]; then
       echo launching jupyter without logs
-      source /cvmfs/west-life.egi.eu/software/jupyter/latest/bin/activate py3
+      source /opt/virtualfolder/west-life-wp6/wp6-virtualfolder/jupyter/bin/activate py3
       jupyter notebook --port $3 --no-browser &
     else
       echo launching jupyter log to $5
-      source /cvmfs/west-life.egi.eu/software/jupyter/latest/bin/activate py3
+      source /opt/virtualfolder/west-life-wp6/wp6-virtualfolder/jupyter/bin/activate py3
       jupyter notebook --port $3 --no-browser >$5 2>&1 &
     fi
     exit
