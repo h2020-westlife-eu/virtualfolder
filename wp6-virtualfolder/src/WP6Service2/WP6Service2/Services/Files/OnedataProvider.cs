@@ -65,7 +65,7 @@ namespace MetadataService.Services.Files
 
             var result = new List<SBFile>();
             
-            var normPath = path.Trim().Trim(new char[] {'/'});
+            var normPath = path == null ? "" : path.Trim().Trim(new char[] {'/'});
             
             var pathAttrs = (JObject) processRequest(attrAPIURL + "/" + normPath);
 
@@ -98,14 +98,36 @@ namespace MetadataService.Services.Files
 
                 foreach(var fItem in dirItems)
                 {
-                    var filePath = normPath + "/" + fItem;
+                    var filePath = normPath == "" ? fItem : normPath + "/" + fItem;
                     var fileAttrs = (JObject) processRequest(attrAPIURL + "/" + filePath);
-                    result.Add(buildSBFile(filePath, fileAttrs));
+                    bool isDir = (string) fileAttrs[OD_ATTR_TYPE] == "dir";
+                    var fType = isDir ? FileType.Directory : FileType.None;
+                    fType = fType | FileType.Read | FileType.Available;                        // TODO fix type
+
+                    result.Add(new SBFile {
+                        path=filePath,
+                        name = (string) fileAttrs[OD_ATTR_NAME],
+                        attributes = isDir ? FileAttributes.Directory : FileAttributes.Normal, // TODO fix attributes
+                        size = isDir ? 0 : (ulong) fileAttrs[OD_ATTR_SIZE],
+                        date = new DateTime((long) fileAttrs[OD_ATTR_MTIME] * 10000),
+                        filetype = fType, 
+                        webdavuri = WEBDAVURL + filePath,
+                        publicwebdavuri = PUBLICWEBDAVURL + "/" + filePath
+                    });
                 }
             }
             else
             {
-                result.Add(buildSBFile(normPath, pathAttrs));
+                result.Add(new SBFile {
+                    path=normPath,
+                    name = (string) pathAttrs[OD_ATTR_NAME],
+                    attributes = FileAttributes.Normal,                        // TODO fix attributes
+                    size = (ulong) pathAttrs[OD_ATTR_SIZE],
+                    date = new DateTime((long) pathAttrs[OD_ATTR_MTIME] * 10000),
+                    filetype = FileType.Read | FileType.Available,             // TODO fix type
+                    webdavuri = WEBDAVURL + normPath,
+                    publicwebdavuri = PUBLICWEBDAVURL + "/" + normPath
+                });
             }
 
             return result;
@@ -131,30 +153,6 @@ namespace MetadataService.Services.Files
                     return JToken.ReadFrom(jsonReader);
                 }
             }
-        }
-
-        private SBFile buildSBFile(string filePath, JObject jAttrs)
-        {
-            /*
-             * TODO fix attributes and type
-             */
-            bool isDir = (string) jAttrs[OD_ATTR_TYPE] == "dir";
-            FileType fType = isDir ? FileType.Directory : FileType.None;
-            fType |= FileType.Read | FileType.Available;
-
-            FileAttributes fAttrs = isDir ? FileAttributes.Directory : FileAttributes.Normal;
-            
-            return new SBFile
-            {
-                path = Path.GetDirectoryName(filePath),
-                name = (string) jAttrs[OD_ATTR_NAME],
-                attributes = fAttrs,
-                size = (ulong) jAttrs[OD_ATTR_SIZE],
-                date = new DateTime((long) jAttrs[OD_ATTR_MTIME] * 10),
-                filetype = fType,
-                webdavuri = WEBDAVURL + filePath,
-                publicwebdavuri = PUBLICWEBDAVURL + "/" + filePath
-            };
         }
 
         private bool validateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
