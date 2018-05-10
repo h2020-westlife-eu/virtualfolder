@@ -16,7 +16,7 @@ namespace WP6Service2.Services.PerUserProcess
         protected IHttpRequest request;
         protected IDbConnection db;
         private int pid;
-        public DefaultJob(string jobname,IHttpRequest _request,IDbConnection _db,int _pid=0)
+        public DefaultJob(string jobname,IHttpRequest _request,IDbConnection _db,int _pid=0,string args="")
         {
             jobtype = AvailableJobs.getList().First(x => x.Name == jobname);
             request = _request;
