@@ -65,9 +65,11 @@ function removeapacheproxy {
 }
 
 function killjupyter {
-ps -x | grep "port $1"
-PIDS=`ps -x | grep "jupyter-notebook --port $1" | awk '{ print $1 }'`
-echo killing jupyter processes $PIDS
+echo processes to kill on port $1:
+echo ps -ef \| egrep "[p]ort $1"
+ps -ef | egrep "[p]ort $1"
+PIDS=`ps -ef | egrep "[p]ort $1" | awk '{ print $2 }'`
+echo killing jupyterlab processes $PIDS
 kill $PIDS
 }
 
