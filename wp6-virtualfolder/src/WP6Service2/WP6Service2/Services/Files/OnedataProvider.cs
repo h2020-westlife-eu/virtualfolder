@@ -30,6 +30,7 @@ namespace MetadataService.Services.Files
         private readonly string OD_ATTR_NAME = "name";
         private readonly string OD_ATTR_SIZE = "size";
         private readonly string OD_ATTR_TYPE = "type";
+        private readonly string OD_ATTR_MODE = "mode";
 
         /* JSON parameters from file API */
         private readonly string OD_FILE_PATH = "path";
@@ -100,17 +101,14 @@ namespace MetadataService.Services.Files
                 {
                     var filePath = normPath == "" ? fItem : normPath + "/" + fItem;
                     var fileAttrs = (JObject) processRequest(attrAPIURL + "/" + filePath);
-                    bool isDir = (string) fileAttrs[OD_ATTR_TYPE] == "dir";
-                    var fType = isDir ? FileType.Directory : FileType.None;
-                    fType = fType | FileType.Read | FileType.Available;                        // TODO fix type
 
                     result.Add(new SBFile {
                         path=filePath,
                         name = (string) fileAttrs[OD_ATTR_NAME],
-                        attributes = isDir ? FileAttributes.Directory : FileAttributes.Normal, // TODO fix attributes
-                        size = isDir ? 0 : (ulong) fileAttrs[OD_ATTR_SIZE],
-                        date = new DateTime((long) fileAttrs[OD_ATTR_MTIME] * 10000),
-                        filetype = fType, 
+                        attributes = calcFileAttrs(fileAttrs),
+                        size = (ulong) fileAttrs[OD_ATTR_SIZE],
+                        date = calcDate(pathAttrs),
+                        filetype = calcFileType(fileAttrs), 
                         webdavuri = WEBDAVURL + filePath,
                         publicwebdavuri = PUBLICWEBDAVURL + "/" + filePath
                     });
@@ -121,10 +119,10 @@ namespace MetadataService.Services.Files
                 result.Add(new SBFile {
                     path=normPath,
                     name = (string) pathAttrs[OD_ATTR_NAME],
-                    attributes = FileAttributes.Normal,                        // TODO fix attributes
+                    attributes = calcFileAttrs(pathAttrs),
                     size = (ulong) pathAttrs[OD_ATTR_SIZE],
-                    date = new DateTime((long) pathAttrs[OD_ATTR_MTIME] * 10000),
-                    filetype = FileType.Read | FileType.Available,             // TODO fix type
+                    date = calcDate(pathAttrs),
+                    filetype = calcFileType(pathAttrs),
                     webdavuri = WEBDAVURL + normPath,
                     publicwebdavuri = PUBLICWEBDAVURL + "/" + normPath
                 });
@@ -163,6 +161,32 @@ namespace MetadataService.Services.Files
              */
             return true;
         }
+        
+        private FileType calcFileType(JObject infos)
+        {
+            var type = (string) infos[OD_ATTR_TYPE];
+            var mode = (int) infos[OD_ATTR_MODE];
+            
+            var result = FileType.Read | FileType.Available;
+            if (type == "dir") result |= FileType.Directory;
+            if ((((mode % 1000) / 100) & 2) > 0) result |= FileType.Write;
+            
+            return result;
+        }
+        
+        private FileAttributes calcFileAttrs(JObject infos)
+        {
+            var type = (string) infos[OD_ATTR_TYPE];
+            return type == "dir" ? FileAttributes.Directory : FileAttributes.Normal;
+        }
+        
+        private DateTime calcDate(JObject infos)
+        {
+            double offset = (double) infos[OD_ATTR_MTIME];
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return origin.AddSeconds(offset);
+        }
+
     }
     
     public class OnedataClientException : Exception
