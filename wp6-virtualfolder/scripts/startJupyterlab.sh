@@ -112,11 +112,11 @@ if [ $1 == 'add' ]; then
     setjupyterurl $4
     if [ -z $5 ]; then
       echo launching jupyter without logs
-      source /cvmfs/west-life.egi.eu/software/jupyter/latest/bin/activate py3
+      source /opt/virtualfolder/west-life-wp6/wp6-virtualfolder/jupyter/bin/activate py3
       jupyter lab --port $3 --no-browser &
     else
       echo launching jupyter log to $5
-      source /cvmfs/west-life.egi.eu/software/jupyter/latest/bin/activate py3
+      source /opt/virtualfolder/west-life-wp6/wp6-virtualfolder/jupyter/bin/activate py3
       jupyter lab --port $3 --no-browser >$5 2>&1 &
     fi
     exit
