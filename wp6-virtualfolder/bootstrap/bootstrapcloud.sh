@@ -64,5 +64,7 @@ systemctl enable westlife-metadata
 systemctl start westlife-metadata
 #single deployment comment, VRE deployment, uncomment
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; else
+  if [ -d /vagrant ]; then /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts/addfilesystemprovider.sh; fi
+fi
 echo "BOOTSTRAP FINISHED, VM prepared to use"
