@@ -9,7 +9,7 @@ yum repolist
 yum -y install davfs2
 systemctl start httpd
 systemctl enable httpd
-mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife
+mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
@@ -53,7 +53,10 @@ chmod ugo+x /home/vagrant/Desktop/*
 # preparing autostart
 chmod -R 700 /etc/westlife 
 #add permission to allow browse webdav content in /home/vagrant/work
-chmod ugo+rwx /srv/virtualfolder
+chmod ug+rwx /srv/virtualfolder
+chown vagrant:apache /srv/virtualfolder
+chmod 700 /var/lib/westlife
+chown vagrant:vagrant /var/lib/westlife
 touch /etc/westlife/vresqlite.db
 chown -R vagrant:vagrant /home/vagrant
 systemctl reload
