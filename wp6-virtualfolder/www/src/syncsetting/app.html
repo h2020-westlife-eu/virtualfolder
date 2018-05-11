@@ -14,6 +14,8 @@
     </tr>
     </thead>
     <tbody>
+    <tr if.bind="loading"><td><ispincog></ispincog></td></tr>
+    <tr if.bind="loadederror"><td><ispincog></ispincog></td></tr>
     <tr class="w3-hover-green" repeat.for="provider of providers">
       <td>${provider.alias}</td><td>${provider.type}</td><td align="center"><i show.bind="!provider.selected" class="fa fa-care-down" click.delegate="includeProvider(provider)"></i><i show.bind="provider.selected" class="fa fa-remove" click.delegate="notIncludeProvider(provider)"></i></td>
     </tr>

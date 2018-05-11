@@ -42,14 +42,14 @@ fi
 # transcript of bootstrapvre.sh, single deployment comment # transcript of bootstrapscipion.sh
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then yum -y install python-virtualenv; fi
 #yum -y install openmpi openmpi-devel
-export PATH=$PATH;/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
-sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
+export PATH=$PATH:/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
 mkdir -p /home/vagrant/.config/scipion/myfirstmap /home/vagrant/.config/scipion/mymovies /home/vagrant/.config/scipion/myresmap /home/vagrant/.config/scipion/firstmap /home/vagrant/.config/scipion/movies /home/vagrant/.config/scipion/resmap
 mkdir -p /home/vagrant/ScipionUserData/data/tests
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myfirstmap
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/mymovies
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myresmap
 cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/Desktop/scipion* /home/vagrant/Desktop
+sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
 chmod ugo+x /home/vagrant/Desktop/*
 # preparing autostart
 chmod -R 700 /etc/westlife 

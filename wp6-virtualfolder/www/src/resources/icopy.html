@@ -1,0 +1,8 @@
+<template bindable="href">
+  <!-- make input element small - hidden will not allow to select/copy text to clipboard -->
+  <input type="text" ref="hrefid" style="overflow: hidden;width: 0px;height:0px"/>
+  <!-- overlap the input element small remaining box with icon - margin -10px -->
+  <span title="Copy url to clipboard" click.trigger="copyclipboard()" style="margin:0px 0px 0px -15px">
+    <i class="fa fa-clipboard"></i>
+  </span>
+</template>
