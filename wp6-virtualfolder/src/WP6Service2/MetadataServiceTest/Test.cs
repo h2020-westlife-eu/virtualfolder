@@ -10,7 +10,6 @@ using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
 using ServiceStack.ServiceClient.Web;
-using WP6Service2.Services.Cerif;
 using WP6Service2.Services.Dataset;
 using WP6Service2.Services.PerUserProcess;
 
@@ -408,28 +407,7 @@ namespace MetadataServiceTest
             catch (Exception e) {
                 throw e;
             }
-        }
-
-        [Test]
-        public void GetCerifProjectsReturnsNonZeroListTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var gp = new GetProjects();
-            var projects = client.Get(gp);
-            Assert.True(projects.Count>0);            
-        }
-
-        [Test]
-        public void GetCerifProjectsReturnsRequestedProjectTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var gp = new GetProjects() {Name = "West-Life"};
-            var projects = client.Get(gp);
-            Assert.True(projects.Count>0);
-            Assert.True(projects[0].cfTitle.StartsWith("West-Life")); 
-            projects = client.Get(new GetProjects(){Name="Nonsense"});
-            Assert.True(projects.Count==0);                        
-        }        
+        }   
 
         [Test]
         public void CreateAndDeleteUserJobServiceTestCase()
@@ -437,15 +415,15 @@ namespace MetadataServiceTest
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
             Assert.That(all.Count>=0);
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             Thread.Sleep(10000);
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             //Assert.True(jp.);            
         }
@@ -458,8 +436,8 @@ namespace MetadataServiceTest
             Assert.True(all.Count>=0);
             var runingjobs = all.Count;
             //create job
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             all = client.Get(new GetUserJobs());
@@ -467,8 +445,8 @@ namespace MetadataServiceTest
             Assert.True(all.Count==(runingjobs+1));            
             Thread.Sleep(10000);
             //create 2nd job
-            jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             all = client.Get(new GetUserJobs());
@@ -478,7 +456,7 @@ namespace MetadataServiceTest
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             all = client.Get(new GetUserJobs());
             //number of jobs decreases by 1, to previous number of running jobs
@@ -491,29 +469,29 @@ namespace MetadataServiceTest
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
             Assert.That(all.Count>=0);
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             Thread.Sleep(10000);
             
             var at = client.Get(new AvailableTasks());
-            //check that jupyter is there
-            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check that notebook is there
+            Assert.True(at.Select(x=>x.Name).Contains("notebook"));
             //check it is running
-            var task = at.First(x => x.Name == "jupyter");            
+            var task = at.First(x => x.Name == "notebook");            
             Assert.True(task.Running);
             
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             at = client.Get(new AvailableTasks());
-            //check that jupyter is there
-            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check that notebook is there
+            Assert.True(at.Select(x=>x.Name).Contains("notebook"));
             //check it is not running
-            task = at.First(x => x.Name == "jupyter");            
+            task = at.First(x => x.Name == "notebook");            
             Assert.False(task.Running);
             
             //Assert.True(jp.);            
