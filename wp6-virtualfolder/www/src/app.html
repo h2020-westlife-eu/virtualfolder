@@ -1,14 +1,10 @@
 <template>
   <require from="./w3.css"></require>
-  <div class="w3-card-2 w3-sand w3-center">
-    <h3>Virtual Folder</h3>
-  </div>
-  <div if.bind="firsttime">
-    <intro></intro>
-    <setting></setting>
-  </div>
-  <div if.bind="!firsttime">
-    <filemanager></filemanager>
-  </div>
-</template>
+  <require from="components/sharedheader"></require>
+  <require from="components/sharedfooter.html"></require>
 
+  <sharedheader router.bind="router"></sharedheader>
+  <router-view></router-view>
+  <sharedfooter></sharedfooter>
+
+</template>

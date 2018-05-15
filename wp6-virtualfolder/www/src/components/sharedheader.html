@@ -1,0 +1,28 @@
+<template bindable="router">
+  <require from="./heads.css"></require>
+  <require from="./instructmenu.html"></require>
+  <div class="vf-white">
+    <a href="/">
+      <picture>
+        <source srcset="img/westlife-logo.png">
+        <img class="logo" style="height:60px" src="img/westlife-logo.png" alt="brand logo">
+      </picture>
+
+    </a>
+    <nav class="vf-white">
+
+      <ul>
+        <li class="nav-item"><a href="#/">Virtual Folder</a>
+          <ul>
+            <li repeat.for="row of router.navigation" class="nav-item"><a href.bind="row.href">${row.title}</a></li>
+            <li class="nav-item" show.bind="!showuserinfo"><a href="/login">Login</a></li>
+            <li class="nav-item" show.bind="showuserinfo"><a href.bind="userinfo.AccountLink">'${userinfo.username}' account</a></li>
+            <li class="nav-item" show.bind="showuserinfo"><a href.bind="userinfo.LogoutLink">Logout</a></li>
+            </li>
+          </ul>
+        </li>
+        <instructmenu></instructmenu>
+      </ul>
+    </nav>
+  </div>
+</template>

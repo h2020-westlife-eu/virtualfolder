@@ -114,6 +114,7 @@
     <Compile Include="Services\Settings\SettingsStorageInDB.cs" />
     <Compile Include="Services\Settings\SettingsStorageInFile.cs" />
     <Compile Include="Services\Settings\SimpleHash.cs" />
+    <Compile Include="Services\Userinfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

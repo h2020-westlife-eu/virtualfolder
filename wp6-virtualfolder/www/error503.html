@@ -4,16 +4,16 @@
 
 <body class="w3-container">
 
-<h1>HTTP 503. Background service is still not available.</h1>
+<h1>HTTP 502. Background service is still not available.</h1>
 <p>It may take up to several minutes. This page will reload after 60 s. </p>
-<p>If problem persists, look to logs or contact system administrator.</p>
+<p>If the problem persists, look at web server logs or contact administrator.</p>
 
 <script>
   // Your application has indicated there's an error
   window.setTimeout(function(){
 
     // Move to a new location or you can do something else
-    window.location.href = "/";
+    window.location.reload(true);
 
   }, 60000);
 </script>

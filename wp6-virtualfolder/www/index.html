@@ -1,20 +1,23 @@
+<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+  <meta name="description" content="West-life Virtual Folder components">
+  <meta name="author" content="Tomas Kulhanek">
+  <meta name="copyright" content="West-Life consortium">
+  <title>West-Life Virtual Folder</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="css/fa/css/font-awesome.min.css">
 
-<!--#include virtual="heads.html" -->
+  <meta name="msapplication-TileColor" content="#da532c">
 </head>
 
 <body>
-
-<!--#include virtual="header.html" -->
-
-<div aurelia-app="virtualfolderhome/main">
-   <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
-   <img src="img/vfloader.gif"/>
-  Loading ...
+<div aurelia-app="main">
+  <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+  <script src="scripts/app-bundle.js"></script>
+  Loading <i class="fa fa-spinner fa-spin"></i>
 </div>
-
-<!--#include virtual="footer.html" -->
-
 </body>
 </html>

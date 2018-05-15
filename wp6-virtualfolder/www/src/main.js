@@ -1,8 +1,5 @@
-import environment from './environment';
-
-//Configure Bluebird Promises.
+//Configure Bluebird Promises not to throw warnings about aurelia empty promises
 Promise.config({
-  longStackTraces: environment.debug,
   warnings: {
     wForgottenReturn: false
   }
@@ -11,15 +8,7 @@ Promise.config({
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
-    .feature('resources');
-
-  if (environment.debug) {
-    aurelia.use.developmentLogging();
-  }
-
-  if (environment.testing) {
-    aurelia.use.plugin('aurelia-testing');
-  }
-
+    .feature('resources')
+    .developmentLogging();
   aurelia.start().then(() => aurelia.setRoot());
 }

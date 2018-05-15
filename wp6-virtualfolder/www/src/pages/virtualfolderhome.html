@@ -1,10 +1,6 @@
 <template>
   <require from="../w3.css"></require>
-  <require from="../navitem"></require>
   <require from="../virtualfoldersetting/taskcontrol"></require>
-  <div class="w3-margin">
-    <navitem href="index.html">VF Home</navitem>
-  </div>
 
   <div class="w3-half">
     <div class="w3-card-2 w3-white w3-margin w3-padding">
@@ -50,21 +46,13 @@
       </p>
     </div>
   </div>
-  <div class="w3-half">
+  <!-- TODO check if tasks are available by backend -->
+  <div if.bind="islocalhost" class="w3-half">
     <div class="w3-card-2 w3-white w3-margin w3-padding">
       <h3>Available local services</h3>
-  <div if.bind="islocalhost">
-    <taskcontrol></taskcontrol>
-  </div>
+      <div>
+        <taskcontrol></taskcontrol>
       </div>
     </div>
-
-  <div class="w3-clear"></div>
-  <div class="w3-card-2 w3-white w3-margin w3-padding">
-    <p>
-      This project is funded by Horizon 2020
-      West-Life is part of the e-Infrastructure Virtual Research Environment (VRE) project No. 675858
-    </p>
   </div>
-
 </template>
