@@ -13,12 +13,14 @@
 
       <ul>
         <li class="nav-item"><a href="#/">Virtual Folder</a>
-          <ul>
+          <ul show.bind="showuserinfo">
             <li repeat.for="row of router.navigation" class="nav-item"><a href.bind="row.href">${row.title}</a></li>
-            <li class="nav-item" show.bind="!showuserinfo"><a href="/login">Login</a></li>
-            <li class="nav-item" show.bind="showuserinfo"><a href.bind="userinfo.AccountLink">'${userinfo.username}' account</a></li>
-            <li class="nav-item" show.bind="showuserinfo"><a href.bind="userinfo.LogoutLink">Logout</a></li>
+            <li class="nav-item"><a href.bind="userinfo.AccountLink">'${userinfo.username}' account</a></li>
+            <li class="nav-item"><a href.bind="userinfo.LogoutLink">Logout</a></li>
             </li>
+          </ul>
+          <ul show.bind="!showuserinfo">
+            <li class="nav-item"><a href="/login">Login</a></li>
           </ul>
         </li>
         <instructmenu></instructmenu>

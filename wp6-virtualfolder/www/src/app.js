@@ -5,9 +5,9 @@ export class App {
 
     config.map([
       {route: ['', 'dashboard'], name: 'dashboard', moduleId: 'pages/virtualfolderhome', nav: true, title: 'Dashboard'},
-      {route: 'setting', name: 'setting', moduleId: 'pages/virtualfolderhome', nav: true, title: 'Setting'},
-      {route: 'filemanager', name: 'filemanager', moduleId: 'pages/virtualfolderhome', nav: true, title: 'File Manager'},
-      {route: 'filepicker', name: 'filepicker', moduleId: 'pages/virtualfolderhome', nav: true, title: 'File Picker'},
+      {route: 'setting', name: 'setting', moduleId: 'pages/virtualfoldersetting', nav: true, title: 'Setting'},
+      {route: 'filemanager', name: 'filemanager', moduleId: 'pages/filemanager', nav: true, title: 'File Manager'},
+      {route: 'filepicker', name: 'filepicker', moduleId: 'pages/filepicker', nav: true, title: 'File Picker'}
 
     ]);
     this.router = router;

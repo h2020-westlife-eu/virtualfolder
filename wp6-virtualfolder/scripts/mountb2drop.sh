@@ -14,8 +14,8 @@
 HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
 HTTPD_SERVICE="httpd"
 
-#VF_SKIP_APACHE_CONF=1 #will skip to proxy directly to b2drop or webdav - will go via davfs
-VF_SKIP_APACHE_CONF=0
+VF_SKIP_APACHE_CONF=1 #will skip to proxy directly to b2drop or webdav - will go via davfs
+#VF_SKIP_APACHE_CONF=0
 
 
 function checkproxy {
