@@ -4,11 +4,13 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
+using ServiceStack.Common;
 using ServiceStack.ServiceClient.Web;
 using WP6Service2.Services.Dataset;
 using WP6Service2.Services.PerUserProcess;
@@ -363,12 +365,17 @@ namespace MetadataServiceTest
             //should delete - no provider list is there
             Assert.True(providerlistdeleted.Count == providerlist.Count);
         }
-        
+
         private ProviderItem createTestFilesystemProviderItem()
+        {
+            return createTestFilesystemProviderItem("filesystem_test");
+            
+        }
+        private ProviderItem createTestFilesystemProviderItem(string name)
         {
             var pi = new ProviderItem
             {
-                alias = "filesystem_test",
+                alias = name,
                 type = "FileSystem",
                 securetoken =
                     "/home/vagrant",                
@@ -379,8 +386,9 @@ namespace MetadataServiceTest
         
         [Test]
         public void RegisterFilesystemTestCase()
-        {            
-            var pi = createTestFilesystemProviderItem();            
+        {
+            var name = "filesystem_test3";
+            var pi = createTestFilesystemProviderItem(name);            
             var client = new JsonServiceClient(_baseUri);
             try {
                 var providerlist = client.Get(new ProviderItem());
@@ -388,11 +396,11 @@ namespace MetadataServiceTest
                 var providerlistwithnew = client.Put(pi);
                 //should register - new providers is added
                 Assert.True(providerlist.Count < providerlistwithnew.Count);
-                Assert.True(providerlistwithnew.Last().alias=="filesystem_test");
+                Assert.True(providerlistwithnew.Last().alias==name);
                 //test directory exists, it is mounted
-                Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/filesystem_test"));
+                Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/"+name));
                 //test directory is not empty - some dirs or files
-                Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/filesystem_test").Length>0);
+                Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/"+name).Length>0);
 
                 var providerlistdeleted = client.Delete(pi);
                 //should delete - no provider list is there
@@ -400,17 +408,15 @@ namespace MetadataServiceTest
             }
             catch (WebServiceException e)
             {
-        	if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
-                Console.WriteLine(e.Message);
-                throw e;
+        	   if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
+               Console.WriteLine(e.Message);
+               throw;
             }
-            catch (Exception e) {
-                throw e;
-            }
+            
         }   
 
         [Test]
-        public void CreateAndDeleteUserJobServiceTestCase()
+        public void Task1CreateAndDeleteUserJobServiceTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
@@ -428,7 +434,7 @@ namespace MetadataServiceTest
             //Assert.True(jp.);            
         }
         [Test]
-        public void CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
+        public void Task2CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
@@ -464,7 +470,7 @@ namespace MetadataServiceTest
         }
 
         [Test]
-        public void CreateTaskCheckAvailableTaskDeleteTaskTestCase()
+        public void Task3CreateTaskCheckAvailableTaskDeleteTaskTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
@@ -497,5 +503,60 @@ namespace MetadataServiceTest
             //Assert.True(jp.);            
 
         }
+
+        [Test]
+        public void Settings1CreatePublicKeyExportSettingsTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            Assert.That(! pkey.IsNullOrEmpty());
+        }
+
+        [Test]
+        public void Settings2ExportSettingsTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            //Assert.That(! pkey.IsNullOrEmpty());
+            ExportSettings es = new ExportSettings(){PublicKey = pkey,SelectedAliases = "filesystem_test"};            
+            var settings2 = client.Get(es);
+            Assert.That(! settings2.IsNullOrEmpty());
+        }
+
+        [Test]
+        public void Settings3ImportSettingsTestCase()
+        {            
+            var client = new JsonServiceClient(_baseUri);
+            Random r = new Random();
+            var name = "filesystem_test"+r.Next(1,10000);
+            var pi = createTestFilesystemProviderItem(name);            
+            //var providerlist = client.Get(new ProviderItem());
+            //register test filesystem provider
+            var providerlistwithnew = client.Put(pi);
+            //get list of providers - to compare at the end of the test
+            var providerlist = client.Get(new ProviderItem());
+            int plength = providerlist.Count;
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            //Assert.That(! pkey.IsNullOrEmpty());
+            ExportSettings es = new ExportSettings(){PublicKey = pkey,SelectedAliases = name};            
+            var settings2 = client.Get(es);
+            //Assert.That(! settings2.IsNullOrEmpty());
+            ImportSettings isc = new ImportSettings(){PublicKey = pkey,EncryptedSettings = settings2,ConflictedAliases = name,NewNameAliases = name+"_import"};
+            client.Put(isc);
+            var providerlist2 = client.Get(new ProviderItem());
+            Assert.That(providerlist2.Count > plength);
+            // now clean after test, delete registered providers
+            foreach (var item in providerlist2)
+            {
+                client.Delete(item);
+            }            
+        }
+
     }
 }

@@ -103,7 +103,7 @@ namespace MetadataService.Services.Files
             {
                 throw new UnauthorizedAccessException();
             }
-        }
+        }                
 
         /** returns list of configured file providers */
         public ProviderList Get(ProviderItem request)

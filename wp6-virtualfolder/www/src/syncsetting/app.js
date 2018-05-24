@@ -22,13 +22,12 @@ export class App {
     //gets the status of the b2drop connection
     this.client.get(this.serviceurl)
       .then(data => {
-        //console.log("data response");
-        //console.log(data);
         this.loading =false;
         this.loadederror = false;
         this.ea.publish(new MayLogout(this.panelid));
         if (data.response) {
-          this.providers = JSON.parse(data.response);
+          let rawproviders = JSON.parse(data.response);
+          this.providers = rawproviders.map(x => {x.selected=false; return x; });
         }
       })
       .catch(error =>{
@@ -44,12 +43,19 @@ export class App {
       });
   }
 
-  includeSettings(provider) {
+  include(provider) {
     provider.selected = true;
+    console.log("syncsetting. include()",provider);
   }
   
-  notincludeSettings(provider) {
+  notinclude(provider) {
     provider.selected = false;
+    console.log("syncsetting. notinclude()",provider);
+  }
+
+  import() {
+    window.opener.postMessage("TODO test providers", "*");
+    window.close();
   }
 
 }

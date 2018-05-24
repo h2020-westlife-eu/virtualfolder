@@ -17,12 +17,17 @@
     <tr if.bind="loading"><td><ispincog></ispincog></td></tr>
     <tr if.bind="loadederror"><td><ispincog></ispincog></td></tr>
     <tr class="w3-hover-green" repeat.for="provider of providers">
-      <td>${provider.alias}</td><td>${provider.type}</td><td align="center"><i show.bind="!provider.selected" class="fa fa-care-down" click.delegate="includeProvider(provider)"></i><i show.bind="provider.selected" class="fa fa-remove" click.delegate="notIncludeProvider(provider)"></i></td>
+      <td>${provider.alias}</td>
+      <td>${provider.type}</td>
+      <td align="center">
+        <i show.bind="!provider.selected" class="fa fa-square-o" click.delegate="include(provider)" title="click to select"></i>
+        <i show.bind="provider.selected" class="fa fa-check-square-o" click.delegate="notinclude(provider)" title="click to remove"></i>
+      </td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
-      <td colspan="3"><button  class="w3-btn w3-round-large w3-blue" type="submit" class="w3-buttons">Import selected provider settings</button></td>
+      <td colspan="3"><button  class="w3-btn w3-round-large w3-blue" type="submit" class="w3-buttons" click.delegate="import()">Import selected provider settings</button></td>
     </tr>
     </tfoot>
   </table>

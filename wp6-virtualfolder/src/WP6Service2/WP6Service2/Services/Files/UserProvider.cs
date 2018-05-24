@@ -121,6 +121,11 @@ namespace MetadataService.Services.Files
                 {alias = x.alias, Id = x.Id, output = x.output, type = x.type, username = x.username}).ToList();
         }
 
+        public List<ProviderItem> getFullProviderItems()
+        {
+            return _providers;
+        }
+        
         public Dictionary<string, AFileProvider>.KeyCollection getAliases()
         {
             return linkedimpl.Keys;
