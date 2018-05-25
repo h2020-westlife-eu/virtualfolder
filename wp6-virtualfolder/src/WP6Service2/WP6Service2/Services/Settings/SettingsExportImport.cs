@@ -35,12 +35,12 @@ namespace MetadataService.Services.Settings
     }
 
     [Route("/settings", "POST")]
-    public class GeneratePublicKey : IReturn<string>
+    public class GeneratePublicKey : IReturn<string> //string with PublicKey
     {
     }
 
     [Route("/settings", "GET")]
-    public class ExportSettings : IReturn<string>
+    public class ExportSettings : IReturn<string>//string with base64 encoded encrypted settings using publickey
     {
         public string PublicKey{ get; set; }
         public string SelectedAliases{ get; set; }
