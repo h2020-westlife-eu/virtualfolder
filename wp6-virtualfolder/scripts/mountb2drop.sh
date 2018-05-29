@@ -66,10 +66,11 @@ function checkargs {
 }
 function addfstab {
   echo adding item to fstab [url] [localpath] $1 $2
-  if grep -q "$1 $2" /etc/fstab; then
+  LOCALPATH=`readlink -f $2`
+  if grep -q "$1 $LOCALPATH" /etc/fstab; then
     echo "already set"
   else
-    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "$1 $LOCALPATH davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
   fi
 }
 
@@ -133,7 +134,9 @@ function removeapacheproxy {
  echo removing apache proxy
  L1=`grep -n -m 1 "\<Location $1" $HTTPD_CONF | cut -f1 -d:`
  echo from row $L1
- if [ $L1 > 0 ]; then
+ if [ -z $L1 ]; then
+   echo is unset
+ elif [ "$L1" -gt "0" ]; then
    let L2=$L1+6
    echo to row $L2
    sudo sed -i "$L1,$L2 d" $HTTPD_CONF
@@ -154,11 +157,13 @@ echo - [webdavuri] url to proxy directly to the webdavprovider
 }
 
 checkargs $2 $3 $4 $5 $6
+# some paths containing symbolic link are expanded by davfs and then not associated correctly
+LOCALPATH=`readlink -f $3`
 
 if [ $1 == 'add' ]; then
   checkproxy
-  addfstab $2 $3
-  addsecrets $3 $4 $5
+  addfstab $2 $LOCALPATH
+  addsecrets $LOCALPATH $4 $5
   addapacheproxy $2 $6 $4 $5
   mkdir -p $3
   if [ ! -d $3 ]; then
@@ -166,14 +171,15 @@ if [ $1 == 'add' ]; then
     sudo umount $3
   fi
   #user needs to be member of group davfs2
-  mount $3
+  mount $LOCALPATH
   echo "mounted $3"
   exit
 fi
 
 if [ $1 == 'remove' ]; then
   #workaround, without sudo doesnt work
-  sudo umount $3
+  LOCALPATH=`readlink -f $3`
+  sudo umount $LOCALPATH
   rm -d $3
   removeapacheproxy $5
   removefstab $2 $3

@@ -65,20 +65,19 @@ systemctl start httpd
 systemctl enable httpd
 
 # share work directory via webdav - may be used to directly pass and process data
-mkdir /home/vagrant/work
-chmod ugo+rwx /home/vagrant/work
-#add permission to allow browse webdav content in /home/vagrant/work
+mkdir /srv/virtualfolder
+chmod ugo+rwx /srv/virtualfolder
+#add permission to allow browse webdav content in /srv/virtualfolder
 chmod go+rx /home/vagrant
 # workaround issue #6 store some config 
-mkdir /home/vagrant/.westlife
+mkdir /etc/westlife
 
-#chown vagrant:vagrant /home/vagrant/work
+#chown vagrant:vagrant /srv/virtualfolder
 # dir for local copy (owncloud synchronized)
 #mkdir /home/vagrant/b2drop
 #chown vagrant:vagrant /home/vagrant/b2drop
 # dir for logs
-mkdir /home/vagrant/logs
-chown apache:apache /home/vagrant/work
+chown apache:apache /srv/virtualfolder
 #adding vagrant and apache into davfs2 group
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache

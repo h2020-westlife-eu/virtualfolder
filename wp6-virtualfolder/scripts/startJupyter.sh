@@ -65,13 +65,15 @@ function removeapacheproxy {
 }
 
 function killjupyter {
-ps -x | grep "port $1"
-PIDS=`ps -x | grep "jupyter-notebook --port $1" | awk '{ print $1 }'`
+echo processes to kill on port $1:
+echo ps -ef \| egrep "[p]ort $1"
+ps -ef | egrep "[p]ort $1"
+PIDS=`ps -ef | egrep "[p]ort $1" | awk '{ print $2 }'`
 echo killing jupyter processes $PIDS
 kill $PIDS
 }
 
-#echo startJupyter.sh called with args: $1:$2:$3:$4
+echo startJupyter.sh called with args: $1:$2:$3:$4:$5
 
 if [ -z $2 ]; then
   echo missing username
@@ -99,7 +101,7 @@ if [ $1 == 'remove' ]; then
 fi
 
 if [ $1 == 'add' ]; then
-  WORKDIR=/home/vagrant/work/$2
+  WORKDIR=/srv/virtualfolder/$2
   if [ -d $WORKDIR ]; then
     echo working directory exists
   else

@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# copy rc.local - custom script to start processes at boot
-#touch /etc/rc.local
-#cat /home/vagrant/bootstrap/rc.local >>/etc/rc.local
-#chmod -R ugo+rwx /home/vagrant/scripts 
-#chmod +x /etc/rc.local
-#start the processes at first time - after that it will be started at boot
-#/etc/rc.local
-sed -i -e "s/\ExecStart.*$/ExecStart=\/home\/vagrant\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant\/VRE-master/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/home\/vagrant\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
-sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1\/home\/vagrant/g" /etc/systemd/system/westlife-metadata.service
+export WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
+export VREESC= $(echo $VREDIR | sed 's_/_\\/_g')
+sed -i -e "s/\ExecStart.*$/ExecStart=${VREESC}\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1${VREESC}\/VRE-master/g" /etc/systemd/system/westlife-vre.service
+sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/opt\/virtualfolder\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
 chown -R vagrant:vagrant /home/vagrant
+chown -R vagrant:vagrant ${WP6SRC}
+chown -R vagrant:vagrant ${VREDIR}
+
+#db files readable by vagrant user only
+mkdir -p /var/lib/westlife
+chown -R vagrant:vagrant /var/lib/westlife
+chmod 700 /var/lib/westlife
 
 # SELinux setting, allow proxy from apache to other services and security context to dir
 if hash setsebool 2>/dev/null; then
@@ -23,7 +24,9 @@ service httpd start
 systemctl enable westlife-metadata.service
 service westlife-metadata start
 sleep 2
-/home/vagrant/scripts/addfilesystemprovider.sh
+if [ -d /vagrant ]; then
+   $WP6SRC/scripts/addfilesystemprovider.sh
+fi
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 

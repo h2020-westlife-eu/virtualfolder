@@ -4,19 +4,20 @@ Description=West-Life VirtualFolder MetadataService
 [Service]
 Type=simple
 Environment=VF_VRE_API_URL=http://localhost/api/
-Environment=VF_STORAGE_DIR=/home/vagrant/work
+Environment=VF_STORAGE_DIR=/srv/virtualfolder/
 Environment=VF_ALLOW_FILESYSTEM=true
 Environment=VF_ALLOW_MODULES=true
-Environment=VF_ALLOW_JUPYTER=true
-Environment=VF_DATABASE_FILE=/home/vagrant/.westlife/metadata.sqlite
-EnvironmentFile=/home/vagrant/.westlife/metadata.key
+Environment=VF_ALLOW_LAB=true
+Environment=VF_ALLOW_NOTEBOOK=true
+Environment=VF_DATABASE_FILE=/var/lib/westlife/metadata.sqlite
+EnvironmentFile=/etc/westlife/metadata.key
 PIDFile=/var/run/westlife-metadata.pid
 User=vagrant
 ExecStart=/bin/mono /cvmfs/west-life.egi.eu/software/virtualfolder/latest/MetadataService/MetadataService.exe
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=westlife-metadata
-WorkingDirectory=/home/vagrant/
+WorkingDirectory=/srv/virtualfolder/
 
 [Install]
 WantedBy=multi-user.target

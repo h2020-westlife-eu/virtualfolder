@@ -1,0 +1,21 @@
+<template>
+
+  <div class="w3-white w3-card w3-round-large w3-margin w3-padding">
+    <h1>File picker</h1>
+    Pick file from public portal: <a class="w3-button" click.delegate="openwindow('fileid',
+   'https://portal.west-life.eu/virtualfolder/filepickercomponent.html'
+   )">West-life File</a>
+
+    <p>File URL:<a id="fileid" href=""></a></p>
+    Pick file from this VF instance:<a class="w3-button" click.delegate="openfilepickerwindow('file')">VF file</a>
+
+    <p>File URL:<a id="file" href=""></a></p>
+    <h1>Upload-dir picker</h1>
+    Pick directory from this VF instance:<a class="w3-button" click.delegate="openuploaddirpickerwindow('uploaddir')">VF dir</a>
+
+    <p>Directory URL:<a id="uploaddir" href=""></a></p>
+  </div>
+
+  </body>
+
+</template>

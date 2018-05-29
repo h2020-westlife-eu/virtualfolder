@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
+using ServiceStack.Common;
 using ServiceStack.ServiceClient.Web;
-using WP6Service2.Services.Cerif;
 using WP6Service2.Services.Dataset;
 using WP6Service2.Services.PerUserProcess;
 
@@ -21,6 +22,7 @@ namespace MetadataServiceTest
     {
         private readonly string _baseUri = "http://localhost:8001/metadataservice/";
         //private readonly string _baseUri = "http://localhost:8002/metadataservice/";
+        private readonly string homeVagrantWork = "/srv/virtualfolder/";
         
 
         [TestFixtureSetUp]
@@ -313,9 +315,10 @@ namespace MetadataServiceTest
             Assert.True(providerlist.Count < providerlistwithnew.Count);
             Assert.True(providerlistwithnew.Last().alias=="b2drop_test");
             //test directory exists, it is mounted
-            Assert.True(Directory.Exists("/home/vagrant/work/vagrant/b2drop_test"));
+            
+            Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/b2drop_test"));
             //test directory is not empty - some dirs or files
-            Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/b2drop_test").Length>0);
+            Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/b2drop_test").Length>0);
 
             var providerlistdeleted = client.Delete(pi);
             //should delete - no provider list is there
@@ -362,12 +365,17 @@ namespace MetadataServiceTest
             //should delete - no provider list is there
             Assert.True(providerlistdeleted.Count == providerlist.Count);
         }
-        
+
         private ProviderItem createTestFilesystemProviderItem()
+        {
+            return createTestFilesystemProviderItem("filesystem_test");
+            
+        }
+        private ProviderItem createTestFilesystemProviderItem(string name)
         {
             var pi = new ProviderItem
             {
-                alias = "filesystem_test",
+                alias = name,
                 type = "FileSystem",
                 securetoken =
                     "/home/vagrant",                
@@ -378,8 +386,9 @@ namespace MetadataServiceTest
         
         [Test]
         public void RegisterFilesystemTestCase()
-        {            
-            var pi = createTestFilesystemProviderItem();            
+        {
+            var name = "filesystem_test3";
+            var pi = createTestFilesystemProviderItem(name);            
             var client = new JsonServiceClient(_baseUri);
             try {
                 var providerlist = client.Get(new ProviderItem());
@@ -387,11 +396,11 @@ namespace MetadataServiceTest
                 var providerlistwithnew = client.Put(pi);
                 //should register - new providers is added
                 Assert.True(providerlist.Count < providerlistwithnew.Count);
-                Assert.True(providerlistwithnew.Last().alias=="filesystem_test");
+                Assert.True(providerlistwithnew.Last().alias==name);
                 //test directory exists, it is mounted
-                Assert.True(Directory.Exists("/home/vagrant/work/vagrant/filesystem_test"));
+                Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/"+name));
                 //test directory is not empty - some dirs or files
-                Assert.True(Directory.GetFiles("/home/vagrant/work/vagrant/filesystem_test").Length>0);
+                Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/"+name).Length>0);
 
                 var providerlistdeleted = client.Delete(pi);
                 //should delete - no provider list is there
@@ -399,56 +408,33 @@ namespace MetadataServiceTest
             }
             catch (WebServiceException e)
             {
-        	if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
-                Console.WriteLine(e.Message);
-                throw e;
+        	   if (e.Message == "UnauthorizedAccessException") Assert.Ignore();
+               Console.WriteLine(e.Message);
+               throw;
             }
-            catch (Exception e) {
-                throw e;
-            }
-        }
+            
+        }   
 
         [Test]
-        public void GetCerifProjectsReturnsNonZeroListTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var gp = new GetProjects();
-            var projects = client.Get(gp);
-            Assert.True(projects.Count>0);            
-        }
-
-        [Test]
-        public void GetCerifProjectsReturnsRequestedProjectTestCase()
-        {
-            var client = new JsonServiceClient(_baseUri);
-            var gp = new GetProjects() {Name = "West-Life"};
-            var projects = client.Get(gp);
-            Assert.True(projects.Count>0);
-            Assert.True(projects[0].cfTitle.StartsWith("West-Life")); 
-            projects = client.Get(new GetProjects(){Name="Nonsense"});
-            Assert.True(projects.Count==0);                        
-        }        
-
-        [Test]
-        public void CreateAndDeleteUserJobServiceTestCase()
+        public void Task1CreateAndDeleteUserJobServiceTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
             Assert.That(all.Count>=0);
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             Thread.Sleep(10000);
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             //Assert.True(jp.);            
         }
         [Test]
-        public void CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
+        public void Task2CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
@@ -456,8 +442,8 @@ namespace MetadataServiceTest
             Assert.True(all.Count>=0);
             var runingjobs = all.Count;
             //create job
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             all = client.Get(new GetUserJobs());
@@ -465,8 +451,8 @@ namespace MetadataServiceTest
             Assert.True(all.Count==(runingjobs+1));            
             Thread.Sleep(10000);
             //create 2nd job
-            jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             all = client.Get(new GetUserJobs());
@@ -476,7 +462,7 @@ namespace MetadataServiceTest
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             all = client.Get(new GetUserJobs());
             //number of jobs decreases by 1, to previous number of running jobs
@@ -484,38 +470,93 @@ namespace MetadataServiceTest
         }
 
         [Test]
-        public void CreateTaskCheckAvailableTaskDeleteTaskTestCase()
+        public void Task3CreateTaskCheckAvailableTaskDeleteTaskTestCase()
         {
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetUserJobs());
             Assert.That(all.Count>=0);
-            var jp = client.Post(new PostUserJob() {Name = "jupyter"});
-            Assert.True(jp.jobType=="jupyter");
+            var jp = client.Post(new PostUserJob() {Name = "notebook"});
+            Assert.True(jp.jobType=="notebook");
             Assert.True(jp.Id>=0);
             Assert.True(jp.Username.Equals("vagrant"));
             Thread.Sleep(10000);
             
             var at = client.Get(new AvailableTasks());
-            //check that jupyter is there
-            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check that notebook is there
+            Assert.True(at.Select(x=>x.Name).Contains("notebook"));
             //check it is running
-            var task = at.First(x => x.Name == "jupyter");            
+            var task = at.First(x => x.Name == "notebook");            
             Assert.True(task.Running);
             
             jp = client.Delete(
                 new PostUserJob()
                 {
-                    Name = "jupyter"
+                    Name = "notebook"
                 });
             at = client.Get(new AvailableTasks());
-            //check that jupyter is there
-            Assert.True(at.Select(x=>x.Name).Contains("jupyter"));
+            //check that notebook is there
+            Assert.True(at.Select(x=>x.Name).Contains("notebook"));
             //check it is not running
-            task = at.First(x => x.Name == "jupyter");            
+            task = at.First(x => x.Name == "notebook");            
             Assert.False(task.Running);
             
             //Assert.True(jp.);            
 
         }
+
+        [Test]
+        public void Settings1CreatePublicKeyExportSettingsTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            Assert.That(! pkey.IsNullOrEmpty());
+        }
+
+        [Test]
+        public void Settings2ExportSettingsTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            //Assert.That(! pkey.IsNullOrEmpty());
+            ExportSettings es = new ExportSettings(){PublicKey = pkey,SelectedAliases = "filesystem_test"};            
+            var settings2 = client.Get(es);
+            Assert.That(! settings2.IsNullOrEmpty());
+        }
+
+        [Test]
+        public void Settings3ImportSettingsTestCase()
+        {            
+            var client = new JsonServiceClient(_baseUri);
+            Random r = new Random();
+            var name = "filesystem_test"+r.Next(1,10000);
+            var pi = createTestFilesystemProviderItem(name);            
+            //var providerlist = client.Get(new ProviderItem());
+            //register test filesystem provider
+            var providerlistwithnew = client.Put(pi);
+            //get list of providers - to compare at the end of the test
+            var providerlist = client.Get(new ProviderItem());
+            int plength = providerlist.Count;
+            //SettingsExportImport mysettings= new SettingsExportImport();
+            GeneratePublicKey generatePublicKey = new GeneratePublicKey();
+            var pkey = client.Post(generatePublicKey);
+            //Assert.That(! pkey.IsNullOrEmpty());
+            ExportSettings es = new ExportSettings(){PublicKey = pkey,SelectedAliases = name};            
+            var settings2 = client.Get(es);
+            //Assert.That(! settings2.IsNullOrEmpty());
+            ImportSettings isc = new ImportSettings(){PublicKey = pkey,EncryptedSettings = settings2,ConflictedAliases = name,NewNameAliases = name+"_import"};
+            client.Put(isc);
+            var providerlist2 = client.Get(new ProviderItem());
+            Assert.That(providerlist2.Count > plength);
+            // now clean after test, delete registered providers
+            foreach (var item in providerlist2)
+            {
+                client.Delete(item);
+            }            
+        }
+
     }
 }

@@ -21,20 +21,36 @@ namespace WP6Service2.Services.PerUserProcess
         private long port =0;
         private string suffix;
         private string proxyurl;
-        private string outputlog;
+        private string outputlog;        
+        private const string Vflogdirvariable = "VF_LOG_DIR";
+
+        private readonly string _logdir = String.IsNullOrEmpty(Environment.GetEnvironmentVariable(Vflogdirvariable))
+            ? "/var/log/westlife/"
+            : Environment.GetEnvironmentVariable(Vflogdirvariable);
+            
+
         
-        public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid) : base(jobname, request, db,
-            pid)
+        public JupyterJob(string jobname, IHttpRequest request, IDbConnection db, int pid,string args) : base(jobname, request, db,
+            pid, args)
         {
-            port = getAvailablePort();
-            var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'),"[^A-Za-z0-9//]","");
-            suffix2 = suffix2.StartsWith("webdav/")?suffix2.Substring("webdav/".Length):suffix2;
-            //Console.WriteLine("JupyterJob: suffix="+suffix);
-            suffix2 = ShortUrl;//suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
-            proxyurl = "/vfnotebook" + "/"+suffix2;
-            //proxyurl= proxyurl.TrimEnd('/');
-            outputlog = "/home/vagrant/logs/"+jobname + DateTime.Now.Ticks + ".log";
-            suffix = request.Items["userid"] + " " +port + " " + proxyurl;//l+" "+getUrl();                        
+            if (pid == 0) //create new job
+            {
+                port = getAvailablePort();
+                var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'), "[^A-Za-z0-9//]", "");
+                suffix2 = suffix2.StartsWith("webdav/") ? suffix2.Substring("webdav/".Length) : suffix2;
+                //Console.WriteLine("JupyterJob: suffix="+suffix);
+                suffix2 = ShortUrl; //suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
+                proxyurl = "/vfnotebook" + "/" + suffix2;
+                //proxyurl= proxyurl.TrimEnd('/');
+                outputlog = _logdir + jobname + DateTime.Now.Ticks + ".log";
+                suffix = request.Items["userid"] + " " + port + " " + proxyurl; //l+" "+getUrl();
+            }
+            else
+            {
+                suffix = args;
+                outputlog = "";
+            }
+
         }
         
         const string BaseUrlChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

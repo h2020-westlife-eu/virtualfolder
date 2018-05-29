@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # change version for every release
-export VERSION=17.11
+export VERSION=18.05
 export WP6MODULE=wp6-repository
 #export WP6MODULE=wp6-repository
 

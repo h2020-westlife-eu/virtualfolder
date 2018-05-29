@@ -1,0 +1,16 @@
+<template>
+  <require from="../virtualfoldersetting/storageprovider"></require>
+  <require from="../virtualfoldersetting/taskcontrol"></require>
+  <require from="../virtualfoldersetting/clouddeployment"></require>
+
+  <storageprovider></storageprovider>
+
+  <div if.bind="islocalhost">
+    <taskcontrol></taskcontrol>
+  </div>
+
+  <div if.bind="islocalhost">
+    <clouddeployment></clouddeployment>
+  </div>
+
+</template>

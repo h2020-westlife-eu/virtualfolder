@@ -104,7 +104,8 @@ namespace MetadataService.Services.Files
             if (linkedimpl.TryGetValue(request.alias, out provider))
             {
                 provider.DeleteSettings();
-                _providers.RemoveAt(_providers.FindIndex(p => p.alias == request.alias));
+                //attempt to fix issue #66
+                _providers.Remove(_providers.Find(p => p.alias == request.alias));                
                 //destroy provider
                 linkedimpl.Remove(request.alias);
                 return _providers;
@@ -120,6 +121,11 @@ namespace MetadataService.Services.Files
                 {alias = x.alias, Id = x.Id, output = x.output, type = x.type, username = x.username}).ToList();
         }
 
+        public List<ProviderItem> getFullProviderItems()
+        {
+            return _providers;
+        }
+        
         public Dictionary<string, AFileProvider>.KeyCollection getAliases()
         {
             return linkedimpl.Keys;

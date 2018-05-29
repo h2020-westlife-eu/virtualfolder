@@ -9,7 +9,8 @@ yum repolist
 yum -y install davfs2
 systemctl start httpd
 systemctl enable httpd
-mkdir /home/vagrant/work /home/vagrant/.westlife /home/vagrant/logs
+mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife
+chmod go+wx /var/log/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
@@ -18,50 +19,53 @@ ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts /home/vagran
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
-  cat /home/vagrant/scripts/sudoers >>/etc/sudoers
+  cat /opt/virtualfolder/scripts/sudoers >>/etc/sudoers
 fi
 # transcript of bootstrapservice.sh
 cert-sync /etc/pki/tls/certs/ca-bundle.crt
 if [ -f /vagrant/metadata.key ]; then
-  cp /vagrant/metadata.key /home/vagrant/.westlife/metadata.key
-  cp /vagrant/metadata.sqlite /home/vagrant/.westlife/metadata.sqlite
+  cp /vagrant/metadata.key /etc/westlife/metadata.key
+  cp /vagrant/metadata.sqlite /etc/westlife/metadata.sqlite
 fi
 if [ -f /vagrant/westlife-metadata.service ]; then
   cp /vagrant/westlife-metadata.service /etc/conf/systemd/system/westlife-metadata.service
 fi
 
-if [ -f /home/vagrant/.westlife/metadata.key ]
+if [ -f /etc/westlife/metadata.key ]
 then
-   source /home/vagrant/.westlife/metadata.key
+   source /etc/westlife/metadata.key
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
-   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /home/vagrant/.westlife/metadata.key
+   echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /etc/westlife/metadata.key
 fi
 # transcript of bootstrapvre.sh, single deployment comment # transcript of bootstrapscipion.sh
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then yum -y install python-virtualenv; fi
 #yum -y install openmpi openmpi-devel
-export PATH=$PATH;/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
-sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
+export PATH=$PATH:/cvmfs/west-life.egi.eu/tools/openmpi/1.6.5/bin
 mkdir -p /home/vagrant/.config/scipion/myfirstmap /home/vagrant/.config/scipion/mymovies /home/vagrant/.config/scipion/myresmap /home/vagrant/.config/scipion/firstmap /home/vagrant/.config/scipion/movies /home/vagrant/.config/scipion/resmap
 mkdir -p /home/vagrant/ScipionUserData/data/tests
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myfirstmap
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/mymovies
 cp /cvmfs/west-life.egi.eu/software/scipion/latest/config/hosts.conf /home/vagrant/.config/scipion/myresmap
 cp /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/Desktop/scipion* /home/vagrant/Desktop
+sudo -E -i -u vagrant /cvmfs/west-life.egi.eu/software/scipion/latest/scipion config
 chmod ugo+x /home/vagrant/Desktop/*
 # preparing autostart
-chmod -R 600 /home/vagrant/.westlife
-chmod u+x /home/vagrant/.westlife 
+chmod -R 700 /etc/westlife 
 #add permission to allow browse webdav content in /home/vagrant/work
-chmod ugo+rwx /home/vagrant/work
-chmod go+rx /home/vagrant
-touch /home/vagrant/.westlife/vresqlite.db
+chmod ug+rwx /srv/virtualfolder
+chown vagrant:apache /srv/virtualfolder
+chmod 700 /var/lib/westlife
+chown vagrant:vagrant /var/lib/westlife
+touch /etc/westlife/vresqlite.db
 chown -R vagrant:vagrant /home/vagrant
 systemctl reload
 systemctl enable westlife-metadata
 systemctl start westlife-metadata
 #single deployment comment, VRE deployment, uncomment
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; else
+  if [ -d /vagrant ]; then /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts/addfilesystemprovider.sh; fi
+fi
 echo "BOOTSTRAP FINISHED, VM prepared to use"

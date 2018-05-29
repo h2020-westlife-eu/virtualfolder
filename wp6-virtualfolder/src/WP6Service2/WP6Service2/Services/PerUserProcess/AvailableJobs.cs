@@ -32,16 +32,17 @@ namespace WP6Service2.Services.PerUserProcess
         
         public static List<JobType> getList() { return list; }
 
-        public static IJobStrategy CreateJobInstance(string jobname,IHttpRequest request, IDbConnection db, int pid) //factory method
+
+        public static IJobStrategy CreateJobInstance(string jobname,IHttpRequest request, IDbConnection db, int pid,string args="") //factory method
         {
             switch (jobname)
             {
                 case "jupyter": 
                 case "notebook": 
                 case "lab": 
-                    return new JupyterJob(jobname,request,db,pid);
+                    return new JupyterJob(jobname,request,db,pid,args);
                 default: 
-                    return new DefaultJob(jobname,request,db,pid);
+                    return new DefaultJob(jobname,request,db,pid,args);
             }
         }
 

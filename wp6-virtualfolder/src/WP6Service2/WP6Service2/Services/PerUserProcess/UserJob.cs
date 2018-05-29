@@ -134,7 +134,8 @@ namespace WP6Service2.Services.PerUserProcess
                 if (Db.Select<UserJob>(x => x.jobType == request.Name && x.Username == owner).Count > 0)
                 {
                     var j = Db.First<UserJob>(x => x.jobType == request.Name && x.Username == owner);
-                    var p = AvailableJobs.CreateJobInstance(request.Name, Request, Db, j.pid);
+                    // fix issue - job not killed - need to get instance with 
+                    var p = AvailableJobs.CreateJobInstance(request.Name, Request, Db, j.pid, j.Args);                    
                     Db.DeleteById<UserJob>(j.Id);
                     p.Stop();
                     return j;

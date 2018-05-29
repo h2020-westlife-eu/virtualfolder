@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 # expect WP6SRC is set
+if [ -z $WP6SRC ]; then
+  echo Setting WP6SRC
+  export WP6SRC=`pwd`
+fi
+if [ -z $VREDIR ]; then
+  echo Setting VREDIR
+  export VREDIR=/opt/vre
+fi
+
+$WP6SRC/bootstrap/bootstrapcvmfswestlife.sh
 $WP6SRC/bootstrap/bootstrapweb.sh
 $WP6SRC/bootstrap/bootstrapvre.sh
 $WP6SRC/bootstrap/bootstrapservice.sh
