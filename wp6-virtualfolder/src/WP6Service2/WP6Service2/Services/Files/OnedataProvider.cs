@@ -25,6 +25,8 @@ namespace MetadataService.Services.Files
 
     public class OnedataProvider : AFileProvider
     {
+        private static readonly object initLock = new object();
+
         /* JSON parameters from attribute API */
         private readonly string OD_ATTR_MTIME = "mtime";
         private readonly string OD_ATTR_NAME = "name";
@@ -48,22 +50,22 @@ namespace MetadataService.Services.Files
         private readonly string attrAPIURL;
         
         public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
-            : base(item, storage, connection, authproxy)
+            : base(AdjProvInfo(item), storage, connection, authproxy)
         {
             accessToken = item.securetoken;
             
-            spaceAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/spaces";
-            fileAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/files";
-            attrAPIURL = "https://" + item.accessurl + "/api/v3/oneprovider/attributes";            
+            spaceAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/spaces";
+            fileAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/files";
+            attrAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/attributes";            
 
             ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+            
+            Initialize(item);
         }
 
         public override object GetFileOrList(string path)
         {
-            // The path is <space>/<remote path> or <empty> for the root dir
-
             var result = new List<SBFile>();
             
             var normPath = path == null ? "" : path.Trim().Trim(new char[] {'/'});
@@ -129,6 +131,101 @@ namespace MetadataService.Services.Files
             }
 
             return result;
+        }
+
+        public override void StoreSettings(ProviderItem pItem)
+        {
+            base.StoreSettings(AdjProvInfo(pItem));
+        }
+
+        public override bool DeleteSettings()
+        {
+            Cleanup();
+            return base.DeleteSettings();
+        }
+        
+        private static ProviderItem AdjProvInfo(ProviderItem pItem)
+        {
+            int idx = pItem.accessurl.IndexOf(':');
+            pItem.alias = idx > 0 ? pItem.accessurl.Substring(0, idx) : pItem.accessurl;
+            return pItem;
+        }
+
+        private void Initialize(ProviderItem pItem)
+        {
+            lock (initLock)
+            {
+                if (!checkOneclient())
+                {
+                    int exitcode;
+                    string output;
+                    if (!Directory.Exists(FILESYSTEMFOLDER))
+                    {
+                        output = Utils.ExecuteShell("/bin/mkdir", 
+                            new[] {"-p", FILESYSTEMFOLDER}, out exitcode);
+                        if (exitcode>0) Console.WriteLine(output);
+                        output = Utils.ExecuteShell("/bin/chmod",
+                            new[] {"777", FILESYSTEMFOLDER}, out exitcode);
+                        if (exitcode>0) Console.WriteLine(output);
+                    }
+                
+                    output = Utils.ExecuteShell("/usr/bin/sudo", new[]
+                    {
+                        "-u",
+                        "apache",
+                        "oneclient",
+                        "--insecure",
+                        "-H",
+                        pItem.accessurl,
+                        "-t",
+                        pItem.securetoken,
+                        FILESYSTEMFOLDER
+                    }, out exitcode);
+                    if (exitcode>0) Console.WriteLine(output);
+                }
+            }
+        }
+        
+        private bool checkOneclient()
+        {
+            
+            using(var mtabReader = new StreamReader("/etc/mtab"))
+            {
+                string line;
+                while((line = mtabReader.ReadLine()) != null)
+                {
+                    if (line.Contains(FILESYSTEMFOLDER))
+                    {
+                        Console.WriteLine("Found " + line.Trim());
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void Cleanup()
+        {
+            lock (initLock)
+            {
+                if (checkOneclient())
+                {
+                    int exitcode;
+                    var output = Utils.ExecuteShell("/usr/bin/sudo", new[]
+                    {
+                        "-u",
+                        "apache",
+                        "oneclient",
+                        "-u",
+                        FILESYSTEMFOLDER
+                    }, out exitcode);
+                    if (exitcode>0) Console.WriteLine(output);
+                    
+                    output = Utils.ExecuteShell("/bin/rm", 
+                        new[] {"-rf", FILESYSTEMFOLDER}, out exitcode);
+                    if (exitcode>0) Console.WriteLine(output);
+                }
+            }
         }
 
         private JToken processRequest(string url)
