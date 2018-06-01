@@ -42,9 +42,13 @@ namespace MetadataService.Services.Files
         private readonly string OD_SPACE_NAME = "name";
         private readonly string OD_SPACE_PROV = "providers";
 
+        private readonly string WEBDAV_USER = "apache";   //TODO get from configuration
+        private readonly string ONECLIENT_CMD = "/usr/bin/oneclient";
+
         private readonly int sockTimeout = 60000;
 
         private readonly string accessToken;
+        private readonly string accessURL;
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
@@ -53,6 +57,7 @@ namespace MetadataService.Services.Files
             : base(AdjProvInfo(item), storage, connection, authproxy)
         {
             accessToken = item.securetoken;
+            accessURL = item.accessurl;
             
             spaceAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/spaces";
             fileAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/files";
@@ -60,8 +65,9 @@ namespace MetadataService.Services.Files
 
             ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-            
-            Initialize(item);
+
+            MountArea();
+            Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
         }
 
         public override object GetFileOrList(string path)
@@ -130,6 +136,8 @@ namespace MetadataService.Services.Files
                 });
             }
 
+            MountArea();
+
             return result;
         }
 
@@ -151,7 +159,7 @@ namespace MetadataService.Services.Files
             return pItem;
         }
 
-        private void Initialize(ProviderItem pItem)
+        private void MountArea()
         {
             lock (initLock)
             {
@@ -168,19 +176,18 @@ namespace MetadataService.Services.Files
                             new[] {"777", FILESYSTEMFOLDER}, out exitcode);
                         if (exitcode>0) Console.WriteLine(output);
                     }
-                
-                    output = Utils.ExecuteShell("/usr/bin/sudo", new[]
-                    {
-                        "-u",
-                        "apache",
-                        "oneclient",
-                        "--insecure",
-                        "-H",
-                        pItem.accessurl,
-                        "-t",
-                        pItem.securetoken,
-                        FILESYSTEMFOLDER
-                    }, out exitcode);
+
+                    if (Environment.UserName != WEBDAV_USER)
+                        output = Utils.ExecuteShell("/usr/bin/sudo",
+                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "--insecure",
+                                "-H", this.accessURL, "-t", this.accessToken, FILESYSTEMFOLDER },
+                            out exitcode);
+                    else
+                        output = Utils.ExecuteShell(ONECLIENT_CMD,
+                            new[]{ "--insecure", "-H", this.accessURL, "-t", this.accessToken,
+                                 FILESYSTEMFOLDER },
+                             out exitcode);
+
                     if (exitcode>0) Console.WriteLine(output);
                 }
             }
@@ -194,11 +201,7 @@ namespace MetadataService.Services.Files
                 string line;
                 while((line = mtabReader.ReadLine()) != null)
                 {
-                    if (line.Contains(FILESYSTEMFOLDER))
-                    {
-                        Console.WriteLine("Found " + line.Trim());
-                        return true;
-                    }
+                    if (line.Contains(FILESYSTEMFOLDER)) return true;
                 }
             }
             return false;
@@ -211,14 +214,16 @@ namespace MetadataService.Services.Files
                 if (checkOneclient())
                 {
                     int exitcode;
-                    var output = Utils.ExecuteShell("/usr/bin/sudo", new[]
-                    {
-                        "-u",
-                        "apache",
-                        "oneclient",
-                        "-u",
-                        FILESYSTEMFOLDER
-                    }, out exitcode);
+                    string output;
+                    if (Environment.UserName != WEBDAV_USER)
+                        output = Utils.ExecuteShell("/usr/bin/sudo",
+                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "-u", FILESYSTEMFOLDER },
+                            out exitcode);
+                    else
+                        output = Utils.ExecuteShell(ONECLIENT_CMD, 
+                            new[]{ "-u", FILESYSTEMFOLDER },
+                            out exitcode);
+
                     if (exitcode>0) Console.WriteLine(output);
                     
                     output = Utils.ExecuteShell("/bin/rm", 
@@ -295,6 +300,16 @@ namespace MetadataService.Services.Files
         {
             statusCode = code;
             resource = res;
+        }
+
+        public override string ToString()
+        {
+            return $"{resource}: {statusCode}";
+        }
+
+        public override int GetHashCode()
+        {
+            return $"{resource}-{statusCode}".GetHashCode();
         }
 
         public override bool Equals(object obj)
