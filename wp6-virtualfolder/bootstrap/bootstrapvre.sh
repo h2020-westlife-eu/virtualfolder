@@ -3,7 +3,7 @@
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment";
 else
   cp ${WP6SRC}/conf-template/etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc
-  sed -i -e "s|\Alias.*$|Alias \"\/api\" \"$WP6SRC\/singlevre\/\"|g" /etc/httpd/conf.d/vre.inc
+  sed -i -e "s|\Alias.*$|Alias \"\/api\" \"$WP6SRC\/singlevre\/api\/\"|g" /etc/httpd/conf.d/vre.inc
   sed -i -e "s|<Directory.*$|<Directory \"$WP6SRC\/singlevre\" >|g" /etc/httpd/conf.d/vre.inc
   service httpd restart
   # 24.08.2017 tomas - permissive SELinux - prevent HTTP 403 Forbidden for api/vfsession
