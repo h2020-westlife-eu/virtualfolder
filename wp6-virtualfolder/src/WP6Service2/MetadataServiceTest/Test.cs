@@ -170,6 +170,12 @@ namespace MetadataServiceTest
             //check whether number of relation increased by 3, then delete
             var client = new JsonServiceClient(_baseUri);
             var entries = client.Get(new GetEntries());
+            //remove all existing entries
+            foreach (var entry in entries)
+            {
+                client.Delete(new DeleteDataset {Id = entry.Id});
+            }
+            entries = client.Get(new GetEntries());
             Assert.False(entries.Select(x => x.Name).Contains("2hh6"));
             Assert.False(entries.Select(x => x.Name).Contains("3cs6"));
             Assert.False(entries.Select(x => x.Name).Contains("4yg6"));
