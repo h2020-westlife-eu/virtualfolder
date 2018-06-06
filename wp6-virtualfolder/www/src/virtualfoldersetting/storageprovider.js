@@ -10,12 +10,19 @@ export class Storageprovider {
 
   constructor(ea) {
     this.showprovider = false;
+    this.showimport = false;
     ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) )
     ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
   }
 
   newProvider(){
     this.showprovider = true;
+    this.showimport=false;
+  }
+
+  importProvider(){
+    this.showprovider = false;
+    this.showimport=true;
   }
 
   submitSettings(settings){

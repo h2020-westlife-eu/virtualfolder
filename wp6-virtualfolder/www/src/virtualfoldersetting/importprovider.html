@@ -1,0 +1,8 @@
+<template>
+  
+  <span class="w3-tiny">Enter URL of West-Life Virtual Folder instance( https://[yourdomain]/virtualfolder/):</span>
+    <input value.bind="remoteurl" placeholder="https://portal.west-life.eu/virtualfolder/" />
+    <ispincog show.bind="!publickey" title="Generating keys for import. Wait for couple of seconds."></ispincog>
+    <button class="w3-btn w3-round-large w3-blue" click.delegate="importProvider()" disabled.bind="!publickey">OK</button>
+  
+</template>

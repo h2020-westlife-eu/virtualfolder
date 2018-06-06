@@ -15,7 +15,8 @@ export function configure(config) {
     './ispincog.html',
     './idelete.html',
     './inext.html',
-    './icopyicon.html'
+    './icopyicon.html',
+    './icogs.html'
   ]);
 
 }

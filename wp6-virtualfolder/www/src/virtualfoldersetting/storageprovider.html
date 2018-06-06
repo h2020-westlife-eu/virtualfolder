@@ -1,15 +1,21 @@
 <template>
   <require from="./genericcontrol"></require>
+  <require from="./importprovider"></require>
   <require from="./aliastable"></require>
   <require from="../pdbcomponents/hideable"></require>
 
   <hideable title="Storage providers">
     <div class="w3-container">
-      <form submit.trigger="newProvider()" class="w3-half">
+      <div class="w3-half">
         <aliastable></aliastable>
-      </form>
+        
+        <button  class="w3-btn w3-round-large w3-blue" click.delegate="newProvider()" class="w3-buttons">Add new file provider</button>
+        <button  class="w3-btn w3-round-large w3-blue" click.delegate="importProvider()" class="w3-buttons">Import from public Virtual Folder</button>
+        
+      </div>
 
       <genericcontrol show.bind="showprovider" class="w3-half"></genericcontrol>
+      <importprovider if.bind="showimport" class="w3-half"></importprovider>
 
     </div>
   </hideable>
