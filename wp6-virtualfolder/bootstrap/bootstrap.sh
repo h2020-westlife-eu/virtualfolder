@@ -15,7 +15,11 @@ $WP6SRC/bootstrap/bootstrapvre.sh
 $WP6SRC/bootstrap/bootstrapservice.sh
 $WP6SRC/bootstrap/bootstrapscipion.sh
 $WP6SRC/bootstrap/bootstrapvirtuoso.sh
-if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]]; then $WP6SRC/bootstrap/bootstrapjupyter.sh
+if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
+then 
+  $WP6SRC/bootstrap/bootstrapjupyter.sh
+fi
+
 $WP6SRC/bootstrap/bootstrapstart.sh
 if curl -I http://localhost
 then
