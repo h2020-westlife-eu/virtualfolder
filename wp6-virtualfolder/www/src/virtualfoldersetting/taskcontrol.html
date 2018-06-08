@@ -15,8 +15,8 @@
         <td><b>${task.Name}</b></td>
         <td>${task.Description}</td>
         <td show.bind="!task.Updating">
-          <i class="fa fa-start" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i>
-          <i class="fa fa-stop" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i>
+          <i class="fa fa-play-circle-o" click.delegate="starttask(task)" show.bind="!task.Running" title="not running - you may start it"></i>
+          <i class="fa fa-stop-circle-o" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i>
         </td>
         <td show.bind="task.Updating">
           <img src="img/vfloader.gif">
