@@ -5,6 +5,7 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {Vfstorage} from '../utils/vfstorage';
+import {Aliastable} from "./aliastable";
 
 //let client = new HttpClient();
 
@@ -15,6 +16,7 @@ export class Importprovider {
   static inject = [EventAggregator,HttpClient];
 
   constructor(ea,httpclient){
+    this.importingSettings=false;
     this.ea=ea;
     this.publickey = undefined;
     this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
@@ -29,7 +31,7 @@ export class Importprovider {
     this.receiveMessage = event =>
     {
       console.log("Aliastable() received message:",event.data);
-      this.importSettings(event.data);
+      this.confirmSettings(event.data);
     }
     this.remoteurl="https://portal.west-life.eu/virtualfolder/";
   }
@@ -73,12 +75,19 @@ export class Importprovider {
     return false;
   }
 
-  importSettings(data){
+  confirmSettings(data){
     //3. popup will return encrypted blob with settings and selected aliases, check aliases with existing one and suggest rename - e.g. automatic one
     //let message = {EncryptedSettings:data.response,aliases:selectedaliases};
-    let message = JSON.parse(data);
-
-    //4. import the encrypted settings into this VF instance
+    this.message = JSON.parse(data);
+    this.conflicts = {oldnames:this.message.aliases,newnames:this.message.aliases};
+    this.aliasestmp = this.message.aliases.split(";");
+    this.aliases = this.aliases.map(item => {return {oldname:item,newname:item} });
+    this.importingSettings=true;
+  }
+  
+  importSettings2(){
+    this.importingSettings=false;
+//4. import the encrypted settings into this VF instance
     //    public class ImportSettings : IReturnVoid
     //     {
     //         public string PublicKey{ get; set; }
@@ -86,12 +95,12 @@ export class Importprovider {
     //         public string ConflictedAliases{ get; set; }
     //         public string NewNameAliases{ get; set; }        
     //     }
-    //let conflicts = this.resolveConflicts(message.aliases);
-    let conflicts = {oldnames:message.aliases,newnames:message.aliases};
-    let importmessage = {PublicKey:this.publickey,EncryptedSettings:message.EncryptedSettings,ConflictedAliases:conflicts.oldnames,NewNameAliases:conflicts.newnames};
+    //let conflicts = this.resolveConflicts(message.aliases);    
+    let importmessage = {PublicKey:this.publickey,EncryptedSettings:this.message.EncryptedSettings,ConflictedAliases:this.conflicts.oldnames,NewNameAliases:this.conflicts.newnames};
     console.log("importSettings",importmessage);
     this.client.put(this.localsettingservice,importmessage)
       .then(data => this.ea.publish(new SettingsSubmitted(data.response)));
+
   }
 
   resolveConflicts(aliases){

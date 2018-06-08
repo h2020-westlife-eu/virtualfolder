@@ -112,6 +112,7 @@
     <Compile Include="Services\SBService.cs" />
     <Compile Include="Services\Settings\AESThenHMAC.cs" />
     <Compile Include="Services\Settings\ISettingsStorage.cs" />
+    <Compile Include="Services\Settings\RandomPrefix.cs" />
     <Compile Include="Services\Settings\SettingsExportImport.cs" />
     <Compile Include="Services\Settings\SettingsStorageInDB.cs" />
     <Compile Include="Services\Settings\SettingsStorageInFile.cs" />
