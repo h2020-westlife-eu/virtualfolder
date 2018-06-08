@@ -30,11 +30,9 @@ export class Aliastable {
   }
 
   attached() {
-    //gets the status of the b2drop connection
+    
     this.client.get(this.serviceurl)
       .then(data => {
-        //console.log("data response");
-        //console.log(data);
         this.ea.publish(new MayLogout(this.panelid));
         if (data.response) {
           this.providers = JSON.parse(data.response);

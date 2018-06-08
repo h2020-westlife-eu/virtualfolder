@@ -5,8 +5,6 @@ import {HttpClient} from 'aurelia-http-client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {Vfstorage} from '../utils/vfstorage';
-import {HandleLogin,MayLogout} from '../behavior';
-import {Dataitem} from "../pdbcomponents/dataitem";
 
 //let client = new HttpClient();
 
@@ -92,7 +90,8 @@ export class Importprovider {
     let conflicts = {oldnames:message.aliases,newnames:message.aliases};
     let importmessage = {PublicKey:this.publickey,EncryptedSettings:message.EncryptedSettings,ConflictedAliases:conflicts.oldnames,NewNameAliases:conflicts.newnames};
     console.log("importSettings",importmessage);
-    this.client.put(this.localsettingservice,importmessage);
+    this.client.put(this.localsettingservice,importmessage)
+      .then(data => this.ea.publish(new SettingsSubmitted(data.response)));
   }
 
   resolveConflicts(aliases){

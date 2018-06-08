@@ -47,7 +47,7 @@ namespace MetadataService.Services.Settings
     }
 
     [Route("/settings", "PUT")]
-    public class ImportSettings : IReturnVoid
+    public class ImportSettings : IReturn<List<ProviderItem>>
     {
         public string PublicKey{ get; set; }
         public string EncryptedSettings{ get; set; }
@@ -57,10 +57,8 @@ namespace MetadataService.Services.Settings
 
     [EnableCors(allowCredentials:true)]
     [VreCookieRequestFilter]
-    public class SettingsService : Service
-    {
-        private readonly ISettingsStorage storage = SettingsStorageInDB.GetInstance();
-
+    public class SettingsService : GenericProviderMethods
+    {        
         /** export settings, returns base64 encrypted json of selected aliases */
         public string Get(ExportSettings request)
         {
@@ -71,14 +69,16 @@ namespace MetadataService.Services.Settings
         }
 
         /** put encrypted settings into local database == import */
-        public void Put(ImportSettings request)
+        public List<ProviderItem> Put(ImportSettings request)
         {
             var userid = (string) Request.Items["userid"];
             var userauthproxy = (string) Request.Items["authproxy"];
             importSettings(userid,userauthproxy,request.PublicKey, request.EncryptedSettings, request.ConflictedAliases,
                 request.NewNameAliases);
+            return getUserProviderItems();
         }
-
+        
+        
         /** post, no values are expected, generates key pair, public key is returned - it can be used to encrypt settings by another instance */
         public string Post(GeneratePublicKey request)
         {
