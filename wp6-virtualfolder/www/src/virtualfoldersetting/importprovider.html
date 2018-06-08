@@ -4,14 +4,20 @@
     <input value.bind="remoteurl" placeholder="https://portal.west-life.eu/virtualfolder/" class="w3-bar" maxlength="1024"/>
     <ispincog show.bind="!publickey" title="Generating keys for import. Wait for couple of seconds."></ispincog><span show.bind="!publickey" class="w3-tiny">Generating keys for import. Wait for couple of seconds.</span>
     <button class="w3-btn w3-round-large w3-blue" click.delegate="importProvider()" disabled.bind="!publickey">OK</button>
+  <br/>
   <div show.bind="importingSettings">
-    <table class="w3-white">
-      <tr class="w3-hover-green" repeat.for="alias of aliases">
+    <table class="w3-light-grey">
+      <tr class="w3-blue">
+        <th scope="col">Remote VF Provider alias</th>
+        <th scope="col">Save as local VF Provider alias</th>
+      </tr>
+      <tr class="w3-hover-green w3-white" repeat.for="alias of aliases">
         <td>${alias.oldname}</td>
         <td><input value.bind="alias.newname" class="w3-bar"/> </td>
       </tr>
     </table>
-    <button class="w3-btn w3-round-large w3-blue" click.delegate="importSettings2()">Confirm</button>
+    Ensure local names do not conflict. 
+    <button class="w3-btn w3-round-large w3-blue" click.delegate="importSettings2()">Confirm import</button>
   </div>
   
 </template>

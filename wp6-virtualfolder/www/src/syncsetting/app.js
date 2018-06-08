@@ -66,7 +66,7 @@ export class App {
 
   import() {
     let selectedaliases="";
-    for (let p of this.providers) {
+    for (let p in this.providers) {
       if (p.selected) selectedaliases+=p.alias+';';  
     } 
     if (selectedaliases.length>0) selectedaliases = selectedaliases.substring(0,selectedaliases.length-1);

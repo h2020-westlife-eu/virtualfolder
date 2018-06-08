@@ -81,12 +81,17 @@ export class Importprovider {
     this.message = JSON.parse(data);
     this.conflicts = {oldnames:this.message.aliases,newnames:this.message.aliases};
     this.aliasestmp = this.message.aliases.split(";");
-    this.aliases = this.aliases.map(item => {return {oldname:item,newname:item} });
+    this.aliases = this.aliasestmp.map(item => {return {oldname:item,newname:item} });
     this.importingSettings=true;
   }
   
   importSettings2(){
     this.importingSettings=false;
+    console.log("importSettings2() aliases:",this.aliases);
+    
+    this.conflicts = {oldnames:this.aliases.map(item => item.oldname).join(';'),newnames:this.aliases.map(item=>item.newname).join(';')};
+    console.log("importSettings2() conflicts:",this.conflicts);
+    
 //4. import the encrypted settings into this VF instance
     //    public class ImportSettings : IReturnVoid
     //     {
@@ -99,14 +104,17 @@ export class Importprovider {
     let importmessage = {PublicKey:this.publickey,EncryptedSettings:this.message.EncryptedSettings,ConflictedAliases:this.conflicts.oldnames,NewNameAliases:this.conflicts.newnames};
     console.log("importSettings",importmessage);
     this.client.put(this.localsettingservice,importmessage)
-      .then(data => this.ea.publish(new SettingsSubmitted(data.response)));
+      .then(data => {
+        
+        this.ea.publish(new SettingsSubmitted(JSON.parse(data.response)))
+      });
 
   }
 
   resolveConflicts(aliases){
     let aliasarr = aliases.split(';');
     let conflicts = {oldnames:"",newnames:""};
-    for (let pr of this.providers) {
+    for (let pr in this.providers) {
       if (aliasarr.indexOf(pr.alias)>=0) {
         //found conflict
         //add ; after existing elements
