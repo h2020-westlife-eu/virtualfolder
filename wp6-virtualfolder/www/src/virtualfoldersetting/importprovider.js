@@ -88,8 +88,11 @@ export class Importprovider {
     //         public string ConflictedAliases{ get; set; }
     //         public string NewNameAliases{ get; set; }        
     //     }
-    let conflicts = this.resolveConflicts(message.aliases);
+    //let conflicts = this.resolveConflicts(message.aliases);
+    let conflicts = {oldnames:message.aliases,newnames:message.aliases};
     let importmessage = {PublicKey:this.publickey,EncryptedSettings:message.EncryptedSettings,ConflictedAliases:conflicts.oldnames,NewNameAliases:conflicts.newnames};
+    console.log("importSettings",importmessage);
+    this.client.put(this.localsettingservice,importmessage);
   }
 
   resolveConflicts(aliases){

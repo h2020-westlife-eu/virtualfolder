@@ -3150,21 +3150,6 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
 
   var _class, _temp;
 
-  var getParams = function getParams(query) {
-    if (!query) {
-      return {};
-    }
-
-    return (/^[?#]/.test(query) ? query.slice(1) : query).split('&').reduce(function (params, param) {
-      var _param$split = param.split('='),
-          key = _param$split[0],
-          value = _param$split[1];
-
-      params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
-      return params;
-    }, {});
-  };
-
   var App = exports.App = (_temp = _class = function () {
     function App(ea, httpclient) {
       _classCallCheck(this, App);
@@ -3185,7 +3170,7 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
     App.prototype.attached = function attached() {
       var _this = this;
 
-      this.params = getParams(window.location.search.substring(1));
+      this.params = _vfstorage.Vfstorage.getParams(window.location.search.substring(1));
       this.publickey = this.params.PublicKey;
 
       this.client.get(this.serviceurl).then(function (data) {
@@ -3210,6 +3195,12 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
       });
     };
 
+    App.prototype.handleError = function handleError(url, error) {
+      console.log("aliastable.attached() error:");
+      console.log(error);
+      alert('Sorry. Error when accessing ' + url + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
+    };
+
     App.prototype.include = function include(provider) {
       provider.selected = true;
       console.log("syncsetting. include()", provider);
@@ -3221,6 +3212,8 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
     };
 
     App.prototype.import = function _import() {
+      var _this2 = this;
+
       var selectedaliases = "";
       for (var _iterator = this.providers, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
         var _ref;
@@ -3246,13 +3239,15 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
         return queryurl.searchParams.append(key, params[key]);
       });
 
-      this.client.get(this.queryurl).then(function (data) {
+      this.client.get(queryurl).then(function (data) {
         if (data.response) {
           console.log("SyncSetting.app import settings encrypteddata:", data.response);
           var message = { EncryptedSettings: data.response, aliases: selectedaliases };
           window.opener.postMessage(JSON.stringify(message), "*");
           window.close();
         }
+      }).catch(function (error) {
+        return _this2.handleError(queryurl, error);
       });
     };
 
@@ -3801,7 +3796,9 @@ define('utils/vfstorage',["exports"], function (exports) {
     }
   }
 
-  var Vfstorage = exports.Vfstorage = function () {
+  var _class, _temp;
+
+  var Vfstorage = exports.Vfstorage = (_temp = _class = function () {
     function Vfstorage() {
       _classCallCheck(this, Vfstorage);
     }
@@ -3821,7 +3818,7 @@ define('utils/vfstorage',["exports"], function (exports) {
     };
 
     Vfstorage.getBaseUrl = function getBaseUrl() {
-      return "virtualfolderbaseurl" in window ? virtualfolderbaseurl : "";
+      return "virtualfolderbaseurl" in window ? virtualfolderbaseurl : window.location.protocol + "//" + window.location.host;
     };
 
     Vfstorage.parseQueryString = function parseQueryString(str) {
@@ -3860,7 +3857,20 @@ define('utils/vfstorage',["exports"], function (exports) {
     };
 
     return Vfstorage;
-  }();
+  }(), _class.getParams = function (query) {
+    if (!query) {
+      return {};
+    }
+
+    return (/^[?#]/.test(query) ? query.slice(1) : query).split('&').reduce(function (params, param) {
+      var _param$split = param.split('='),
+          key = _param$split[0],
+          value = _param$split[1];
+
+      params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+      return params;
+    }, {});
+  }, _temp);
 });
 define('virtualfoldermodules/app',["exports"], function (exports) {
   "use strict";
@@ -8952,8 +8962,10 @@ define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 
     Importprovider.prototype.importSettings = function importSettings(data) {
       var message = JSON.parse(data);
 
-      var conflicts = this.resolveConflicts(message.aliases);
+      var conflicts = { oldnames: message.aliases, newnames: message.aliases };
       var importmessage = { PublicKey: this.publickey, EncryptedSettings: message.EncryptedSettings, ConflictedAliases: conflicts.oldnames, NewNameAliases: conflicts.newnames };
+      console.log("importSettings", importmessage);
+      this.client.put(this.localsettingservice, importmessage);
     };
 
     Importprovider.prototype.resolveConflicts = function resolveConflicts(aliases) {

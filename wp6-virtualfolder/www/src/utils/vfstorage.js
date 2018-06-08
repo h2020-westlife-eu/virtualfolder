@@ -46,7 +46,7 @@ export class Vfstorage{
   static getBaseUrl(){
     //console.log("vfstorage.getbaseurl");
     //console.log(("virtualfolderbaseurl" in window));
-    return ("virtualfolderbaseurl" in window) ? virtualfolderbaseurl : "";
+    return ("virtualfolderbaseurl" in window) ? virtualfolderbaseurl : window.location.protocol+"//"+window.location.host;
   }
 
   static parseQueryString(str) {
@@ -86,4 +86,18 @@ export class Vfstorage{
 
     return ret;
   }
+
+  static getParams = query => {
+    if (!query) {
+      return {};
+    }
+
+    return (/^[?#]/.test(query) ? query.slice(1) : query)
+      .split('&')
+      .reduce((params, param) => {
+        let [key, value] = param.split('=');
+        params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+        return params;
+      }, {});
+  };
 }

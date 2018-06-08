@@ -3,20 +3,6 @@ import {HandleLogin, MayLogout} from '../behavior';
 import {HttpClient} from 'aurelia-http-client';
 import {Vfstorage} from "../utils/vfstorage";
 
-const getParams = query => {
-  if (!query) {
-    return {};
-  }
-
-  return (/^[?#]/.test(query) ? query.slice(1) : query)
-    .split('&')
-    .reduce((params, param) => {
-      let [key, value] = param.split('=');
-      params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
-      return params;
-    }, {});
-};
-
 export class App {
   static inject = [EventAggregator,HttpClient];
 
@@ -35,7 +21,7 @@ export class App {
   }
   
   attached() {
-    this.params=getParams(window.location.search.substring(1));
+    this.params=Vfstorage.getParams(window.location.search.substring(1));
     this.publickey = this.params.PublicKey;
     //gets the status of the b2drop connection
     this.client.get(this.serviceurl)
@@ -60,6 +46,13 @@ export class App {
           alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
       });
   }
+  
+  handleError(url,error){
+    console.log("aliastable.attached() error:");
+    console.log(error);
+    alert('Sorry. Error when accessing '+url+' HTTP status:'+error.statusCode+' '+error.statusText)
+    
+  }
 
   include(provider) {
     provider.selected = true;
@@ -83,7 +76,7 @@ export class App {
     let params= {PublicKey:this.publickey,SelectedAliases:selectedaliases};
     Object.keys(params).forEach(key => queryurl.searchParams.append(key, params[key]));
     //now request client
-    this.client.get(this.queryurl)
+    this.client.get(queryurl)
       .then(data => {
         if (data.response) {
           //let rawproviders = JSON.parse(data.response);
@@ -92,7 +85,8 @@ export class App {
           window.opener.postMessage(JSON.stringify(message), "*");
           window.close();
         }
-      });
+      })
+      .catch(error => this.handleError(queryurl,error));
     //create selectedaliases
     
   }
