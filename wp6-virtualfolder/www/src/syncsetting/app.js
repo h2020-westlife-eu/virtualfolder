@@ -70,12 +70,9 @@ export class App {
   }
 
   import() {
-    let selectedaliases="";
-    for (let p in this.providers) {
-      if (p.selected) selectedaliases+=p.alias+';';  
-    } 
-    if (selectedaliases.length>0) selectedaliases = selectedaliases.substring(0,selectedaliases.length-1);
-    
+    let selectedaliases = this.providers.filter( prov => prov.selected).map(prov => prov.alias).join(';');
+    console.log('syncsetting, import:',selectedaliases);
+    if (selectedaliases.length===0) return; //nothing is selected return
     //use public key and selectedaliases to construct request with params 
     let queryurl = new URL(this.settingsurl);
     let params= {PublicKey:this.publickey,SelectedAliases:selectedaliases};
@@ -88,7 +85,7 @@ export class App {
           console.log("SyncSetting.app import settings encrypteddata:",data.response);
           let message = {EncryptedSettings:data.response,aliases:selectedaliases};
           window.opener.postMessage(JSON.stringify(message), "*");
-          window.close();
+          //window.close();
         }
       })
       .catch(error => this.handleError(queryurl,error));
