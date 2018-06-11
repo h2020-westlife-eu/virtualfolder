@@ -24,11 +24,13 @@ service httpd start
 systemctl enable westlife-metadata.service
 service westlife-metadata start
 sleep 2
-if [ -d /vagrant ]; then
+if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then 
+  systemctl enable westlife-vre 
+  systemctl start westlife-vre
+fi
+if [ -d /vagrant ]; then 
    $WP6SRC/scripts/addfilesystemprovider.sh
 fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl enable westlife-vre; fi
-if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then systemctl start westlife-vre; fi
 
 # workaround for bug, reload,restart httpd fails on first attempt in SL7
 service httpd reload
