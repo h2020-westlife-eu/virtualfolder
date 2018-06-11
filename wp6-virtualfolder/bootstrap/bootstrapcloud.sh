@@ -69,4 +69,5 @@ if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   systemctl start westlife-vre
 fi
 if [ -d /vagrant ]; then /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts/addfilesystemprovider.sh; fi
-echo "BOOTSTRAP FINISHED, VM prepared to use"
+echo "BOOTSTRAP FINISHED, VM prepared to use, 'vagrant' and 'vagrant_data' providers available for use by Virtual Folder services"
+
