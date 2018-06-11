@@ -1,5 +1,5 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {HandleLogin, MayLogout} from '../behavior';
+import {HandleLogin, MayLogout,RedirectLogin} from '../behavior';
 import {HttpClient} from 'aurelia-http-client';
 import {Vfstorage} from "../utils/vfstorage";
 
@@ -18,6 +18,11 @@ export class App {
     });
     this.loading =true;
     this.loadederror = false;
+    this.handler = new RedirectLogin();
+    //if it detects that it is not logged in - e.g. 403 returned - shows Login button instead
+    this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
+    this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
+    
   }
   
   attached() {

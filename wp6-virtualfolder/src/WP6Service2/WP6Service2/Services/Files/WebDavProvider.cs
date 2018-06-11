@@ -117,7 +117,8 @@ namespace MetadataService.Services.Files
                     int exitcode;
                     request.output = Utils.ExecuteShell("/bin/bash", new[]
                     {
-                        //"-H -u vagrant",
+                        //"-H -u vagrant", 
+                        //TODO make path of mountb2drop script configurable
                         "/home/vagrant/scripts/mountb2drop.sh",
                         "add",
                         _providerurl,
