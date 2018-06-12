@@ -15,11 +15,18 @@ $CURL_BIN \
     -X POST $LOGIN_URL
 fi
 
+let times=0;
 echo -n "Waiting until metadataservice endpoint is available "
 while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/metadataservice/metadata)" != "200" ]]
 do
   sleep 5
   echo -n "."
+  let "times++"
+  # timeout after 24*5=120 seconds
+  if [ "$times" -gt "24" ]; then
+    echo "timeout. Sorry service not responding."
+    break;
+  fi
 done
 
 echo -e "\nRegistering filesystem provider"
