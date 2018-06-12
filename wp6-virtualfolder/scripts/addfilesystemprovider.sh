@@ -14,8 +14,14 @@ $CURL_BIN \
     -d "$DJANGO_TOKEN&username=$YOUR_USER&password=$YOUR_PASS" \
     -X POST $LOGIN_URL
 fi
+
 echo -n "Waiting until metadataservice endpoint is available "
-while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/metadataservice/metadata)" != "200" ]]; do sleep 5; echo -n "." done
+while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/metadataservice/metadata)" != "200" ]]
+do
+  sleep 5
+  echo -n "."
+done
+
 echo -e "\nRegistering filesystem provider"
 if [ -d /vagrant ]; then 
 $CURL_BIN \
