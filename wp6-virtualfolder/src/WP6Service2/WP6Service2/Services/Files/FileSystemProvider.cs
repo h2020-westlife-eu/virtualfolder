@@ -94,7 +94,7 @@ namespace MetadataService.Services.Files
                         date = fi.LastWriteTime,
                         filetype = myfiletype,
                         webdavuri = webdavprefix + mypath + fi.Name,
-                        publicwebdavuri = publicwebdavprefix + mypath + fi.Name
+                        publicwebdavuri = webdavprefix + mypath + fi.Name
                     });
                 }
                 ;
@@ -115,7 +115,8 @@ namespace MetadataService.Services.Files
                                    ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
                                    FileType.Available,
                         webdavuri = path,
-                        publicwebdavuri = publicwebdavprefix + "/" + path
+                        //TODO publicwebdavuri issue #64
+                        publicwebdavuri = path
                     }
                 };
 

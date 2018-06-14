@@ -27,7 +27,7 @@ export class Checkurl {
       .then(response => {
         //console.log("checkurl response:");
         //console.log(response);
-        if (response.status==200) this.showit=true;
+        if (response.status===200) this.showit=true;
         //this.message = this.failmessage;
       })
       .catch(error =>{

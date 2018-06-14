@@ -2,7 +2,7 @@
   <require from="../w3.css"></require>
   <div class="w3-sand w3-padding w3-margin">
 
-    <form submit.trigger="addProvider()">
+    <div>
 
 
       <select class="w3-select" name="option" value.bind="selectedProvider">
@@ -23,7 +23,7 @@
 	      tooltip="Name for subfolder where these B2DROP files will be mounted"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these B2DROP files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
         </div>
 
         <div show.bind="selectedDropbox">
@@ -44,7 +44,7 @@
 	    /><br/>
             <span class="w3-tiny">Name for subfolder where these Dropbox files will be mounted.</span>
 
-            <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+            <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
 
           </div>
 
@@ -57,7 +57,7 @@
 	      tooltip="Name for subfolder where these local files will be mounted"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these Filesystem files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
         </div>
 
         <div show.bind="selectedWebDav">
@@ -71,12 +71,12 @@
 	     tooltip="Name for subfolder where this Webdav folder will be mounted"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these WebDAV files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
         </div>
 
       </div>
 
-    </form>
+    </div>
 
 
   </div>

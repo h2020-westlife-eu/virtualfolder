@@ -1,8 +1,8 @@
 /**
  * Created by Tomas Kulhanek on 7/21/17.
  */
-import {HttpClient} from 'aurelia-http-client';
-
+//import {HttpClient} from 'aurelia-http-client';
+import {ProjectApi} from "../components/projectapi";
 import {Vfstorage} from '../utils/vfstorage';
 
 /**
@@ -10,17 +10,14 @@ import {Vfstorage} from '../utils/vfstorage';
  * may initiate to start/stop them and shows link to them
  */
 export class Taskcontrol {
-  static inject = [HttpClient];
+  static inject = [ProjectApi];
 
-  constructor(httpclient){
-    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/availabletasks";
-    this.userprocessurl = Vfstorage.getBaseUrl()+"/metadataservice/userprocess/";
-    this.client=httpclient;
+  constructor(pa){
+    //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/availabletasks";
+    //this.userprocessurl = Vfstorage.getBaseUrl()+"/metadataservice/userprocess/";
+//    this.client=httpclient;
+    this.pa=pa;
     this.tasks = [];
-    this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
     this.descriptions=[];
     this.descriptions["jupyter"]="Jupyter notebook web application instance";
     this.descriptions["notebook"]="Jupyter notebook web application instance";
@@ -30,20 +27,17 @@ export class Taskcontrol {
 
   attached() {
     //gets the status of the b2drop connection
-    this.client.get(this.serviceurl)
+    this.pa.getTask()
+    //this.client.get(this.serviceurl)
       .then(data => {
-        if (data.response) {
-          this.tasks = JSON.parse(data.response);
+        if (data) {
+          this.tasks = data;
           let that=this;
           this.tasks.forEach(function(task){
             task.Description = that.descriptions[task.Name] || "";
             task.Updating=false;
           })
         }
-      })
-      .catch(error =>{
-        console.log("taskcontrol.attached() error:")
-        console.log(error);
       });
   }
 
@@ -86,7 +80,8 @@ export class Taskcontrol {
   updatetask(task){
     return new Promise((resolve, reject) => {
       if (task.Running) {//will try to stop
-         this.client.delete(this.userprocessurl+task.Name)
+        this.pa.stopTask(task.Name)
+         //this.client.delete(this.userprocessurl+task.Name)
            .then(data =>{
              resolve('Deleted')
          })
@@ -94,10 +89,10 @@ export class Taskcontrol {
              reject(error)
            })
       } else {
-         this.client.post(this.userprocessurl+task.Name)
+        this.pa.startTask(task.Name)
+         //this.client.post(this.userprocessurl+task.Name)
            .then(data=>{
-             let updatedtask=JSON.parse(data.response);
-             resolve(updatedtask.LocalUrl)
+             resolve(data.LocalUrl)
            }
          )
            .catch(error=>{

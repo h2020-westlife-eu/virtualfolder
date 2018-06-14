@@ -56,9 +56,12 @@ namespace MetadataService.Services.Files
                 }
 
                 var mellonuser = req.Headers.Get("X-USERNAME");
-                if (mellonuser != null && mellonuser.Length > 0)
+                if (!string.IsNullOrEmpty(mellonuser))
                 {
                     req.Items.Add("userid", mellonuser);
+                    req.Items.Add("name", req.Headers.Get("X-NAME"));
+                    req.Items.Add("email", req.Headers.Get("X-EMAIL"));
+                    req.Items.Add("groups", req.Headers.Get("X-GROUPS"));
                     req.Items.Add("authproxy", "/webdav/" + mellonuser);
                     if (requestDto.GetType() == typeof(ProviderItem))
                         ((ProviderItem) requestDto).loggeduser = mellonuser;

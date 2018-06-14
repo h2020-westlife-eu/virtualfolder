@@ -3,7 +3,7 @@
  */
 
 import 'whatwg-fetch';
-import {HttpClient} from 'aurelia-http-client';
+import {ProjectApi} from '../components/projectapi';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from './messages';
 import {CheckedFile} from './messages';
@@ -16,25 +16,16 @@ import {Pdbresource} from './pdbresource';
 import {Uniprotresource} from './uniprotresource';
 
 export class Filepanel {
-  static inject = [EventAggregator, HttpClient, Pdbresource, Uniprotresource];
+  static inject = [EventAggregator, ProjectApi, Pdbresource, Uniprotresource];
   @bindable panelid;
 
-  constructor(ea, httpclient, pdbresource, uniprotresource) {
+  constructor(ea, pa, pdbresource, uniprotresource) {
     this.ea = ea;
-    this.client = httpclient;
+    this.pa = pa;
     this.files = [];
     this.path = "";
     this.lastpath = this.path;
     this.dynatable = {};
-
-    this.serviceurl = Vfstorage.getBaseUrl() + "/metadataservice/files";
-    //http to accept json
-    this.client.configure(config => {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
-    //console.log("filepanel tableid:"+this.panelid);
-    this.getpublicwebdavurl = "/api/authproxy/get_signed_url/"
     this.sorted = {none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16}
     this.wassorted = this.sorted.none;
     this.baseresources = [{name: "PDB", info: "Protein Data Bank repository entries from ebi.ac.uk", id: "pdb"}]
@@ -124,17 +115,11 @@ export class Filepanel {
   //triggered after this object is placed to DOM
   attached() {
     //read the directory infos
-    this.client.get(this.serviceurl + this.path)
+    this.pa.getFiles(this.path)
       .then(data => {
-//        this.ea.publish(new MayLogout(this.panelid));
-        if (data.response) {
-          this.populateFiles(data.response);
-        } /* do not handle error if return message is empty, only log data, for debug purposes */
-        else {
-          console.log(data);
-          //this.handleError(data);
-        }
-      }).catch(error => {
+          this.populateFiles(data);
+        }) /* do not handle error if return message is empty, only log data, for debug purposes */
+      .catch(error => {
         //this.handleError(error);
       //handle 403 unauthorized
       if (error.statusCode == 403) {
@@ -146,11 +131,9 @@ export class Filepanel {
         //try empty path
         if (this.path && this.path.length > 0) {
           this.path = "";
-          this.client.get(this.serviceurl + this.path)
+          this.pa.getFiles(this.path)
             .then(data => {
-              if (data.response) {
-                this.populateFiles(data.response);
-              } else this.handleError(data);
+                this.populateFiles(data);
             }).catch(error => {
             this.handleError(error);
           });
@@ -210,14 +193,10 @@ export class Filepanel {
         else if (folder == '/') this.cdroot();
         else this.cddown(folder);
       }
-
-      this.client.get(this.serviceurl + this.path)
+      this.pa.getFiles(this.path)
         .then(data => {
-          if (data.response) {
-            this.populateFiles(data.response);
-            //update files in table view
-          }
-          this.lock = false;
+            this.populateFiles(data);
+            this.lock = false;
         }).catch(error => {
         if (error.statusCode == 403) {
           this.lock = false;
@@ -244,7 +223,7 @@ export class Filepanel {
     //console.log("filepanel.populateFiles()")
     Vfstorage.setValue("filepanel" + this.panelid, this.path);
 
-    this.files = JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
+    this.files = dataresponse;//JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
     this.filescount = this.files.length + this.resources.length;
     let that = this;
     this.files.forEach(function (item, index, arr) {
@@ -276,29 +255,28 @@ export class Filepanel {
     else {
 
       //HEAD the file - so it can be obtained - cached by metadata service, fix #45
-      let fileurl = this.serviceurl + this.path + '/' + file.name
-      this.client.head(fileurl)
+      //let fileurl = this.serviceurl + this.path + '/' + file.name
+      this.pa.getFileHead(this.path + '/' + file.name)
         .then(response => {
             //console.log('file head'+fileurl);
             //console.log(response);
           }
         ).catch(error => {
-        console.log("Error when geting metadata information about file:")
+        console.log("Error when geting metadata information about file:");
         console.log(error);
       });
-
+      console.log("SelectedFile",file);
+      this.ea.publish(new SelectedFile(file, this.panelid));
       //constructs public url
-      this.client.get(this.getpublicwebdavurl)
+      /*this.pa.getPublicWebDav()
         .then(data => {
-          if (data.response) {
-            let mypath2 = JSON.parse(data.response);
-            let mypath = mypath2.signed_url;
+            //let mypath2 = JSON.parse(data.response);
+            let mypath = data.signed_url;
             mypath += this.path.startsWith('/') ? this.path.slice(1) : this.path;
             file.publicwebdavuri = mypath + "/" + file.name;
             this.ea.publish(new SelectedFile(file, this.panelid));
-            //this.ea.publish(new SelectedFile(file,this.panelid));
-          }
         });
+        */
     }
   }
 

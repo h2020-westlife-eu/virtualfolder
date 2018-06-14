@@ -25,6 +25,7 @@ namespace MetadataService.Services.Files
         private static readonly HashSet<string> Initializedproviders = new HashSet<string>();
         private static readonly object Initlock = new object();
         private readonly string _providerurl = ""; //"https://b2drop.eudat.eu/remote.php/webdav"
+        private readonly string _mountscript = "/home/vagrant/scripts/mountb2drop.sh";
 
 
         /** default constructor */
@@ -75,8 +76,13 @@ namespace MetadataService.Services.Files
             var _path = path ?? "";
             if (_path.Contains(".."))
                 _path = ""; //prevents directory listing outside
-            //MAIN splitter for strategies of listing files
-            //return DropBoxFS.ListOfFiles(path);
+            var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
+                               (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+            if (!dirnotempty)
+            {
+                //try to refresh umount mount
+                Initialize(null);
+            }
 
             return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, _path);
         }
@@ -87,7 +93,7 @@ namespace MetadataService.Services.Files
             return base.DeleteSettings();
         }
 
-        
+        //if request == null -> refresh, otherwise add
         private void Initialize(ProviderItem request)
         {
             lock (Initlock)
@@ -95,7 +101,10 @@ namespace MetadataService.Services.Files
                 if (Initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
                     Console.WriteLine("provider at " + FILESYSTEMFOLDER + "already initialized for " + username);
-                    return;
+                    var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
+                                       (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+                    if (dirnotempty) return;
+                    else Console.WriteLine("but seems empty, try to reinitialize");
                 }
                 //else
                 Initializedproviders.Add(FILESYSTEMFOLDER);
@@ -113,13 +122,31 @@ namespace MetadataService.Services.Files
                 {
                     Console.WriteLine("Directory empty " + ex.Message+" , trying to mount.");
                 }
+                int exitcode;
                 
-                    int exitcode;
+                if (request == null)
+                {
+                    string output = Utils.ExecuteShell("/bin/bash", new[]
+                    {
+                        //"-H -u vagrant", 
+                        //TODO make path of mountb2drop script configurable
+                        _mountscript,
+                        "refresh",
+                        _providerurl,
+                        FILESYSTEMFOLDER,
+                        username,
+                        ".",
+                        WEBDAVURL
+                    }, out exitcode);
+                    Console.WriteLine(output);
+                }
+                else
+                {
                     request.output = Utils.ExecuteShell("/bin/bash", new[]
                     {
                         //"-H -u vagrant", 
                         //TODO make path of mountb2drop script configurable
-                        "/home/vagrant/scripts/mountb2drop.sh",
+                        _mountscript,
                         "add",
                         _providerurl,
                         FILESYSTEMFOLDER,
@@ -128,7 +155,8 @@ namespace MetadataService.Services.Files
                         WEBDAVURL
                     }, out exitcode);
                     Console.WriteLine(request.output);
-                
+                }
+
             }
         }
 

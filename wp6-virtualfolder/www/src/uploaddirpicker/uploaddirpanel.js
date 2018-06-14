@@ -2,18 +2,19 @@
  * created by Tomas Kulhanek on 4/11/17.
  */
 
-import {HttpClient} from 'aurelia-http-client';
+//import {HttpClient} from 'aurelia-http-client';
+import {ProjectApi} from "../components/projectapi";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from '../filepicker/messages';
 import {bindable} from 'aurelia-framework';
 import {Filepanel} from '../filepicker/filepanel';
 
 export class Uploaddirpanel extends Filepanel {
-  static inject = [EventAggregator, HttpClient];
+  static inject = [EventAggregator, ProjectApi];
   @bindable panelid;
 
-  constructor(ea, httpclient) {
-    super(ea,httpclient)
+  constructor(ea, pa) {
+    super(ea,pa)
   }
 
   selectFile(file){
@@ -26,16 +27,13 @@ export class Uploaddirpanel extends Filepanel {
     //console.log("selected:"+this.path);
     let myfile= {};
     myfile.name = this.path;
-    this.client.get(this.getpublicwebdavurl)
+    this.pa.getPublicWebDav()
       .then(data => {
-        if (data.response) {
-          let mypath2=JSON.parse(data.response);
-          let mypath = mypath2.signed_url;
+          let mypath = data.signed_url;
           mypath+= this.path.startsWith('/')?this.path.slice(1):this.path;
           let mydir = {};
           mydir.webdavuri = mypath;
           this.ea.publish(new SelectedFile(mydir, this.panelid));
-        }
       });
   }
 }

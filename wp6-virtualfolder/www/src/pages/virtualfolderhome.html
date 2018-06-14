@@ -2,7 +2,7 @@
   <require from="../w3.css"></require>
   <require from="../virtualfoldersetting/taskcontrol"></require>
 
-  <div class="w3-half">
+  <div class="w3-twothird">
     <div class="w3-card-2 w3-white w3-margin w3-padding">
       <h3>Settings</h3>
       <p>
@@ -12,9 +12,14 @@
       </p>
 
     </div>
-  </div>
 
-  <div class="w3-half">
+    <div if.bind="islocalhost" class="w3-card-2 w3-white w3-margin w3-padding">
+      <h3>Available local services</h3>
+      <div>
+        <taskcontrol></taskcontrol>
+      </div>
+    </div>
+
     <div class="w3-card-2 w3-white w3-margin w3-padding">
       <h3>File Manager</h3>
       <p>
@@ -27,7 +32,7 @@
     </div>
   </div>
 
-  <div class="w3-half">
+  <div class="w3-third">
     <div class="w3-card-2 w3-white w3-margin w3-padding">
       <h3>WEBDAV access</h3>
       <p>
@@ -47,13 +52,6 @@
       <p>Follow <a href="https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder">documentation</a> to integrate file picking or directory picking into your web application.</p>
     </div>
   </div>
-  <!-- TODO check if tasks are available by backend -->
-  <div if.bind="islocalhost" class="w3-half">
-    <div class="w3-card-2 w3-white w3-margin w3-padding">
-      <h3>Available local services</h3>
-      <div>
-        <taskcontrol></taskcontrol>
-      </div>
-    </div>
-  </div>
+
+
 </template>

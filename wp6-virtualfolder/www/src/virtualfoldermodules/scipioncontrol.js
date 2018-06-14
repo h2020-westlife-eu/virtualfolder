@@ -8,8 +8,8 @@ export class Scipioncontrol extends Modulecontrol{
   @bindable classin = "w3-card-4 w3-sand w3-padding w3-margin w3-round";
   constructor(){
    super();
-   this.url="/metadataservice/sbservice/scipion";
-   this.posturl="/metadataservice/sbservice/scipion";
+   this.url="/virtualfolder/api/sbservice/scipion";
+   this.posturl="/virtualfolder/api/sbservice/scipion";
  }
 
 }

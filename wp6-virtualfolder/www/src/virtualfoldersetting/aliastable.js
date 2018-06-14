@@ -1,7 +1,8 @@
 /**
  * Created by Tomas Kulhanek on 1/6/17.
  */
-import {HttpClient} from 'aurelia-http-client';
+//import {HttpClient} from 'aurelia-http-client';
+import{ProjectApi} from "../components/projectapi";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {Vfstorage} from '../utils/vfstorage';
@@ -15,37 +16,30 @@ import {Dataitem} from "../pdbcomponents/dataitem";
  * and shows them in a table, allows delete the alias or initiate dialog to create one.
  */
 export class Aliastable {
-  static inject = [EventAggregator,HttpClient];
+  static inject = [EventAggregator,ProjectApi];
 
-  constructor(ea,httpclient){
+  constructor(ea,pa){
     this.ea=ea;
-    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
+    //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
     this.ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
-    this.client=httpclient;
+    //this.client=httpclient;
+    this.pa=pa;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
-    this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
   }
 
   attached() {
     
-    this.client.get(this.serviceurl)
+    this.pa.getFiles()
       .then(data => {
         this.ea.publish(new MayLogout(this.panelid));
-        if (data.response) {
-          this.providers = JSON.parse(data.response);
-        }
+        this.providers = data;
+        
       })
       .catch(error =>{
-        console.log("aliastable.attached() error:");
-        console.log(error);
-          //handle 403 unauthorized
-          if (error.statusCode === 403) {
+        if (error.statusCode === 403) {
             this.ea.publish(new HandleLogin(this.panelid));
           } else
-        alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
+        alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. HTTP status:'+error.statusCode+' '+error.statusText)
       });
   }
 
@@ -57,18 +51,12 @@ export class Aliastable {
     //console.log("removeProvider() "+alias);
     if (!confirm('Do you really want to delete the provider with alias "'+settings.alias+'" ?'))
       return;
-    this.client.delete(this.serviceurl+"/"+settings.alias)
+    this.pa.deleteProvider(settings.alias)
       .then(data =>{
-        //console.log("data response");
-        //console.log(data);
-        if (data.response) {
-          this.providers = JSON.parse(data.response);
-        }
+          this.providers = (data);
       })
       .catch(error =>{
-        console.log(error);
-
-        alert('Sorry. Settings not deleted at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+        alert('Sorry. Settings not deleted. error:'+error.response+" status:"+error.statusText)
       });
   }
   

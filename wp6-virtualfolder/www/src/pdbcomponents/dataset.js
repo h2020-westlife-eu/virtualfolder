@@ -3,7 +3,8 @@
  */
 
 import 'whatwg-fetch';
-import {HttpClient} from "aurelia-http-client";
+//import {HttpClient} from "aurelia-http-client";
+import {ProjectApi} from "../components/projectapi";
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {DatasetFile} from '../filepicker/messages';
@@ -16,21 +17,18 @@ import {Vfstorage} from '../utils/vfstorage';
  *
  */
 export class Dataset {
-  static inject = [HttpClient,EventAggregator];
+  static inject = [ProjectApi,EventAggregator];
   @bindable panelid;
 
-  constructor (httpclient,ea) {
-    this.client = httpclient;
-    this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
+  constructor (pa,ea) {
+    this.pa = pa;
+    
     this.ea = ea;
     this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
 
     this.showitem=true;
     this.baseurl =
-    this.dataseturl=Vfstorage.getBaseUrl()+"/metadataservice/dataset";
+//    this.dataseturl=Vfstorage.getBaseUrl()+"/metadataservice/dataset";
     this.showlist=true;
     this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
     this.pdbdataitem = "";
@@ -64,13 +62,9 @@ export class Dataset {
   }
 
   attached(){
-    this.client.get(this.dataseturl).then(data=>
+    this.pa.getDataset().then(data=>
     {
-      //console.log("dataset.attached(), data:")
-      //console.log(data)
-      this.datasetlist = JSON.parse(data.response);
-      //console.log('Dataset().datasetlist:')
-      //console.log(this.datasetlist)
+      this.datasetlist = data;
     })
   }
 
@@ -81,16 +75,13 @@ export class Dataset {
   selectdataset(item){
     //console.log("selectdataset()");
     //console.log(item)
-    this.client.get(this.dataseturl+"/"+item.Id).then(data=>
+    this.pa.getDataset(item.Id).then(data=>
     {
-      //console.log("selecteddataset(), data:")
-      //console.log(data)
-      this.submitdataset=JSON.parse(data.response)
-      //console.log(this.submitdataset)
-      this.pdbdataset = this.submitdataset.Entries
-      this.name = this.submitdataset.Name
-      this.id = this.submitdataset.Id
-      this.showlist = false
+      this.submitdataset=data;
+      this.pdbdataset = this.submitdataset.Entries;
+      this.name = this.submitdataset.Name;
+      this.id = this.submitdataset.Id;
+      this.showlist = false;
     })
   }
 
@@ -139,30 +130,14 @@ export class Dataset {
     //console.log(this.submitdataset);
     //console.log(JSON.stringify(this.submitdataset));
     //PUT = UPDATE, POST = create new
-    if (this.id>0)
-      this.client.put(this.dataseturl+"/"+this.id,JSON.stringify(this.submitdataset))
+    
+      this.pa.addDataset("/"+this.id,this.submitdataset)
         .then(data =>{
-          //console.log("data response");
-          //console.log(data);
-          let myitem = JSON.parse(data.response);
-          //this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
+          this.showlist=true;
+          if (this.id === 0) this.datasetlist.push({Id:data.Id, Name:data.Name});
           this.showlist=true;
         })
         .catch(error =>{
-          console.log(error);
-          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
-        });
-    else
-      this.client.post(this.dataseturl,JSON.stringify(this.submitdataset))
-        .then(data =>{
-          //console.log("data response");
-          //console.log(data);
-          let myitem = JSON.parse(data.response);
-          this.datasetlist.push({Id:myitem.Id, Name:myitem.Name})
-          this.showlist=true;
-        })
-        .catch(error =>{
-          console.log(error);
           alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
         });
   }

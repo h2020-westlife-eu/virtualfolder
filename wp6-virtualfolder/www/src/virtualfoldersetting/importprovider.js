@@ -1,7 +1,8 @@
 /**
  * Created by Tomas Kulhanek on 1/6/17.
  */
-import {HttpClient} from 'aurelia-http-client';
+//import {HttpClient} from 'aurelia-http-client';
+import {ProjectApi} from "../components/projectapi";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {Vfstorage} from '../utils/vfstorage';
@@ -13,26 +14,23 @@ import {Aliastable} from "./aliastable";
  * Importprovider component implements workflow to transfer providers from one virtualfodler to another
  */
 export class Importprovider {
-  static inject = [EventAggregator,HttpClient];
+  static inject = [EventAggregator,ProjectApi];
 
-  constructor(ea,httpclient){
+  constructor(ea,pa){
     this.importingSettings=false;
     this.ea=ea;
     this.publickey = undefined;
-    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
-    this.client=httpclient;
-    this.client.configure(config=> {
-      config.withHeader('Accept', 'application/json');
-      config.withHeader('Content-Type', 'application/json');
-    });
+    //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
+    //this.client=httpclient;
+    this.pa=pa;
 
-    this.localsettingservice=Vfstorage.getBaseUrl()+"/metadataservice/settings";
+    //this.localsettingservice=Vfstorage.getBaseUrl()+"/metadataservice/settings";
     //receives message from popup window, define as arrow function due to eventlistener
     this.receiveMessage = event =>
     {
       console.log("Aliastable() received message:",event.data);
       this.confirmSettings(event.data);
-    }
+    };
     this.remoteurl="https://portal.west-life.eu/virtualfolder/";
   }
 
@@ -40,12 +38,12 @@ export class Importprovider {
     //adds listener for 
     window.addEventListener("message", this.receiveMessage, false);
     //1. get public key from this VF instance
-    this.client.post(this.localsettingservice)
+    this.pa.getPublicKey()
       .then(data => {
-        this.publickey = data.response;
+        console.log("getPublicKey()",data);
+        this.publickey = data;
     })
     .catch(error => {
-      console.log(error);
       alert('Sorry error when generating keys for import:' + error.response + " status:" + error.statusText)
     });
   }
@@ -55,7 +53,6 @@ export class Importprovider {
   }
   
   importProvider(){
-    
     //2. open popup window with public key to remote public VC
     //this.remoteurl= window.prompt("Enter URL of West-Life Virtual Volder instance:( https://[yourdomain]/virtualfolder/)","https://portal.west-life.eu/virtualfolder/");
     let remotesettingsurl = new URL(this.remoteurl+'syncsettingcomponent.html');
@@ -87,10 +84,10 @@ export class Importprovider {
   
   importSettings2(){
     this.importingSettings=false;
-    console.log("importSettings2() aliases:",this.aliases);
+    //console.log("importSettings2() aliases:",this.aliases);
     
     this.conflicts = {oldnames:this.aliases.map(item => item.oldname).join(';'),newnames:this.aliases.map(item=>item.newname).join(';')};
-    console.log("importSettings2() conflicts:",this.conflicts);
+    //console.log("importSettings2() conflicts:",this.conflicts);
     
 //4. import the encrypted settings into this VF instance
     //    public class ImportSettings : IReturnVoid
@@ -102,30 +99,14 @@ export class Importprovider {
     //     }
     //let conflicts = this.resolveConflicts(message.aliases);    
     let importmessage = {PublicKey:this.publickey,EncryptedSettings:this.message.EncryptedSettings,ConflictedAliases:this.conflicts.oldnames,NewNameAliases:this.conflicts.newnames};
-    console.log("importSettings",importmessage);
-    this.client.put(this.localsettingservice,importmessage)
+    //console.log("importSettings",importmessage);
+    this.pa.putSettings(importmessage)
+    //this.client.put(this.localsettingservice,importmessage)
       .then(data => {
-        
-        this.ea.publish(new SettingsSubmitted(JSON.parse(data.response)))
+        //console.log("importSettings2() data:",data);
+        this.ea.publish(new SettingsSubmitted(data));
       });
 
   }
-
-  resolveConflicts(aliases){
-    let aliasarr = aliases.split(';');
-    let conflicts = {oldnames:"",newnames:""};
-    for (let pr in this.providers) {
-      if (aliasarr.indexOf(pr.alias)>=0) {
-        //found conflict
-        //add ; after existing elements
-        if (conflicts.oldnames.length>0) {conflicts.oldnames+=';'; conflicts.newnames+=';'}
-        //add conflict name
-        conflicts.oldnames+=pr.alias;
-        //add new name to be renamed, TODO check whether random number already conflicts too
-        let suffix=""+Math.floor((Math.random() * 1000) + 1);
-        conflicts.newnames+=pr.alias+suffix;
-      }
-    }
-  }
-
+  
 }

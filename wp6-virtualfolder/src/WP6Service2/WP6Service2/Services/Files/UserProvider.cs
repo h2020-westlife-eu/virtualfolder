@@ -82,10 +82,14 @@ namespace MetadataService.Services.Files
             IProviderCreator impl = null;
             if (ProviderFactory.AvailableProviders.TryGetValue(provideritem.type, out impl))
             {
+                //if the same provider exists, delete first
+                if (_providers.Exists(x => x.alias == provideritem.alias)) Delete(provideritem);
+                //set default alias
                 if (string.IsNullOrEmpty(provideritem.alias))
                     provideritem.alias = firstempty(provideritem.type.ToLower());
-                var aprovider = impl.CreateProvider(provideritem, storage, connection, userauthproxy);
-
+                //create provider
+                var aprovider = impl.CreateProvider(provideritem, storage, connection, userauthproxy);                
+                
                 _providers.Add(provideritem);
                 linkedimpl.Add(provideritem.alias, aprovider);
                 aprovider.StoreSettings(provideritem);

@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 9/13/17.
  */
 
-//import {HttpClient} from 'aurelia-http-client';
+
 import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
 export class Pdbresource {
@@ -52,6 +52,12 @@ export class Pdbresource {
     //console.log(this)
     let resources = [];
     let that = this;
+    
+    function fetchLog(url) {
+      return that.client.fetch(url) 
+        .then(data => {return data});
+
+    }
 
     //first level of pdb browsing generates 1* -9*
     function push1_9() {
@@ -70,7 +76,7 @@ export class Pdbresource {
 
         for (let i = 0; i <= 9; i++){
 
-          that.client.fetch(that.requesturlnums+ prefix + i + "*")
+          that.client.fetch(that.requesturlnums+ prefix + i + "*",{headers:{}})
             .then(response => response.json())
             .then(data => {
               //console.log(data)
@@ -85,7 +91,7 @@ export class Pdbresource {
           //resources.push({name: prefix + i + "*", info: "", id: resource.id})
         for (let i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
 
-          that.client.fetch(that.requesturlnums+ prefix + String.fromCharCode(i) + "*")
+          that.client.fetch(that.requesturlnums+ prefix + String.fromCharCode(i) + "*",{headers:{}})
             .then(response => response.json())
             .then(data => {
               //console.log(data)
@@ -106,7 +112,7 @@ export class Pdbresource {
         console.log("check0_9a_z");
         resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
         let queryurl = that.requesturlpdbid+resource.name;
-        that.client.fetch(queryurl)
+        that.client.fetch(queryurl,{headers:{}})
           .then(response => response.json())
           .then(data => {
               //console.log(data)
@@ -128,7 +134,7 @@ export class Pdbresource {
       resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
       let queryurl = that.requesturlfiles+pdbid;
       //get links to pdb files
-      that.client.fetch(queryurl)
+      that.client.fetch(queryurl,{headers:{}})
         .then(response => response.json())
         .then(data => {
           console.log(data);
@@ -150,7 +156,7 @@ export class Pdbresource {
       //get link to pdb redo files
       queryurl = that.pdbredourlfiles+pdbid;
 
-      that.client.fetch(queryurl, {method:'head'})
+      that.client.fetch(queryurl, {method:'head',headers:{}})
         .then(response => {
           console.log(response);
           let resources2 = [];

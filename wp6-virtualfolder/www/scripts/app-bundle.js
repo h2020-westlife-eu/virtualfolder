@@ -547,7 +547,7 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
 });
-define('components/projectapi',["exports", "aurelia-fetch-client"], function (exports, _aureliaFetchClient) {
+define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfstorage"], function (exports, _aureliaFetchClient, _vfstorage) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -569,8 +569,16 @@ define('components/projectapi',["exports", "aurelia-fetch-client"], function (ex
 
       this.httpclient = httpclient;
 
-      this.metadataapiurl = "/metadataservice";
+      this.metadataapiurl = "api";
       this.userinfourl = this.metadataapiurl + "/userinfo";
+      this.fileserviceurl = this.metadataapiurl + "/files";
+      this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
+      this.dataseturl = this.metadataapiurl + "/dataset";
+      this.taskurl = this.metadataapiurl + "/availabletasks";
+      this.userprocessurl = this.metadataapiurl + "/userprocess";
+
+      this.settingsurl = this.metadataapiurl + "/settings";
+      this.providersurl = this.metadataapiurl + "/providers";
       this.httpclient.configure(function (config) {
         config.rejectErrorResponses().withBaseUrl('').withDefaults({
           credentials: 'same-origin',
@@ -580,19 +588,159 @@ define('components/projectapi',["exports", "aurelia-fetch-client"], function (ex
           }
         });
       });
+      this.putHeaders = new Headers();
+      this.putHeaders.append('Accept', 'application/json');
+      this.putHeaders.append('Content-Type', 'application/json');
     }
 
-    ProjectApi.prototype.getUserInfo = function getUserInfo() {
-      console.log("projectapi.getUserInfo:", this.userinfourl);
-      return this.httpclient.fetch(this.userinfourl).then(function (response) {
+    ProjectApi.prototype.fetchJsonLog = function fetchJsonLog(url) {
+      return this.httpclient.fetch(url).then(function (response) {
         return response.json();
       }).then(function (data) {
         return data;
       }).catch(function (error) {
-        console.log('getUserInfo() returns error:');
-
+        console.log("fetch on '" + url + "' returns error:", error);
         throw error;
       });
+    };
+
+    ProjectApi.prototype.head = function head(url) {
+      return this.httpclient.fetch(url, { method: 'head' }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("head on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.deleteJsonLog = function deleteJsonLog(url) {
+      return this.httpclient.fetch(url, { method: "delete" }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("delete on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postJsonLogNoBody = function postJsonLogNoBody(url) {
+      return this.httpclient.fetch(url, { method: 'post' }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postTextLogNoBody = function postTextLogNoBody(url) {
+      return this.httpclient.fetch(url, { method: 'post' }).then(function (data) {
+        return data.text();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postJsonLog = function postJsonLog(url, datatosend) {
+      return this.httpclient.fetch(url, { method: 'post', body: (0, _aureliaFetchClient.json)(datatosend) }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.putJsonLog = function putJsonLog(url, datatosend) {
+      console.log("put on '" + url + "' test2");
+      return this.httpclient.fetch(url, { method: 'PUT', mode: 'cors', body: (0, _aureliaFetchClient.json)(datatosend), credentials: 'include', headers: this.putHeaders }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("put on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.getUserInfo = function getUserInfo() {
+      return this.fetchJsonLog(this.userinfourl);
+    };
+
+    ProjectApi.prototype.getPublicWebDav = function getPublicWebDav() {
+      return this.fetchJsonLog(this.getpublicwebdavurl);
+    };
+
+    ProjectApi.prototype.getFiles = function getFiles() {
+      var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+      return this.fetchJsonLog(this.fileserviceurl + path);
+    };
+
+    ProjectApi.prototype.getProviders = function getProviders() {
+      return this.fetchJsonLog(this.providersurl);
+    };
+
+    ProjectApi.prototype.putProvider = function putProvider(settings) {
+      return this.putJsonLog(this.fileserviceurl, settings);
+    };
+
+    ProjectApi.prototype.deleteProvider = function deleteProvider(alias) {
+      return this.deleteJsonLog(this.fileserviceurl + "/" + alias);
+    };
+
+    ProjectApi.prototype.getDataset = function getDataset() {
+      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+      var context = id === "" ? "" : "/" + id;
+      return this.fetchJsonLog(this.dataseturl + context);
+    };
+
+    ProjectApi.prototype.addDataset = function addDataset() {
+      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+      var dataset = arguments[1];
+
+      if (id > 0) return this.putJsonLog(this.dataseturl + "/" + this.id, dataset);else return this.postJsonLog(this.dataseturl, dataset);
+    };
+
+    ProjectApi.prototype.getExportedSettings = function getExportedSettings(publickey, selectedaliases) {
+      var queryurl = new URL(this.settingsurl);
+      var params = { PublicKey: publickey, SelectedAliases: selectedaliases };
+      Object.keys(params).forEach(function (key) {
+        return queryurl.searchParams.append(key, params[key]);
+      });
+
+      return this.fetchJsonLog(queryurl);
+    };
+
+    ProjectApi.prototype.getPublicKey = function getPublicKey() {
+      return this.postTextLogNoBody(this.settingsurl);
+    };
+
+    ProjectApi.prototype.putSettings = function putSettings(importmessage) {
+      return this.putJsonLog(this.settingsurl, importmessage);
+    };
+
+    ProjectApi.prototype.getTask = function getTask() {
+      return this.fetchJsonLog(this.taskurl);
+    };
+
+    ProjectApi.prototype.stopTask = function stopTask(taskName) {
+      return this.deleteJsonLog(this.userprocessurl + "/" + taskName);
+    };
+
+    ProjectApi.prototype.startTask = function startTask(taskName) {
+      return this.postJsonLogNoBody(this.userprocessurl + "/" + taskName);
+    };
+
+    ProjectApi.prototype.getFileHead = function getFileHead(filepath) {
+      return this.head(this.fileserviceurl + '/' + filepath);
     };
 
     return ProjectApi;
@@ -674,8 +822,9 @@ define('components/sharedheader',['exports', './projectapi', 'aurelia-framework'
       this.pa.getUserInfo().then(function (data) {
         _this.userinfo = data;
 
-        if (_this.userinfo.username == 'vagrant') _this.userinfo.AccountLink = "";else if (_this.userinfo.username.endsWith("west-life.eu")) _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";else _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
+        if (_this.userinfo.username === 'vagrant') _this.userinfo.AccountLink = "";else if (_this.userinfo.username.endsWith("west-life.eu")) _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";else _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
         _this.userinfo.LogoutLink = "/logout";
+        if (!_this.userinfo.name) _this.userinfo.name = _this.userinfo.username;
         _this.showuserinfo = true;
       }).catch(function (error) {
         console.log("no user info, disable showing it");
@@ -1190,7 +1339,7 @@ define('filepicker/environment',["exports"], function (exports) {
     testing: false
   };
 });
-define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../behavior', 'aurelia-framework', '../utils/vfstorage', './pdbresource', './uniprotresource', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _behavior, _aureliaFramework, _vfstorage, _pdbresource, _uniprotresource) {
+define('filepicker/filepanel',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../behavior', 'aurelia-framework', '../utils/vfstorage', './pdbresource', './uniprotresource', 'whatwg-fetch'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _behavior, _aureliaFramework, _vfstorage, _pdbresource, _uniprotresource) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1250,26 +1399,17 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Filepanel = exports.Filepanel = (_class = (_temp = _class2 = function () {
-    function Filepanel(ea, httpclient, pdbresource, uniprotresource) {
+    function Filepanel(ea, pa, pdbresource, uniprotresource) {
       _classCallCheck(this, Filepanel);
 
       _initDefineProp(this, 'panelid', _descriptor, this);
 
       this.ea = ea;
-      this.client = httpclient;
+      this.pa = pa;
       this.files = [];
       this.path = "";
       this.lastpath = this.path;
       this.dynatable = {};
-
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-
-      this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
       this.sorted = { none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16 };
       this.wassorted = this.sorted.none;
       this.baseresources = [{ name: "PDB", info: "Protein Data Bank repository entries from ebi.ac.uk", id: "pdb" }];
@@ -1353,12 +1493,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     Filepanel.prototype.attached = function attached() {
       var _this = this;
 
-      this.client.get(this.serviceurl + this.path).then(function (data) {
-        if (data.response) {
-          _this.populateFiles(data.response);
-        } else {
-            console.log(data);
-          }
+      this.pa.getFiles(this.path).then(function (data) {
+        _this.populateFiles(data);
       }).catch(function (error) {
         if (error.statusCode == 403) {
           _this.ea.publish(new _behavior.HandleLogin(_this.panelid));
@@ -1367,10 +1503,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         } else {
           if (_this.path && _this.path.length > 0) {
             _this.path = "";
-            _this.client.get(_this.serviceurl + _this.path).then(function (data) {
-              if (data.response) {
-                _this.populateFiles(data.response);
-              } else _this.handleError(data);
+            _this.pa.getFiles(_this.path).then(function (data) {
+              _this.populateFiles(data);
             }).catch(function (error) {
               _this.handleError(error);
             });
@@ -1424,11 +1558,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         if (folder) {
           if (folder == '..') this.cdup();else if (folder == '/') this.cdroot();else this.cddown(folder);
         }
-
-        this.client.get(this.serviceurl + this.path).then(function (data) {
-          if (data.response) {
-            _this2.populateFiles(data.response);
-          }
+        this.pa.getFiles(this.path).then(function (data) {
+          _this2.populateFiles(data);
           _this2.lock = false;
         }).catch(function (error) {
           if (error.statusCode == 403) {
@@ -1453,7 +1584,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     Filepanel.prototype.populateFiles = function populateFiles(dataresponse) {
       _vfstorage.Vfstorage.setValue("filepanel" + this.panelid, this.path);
 
-      this.files = JSON.parse(dataresponse);
+      this.files = dataresponse;
       this.filescount = this.files.length + this.resources.length;
       var that = this;
       this.files.forEach(function (item, index, arr) {
@@ -1476,24 +1607,13 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     };
 
     Filepanel.prototype.selectFile = function selectFile(file) {
-      var _this3 = this;
-
       if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);else {
-        var fileurl = this.serviceurl + this.path + '/' + file.name;
-        this.client.head(fileurl).then(function (response) {}).catch(function (error) {
+        this.pa.getFileHead(this.path + '/' + file.name).then(function (response) {}).catch(function (error) {
           console.log("Error when geting metadata information about file:");
           console.log(error);
         });
-
-        this.client.get(this.getpublicwebdavurl).then(function (data) {
-          if (data.response) {
-            var mypath2 = JSON.parse(data.response);
-            var mypath = mypath2.signed_url;
-            mypath += _this3.path.startsWith('/') ? _this3.path.slice(1) : _this3.path;
-            file.publicwebdavuri = mypath + "/" + file.name;
-            _this3.ea.publish(new _messages.SelectedFile(file, _this3.panelid));
-          }
-        });
+        console.log("SelectedFile", file);
+        this.ea.publish(new _messages.SelectedFile(file, this.panelid));
       }
     };
 
@@ -1556,7 +1676,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     };
 
     return Filepanel;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _pdbresource.Pdbresource, _uniprotresource.Uniprotresource], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi, _pdbresource.Pdbresource, _uniprotresource.Uniprotresource], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -1794,6 +1914,12 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
       var resources = [];
       var that = this;
 
+      function fetchLog(url) {
+        return that.client.fetch(url).then(function (data) {
+          return data;
+        });
+      }
+
       function push1_9() {
         resources.push({ name: "..", info: "UP-DIR", id: "" });
         for (var i = 1; i < 10; i++) {
@@ -1807,7 +1933,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
           for (var i = 0; i <= 9; i++) {
 
-            that.client.fetch(that.requesturlnums + prefix + i + "*").then(function (response) {
+            that.client.fetch(that.requesturlnums + prefix + i + "*", { headers: {} }).then(function (response) {
               return response.json();
             }).then(function (data) {
               var resources2 = [];
@@ -1821,7 +1947,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
           for (var _i = 'a'.charCodeAt(0); _i <= 'z'.charCodeAt(0); _i++) {
 
-            that.client.fetch(that.requesturlnums + prefix + String.fromCharCode(_i) + "*").then(function (response) {
+            that.client.fetch(that.requesturlnums + prefix + String.fromCharCode(_i) + "*", { headers: {} }).then(function (response) {
               return response.json();
             }).then(function (data) {
               var resources2 = [];
@@ -1840,7 +1966,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
           console.log("check0_9a_z");
           resources.push({ name: "..", info: "UP-DIR", id: resource.id, link: resource.name });
           var queryurl = that.requesturlpdbid + resource.name;
-          that.client.fetch(queryurl).then(function (response) {
+          that.client.fetch(queryurl, { headers: {} }).then(function (response) {
             return response.json();
           }).then(function (data) {
             var resources2 = [];
@@ -1874,7 +2000,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
         resources.push({ name: "..", info: "UP-DIR", id: resource.id, link: resource.name });
         var queryurl = that.requesturlfiles + pdbid;
 
-        that.client.fetch(queryurl).then(function (response) {
+        that.client.fetch(queryurl, { headers: {} }).then(function (response) {
           return response.json();
         }).then(function (data) {
           console.log(data);
@@ -1908,7 +2034,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
         queryurl = that.pdbredourlfiles + pdbid;
 
-        that.client.fetch(queryurl, { method: 'head' }).then(function (response) {
+        that.client.fetch(queryurl, { method: 'head', headers: {} }).then(function (response) {
           console.log(response);
           var resources2 = [];
           for (var _iterator3 = that.pdbredosuffixes, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
@@ -2118,7 +2244,7 @@ define('pages/filepicker',["exports"], function (exports) {
     return Filepicker;
   }();
 });
-define('pages/virtualfolderhome',['exports', 'aurelia-http-client', 'aurelia-event-aggregator'], function (exports, _aureliaHttpClient, _aureliaEventAggregator) {
+define('pages/virtualfolderhome',['exports', '../components/projectapi', 'aurelia-event-aggregator'], function (exports, _projectapi, _aureliaEventAggregator) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2135,28 +2261,24 @@ define('pages/virtualfolderhome',['exports', 'aurelia-http-client', 'aurelia-eve
   var _class, _temp;
 
   var Virtualfolderhome = exports.Virtualfolderhome = (_temp = _class = function () {
-    function Virtualfolderhome(ea, httpclient) {
+    function Virtualfolderhome(ea, projectapi) {
       _classCallCheck(this, Virtualfolderhome);
 
       this.ea = ea;
       this.location = window.location.protocol;
       this.islocalhost = this.location.startsWith('http:');
-      this.client = httpclient;
+      this.pa = projectapi;
       this.webdavurl = "";
-      this.requestpublicurl = "/api/authproxy/get_signed_url/";
     }
 
     Virtualfolderhome.prototype.generateurl = function generateurl() {
       var _this = this;
 
-      if (this.webdavurl == "") {
-        this.client.get(this.requestpublicurl).then(function (data) {
-          if (data.response) {
-            var result = JSON.parse(data.response);
-            if (window.location.port == "80" || window.location.port == "") _this.webdavurl = window.location.protocol + "//" + window.location.hostname + result.signed_url;else _this.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + result.signed_url;
-          }
+      if (this.webdavurl === "") {
+        this.pa.getPublicWebDav().then(function (data) {
+          if (window.location.port === "80" || window.location.port === "") _this.webdavurl = window.location.protocol + "//" + window.location.hostname + data.signed_url;else _this.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + data.signed_url;
         }).catch(function (error) {
-          if (error.statusCode == 401) {} else {
+          if (error.statusCode === 401) {} else {
             alert("Sorry, cannot generate URL. " + error.statusCode + ':' + error.statusText);
           }
         });
@@ -2164,7 +2286,7 @@ define('pages/virtualfolderhome',['exports', 'aurelia-http-client', 'aurelia-eve
     };
 
     return Virtualfolderhome;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('pages/virtualfoldersetting',["exports"], function (exports) {
   "use strict";
@@ -2262,7 +2384,7 @@ define('pdbcomponents/checkurl',['exports', 'aurelia-framework', 'aurelia-fetch-
       var _this = this;
 
       this.client.fetch(this.url, { method: 'HEAD' }).then(function (response) {
-        if (response.status == 200) _this.showit = true;
+        if (response.status === 200) _this.showit = true;
       }).catch(function (error) {
         _this.showit = false;
         console.log('checkurl error:' + error);
@@ -2443,7 +2565,7 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
     }
   })), _class);
 });
-define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', '../filepicker/messages', '../utils/vfstorage', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages, _vfstorage) {
+define('pdbcomponents/dataset',['exports', '../components/projectapi', 'aurelia-framework', 'aurelia-event-aggregator', '../filepicker/messages', '../utils/vfstorage', 'whatwg-fetch'], function (exports, _projectapi, _aureliaFramework, _aureliaEventAggregator, _messages, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2521,26 +2643,22 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Dataset = exports.Dataset = (_class = (_temp = _class2 = function () {
-    function Dataset(httpclient, ea) {
+    function Dataset(pa, ea) {
       var _this = this;
 
       _classCallCheck(this, Dataset);
 
       _initDefineProp(this, 'panelid', _descriptor, this);
 
-      this.client = httpclient;
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
+      this.pa = pa;
+
       this.ea = ea;
       this.ea.subscribe(_messages.DatasetFile, function (msg) {
         return _this.addDatasetFile(msg.file, msg.senderid);
       });
 
       this.showitem = true;
-      this.baseurl = this.dataseturl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/dataset";
-      this.showlist = true;
+      this.baseurl = this.showlist = true;
       this.pdbdataset = [];
       this.pdbdataitem = "";
       this.pdblinkset = [];
@@ -2564,8 +2682,8 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.attached = function attached() {
       var _this2 = this;
 
-      this.client.get(this.dataseturl).then(function (data) {
-        _this2.datasetlist = JSON.parse(data.response);
+      this.pa.getDataset().then(function (data) {
+        _this2.datasetlist = data;
       });
     };
 
@@ -2576,9 +2694,8 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.selectdataset = function selectdataset(item) {
       var _this3 = this;
 
-      this.client.get(this.dataseturl + "/" + item.Id).then(function (data) {
-        _this3.submitdataset = JSON.parse(data.response);
-
+      this.pa.getDataset(item.Id).then(function (data) {
+        _this3.submitdataset = data;
         _this3.pdbdataset = _this3.submitdataset.Entries;
         _this3.name = _this3.submitdataset.Name;
         _this3.id = _this3.submitdataset.Id;
@@ -2621,19 +2738,12 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
       this.submitdataset.Name = this.name;
       this.submitdataset.Entries = this.pdbdataset;
 
-      if (this.id > 0) this.client.put(this.dataseturl + "/" + this.id, JSON.stringify(this.submitdataset)).then(function (data) {
-        var myitem = JSON.parse(data.response);
 
+      this.pa.addDataset("/" + this.id, this.submitdataset).then(function (data) {
+        _this4.showlist = true;
+        if (_this4.id === 0) _this4.datasetlist.push({ Id: data.Id, Name: data.Name });
         _this4.showlist = true;
       }).catch(function (error) {
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });else this.client.post(this.dataseturl, JSON.stringify(this.submitdataset)).then(function (data) {
-        var myitem = JSON.parse(data.response);
-        _this4.datasetlist.push({ Id: myitem.Id, Name: myitem.Name });
-        _this4.showlist = true;
-      }).catch(function (error) {
-        console.log(error);
         alert('Sorry. Dataset not submitted  at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
     };
@@ -2646,7 +2756,7 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     }]);
 
     return Dataset;
-  }(), _class2.inject = [_aureliaHttpClient.HttpClient, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(), _class2.inject = [_projectapi.ProjectApi, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -3134,7 +3244,7 @@ define('resources/index',['exports'], function (exports) {
     config.globalResources(['./irep.html', './irepdemo.html', './iadmin.html', './istaff.html', './ifile.html', './ilink.html', './icopy', './ifolder.html', './idata.html', './iproject.html', './itable.html', './ispincog.html', './idelete.html', './inext.html', './icopyicon.html', './icogs.html']);
   }
 });
-define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaEventAggregator, _behavior, _aureliaHttpClient, _vfstorage) {
+define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', '../components/projectapi', '../utils/vfstorage'], function (exports, _aureliaEventAggregator, _behavior, _projectapi, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3151,20 +3261,15 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
   var _class, _temp;
 
   var App = exports.App = (_temp = _class = function () {
-    function App(ea, httpclient) {
+    function App(ea, pa) {
       var _this = this;
 
       _classCallCheck(this, App);
 
       this.ea = ea;
-      this.client = httpclient;
+
+      this.params = pa;
       this.providers = [{ alias: "Loading available providers ...", temporary: true }];
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-      this.settingsurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/settings";
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
       this.loading = true;
       this.loadederror = false;
       this.handler = new _behavior.RedirectLogin();
@@ -3183,16 +3288,13 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
       this.params = _vfstorage.Vfstorage.getParams(window.location.search.substring(1));
       this.publickey = this.params.PublicKey;
 
-      this.client.get(this.serviceurl).then(function (data) {
+      this.pa.getFiles().then(function (data) {
         _this2.loading = false;
         _this2.loadederror = false;
         _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
-        if (data.response) {
-          var rawproviders = JSON.parse(data.response);
-          _this2.providers = rawproviders.map(function (x) {
-            x.selected = false;return x;
-          });
-        }
+        _this2.providers = data.map(function (x) {
+          x.selected = false;return x;
+        });
       }).catch(function (error) {
         console.log("aliastable.attached() error:");
         console.log(error);
@@ -3231,25 +3333,18 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
       }).join(';');
       console.log('syncsetting, import:', selectedaliases);
       if (selectedaliases.length === 0) return;
-      var queryurl = new URL(this.settingsurl);
-      var params = { PublicKey: this.publickey, SelectedAliases: selectedaliases };
-      Object.keys(params).forEach(function (key) {
-        return queryurl.searchParams.append(key, params[key]);
-      });
-
-      this.client.get(queryurl).then(function (data) {
-        if (data.response) {
-          console.log("SyncSetting.app import settings encrypteddata:", data.response);
-          var message = { EncryptedSettings: data.response, aliases: selectedaliases };
-          window.opener.postMessage(JSON.stringify(message), "*");
-        }
+      this.pa.getExportedSettings(this.publickey, selectedaliases).then(function (response) {
+        console.log("SyncSetting.app import settings encrypteddata:", response);
+        var message = { EncryptedSettings: response, aliases: selectedaliases };
+        window.opener.postMessage(JSON.stringify(message), "*");
+        window.close();
       }).catch(function (error) {
         return _this3.handleError(queryurl, error);
       });
     };
 
     return App;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('syncsetting/environment',["exports"], function (exports) {
   "use strict";
@@ -3657,7 +3752,7 @@ define('uploaddirpicker/main',['exports', '../environment'], function (exports, 
     });
   }
 });
-define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', '../filepicker/filepanel'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _aureliaFramework, _filepanel) {
+define('uploaddirpicker/uploaddirpanel',['exports', '../components/projectapi', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', '../filepicker/filepanel'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _aureliaFramework, _filepanel) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3743,10 +3838,10 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
   var Uploaddirpanel = exports.Uploaddirpanel = (_class = (_temp = _class2 = function (_Filepanel) {
     _inherits(Uploaddirpanel, _Filepanel);
 
-    function Uploaddirpanel(ea, httpclient) {
+    function Uploaddirpanel(ea, pa) {
       _classCallCheck(this, Uploaddirpanel);
 
-      var _this = _possibleConstructorReturn(this, _Filepanel.call(this, ea, httpclient));
+      var _this = _possibleConstructorReturn(this, _Filepanel.call(this, ea, pa));
 
       _initDefineProp(_this, 'panelid', _descriptor, _this);
 
@@ -3762,20 +3857,17 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
 
       var myfile = {};
       myfile.name = this.path;
-      this.client.get(this.getpublicwebdavurl).then(function (data) {
-        if (data.response) {
-          var mypath2 = JSON.parse(data.response);
-          var mypath = mypath2.signed_url;
-          mypath += _this2.path.startsWith('/') ? _this2.path.slice(1) : _this2.path;
-          var mydir = {};
-          mydir.webdavuri = mypath;
-          _this2.ea.publish(new _messages.SelectedFile(mydir, _this2.panelid));
-        }
+      this.pa.getPublicWebDav().then(function (data) {
+        var mypath = data.signed_url;
+        mypath += _this2.path.startsWith('/') ? _this2.path.slice(1) : _this2.path;
+        var mydir = {};
+        mydir.webdavuri = mypath;
+        _this2.ea.publish(new _messages.SelectedFile(mydir, _this2.panelid));
       });
     };
 
     return Uploaddirpanel;
-  }(_filepanel.Filepanel), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(_filepanel.Filepanel), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -4031,7 +4123,7 @@ define('virtualfoldermodules/main',['exports', '../environment'], function (expo
     });
   }
 });
-define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
+define('virtualfoldermodules/modulecontrol',['exports', '../components/projectapi', '../utils/vfstorage'], function (exports, _projectapi, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4049,7 +4141,7 @@ define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client', '
     function Modulecontrol() {
       _classCallCheck(this, Modulecontrol);
 
-      this.client = new _aureliaHttpClient.HttpClient();
+      this.client = new HttpClient();
       this.url = window.location.href;
       this.baseurl = _vfstorage.Vfstorage.getBaseUrl();
       this.enabled = false;
@@ -4203,8 +4295,8 @@ define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol", "aur
 
       _initDefineProp(_this, "classin", _descriptor, _this);
 
-      _this.url = "/metadataservice/sbservice/scipion";
-      _this.posturl = "/metadataservice/sbservice/scipion";
+      _this.url = "/virtualfolder/api/sbservice/scipion";
+      _this.posturl = "/virtualfolder/api/sbservice/scipion";
       return _this;
     }
 
@@ -4309,7 +4401,7 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "au
 
       _initDefineProp(_this, "classin", _descriptor, _this);
 
-      _this.url = "/metadataservice/sbservice/virtuoso";
+      _this.url = "/virtualfolder/api/sbservice/virtuoso";
       return _this;
     }
 
@@ -4321,7 +4413,7 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "au
     }
   })), _class);
 });
-define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', '../behavior', '../pdbcomponents/dataitem'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _vfstorage, _behavior, _dataitem) {
+define('virtualfoldersetting/aliastable',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', '../behavior', '../pdbcomponents/dataitem'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _vfstorage, _behavior, _dataitem) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4338,39 +4430,31 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
   var _class, _temp;
 
   var Aliastable = exports.Aliastable = (_temp = _class = function () {
-    function Aliastable(ea, httpclient) {
+    function Aliastable(ea, pa) {
       var _this = this;
 
       _classCallCheck(this, Aliastable);
 
       this.ea = ea;
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
+
       this.ea.subscribe(_messages.SettingsSubmitted, function (msg) {
         return _this.submitSettings(msg.settings);
       });
-      this.client = httpclient;
+
+      this.pa = pa;
       this.providers = [{ alias: "Loading available providers ...", temporary: true }];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
     }
 
     Aliastable.prototype.attached = function attached() {
       var _this2 = this;
 
-      this.client.get(this.serviceurl).then(function (data) {
+      this.pa.getFiles().then(function (data) {
         _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
-        if (data.response) {
-          _this2.providers = JSON.parse(data.response);
-        }
+        _this2.providers = data;
       }).catch(function (error) {
-        console.log("aliastable.attached() error:");
-        console.log(error);
-
         if (error.statusCode === 403) {
           _this2.ea.publish(new _behavior.HandleLogin(_this2.panelid));
-        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this2.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
+        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. HTTP status:' + error.statusCode + ' ' + error.statusText);
       });
     };
 
@@ -4382,19 +4466,15 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
       var _this3 = this;
 
       if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
-      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
-        if (data.response) {
-          _this3.providers = JSON.parse(data.response);
-        }
+      this.pa.deleteProvider(settings.alias).then(function (data) {
+        _this3.providers = data;
       }).catch(function (error) {
-        console.log(error);
-
-        alert('Sorry. Settings not deleted at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+        alert('Sorry. Settings not deleted. error:' + error.response + " status:" + error.statusText);
       });
     };
 
     return Aliastable;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', '../behavior'], function (exports, _aureliaEventAggregator, _behavior) {
   'use strict';
@@ -4502,7 +4582,7 @@ define('virtualfoldersetting/dropboxcontrol',['exports', 'aurelia-event-aggregat
     return DropboxControl;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol', '../utils/vfstorage'], function (exports, _aureliaFetchClient, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol, _vfstorage) {
+define('virtualfoldersetting/genericcontrol',['exports', '../components/projectapi', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol', '../utils/vfstorage', '../pdbcomponents/dataitem'], function (exports, _projectapi, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol, _vfstorage, _dataitem) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4566,7 +4646,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
   var _dec, _dec2, _dec3, _dec4, _desc, _value, _class, _class2, _temp;
 
   var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec4 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = (_temp = _class2 = function () {
-    function Genericcontrol(ea, httpclient, dropboxcontrol) {
+    function Genericcontrol(ea, pa, dropboxcontrol) {
       var _this = this;
 
       _classCallCheck(this, Genericcontrol);
@@ -4575,15 +4655,14 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       this.ea = ea;
       this.dropboxcontrol = dropboxcontrol;
       this.editing = true;
-      this.providerspath = "providers";
+
       this.filespath = "files";
       this.knowtoken = false;
       this.dropboxauthurl = "";
       this.providers = [];
       this.selectedProvider = "";
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/";
 
-      this.client = httpclient;
+      this.pa = pa;
 
       this.ea.subscribe(_messages.SettingsSelected, function (msg) {
         return _this.selectSettings(msg.settings);
@@ -4606,25 +4685,24 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       var _this2 = this;
 
       this.dropboxauthurl = this.dropboxcontrol.authurl;
-      this.client.fetch(this.serviceurl + this.providerspath, { headers: this.myHeaders, credentials: 'include' }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
+      this.pa.getProviders().then(function (data) {
         if (data) {
           _this2.providers = data;
         }
       }).catch(function (error) {
-        if (error.statusCode == 403) {
-          console.log("genericcontrol.attached() redirecting");
+        if (error.statusCode === 403) {
           window.location = "/login?next=" + window.location.pathname;
         } else {
-          console.log('Error');
-          console.log(error);
+          console.log('Error', error);
         }
       });
+
       this.dropboxcontrol.initialize();
     };
 
     Genericcontrol.prototype.addProvider = function addProvider() {
+      var _this3 = this;
+
       var settings = {};
       settings.type = this.selectedProvider;
       settings.alias = this.alias;
@@ -4638,42 +4716,15 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
         settings.securetoken = this.password;
         settings.username = this.username;
       }
-      this.submitSettings(settings);
-    };
 
-    Genericcontrol.prototype.submitSettings = function submitSettings(settings) {
-      var _this3 = this;
-
-      this.client.fetch(this.serviceurl + this.filespath, {
-        method: 'put',
-        body: (0, _aureliaFetchClient.json)(settings),
-        headers: this.myHeaders,
-        credentials: 'include'
-      }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (Array.isArray(data)) {
-          _this3.doneCallback(data);
-        } else {
-          if (data.ResponseStatus) alert('Sorry.' + data.ResponseStatus.ErrorCode + "\n" + data.ResponseStatus.Message + "\nSubmit correct username and/or password again.");else alert('Sorry. Settings not submitted. Check all items are correct and submit again.');
-          console.log(data.ResponseStatus);
-        }
+      this.pa.putProvider(settings).then(function (data) {
+        _this3.ea.publish(new _messages.SettingsSubmitted(data));
+        _this3.clear();
       }).catch(function (error) {
         console.log(error);
         alert('Sorry. Settings not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
-    };
-
-    Genericcontrol.prototype.doneCallback = function doneCallback(data) {
-      {
-        this.ea.publish(new _messages.SettingsSubmitted(data));
-        this.clear();
-      }
-    };
-
-    Genericcontrol.prototype.errorCallback = function errorCallback(error) {
-      console.log("GenericControl: Error retrieved:");
-      console.log(error);
+      return true;
     };
 
     Genericcontrol.prototype.selectSettings = function selectSettings(settings) {
@@ -4713,9 +4764,9 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
     }]);
 
     return Genericcontrol;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaFetchClient.HttpClient, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
 });
-define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', './aliastable'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _vfstorage, _aliastable) {
+define('virtualfoldersetting/importprovider',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', './aliastable'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _vfstorage, _aliastable) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4732,7 +4783,7 @@ define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 
   var _class, _temp;
 
   var Importprovider = exports.Importprovider = (_temp = _class = function () {
-    function Importprovider(ea, httpclient) {
+    function Importprovider(ea, pa) {
       var _this = this;
 
       _classCallCheck(this, Importprovider);
@@ -4740,14 +4791,8 @@ define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 
       this.importingSettings = false;
       this.ea = ea;
       this.publickey = undefined;
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-      this.client = httpclient;
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
 
-      this.localsettingservice = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/settings";
+      this.pa = pa;
 
       this.receiveMessage = function (event) {
         console.log("Aliastable() received message:", event.data);
@@ -4761,10 +4806,10 @@ define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 
 
       window.addEventListener("message", this.receiveMessage, false);
 
-      this.client.post(this.localsettingservice).then(function (data) {
-        _this2.publickey = data.response;
+      this.pa.getPublicKey().then(function (data) {
+        console.log("getPublicKey()", data);
+        _this2.publickey = data;
       }).catch(function (error) {
-        console.log(error);
         alert('Sorry error when generating keys for import:' + error.response + " status:" + error.statusText);
       });
     };
@@ -4805,42 +4850,23 @@ define('virtualfoldersetting/importprovider',['exports', 'aurelia-http-client', 
       var _this3 = this;
 
       this.importingSettings = false;
-      console.log("importSettings2() aliases:", this.aliases);
+
 
       this.conflicts = { oldnames: this.aliases.map(function (item) {
           return item.oldname;
         }).join(';'), newnames: this.aliases.map(function (item) {
           return item.newname;
         }).join(';') };
-      console.log("importSettings2() conflicts:", this.conflicts);
 
       var importmessage = { PublicKey: this.publickey, EncryptedSettings: this.message.EncryptedSettings, ConflictedAliases: this.conflicts.oldnames, NewNameAliases: this.conflicts.newnames };
-      console.log("importSettings", importmessage);
-      this.client.put(this.localsettingservice, importmessage).then(function (data) {
 
-        _this3.ea.publish(new _messages.SettingsSubmitted(JSON.parse(data.response)));
+      this.pa.putSettings(importmessage).then(function (data) {
+        _this3.ea.publish(new _messages.SettingsSubmitted(data));
       });
     };
 
-    Importprovider.prototype.resolveConflicts = function resolveConflicts(aliases) {
-      var aliasarr = aliases.split(';');
-      var conflicts = { oldnames: "", newnames: "" };
-      for (var pr in this.providers) {
-        if (aliasarr.indexOf(pr.alias) >= 0) {
-          if (conflicts.oldnames.length > 0) {
-            conflicts.oldnames += ';';conflicts.newnames += ';';
-          }
-
-          conflicts.oldnames += pr.alias;
-
-          var suffix = "" + Math.floor(Math.random() * 1000 + 1);
-          conflicts.newnames += pr.alias + suffix;
-        }
-      }
-    };
-
     return Importprovider;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('virtualfoldersetting/main',['exports', '../environment'], function (exports, _environment) {
   'use strict';
@@ -4965,8 +4991,8 @@ define('virtualfoldersetting/storageprovider',['exports', 'aurelia-event-aggrega
     return Storageprovider;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
-  'use strict';
+define('virtualfoldersetting/taskcontrol',["exports", "../components/projectapi", "../utils/vfstorage"], function (exports, _projectapi, _vfstorage) {
+  "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -4982,17 +5008,11 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
   var _class, _temp;
 
   var Taskcontrol = exports.Taskcontrol = (_temp = _class = function () {
-    function Taskcontrol(httpclient) {
+    function Taskcontrol(pa) {
       _classCallCheck(this, Taskcontrol);
 
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/availabletasks";
-      this.userprocessurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/userprocess/";
-      this.client = httpclient;
+      this.pa = pa;
       this.tasks = [];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
       this.descriptions = [];
       this.descriptions["jupyter"] = "Jupyter notebook web application instance";
       this.descriptions["notebook"] = "Jupyter notebook web application instance";
@@ -5003,18 +5023,15 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
     Taskcontrol.prototype.attached = function attached() {
       var _this = this;
 
-      this.client.get(this.serviceurl).then(function (data) {
-        if (data.response) {
-          _this.tasks = JSON.parse(data.response);
+      this.pa.getTask().then(function (data) {
+        if (data) {
+          _this.tasks = data;
           var that = _this;
           _this.tasks.forEach(function (task) {
             task.Description = that.descriptions[task.Name] || "";
             task.Updating = false;
           });
         }
-      }).catch(function (error) {
-        console.log("taskcontrol.attached() error:");
-        console.log(error);
       });
     };
 
@@ -5055,15 +5072,14 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
 
       return new Promise(function (resolve, reject) {
         if (task.Running) {
-          _this2.client.delete(_this2.userprocessurl + task.Name).then(function (data) {
+          _this2.pa.stopTask(task.Name).then(function (data) {
             resolve('Deleted');
           }).catch(function (error) {
             reject(error);
           });
         } else {
-          _this2.client.post(_this2.userprocessurl + task.Name).then(function (data) {
-            var updatedtask = JSON.parse(data.response);
-            resolve(updatedtask.LocalUrl);
+          _this2.pa.startTask(task.Name).then(function (data) {
+            resolve(data.LocalUrl);
           }).catch(function (error) {
             reject(error);
           });
@@ -5072,7 +5088,7 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
     };
 
     return Taskcontrol;
-  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_projectapi.ProjectApi], _temp);
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -9022,19 +9038,19 @@ define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(modul
 define('text!tabs/simpletabs.css', ['module'], function(module) { module.exports = "simple-tabs .tabs-headers {\n  position: relative;\n}\n\nsimple-tabs .tabs-headers  ul{\n  margin: 5px 0;\n  padding: 5px 0;\n}\n\nsimple-tabs .tab-header {\n  display: inline-block;\n  padding: 5px;\n  text-align: center;\n  color: #a2a2a2;\n}\n\nsimple-tabs .tab-header:hover {\n  cursor: pointer;\n  opacity: 0.8;\n}\n\nsimple-tabs .tab-header[data-active=true] {\n  color: #000;\n}\n\nsimple-tabs .tab-slots {\n  position: relative;\n  margin: 10px 0;\n}\n\nsimple-tabs .slide {\n  position: absolute;\n  bottom: 0;\n  background: #42a5f5;\n  height: 4px;\n  left: 0px;\n  width: 50%;\n  transition: left 0.3s ease-in-out;\n}\n\n\nsimple-tab {\n  /*position: absolute;*/\n  width: 100%;\n  display: none;\n}\n\nsimple-tab[data-active=true] {\n  display: block;\n}\n\n"; });
 define('text!components/instructmenu.html', ['module'], function(module) { module.exports = "<template>\n  <li class=\"nav-item active\">\n    <a href=\"https://about.west-life.eu/network/west-life/west-life\">Home</a>\n  </li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/services\">Services</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://portal.west-life.eu/virtualfolder/\">Data Access</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/bioinformatic-tools\">Bioinformatics Tools</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/integrative-modelling\">Integrative Modelling</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/mx\">Crystallography</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/em\">Electron Microscopy</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/nmr\">NMR</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/vm\">Virtual Machines</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/3rd-party-services\">3rd Party Services</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/toolbox\">Search Services</a>\n  </li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/search-support\">Support</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/integrative-modelling\">Integrative Modelling</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock\">HADDOCK</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock--supported-co-factors-and-modified-amino-acids\">HADDOCK – supported co-factors and modified amino acids</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock-22--default-settings\">HADDOCK 2.2 – Default settings</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock--review\">HADDOCK - Review</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/disvis\">DISVIS</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/powerfit\">PowerFit</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/pdbe\">PDBe</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/pdbe/pdbe-rest-api\">PDBe REST API</a>\n      </li></ul></li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/crystallography\">Crystallography</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp4\">CCP4</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp4/ccp4-online\">CCP4-Online</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/xia2-workflow\">XIA2 Workflow</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/electron-microscopy\">Electron Microscopy</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools\">Scipion Web Tools</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-movie-alignment\">My Movie Alignment</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-first-map\">My First Map</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-res-map\">My Res Map</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-reliability-tool\">My Reliability Tool</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp-em\">CCP4-EM</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/NMR\">NMR</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr\">WeNMR</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/gromacs\">GROMACS</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/cs-rosetta3\">CS-Rosetta3</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/unio\">UNIO</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/xplor-nih\">XPLOR-NIH</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/anisofit\">ANISOFIT</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/fanten\">FANTEN</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/amber\">AMBER</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/antechamber\">ANTECHAMBER</a>\n      </li></ul></li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs\">West-Life Virtual Machine</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/aria-login\">Logging in with ARIA</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms\">EGI Platforms</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/htc-platform\">HTC Platform</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/registering-with-enmreu-vo\">Registration with ENMR.EU VO</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/vo-registration-troubleshooting\">VO registration troubleshooting</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://github.com/DIRACGrid/DIRAC/wiki/DIRAC-Tutorials\">Job submission using DIRAC system</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/federated-cloud\">Federated Cloud</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/accelerated-computing-platforms\">Accelerated Computing Platforms</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/htc-ac\">HTC-AC</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/cloud-ac\">Cloud-AC</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/onedata-storage\">Onedata Storage</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/support/tutorials\">Tutorials</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/support/webinars\">Webinars</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/forums\">Forums</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://www.structuralbiology.eu/forums/category/55?t=westlife\">West-Life Forum</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/haddock\">Haddock</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/disvis\">DisVis</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/powerfit\">PowerFit</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://sourceforge.net/p/scipion/mailman/scipion-users/\">Scipion</a>\n    </li></ul></li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/news\">News</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"#x\">About</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/project\">Project</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/partners\">Partners</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/advisoryboard\">Advisory Board</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages\">Work Packages</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages/deliverables\">Deliverables</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages/milestones\">Milestones</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"http://internal-wiki.west-life.eu/\">Internal Wiki</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/outreach\">Publicity</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/outreach/Publications\">Publications</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"http://internal-wiki.west-life.eu/images/e/e0/WestLife-Flyer-WC-Final.pdf\">Flyer</a>\n  </li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/cloud\">Cloud</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/developer-help\">Developers</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/contact\">Contact</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/introduction\">Introduction</a>\n</li>\n</template>\n"; });
 define('text!components/sharedfooter.html', ['module'], function(module) { module.exports = "<template>\n<footer>\n    <div class=\"w3-clear w3-margin-top\"></div>\n</footer>\n</template>\n"; });
-define('text!components/sharedheader.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <require from=\"./heads.css\"></require>\n  <require from=\"./instructmenu.html\"></require>\n  <div class=\"vf-white\">\n    <a href=\"/\">\n      <picture>\n        <source srcset=\"img/westlife-logo.png\">\n        <img class=\"logo\" style=\"height:60px\" src=\"img/westlife-logo.png\" alt=\"brand logo\">\n      </picture>\n\n    </a>\n    <nav class=\"vf-white\">\n\n      <ul>\n        <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n          <ul show.bind=\"showuserinfo\">\n            <li repeat.for=\"row of router.navigation\" class=\"nav-item\"><a href.bind=\"row.href\">${row.title}</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">'${userinfo.username}' account</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n          <ul show.bind=\"!showuserinfo\">\n            <li class=\"nav-item\"><a href=\"/login\">Login</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n        </li>\n        <instructmenu></instructmenu>\n      </ul>\n    </nav>\n  </div>\n</template>\n"; });
+define('text!components/sharedheader.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <require from=\"./heads.css\"></require>\n  <require from=\"./instructmenu.html\"></require>\n  <div class=\"vf-white\">\n    <a href=\"/\">\n      <picture>\n        <source srcset=\"img/westlife-logo.png\">\n        <img class=\"logo\" style=\"height:60px\" src=\"img/westlife-logo.png\" alt=\"brand logo\">\n      </picture>\n\n    </a>\n    <nav class=\"vf-white\">\n\n      <ul>\n        <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n          <ul show.bind=\"showuserinfo\">\n            <li repeat.for=\"row of router.navigation\" class=\"nav-item\"><a href.bind=\"row.href\">${row.title}</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">'${userinfo.name}' account</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n          <ul show.bind=\"!showuserinfo\">\n            <li class=\"nav-item\"><a href=\"/login\">Login</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n        </li>\n        <instructmenu></instructmenu>\n      </ul>\n    </nav>\n  </div>\n</template>\n"; });
 define('text!components/userinfo.html', ['module'], function(module) { module.exports = "<template>\n  <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n  <ul>\n    <li class=\"nav-item\"><a href=\"#/setting\">Settings</a></li>\n    <li class=\"nav-item\"><a  href=\"#/filemanager\">File Manager</a></li>\n    <li class=\"nav-item\"><a  href=\"#/filepicker\">File Picker</a></li>\n    <li class=\"nav-item\" show.bind=\"!showuserinfo\"><a href=\"/login\">Login</a></li>\n    <li class=\"nav-item\" show.bind=\"showuserinfo\"> ${userinfo.FirstName} ${userinfo.LastName}\n    <ul>\n      <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">User Account Info</a></li>\n      <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n    </ul>\n    </li>\n  </ul>\n  </li>\n</template>\n"; });
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\"></require>\n  <require from=\"codemirror/theme/eclipse.css\"></require>\n  <div show.bind=\"!isimage\" class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${filename}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n  <div if.bind=\"isimage\" class=\"w3-card-2 w3-code-2\">\n    <img src.bind=\"imageurl\" class=\"w3-image\"/>\n  </div>\n</template>\n"; });
 define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n  <require from=\"../navitem\"></require>\n\n    <!--    <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    -->\n    <div class=\"w3-margin\">\n      <navitem href=\"index.html\">VF Home</navitem>\n      <navitem href=\"filemanager.html\">File Manager</navitem>\n      <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cogs\" click.delegate=\"setupFileManager()\"></i>\n    </div>\n    <div class=\"w3-half\">\n     <div class=\"w3-responsive\">\n        <panel pid=\"left\"></panel>\n     </div>\n    </div>\n\n    <div class=\"w3-half\">\n      <div class=\"w3-responsive\">\n        <panel pid=\"right\"></panel>\n      </div>\n    </div>\n\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
 define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\"/>\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <br/>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizeimg\"/>\n      <label>click on *.jpg|gif|png|bmp|svg file will show image(unchecked - shaw RAW in Edit tab)</label>\n\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <div class=\"w3-margin-right w3-margin-left w3-margin-bottom\">\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset panelid.bind=\"pid\"></dataset>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <require from=\"./uniprotpanel\"></require>\n  <require from=\"./pdbpanel\"></require>\n    <div class=\"w3-card-2 w3-white w3-hoverable w3-padding\">\n\n      <pdbpanel panelid=\"panelid\" if.bind=\"isPdb\"></pdbpanel>\n\n      <uniprotpanel panelid=\"panelid\" if.bind=\"isUniprot\"></uniprotpanel>\n\n\n      <span class=\"w3-padding-tiny\">${path} contains</span><span class=\"w3-padding-tiny\" show.bind=\"!lock\">${filescount} items.</span><button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"refresh()\">refresh</button> <button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"goroot()\">/</button>\n        <img class=\"w3-display-position\" show.bind=\"lock\" src=\"img/vfloader.gif\"/>\n        <div class=\"w3-clear\"></div>\n\n\n        <table id=\"${panelid}\" class.bind=\"lock? 'w3-disabled': ''\">\n            <thead show.bind=\"isFiles\">\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n                <th title=\"information icons\">i</th>\n            </tr>\n            </thead>\n\n            <tbody>\n\n            <!-- Files from mounted storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\">\n              <td click.trigger=\"selectFile(file)\">${file.name}</td><td click.trigger=\"selectFile(file)\">${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td><td><span show.bind=\"! file.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td>\n            </tr>\n            </tbody>\n          <thead show.bind=\"!isFiles\">\n          <tr>\n            <th style=\"text-align:left\" >name</th>\n            <th colspan=\"3\" style=\"text-align:left;width:100%\">info</th>\n            <th title=\"information icons\">i</th>\n\n          </tr>\n          </thead>\n          <tbody>\n\n            <!-- Files/resources from third party storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"resource of resources\">\n              <td  click.trigger=\"selectResource(resource)\">${resource.name}</td><td  click.trigger=\"selectResource(resource)\" colspan=\"3\">${resource.info}</td><td class=\"w3-tiny\"><span show.bind=\"! resource.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td><td><input show.bind=\"resource.url\" class=\"w3-check w3-tiny\" type=\"checkbox\" model.bind=\"resource\" checked.bind=\"selectedResources\" click.trigger=\"checkResource(resource)\" title=\"Mark to download to VF\"/></td>\n            </tr>\n            </tbody>\n        </table>\n\n    </div>\n</template>\n\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <require from=\"./uniprotpanel\"></require>\n  <require from=\"./pdbpanel\"></require>\n    <div class=\"w3-card-2 w3-white w3-hoverable w3-padding\">\n\n      <pdbpanel panelid=\"panelid\" if.bind=\"isPdb\"></pdbpanel>\n\n      <uniprotpanel panelid=\"panelid\" if.bind=\"isUniprot\"></uniprotpanel>\n\n\n      <span class=\"w3-padding-tiny\">${path} contains</span><span class=\"w3-padding-tiny\" show.bind=\"!lock\">${filescount} items.</span><button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"refresh()\">refresh</button> <button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"goroot()\">/</button>\n        <img class=\"w3-display-position\" show.bind=\"lock\" src=\"img/vfloader.gif\"/>\n        <div class=\"w3-clear\"></div>\n\n\n        <table id=\"${panelid}\" class.bind=\"lock? 'w3-disabled': ''\">\n            <thead show.bind=\"isFiles\">\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n                <th title=\"information icons\">i</th>\n            </tr>\n            </thead>\n\n            <tbody>\n\n            <!-- Files from mounted storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\">\n              <td click.trigger=\"selectFile(file)\">${file.name}</td><td click.trigger=\"selectFile(file)\">${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td><td><span show.bind=\"! file.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td>\n            </tr>\n            </tbody>\n          <thead show.bind=\"!isFiles\">\n          <tr>\n            <th style=\"text-align:left\" >name</th>\n            <th colspan=\"3\" style=\"text-align:left;width:100%\">info</th>\n            <th title=\"information icons\">i</th>\n\n          </tr>\n          </thead>\n          <tbody>\n\n            <!-- Files/resources from third party storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"resource of resources\">\n              <td  click.trigger=\"selectResource(resource)\">${resource.name}</td>\n              <td  click.trigger=\"selectResource(resource)\" colspan=\"3\">${resource.info}</td>\n              <td class=\"w3-tiny\">\n                <span show.bind=\"! resource.available\" title=\"Available only for web applications.\">*</span>\n              </td>\n              <td>\n                <!--input show.bind=\"resource.url\" class=\"w3-check w3-tiny\" type=\"checkbox\" model.bind=\"resource\" checked.bind=\"selectedResources\" click.trigger=\"checkResource(resource)\" title=\"Mark to download to VF\"/-->\n              </td>\n            </tr>\n            </tbody>\n        </table>\n\n    </div>\n</template>\n\n"; });
 define('text!filepicker/pdbpanel.html', ['module'], function(module) { module.exports = "<template>\n  <p> Selecting resource from Protein Data Bank.</p>\n</template>\n"; });
 define('text!filepicker/uniprotpanel.html', ['module'], function(module) { module.exports = "<template>\n  <p> Selecting resource from Uniprot Data Bank.</p>\n</template>\n"; });
 define('text!pages/filemanager.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filemanager2/panel\"></require>\n  <div class=\"w3-card-2 w3-white w3-margin w3-center\">\n    <h4>File Manager\n    <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cogs\" click.delegate=\"setupFileManager()\" title=\"change setting of file manager\"></i>\n    </h4>\n  </div>\n  \n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"left\"></panel>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"right\"></panel>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pages/filepicker.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class=\"w3-white w3-card w3-round-large w3-margin w3-padding\">\n    <h1>File picker</h1>\n    Pick file from public portal: <a class=\"w3-button\" click.delegate=\"openwindow('fileid',\n   'https://portal.west-life.eu/virtualfolder/filepickercomponent.html'\n   )\">West-life File</a>\n\n    <p>File URL:<a id=\"fileid\" href=\"\"></a></p>\n    Pick file from this VF instance:<a class=\"w3-button\" click.delegate=\"openfilepickerwindow('file')\">VF file</a>\n\n    <p>File URL:<a id=\"file\" href=\"\"></a></p>\n    <h1>Upload-dir picker</h1>\n    Pick directory from this VF instance:<a class=\"w3-button\" click.delegate=\"openuploaddirpickerwindow('uploaddir')\">VF dir</a>\n\n    <p>Directory URL:<a id=\"uploaddir\" href=\"\"></a></p>\n  </div>\n\n  </body>\n\n</template>\n"; });
-define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        <button class=\"w3-button\" click.delegate=\"generateurl()\">Generate public URL for WEBDAV access</button>\n      </p>\n      <p>\n        <input readonly value.bind=\"webdavurl\" class=\"w3-border w3-input\"/>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n  <!-- TODO check if tasks are available by backend -->\n  <div if.bind=\"islocalhost\" class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-twothird\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n\n    <div if.bind=\"islocalhost\" class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        <button class=\"w3-button\" click.delegate=\"generateurl()\">Generate public URL for WEBDAV access</button>\n      </p>\n      <p>\n        <input readonly value.bind=\"webdavurl\" class=\"w3-border w3-input\"/>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n\n\n</template>\n"; });
 define('text!pages/virtualfoldersetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../virtualfoldersetting/storageprovider\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n  <require from=\"../virtualfoldersetting/clouddeployment\"></require>\n\n  <storageprovider></storageprovider>\n\n  <div if.bind=\"islocalhost\">\n    <taskcontrol></taskcontrol>\n  </div>\n\n  <div if.bind=\"islocalhost\">\n    <clouddeployment></clouddeployment>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item.Name}\">${item.Name}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item.Name}\">${item.Name}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item.Name}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item.Name}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item.Name}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item.Name}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item.Name}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item.Name}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item.Name}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item.Name}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item.Name}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item.Name}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item.Name}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item.Name}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item.Name}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n\n    <div id=\"link-${item.Name}\">\n      <a href=\"${item.Url}\">${item.Url}</a>\n    </div>\n  </div>\n\n</template>\n"; });
@@ -9071,7 +9087,7 @@ define('text!virtualfoldermodules/virtuosocontrol.html', ['module'], function(mo
 define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../icons.css\"></require>\n  <div class=\"w3-white w3-padding\">\n\n      <table class=\"w3-white \">\n        <thead>\n        <tr><th colspan=\"3\">List of connected providers</th> </tr>\n        <tr>\n          <th align=\"left\">Alias</th>\n          <th align=\"left\">Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td>\n          <td>${provider.type}</td>\n          <td><a href=\"#/filemanager\"class=\"w3-button\">Browse content</a></td>\n          <td align=\"center\">\n            <i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i>\n          </td>\n        </tr>\n        </tbody>\n      </table>\n\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"storageprovider\"></require>\n  <require from=\"taskcontrol\"></require>\n  <require from=\"clouddeployment\"></require>\n  <require from=\"w3.css\"></require>\n\n  <storageprovider></storageprovider>\n\n  <div if.bind=\"islocalhost\">\n    <taskcontrol></taskcontrol>\n  </div>\n\n  <div if.bind=\"islocalhost\">\n    <clouddeployment></clouddeployment>\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldersetting/clouddeployment.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Cloud deployment\" defaulthide=\"true\">\n    <div class=\"w3-card-4 w3-sand\">\n      <h3>Available virtual machines</h3>\n      <table class=\"w3-table w3-striped w3-hoverable\">\n        <thead>\n        <tr>\n          <th>name</th>\n          <th>location</th>\n          <th>capacity</th>\n          <th>mounted VF</th>\n          <th>task status</th>\n        </tr>\n        </thead>\n\n        <tr>\n          <td>West-Life VF 17.05</td>\n          <td>EGI FedCloud, CESNET</td>\n          <td>8GB RAM, 50GB scratch disc</td>\n          <td>mounted - all (b2drop,dropbox,pcloud)</td>\n          <td class=\"w3-pale-green\">OK, CPU utilization 50%</td>\n          <td><a href=\"#\">Connect to console</a></td>\n        </tr>\n\n        <tr>\n          <td>West-Life VF 17.05</td>\n          <td>EGI FedCloud, INFN</td>\n          <td>16GB RAM, 50GB scratch disc</td>\n          <td>mounted - all (b2drop,dropbox,pcloud)</td>\n          <td class=\"w3-pale-red\">halted</td>\n        </tr>\n        <tr>\n          <td><button class=\"w3-button\">Create new VM</button></td>\n        </tr>\n      </table>\n    </div>\n  </hideable>\n\n</template>\n"; });
-define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-sand w3-padding w3-margin\">\n\n    <form submit.trigger=\"addProvider()\">\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. \n            \n          <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">Register</a>\n            </p>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\"  maxlength=\"1024\" value.bind=\"username\" placeholder=\"B2DROP username\" /><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\" placeholder=\"B2DROP password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\"  class=\"w3-bar\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these B2DROP files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these B2DROP files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know the secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have a DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"\n\t\t   /><br/>\n            Alias (optional):<input class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t           tooltip=\"Name for subfolder where these Dropbox files will be mounted\"\n\t    /><br/>\n            <span class=\"w3-tiny\">Name for subfolder where these Dropbox files will be mounted.</span>\n\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these local files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these Filesystem files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input class=\"w3-bar\" type=\"text\" name=\"accessurl\" maxlength=\"1024\" value.bind=\"accessurl\" \n\t  placeholder=\"https://...\" /><br/>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\"  maxlength=\"1024\" value.bind=\"alias\"\n\t     tooltip=\"Name for subfolder where this Webdav folder will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these WebDAV files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n      </div>\n\n    </form>\n\n\n  </div>\n\n</template>\n"; });
+define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-sand w3-padding w3-margin\">\n\n    <div>\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. \n            \n          <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">Register</a>\n            </p>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\"  maxlength=\"1024\" value.bind=\"username\" placeholder=\"B2DROP username\" /><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\" placeholder=\"B2DROP password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\"  class=\"w3-bar\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these B2DROP files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these B2DROP files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know the secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have a DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"\n\t\t   /><br/>\n            Alias (optional):<input class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t           tooltip=\"Name for subfolder where these Dropbox files will be mounted\"\n\t    /><br/>\n            <span class=\"w3-tiny\">Name for subfolder where these Dropbox files will be mounted.</span>\n\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these local files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these Filesystem files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input class=\"w3-bar\" type=\"text\" name=\"accessurl\" maxlength=\"1024\" value.bind=\"accessurl\" \n\t  placeholder=\"https://...\" /><br/>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\"  maxlength=\"1024\" value.bind=\"alias\"\n\t     tooltip=\"Name for subfolder where this Webdav folder will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these WebDAV files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n      </div>\n\n    </div>\n\n\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldersetting/importprovider.html', ['module'], function(module) { module.exports = "<template>\n  \n  <span class=\"w3-tiny\">Enter URL of West-Life Virtual Folder instance( https://[yourdomain]/virtualfolder/):</span>\n    <input value.bind=\"remoteurl\" placeholder=\"https://portal.west-life.eu/virtualfolder/\" class=\"w3-bar\" maxlength=\"1024\"/>\n    <ispincog show.bind=\"!publickey\" title=\"Generating keys for import. Wait for couple of seconds.\"></ispincog><span show.bind=\"!publickey\" class=\"w3-tiny\">Generating keys for import. Wait for couple of seconds.</span>\n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" disabled.bind=\"!publickey\">OK</button>\n  <br/>\n  <div show.bind=\"importingSettings\">\n    <table class=\"w3-light-grey\">\n      <tr class=\"w3-blue\">\n        <th scope=\"col\">Remote VF Provider alias</th>\n        <th scope=\"col\">Save as local VF Provider alias</th>\n      </tr>\n      <tr class=\"w3-hover-green w3-white\" repeat.for=\"alias of aliases\">\n        <td>${alias.oldname}</td>\n        <td><input value.bind=\"alias.newname\" class=\"w3-bar\"/> </td>\n      </tr>\n    </table>\n    Ensure local names do not conflict. \n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importSettings2()\">Confirm import</button>\n  </div>\n  \n</template>\n"; });
 define('text!virtualfoldersetting/storageprovider.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./importprovider\"></require>\n  <require from=\"./aliastable\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Storage providers\">\n    <div class=\"w3-container\">\n      <div class=\"w3-half\">\n        <aliastable></aliastable>\n        \n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"newProvider()\" class=\"w3-buttons\">Add new file provider</button>\n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" class=\"w3-buttons\">Import from public Virtual Folder</button>\n        \n      </div>\n\n      <genericcontrol show.bind=\"showprovider\" class=\"w3-half\"></genericcontrol>\n      <importprovider if.bind=\"showimport\" class=\"w3-half\"></importprovider>\n\n    </div>\n  </hideable>\n\n</template>\n"; });
 define('text!virtualfoldersetting/taskcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n    <hideable title=\"Third party services\">\n      <div class=\"w3-container\">\n    <table class=\"w3-white \">\n      <thead>\n      <tr>\n        <th align=\"left\">Name</th>\n        <th align=\"left\">Description</th>\n        <th></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"task of tasks\">\n        <td><b>${task.Name}</b></td>\n        <td>${task.Description}</td>\n        <td show.bind=\"!task.Updating\">\n          <i class=\"fa fa-play-circle-o\" click.delegate=\"starttask(task)\" show.bind=\"!task.Running\" title=\"not running - you may start it\"></i>\n          <i class=\"fa fa-stop-circle-o\" click.delegate=\"stoptask(task)\"  show.bind=\"task.Running\" title=\"running - you may stop it\"></i>\n        </td>\n        <td show.bind=\"task.Updating\">\n          <img src=\"img/vfloader.gif\">\n        </td>\n        <td show.bind=\"task.Running\" class=\"w3-small w3-text-blue w3-hover-text-white\">service UI available at: <a href.bind=\"task.LocalUrl\" target=\"_blank\">${task.LocalUrl}</a></td>\n      </tr>\n      </tbody>\n    </table>\n      </div>\n    </hideable>\n\n\n</template>\n"; });

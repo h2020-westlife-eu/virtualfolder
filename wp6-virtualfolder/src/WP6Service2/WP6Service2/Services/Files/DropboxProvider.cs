@@ -39,7 +39,8 @@ namespace MetadataService.Services.Files
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
-            DROPBOXURIROOT = "/metadataservice/files/" + alias;
+            //TODO reference virtualfolder/api from Program.cs or as environment variable
+            DROPBOXURIROOT = "/virtualfolder/api/"+"files/" + alias;
         }
 
         public override object GetFileOrList(string Path)
@@ -243,7 +244,7 @@ namespace MetadataService.Services.Files
                                    (IsLocal(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
-                        publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
+                        publicwebdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name)
                     });
                 
             } while (list.HasMore);

@@ -43,7 +43,14 @@
 
             <!-- Files/resources from third party storages -->
             <tr class="w3-hover-green" repeat.for="resource of resources">
-              <td  click.trigger="selectResource(resource)">${resource.name}</td><td  click.trigger="selectResource(resource)" colspan="3">${resource.info}</td><td class="w3-tiny"><span show.bind="! resource.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td><td><input show.bind="resource.url" class="w3-check w3-tiny" type="checkbox" model.bind="resource" checked.bind="selectedResources" click.trigger="checkResource(resource)" title="Mark to download to VF"/></td>
+              <td  click.trigger="selectResource(resource)">${resource.name}</td>
+              <td  click.trigger="selectResource(resource)" colspan="3">${resource.info}</td>
+              <td class="w3-tiny">
+                <span show.bind="! resource.available" title="Available only for web applications.">*</span>
+              </td>
+              <td>
+                <!--input show.bind="resource.url" class="w3-check w3-tiny" type="checkbox" model.bind="resource" checked.bind="selectedResources" click.trigger="checkResource(resource)" title="Mark to download to VF"/-->
+              </td>
             </tr>
             </tbody>
         </table>

@@ -9,7 +9,7 @@ export class Virtuosocontrol extends Modulecontrol {
   @bindable classin = "w3-card-4 w3-sand w3-padding w3-margin w3-round";
   constructor(){
     super();
-    this.url="/metadataservice/sbservice/virtuoso";
+    this.url="/virtualfolder/api/sbservice/virtuoso";
   }
 
 

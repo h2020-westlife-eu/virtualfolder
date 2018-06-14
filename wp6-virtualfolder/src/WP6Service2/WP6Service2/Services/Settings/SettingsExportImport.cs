@@ -190,6 +190,9 @@ namespace MetadataService.Services.Settings
             var service = UserProvider.GetInstance(userid, userauthproxy, storage, Db);
             foreach (var item in myproviders)
             {
+                //change loggeduser from remote system to current user
+                item.loggeduser = userid;
+                item.output = "";
                 service.Add(item,storage,Db);
             }
         }
