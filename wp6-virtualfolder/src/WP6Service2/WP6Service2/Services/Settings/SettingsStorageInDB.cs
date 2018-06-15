@@ -111,6 +111,21 @@ namespace MetadataService.Services.Settings
                 AESThenHMAC.SimpleEncryptWithPassword(item.securetoken, key, Encoding.UTF8.GetBytes(item.loggeduser));
         }
 
+        public static string getencryptedpath(string path)
+        {
+            return AESThenHMAC.SimpleEncryptWithPassword(path, pkey, Encoding.UTF8.GetBytes(pkey));
+        }
+        
+        public static string getdecryptedpath(string encpath)
+        {
+            var dectoken = AESThenHMAC.SimpleDecryptWithPassword(encpath, pkey,
+                Encoding.UTF8.GetBytes(pkey).Length);
+            if (dectoken == null) throw new WarningException("not decrypted");
+
+            return dectoken;
+        }
+
+        
         public static void swapkeys(IDbConnection Db, string key1, string key2)
         {
             var items = Db.Select<ProviderItem>();

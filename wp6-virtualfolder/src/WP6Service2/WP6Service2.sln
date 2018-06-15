@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataServiceTest", "Meta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDavClientTest", "WebDavClientTest\WebDavClientTest.csproj", "{06B645ED-769F-4D59-B293-D38C2B63A619}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "webdavhash2path", "webdavhash2path\webdavhash2path.csproj", "{9E01B2D8-031A-4503-B079-E8359A586E25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -25,6 +27,10 @@ Global
 		{06B645ED-769F-4D59-B293-D38C2B63A619}.Release|x86.Build.0 = Release|Any CPU
 		{06B645ED-769F-4D59-B293-D38C2B63A619}.Debug|x86.ActiveCfg = Release|Any CPU
 		{06B645ED-769F-4D59-B293-D38C2B63A619}.Debug|x86.Build.0 = Release|Any CPU
+		{9E01B2D8-031A-4503-B079-E8359A586E25}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9E01B2D8-031A-4503-B079-E8359A586E25}.Debug|x86.Build.0 = Debug|Any CPU
+		{9E01B2D8-031A-4503-B079-E8359A586E25}.Release|x86.ActiveCfg = Release|Any CPU
+		{9E01B2D8-031A-4503-B079-E8359A586E25}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		outputpath = ..\..\
