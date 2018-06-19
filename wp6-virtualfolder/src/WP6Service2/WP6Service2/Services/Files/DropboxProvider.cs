@@ -19,10 +19,9 @@ namespace MetadataService.Services.Files
 {
     public class DropboxProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new DropboxProvider(item, storage, connection, authproxy); //.securetoken,item.alias);
+            return new DropboxProvider(item, storage, connection); //.securetoken,item.alias);
         }
     }
 
@@ -34,8 +33,8 @@ namespace MetadataService.Services.Files
         private readonly string DROPBOXURIROOT; // = "/metadataservice/files/"+alias;
         private bool initialized;
 
-        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
-            : base(item, storage, connection, authproxy)
+        public DropboxProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
+            : base(item, storage, connection)
         {
             //alias = item.alias;
             accesstoken = item.securetoken;
@@ -214,6 +213,21 @@ namespace MetadataService.Services.Files
                 //wrap path with slashes '/path/' if needed
                 var mypath = path.StartsWith("/") ? path : "/" + path;
                 if (!mypath.EndsWith("/")) mypath += "/";
+                //add info about directory itself
+                listOfFiles.Add(new SBFile
+                {
+                    path = path,
+                    name = ".",
+                    attributes = FileAttributes.Directory, //.ToString(),
+                    size = 0,
+                    date = DateTime.Now,
+                    filetype = FileType.Directory | FileType.Read | FileType.Write |
+                               (IsLocalDir(DROPBOXURIROOT + mypath ) ? FileType.Available : FileType.None),
+                    //TODO introduce GET on file - which will download the file and redirects to webdav uri
+                    webdavuri = DROPBOXURIROOT + mypath,
+                    //generate public webdavuri for current directory
+                    publicwebdavuri = PUBLICWEBDAVURL + mypath
+                });
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
                     //Console.WriteLine("adding path:[" + path + "] name:[" + fi.Name + "]");
@@ -227,8 +241,8 @@ namespace MetadataService.Services.Files
                         filetype = FileType.Directory | FileType.Read | FileType.Write |
                                    (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT + mypath + fi.Name
-                        //publicwebdavuri = PUBLICDROPBOXURIROOT+mypath+fi.Name,
+                        webdavuri = DROPBOXURIROOT + mypath+ fi.Name, 
+                        publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
                     });
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
@@ -244,7 +258,7 @@ namespace MetadataService.Services.Files
                                    (IsLocal(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
-                        publicwebdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name)
+                        publicwebdavuri = LocalOrRemotePublic(DROPBOXURIROOT + mypath + fi.Name)
                     });
                 
             } while (list.HasMore);
@@ -259,6 +273,13 @@ namespace MetadataService.Services.Files
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
             if (IsLocal(filepath))
                 return filepath.Replace(DROPBOXURIROOT + "/", WEBDAVURL);
+            return filepath;
+        }
+        private string LocalOrRemotePublic(string filepath)
+        {
+            //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
+            if (IsLocal(filepath))
+                return filepath.Replace(DROPBOXURIROOT, PUBLICWEBDAVURL);
             return filepath;
         }
 

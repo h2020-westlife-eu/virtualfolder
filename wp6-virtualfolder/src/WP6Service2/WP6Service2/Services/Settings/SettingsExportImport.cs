@@ -73,9 +73,8 @@ namespace MetadataService.Services.Settings
         /** put encrypted settings into local database == import */
         public List<ProviderItem> Put(ImportSettings request)
         {
-            var userid = (string) Request.Items["userid"];
-            var userauthproxy = (string) Request.Items["authproxy"];
-            importSettings(userid,userauthproxy,request.PublicKey, request.EncryptedSettings, request.ConflictedAliases,
+            var userid = (string) Request.Items["userid"];            
+            importSettings(userid,request.PublicKey, request.EncryptedSettings, request.ConflictedAliases,
                 request.NewNameAliases);
             return getUserProviderItems();
         }
@@ -154,7 +153,7 @@ namespace MetadataService.Services.Settings
          * imports Settings in encrypted encsetting string.
          * encsetting must be base64 encoded, it is decoded and decrypted using private key. Public key is useddecrypt settings using private key, checks if publickey == stored PublicKey
          */
-        private void importSettings(string userid,string userauthproxy,string publickey, string encsettings,string conflict,string rename)
+        private void importSettings(string userid,string publickey, string encsettings,string conflict,string rename)
         {
             UTF8Encoding byteConverter = new UTF8Encoding();            
             //check if publickey equals the corresponding pub-priv key pair in memory.
@@ -187,7 +186,7 @@ namespace MetadataService.Services.Settings
                 
             }
             //now we have in myproviders renamed aliases, put them one by one
-            var service = UserProvider.GetInstance(userid, userauthproxy, storage, Db);
+            var service = UserProvider.GetInstance(userid, storage, Db);
             foreach (var item in myproviders)
             {
                 //change loggeduser from remote system to current user

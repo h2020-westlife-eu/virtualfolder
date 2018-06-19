@@ -29,9 +29,9 @@ namespace MetadataService.Services.Files
             try
             {
                 var userid = (string) Request.Items["userid"];
-                var userauthproxy = (string) Request.Items["authproxy"];
+                //var userauthproxy = (string) Request.Items["authproxy"];
                 if (userid.Length == 0) throw new UnauthorizedAccessException();
-                return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
+                return UserProvider.GetInstance(userid, storage, Db);
             }
             catch (KeyNotFoundException)
             {

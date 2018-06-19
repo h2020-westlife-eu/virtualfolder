@@ -13,10 +13,9 @@ namespace MetadataService.Services.Files
 {
     public class WebDavProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new WebDavProvider(item, storage, connection, authproxy);
+            return new WebDavProvider(item, storage, connection);
         }
     }
 
@@ -29,14 +28,14 @@ namespace MetadataService.Services.Files
 
 
         /** default constructor */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy) :
-            this(item, storage, connection, item.accessurl, authproxy)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :
+            this(item, storage, connection, item.accessurl)
         {
         }
 
         /** constructor for subclasses, where accessurl is known */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string accessurl,
-            string authproxy) : base(item, storage, connection, authproxy)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string accessurl)
+            : base(item, storage, connection)
         {
             _providerurl = accessurl;
             //var task = Initialize(item);
@@ -84,7 +83,7 @@ namespace MetadataService.Services.Files
                 Initialize(null);
             }
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, _path);
+            return ListOfFiles(FILESYSTEMFOLDER, username,alias, _path);
         }
 
         public override bool DeleteSettings()

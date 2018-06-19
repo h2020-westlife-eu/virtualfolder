@@ -11,6 +11,7 @@ fi
 
 $WP6SRC/bootstrap/bootstrapcvmfswestlife.sh
 $WP6SRC/bootstrap/bootstrapweb.sh
+$WP6SRC/bootstrap/bootstrapsso.sh
 $WP6SRC/bootstrap/bootstrapvre.sh
 $WP6SRC/bootstrap/bootstrapservice.sh
 $WP6SRC/bootstrap/bootstrapscipion.sh

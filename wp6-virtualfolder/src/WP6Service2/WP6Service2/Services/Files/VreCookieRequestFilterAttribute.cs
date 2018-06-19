@@ -19,10 +19,10 @@ namespace MetadataService.Services.Files
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
         private const string _httpLocalhostApi = "http://localhost/api/";
         private const string _sessionserviceurl = "vfsession/";
-        private const string _authproxyserviceurl = "authproxy/get_signed_url/";
+//        private const string _authproxyserviceurl = "authproxy/get_signed_url/";
 
         private static readonly Dictionary<string, string> sessionuser = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
+//        private static readonly Dictionary<string, string> sessionauthproxy = new Dictionary<string, string>();
         private static readonly object initlock = new object();
         
 
@@ -62,7 +62,7 @@ namespace MetadataService.Services.Files
                     req.Items.Add("name", req.Headers.Get("X-NAME"));
                     req.Items.Add("email", req.Headers.Get("X-EMAIL"));
                     req.Items.Add("groups", req.Headers.Get("X-GROUPS"));
-                    req.Items.Add("authproxy", "/webdav/" + mellonuser);
+                    //req.Items.Add("authproxy", "/webdav/" + mellonuser);
                     if (requestDto.GetType() == typeof(ProviderItem))
                         ((ProviderItem) requestDto).loggeduser = mellonuser;
                     return;
@@ -72,14 +72,14 @@ namespace MetadataService.Services.Files
 
                 //get user info related to session id fromVRE
                 var loggeduser = GetAssociatedUser(mysession.Value);
-                var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
+                //var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
 
                 //Console.WriteLine("Provider Service list"+loggeduser);
                 //TODO get the providers associated to user
                 req.Items.Add("userid", loggeduser);
                 if (requestDto.GetType() == typeof(ProviderItem))
                     ((ProviderItem) requestDto).loggeduser = loggeduser;
-                req.Items.Add("authproxy", authproxy);
+                //req.Items.Add("authproxy", authproxy);
             }
         }
 
@@ -103,7 +103,7 @@ namespace MetadataService.Services.Files
                 return "";
             }
         }
-
+/*
         private string GetAuthProxy(string sessionid, string domain)
         {
             if (sessionauthproxy.ContainsKey(sessionid))
@@ -119,7 +119,7 @@ namespace MetadataService.Services.Files
                 Console.WriteLine("authproxy " + response.signed_url);
                 return response.signed_url;
             }
-            catch (Exception e) /* handle local deployment or error*/
+            catch (Exception e) //
             {
                 //on local deployment - authproxy url can be same as sessionuser
                 if (sessionuser.ContainsKey(sessionid))
@@ -136,7 +136,7 @@ namespace MetadataService.Services.Files
                 }
             }
         }
-
+*/
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors policyErrors)

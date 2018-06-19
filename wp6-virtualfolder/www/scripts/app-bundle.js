@@ -1321,7 +1321,7 @@ define('filepicker/app',['exports', 'aurelia-event-aggregator', './messages', '.
     }
 
     App.prototype.selectFile = function selectFile(file) {
-      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.publicwebdavuri, "*");
+      window.opener.postMessage(window.location.protocol + "//" + window.location.host + file.publicwebdavuri, "*");
       window.close();
     };
 
@@ -1583,6 +1583,8 @@ define('filepicker/filepanel',['exports', '../components/projectapi', 'aurelia-e
 
     Filepanel.prototype.populateFiles = function populateFiles(dataresponse) {
       _vfstorage.Vfstorage.setValue("filepanel" + this.panelid, this.path);
+
+      if (dataresponse.length > 0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift();else this.currentdir = null;
 
       this.files = dataresponse;
       this.filescount = this.files.length + this.resources.length;
@@ -2262,6 +2264,8 @@ define('pages/virtualfolderhome',['exports', '../components/projectapi', 'aureli
 
   var Virtualfolderhome = exports.Virtualfolderhome = (_temp = _class = function () {
     function Virtualfolderhome(ea, projectapi) {
+      var _this = this;
+
       _classCallCheck(this, Virtualfolderhome);
 
       this.ea = ea;
@@ -2269,20 +2273,32 @@ define('pages/virtualfolderhome',['exports', '../components/projectapi', 'aureli
       this.islocalhost = this.location.startsWith('http:');
       this.pa = projectapi;
       this.webdavurl = "";
+
+      this.popup;
+      this.target;
+
+      this.receiveMessage = function (event) {
+        document.getElementById(_this.target).innerHTML = event.data;
+        document.getElementById(_this.target).setAttribute("href", event.data);
+      };
     }
 
-    Virtualfolderhome.prototype.generateurl = function generateurl() {
-      var _this = this;
+    Virtualfolderhome.prototype.attached = function attached() {
+      window.addEventListener("message", this.receiveMessage, false);
+    };
 
-      if (this.webdavurl === "") {
-        this.pa.getPublicWebDav().then(function (data) {
-          if (window.location.port === "80" || window.location.port === "") _this.webdavurl = window.location.protocol + "//" + window.location.hostname + data.signed_url;else _this.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + data.signed_url;
-        }).catch(function (error) {
-          if (error.statusCode === 401) {} else {
-            alert("Sorry, cannot generate URL. " + error.statusCode + ':' + error.statusText);
-          }
-        });
-      }
+    Virtualfolderhome.prototype.detached = function detached() {
+      window.removeEventListener("message", this.receiveMessage);
+    };
+
+    Virtualfolderhome.prototype.openuploaddirpickerwindow = function openuploaddirpickerwindow(_target) {
+      return this.openwindow(_target, "uploaddirpickercomponent.html");
+    };
+
+    Virtualfolderhome.prototype.openwindow = function openwindow(_target, href) {
+      this.target = _target;
+      this.popup = window.open(href, 'newwindow', 'width=640, height=480');
+      return false;
     };
 
     return Virtualfolderhome;
@@ -3705,8 +3721,7 @@ define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepic
     }
 
     App.prototype.selectFile = function selectFile(file) {
-      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.webdavuri, "*");
-
+      window.opener.postMessage(window.location.protocol + "//" + window.location.host + file.publicwebdavuri, "*");
       window.close();
     };
 
@@ -3853,17 +3868,7 @@ define('uploaddirpicker/uploaddirpanel',['exports', '../components/projectapi', 
     };
 
     Uploaddirpanel.prototype.selectThisDir = function selectThisDir() {
-      var _this2 = this;
-
-      var myfile = {};
-      myfile.name = this.path;
-      this.pa.getPublicWebDav().then(function (data) {
-        var mypath = data.signed_url;
-        mypath += _this2.path.startsWith('/') ? _this2.path.slice(1) : _this2.path;
-        var mydir = {};
-        mydir.webdavuri = mypath;
-        _this2.ea.publish(new _messages.SelectedFile(mydir, _this2.panelid));
-      });
+      if (this.currentdir) this.ea.publish(new _messages.SelectedFile(this.currentdir, this.panelid));
     };
 
     return Uploaddirpanel;
@@ -9050,7 +9055,7 @@ define('text!filepicker/pdbpanel.html', ['module'], function(module) { module.ex
 define('text!filepicker/uniprotpanel.html', ['module'], function(module) { module.exports = "<template>\n  <p> Selecting resource from Uniprot Data Bank.</p>\n</template>\n"; });
 define('text!pages/filemanager.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filemanager2/panel\"></require>\n  <div class=\"w3-card-2 w3-white w3-margin w3-center\">\n    <h4>File Manager\n    <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cogs\" click.delegate=\"setupFileManager()\" title=\"change setting of file manager\"></i>\n    </h4>\n  </div>\n  \n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"left\"></panel>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"right\"></panel>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pages/filepicker.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class=\"w3-white w3-card w3-round-large w3-margin w3-padding\">\n    <h1>File picker</h1>\n    Pick file from public portal: <a class=\"w3-button\" click.delegate=\"openwindow('fileid',\n   'https://portal.west-life.eu/virtualfolder/filepickercomponent.html'\n   )\">West-life File</a>\n\n    <p>File URL:<a id=\"fileid\" href=\"\"></a></p>\n    Pick file from this VF instance:<a class=\"w3-button\" click.delegate=\"openfilepickerwindow('file')\">VF file</a>\n\n    <p>File URL:<a id=\"file\" href=\"\"></a></p>\n    <h1>Upload-dir picker</h1>\n    Pick directory from this VF instance:<a class=\"w3-button\" click.delegate=\"openuploaddirpickerwindow('uploaddir')\">VF dir</a>\n\n    <p>Directory URL:<a id=\"uploaddir\" href=\"\"></a></p>\n  </div>\n\n  </body>\n\n</template>\n"; });
-define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-twothird\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n\n    <div if.bind=\"islocalhost\" class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        <button class=\"w3-button\" click.delegate=\"generateurl()\">Generate public URL for WEBDAV access</button>\n      </p>\n      <p>\n        <input readonly value.bind=\"webdavurl\" class=\"w3-border w3-input\"/>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n\n\n</template>\n"; });
+define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-twothird\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n\n    <div if.bind=\"islocalhost\" class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n         You can access the files directly using WEBDAV protocol.\n      </p>\n      <p>\n         1. step, pick a folder:<a class=\"w3-button\" click.delegate=\"openuploaddirpickerwindow('uploaddir')\">VF dir</a>\n      </p>\n      <p>2. click or copy this folder URL:<br/>\n        <a id=\"uploaddir\" href=\"\" class=\"w3-border w3-input w3-tiny\"></a>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. Generated URLs will expire each calendar month after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n\n\n</template>\n"; });
 define('text!pages/virtualfoldersetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../virtualfoldersetting/storageprovider\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n  <require from=\"../virtualfoldersetting/clouddeployment\"></require>\n\n  <storageprovider></storageprovider>\n\n  <div if.bind=\"islocalhost\">\n    <taskcontrol></taskcontrol>\n  </div>\n\n  <div if.bind=\"islocalhost\">\n    <clouddeployment></clouddeployment>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item.Name}\">${item.Name}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item.Name}\">${item.Name}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item.Name}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item.Name}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item.Name}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item.Name}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item.Name}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item.Name}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item.Name}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item.Name}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item.Name}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item.Name}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item.Name}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item.Name}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item.Name}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n\n    <div id=\"link-${item.Name}\">\n      <a href=\"${item.Url}\">${item.Url}</a>\n    </div>\n  </div>\n\n</template>\n"; });

@@ -222,7 +222,10 @@ export class Filepanel {
   populateFiles(dataresponse) {
     //console.log("filepanel.populateFiles()")
     Vfstorage.setValue("filepanel" + this.panelid, this.path);
-
+    //it is assumed that first element is "." describing the content of current dir
+    if (dataresponse.length>0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift(); 
+    else this.currentdir = null;
+    //console.log("populateFiles currentdir:",this.currentdir);
     this.files = dataresponse;//JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
     this.filescount = this.files.length + this.resources.length;
     let that = this;

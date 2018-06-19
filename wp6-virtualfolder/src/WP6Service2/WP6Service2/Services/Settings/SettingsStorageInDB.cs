@@ -26,6 +26,20 @@ namespace MetadataService.Services.Settings
             ? Environment.GetEnvironmentVariable("VF_STORAGE_PKEY")
             : nonsecurepkey;
 
+        private static readonly string iv = DateTime.Now.ToString("yyyy MMMM"); //after restart and new month, new iv is generated
+                                                                                //all previous generated codes will become invalid
+        private static readonly string pkey2;
+        static SettingsStorageInDB()
+        {
+            
+            pkey2 = pkey;
+            while (pkey2.Length < 32) pkey2 += pkey;
+            pkey2 = pkey2.Substring(0, 32);
+            if (iv.Length < 16) iv += pkey2;
+            iv = iv.Substring(0, 16);
+            //Console.Error.WriteLine("debug pkey:"+pkey2+" iv:"+iv);
+        }
+
 
         public void StoreSettings(ProviderItem request, IDbConnection Db)
         {
@@ -113,16 +127,14 @@ namespace MetadataService.Services.Settings
 
         public static string getencryptedpath(string path)
         {
-            return AESThenHMAC.SimpleEncryptWithPassword(path, pkey, Encoding.UTF8.GetBytes(pkey));
+            //Console.Error.WriteLine("debug pkey:"+pkey2+" iv:"+iv);
+            return AESThenHMAC.Encrypt(path, Encoding.Default.GetBytes(pkey2), Encoding.Default.GetBytes(iv)).Replace('/','_');
         }
         
         public static string getdecryptedpath(string encpath)
         {
-            var dectoken = AESThenHMAC.SimpleDecryptWithPassword(encpath, pkey,
-                Encoding.UTF8.GetBytes(pkey).Length);
-            if (dectoken == null) throw new WarningException("not decrypted");
-
-            return dectoken;
+            //Console.Error.WriteLine("debug pkey:"+pkey2+" iv:"+iv);
+            return AESThenHMAC.Decrypt(encpath.Replace('_', '/'), Encoding.Default.GetBytes(pkey2),Encoding.Default.GetBytes(iv));            
         }
 
         

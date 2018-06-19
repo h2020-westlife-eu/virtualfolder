@@ -24,8 +24,11 @@ export class Uploaddirpanel extends Filepanel {
 
 
   selectThisDir() {
-    //console.log("selected:"+this.path);
-    let myfile= {};
+    //console.log("selected:"+this.currentdir);
+    //publish only if the currentdir is set (metadata exists)
+    if (this.currentdir)
+      this.ea.publish(new SelectedFile(this.currentdir, this.panelid));
+    /*let myfile= {};
     myfile.name = this.path;
     this.pa.getPublicWebDav()
       .then(data => {
@@ -34,6 +37,7 @@ export class Uploaddirpanel extends Filepanel {
           let mydir = {};
           mydir.webdavuri = mypath;
           this.ea.publish(new SelectedFile(mydir, this.panelid));
-      });
+      });*/
+    
   }
 }
