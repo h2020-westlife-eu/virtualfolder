@@ -24,7 +24,7 @@ namespace MetadataService.Services.Files
         private static readonly HashSet<string> Initializedproviders = new HashSet<string>();
         private static readonly object Initlock = new object();
         private readonly string _providerurl = ""; //"https://b2drop.eudat.eu/remote.php/webdav"
-        private readonly string _mountscript = "/home/vagrant/scripts/mountb2drop.sh";
+        private readonly string _mountscript = "/opt/virtualfolder/scripts/mountb2drop.sh";
 
 
         /** default constructor */
@@ -173,7 +173,7 @@ namespace MetadataService.Services.Files
                 int exitcode;
                 var output = Utils.ExecuteShell("/bin/bash", new[]
                 {
-                    "/home/vagrant/scripts/mountb2drop.sh",
+                    _mountscript,
                     "remove",
                     _providerurl,
                     FILESYSTEMFOLDER,

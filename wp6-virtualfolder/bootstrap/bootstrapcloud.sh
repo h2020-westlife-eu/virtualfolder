@@ -9,13 +9,13 @@ yum repolist
 yum -y install davfs2
 systemctl start httpd
 systemctl enable httpd
-mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife
+mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife /opt/virtualfolder
 chmod go+wx /var/log/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
 #make link to scripts
-ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts /home/vagrant/scripts
+ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts /opt/virtualfolder/scripts
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
