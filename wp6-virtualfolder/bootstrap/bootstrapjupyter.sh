@@ -4,8 +4,11 @@
 # cd to desired directory
 #DIR=`pwd`
 #VERSION=18.02
-DIR=$WP6SRC
-VERSION=jupyter
+if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
+then 
+  echo Provisioning Jupyter notebook and dependencies
+  DIR=$WP6SRC
+  VERSION=jupyter
 
 #sudo in case this script is executed after installation
 sudo yum install -y wget bzip2
@@ -46,3 +49,6 @@ ln -s /usr/bin/mkdssp /usr/bin/dssp
 #mkdir -p /usr/local/lib/stride
 #freesasa
 #
+else
+  echo Skipping Jupyter provisioning.
+fi

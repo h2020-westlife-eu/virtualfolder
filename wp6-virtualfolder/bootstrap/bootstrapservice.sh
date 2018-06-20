@@ -41,4 +41,6 @@ then
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
    echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /etc/westlife/metadata.key
+   chmod 700 /etc/westlife
+   chmod 600 /etc/westlife/metadata.key
 fi

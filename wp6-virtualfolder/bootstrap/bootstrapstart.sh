@@ -4,6 +4,15 @@ export VREESC= $(echo $VREDIR | sed 's_/_\\/_g')
 sed -i -e "s/\ExecStart.*$/ExecStart=${VREESC}\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
 sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1${VREESC}\/VRE-master/g" /etc/systemd/system/westlife-vre.service
 sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/opt\/virtualfolder\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
+if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
+then 
+  sed -i -e "s/\Environment=VF_ALLOW_LAB=.*$/Environment=VF_ALLOW_LAB=true/g" /etc/systemd/system/westlife-metadata.service  
+  sed -i -e "s/\Environment=VF_ALLOW_NOTEBOOK=.*$/Environment=VF_ALLOW_NOTEBOOK=true/g" /etc/systemd/system/westlife-metadata.service  
+else
+  sed -i -e "s/\Environment=VF_ALLOW_LAB=.*$/Environment=VF_ALLOW_LAB=false/g" /etc/systemd/system/westlife-metadata.service  
+  sed -i -e "s/\Environment=VF_ALLOW_NOTEBOOK=.*$/Environment=VF_ALLOW_NOTEBOOK=false/g" /etc/systemd/system/westlife-metadata.service  
+fi
+
 chown -R vagrant:vagrant /home/vagrant
 chown -R vagrant:vagrant ${WP6SRC}
 chown -R vagrant:vagrant ${VREDIR}
