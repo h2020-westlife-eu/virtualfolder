@@ -64,16 +64,16 @@ function checkargs {
   fi
 }
 function addfstab {  
-  LOCALPATH=`readlink -f $2`
-  if grep -q "$1 $LOCALPATH " /etc/fstab; then
+  # LOCALPATH=`readlink -f $2`
+  if grep -q "$1 $2 " /etc/fstab; then
     echo "fstab already set"
   else
-    echo "$1 $LOCALPATH davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
   fi
 }
 
 function removefstab {  
-  grep -v "$1 $2" /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
+  grep -v "$1 $2 " /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
 }
 
 function addsecrets {  
