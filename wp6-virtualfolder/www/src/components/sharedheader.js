@@ -16,12 +16,20 @@ export class Sharedheader {
       //console.log(data);
       this.userinfo=data;
       //vagrant user - no link
-      if (this.userinfo.username ==='vagrant') this.userinfo.AccountLink="";
+      if (this.userinfo.username ==='vagrant') {
+        this.userinfo.AccountLink="";
+        this.userinfo.LogoutLink="/logout";
+        }
       //west-life sso user - link to westlife sso page
-      else if (this.userinfo.username.endsWith("west-life.eu")) this.userinfo.AccountLink="https://auth.west-life.eu/user/"
+      else if (this.userinfo.username.endsWith("west-life.eu")) {
+        this.userinfo.AccountLink="https://auth.west-life.eu/user/"
+        this.userinfo.LogoutLink="/mellon/logout?ReturnTo=/";
       //ARIA user - link to structuralbiology
-      else this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
-      this.userinfo.LogoutLink="/logout";
+      }
+      else {
+        this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
+        this.userinfo.LogoutLink="/logout";
+      }
       if (!this.userinfo.name) this.userinfo.name=this.userinfo.username;
       this.showuserinfo=true;
     })
