@@ -822,8 +822,16 @@ define('components/sharedheader',['exports', './projectapi', 'aurelia-framework'
       this.pa.getUserInfo().then(function (data) {
         _this.userinfo = data;
 
-        if (_this.userinfo.username === 'vagrant') _this.userinfo.AccountLink = "";else if (_this.userinfo.username.endsWith("west-life.eu")) _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";else _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
-        _this.userinfo.LogoutLink = "/logout";
+        if (_this.userinfo.username === 'vagrant') {
+          _this.userinfo.AccountLink = "";
+          _this.userinfo.LogoutLink = "/logout";
+        } else if (_this.userinfo.username.endsWith("west-life.eu")) {
+            _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";
+            _this.userinfo.LogoutLink = "/mellon/logout?ReturnTo=/";
+          } else {
+            _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
+            _this.userinfo.LogoutLink = "/logout";
+          }
         if (!_this.userinfo.name) _this.userinfo.name = _this.userinfo.username;
         _this.showuserinfo = true;
       }).catch(function (error) {
