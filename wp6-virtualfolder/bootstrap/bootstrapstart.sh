@@ -36,10 +36,12 @@ sleep 2
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then 
   systemctl enable westlife-vre 
   systemctl start westlife-vre
-fi
-if [ -d /vagrant ]; then 
+elif [[ -n ${SSO_DEPLOYMENT} && ${SSO_DEPLOYMENT} -eq "1" ]]; then
+  echo SSO deployment
+elif [ -d /vagrant ]; then 
    $WP6SRC/scripts/addfilesystemprovider.sh
 fi
+
 
 # workaround for bug, reload,restart httpd fails on first attempt in SL7
 service httpd reload
