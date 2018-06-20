@@ -17,7 +17,7 @@ fi
 
 let times=0;
 echo -n "Waiting until metadataservice endpoint is available "
-while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/metadataservice/metadata)" != "200" ]]
+while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/virtualfolder/api/metadata)" != "200" ]]
 do
   sleep 5
   echo -n "."
@@ -32,11 +32,11 @@ done
 echo -e "\nRegistering filesystem provider"
 if [ -d /vagrant ]; then 
 $CURL_BIN \
-    -X PUT 'http://localhost/metadataservice/json/reply/ProviderItem' -H "Content-Type: application/json" --data '{"alias":"vagrant","type":"FileSystem","securetoken":"/vagrant","loggeduser":"vagrant"}'
+    -X PUT 'http://localhost/virtualfolder/api/json/reply/ProviderItem' -H "Content-Type: application/json" --data '{"alias":"vagrant","type":"FileSystem","securetoken":"/vagrant","loggeduser":"vagrant"}'
 fi    
 if [ -d /vagrant_data ]; then 
 $CURL_BIN \
-    -X PUT 'http://localhost/metadataservice/json/reply/ProviderItem' -H "Content-Type: application/json" --data '{"alias":"vagrant_data","type":"FileSystem","securetoken":"/vagrant_data","loggeduser":"vagrant"}'
+    -X PUT 'http://localhost/virtualfolder/api/json/reply/ProviderItem' -H "Content-Type: application/json" --data '{"alias":"vagrant_data","type":"FileSystem","securetoken":"/vagrant_data","loggeduser":"vagrant"}'
 fi
 
 echo " logout"
