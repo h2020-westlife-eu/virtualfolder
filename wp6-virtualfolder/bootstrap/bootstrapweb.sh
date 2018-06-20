@@ -22,8 +22,7 @@
 #firewall-cmd --reload
 
 # prepare and restart apache, rewrite configuration
-# copy all system config to etc
-cp -R $WP6SRC/conf-template/* /
+
 #one of the configuration is syslog - need to restart
 service rsyslog restart
 WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')

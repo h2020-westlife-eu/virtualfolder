@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# copy all system config to etc
+cp -R $WP6SRC/conf-template/* /
+
 if [[ -n ${SSO_DEPLOYMENT} && ${SSO_DEPLOYMENT} -eq "1" ]] 
 then
   echo Provisioning West-Life SSO 
