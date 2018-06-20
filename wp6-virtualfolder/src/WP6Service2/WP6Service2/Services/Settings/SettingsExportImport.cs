@@ -65,8 +65,8 @@ namespace MetadataService.Services.Settings
         public string Get(ExportSettings request)
         {
             var userid = (string) Request.Items["userid"];
-            var userauthproxy = (string) Request.Items["authproxy"];
-            var encryptedSettings = exportSettings(request.PublicKey,userid,userauthproxy,request.SelectedAliases);            
+            //var userauthproxy = (string) Request.Items["authproxy"];
+            var encryptedSettings = exportSettings(request.PublicKey,userid,request.SelectedAliases);            
             return encryptedSettings;
         }
 
@@ -104,7 +104,7 @@ namespace MetadataService.Services.Settings
          * Return value contains base64 encoded and encrypted symetric key delimited by comma from second base64 encoded and encrypted JSON
          * of selected settings
          */
-        private string exportSettings(string pkey,string userid,string userauthproxy, string aliases)
+        private string exportSettings(string pkey,string userid, string aliases)
         {
             // Convert the text to an array of bytes   
             UTF8Encoding byteConverter = new UTF8Encoding();

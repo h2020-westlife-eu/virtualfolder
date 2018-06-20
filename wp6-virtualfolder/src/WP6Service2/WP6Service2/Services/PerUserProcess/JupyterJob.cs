@@ -36,10 +36,10 @@ namespace WP6Service2.Services.PerUserProcess
             if (pid == 0) //create new job
             {
                 port = getAvailablePort();
-                var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'), "[^A-Za-z0-9//]", "");
-                suffix2 = suffix2.StartsWith("webdav/") ? suffix2.Substring("webdav/".Length) : suffix2;
+                //var suffix2 = Regex.Replace(request.Items["authproxy"].ToString().Trim('/'), "[^A-Za-z0-9//]", "");
+                //suffix2 = suffix2.StartsWith("webdav/") ? suffix2.Substring("webdav/".Length) : suffix2;
                 //Console.WriteLine("JupyterJob: suffix="+suffix);
-                suffix2 = RandomPrefix.ShortUrl; //suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
+                var suffix2 = RandomPrefix.ShortUrl; //suffix2.GetHashCode().ToString(); //workaround apache bug 53218 ProxyPass worker name too long, https://bz.apache.org/bugzilla/show_bug.cgi?id=53218
                 proxyurl = "/vfnotebook" + "/" + suffix2;
                 //proxyurl= proxyurl.TrimEnd('/');
                 outputlog = _logdir + jobname + DateTime.Now.Ticks + ".log";
