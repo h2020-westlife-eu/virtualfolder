@@ -20,7 +20,21 @@ if [ -f /vagrant/sp_key.pem ]; then
   cp /vagrant/*.conf ${WP6SRC}/conf-template/etc/httpd/conf.d/
 fi
 
-yum -y install wget mod_auth_mellon
+#yum -y install wget mod_auth_mellon
+if [ -f /etc/cernvm-release ]; then
+# cernvm4 has old lasso 2.4.0 and mod_auth_mellon
+  yum -y remove mod_auth_mellon lasso xmlsec1 xmlsec1-openssl
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-1.2.20-7.el7_4.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-openssl-1.2.20-7.el7_4.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gcrypt-1.2.20-7.el7_4.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gnutls-1.2.20-7.el7_4.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-nss-1.2.20-7.el7_4.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/lasso-2.5.1-2.el7.x86_64.rpm
+  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/mod_auth_mellon-0.13.1-1.el7.x86_64.rpm
+else
+  yum -y install wget mod_auth_mellon
+fi
+
 
 # generate the configuration if not exists, note that sp-metadata.xml needs to be sent to idp-metadata provider
 if [ ! -f ${WP6SRC}/sp_key.pem ]; then
