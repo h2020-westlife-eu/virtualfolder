@@ -22,15 +22,7 @@ namespace WP6Service2
 	{
 		public object Any(Userinfo request)
 		{
-			try
-			{
-				return new UserinfoResponse {username = (string) Request.Items["userid"], name = (string) Request.Items["name"]};
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message+" "+e.StackTrace);
-				throw e;
-			}
+			return new UserinfoResponse {username = (string) Request.Items["userid"], name = (string) Request.Items["name"]};
 		}
 	}
 
