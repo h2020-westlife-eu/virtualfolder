@@ -1,4 +1,5 @@
 ﻿
+using System;
 using MetadataService.Services.Files;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
@@ -20,8 +21,16 @@ namespace WP6Service2
     public class UserinfoService : Service
 	{
 		public object Any(Userinfo request)
-		{						
-			return new UserinfoResponse { username = (string) Request.Items["userid"],name=(string) Request.Items["name"]};
+		{
+			try
+			{
+				return new UserinfoResponse {username = (string) Request.Items["userid"], name = (string) Request.Items["name"]};
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message+" "+e.StackTrace);
+				throw e;
+			}
 		}
 	}
 
