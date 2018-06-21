@@ -11,12 +11,12 @@ namespace WP6Service2.Services.PerUserProcess
     {
         private static readonly string[][] services =
         {
-            new[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-            new[] {"scipion", "/bin/bash", "/home/vagrant/scripts/startScipionWeb.sh"},
-            new[] {"virtuoso", "/bin/bash", "/home/vagrant/scripts/startVirtuoso.sh"},
-            new[] {"notebook","/bin/bash","/home/vagrant/scripts/startJupyter.sh"},
-            new[] {"lab","/bin/bash","/home/vagrant/scripts/startJupyterlab.sh"},
-            new[] {"vminstance","/bin/bash","/home/vagrant/scripts/startvm.sh"}
+            new[] {"ccp4suite", "/bin/sudo", "/opt/virtualfolder/bootstrapcvmfsccp4.sh yes"},
+            new[] {"scipion", "/bin/bash", "/opt/virtualfolder/scripts/startScipionWeb.sh"},
+            new[] {"virtuoso", "/bin/bash", "/opt/virtualfolder/scripts/startVirtuoso.sh"},
+            new[] {"notebook","/bin/bash","/opt/virtualfolder/scripts/startJupyter.sh"},
+            new[] {"lab","/bin/bash","/opt/virtualfolder/scripts/startJupyterlab.sh"},
+            new[] {"vminstance","/bin/bash","/opt/virtualfolder/scripts/startvm.sh"}
         };
         private static readonly List<JobType> list;
         private static readonly string ALLOW_ALL = "VF_ALLOW_ALL";
