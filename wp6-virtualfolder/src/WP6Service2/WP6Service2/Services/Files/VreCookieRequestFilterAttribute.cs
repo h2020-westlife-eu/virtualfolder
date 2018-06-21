@@ -81,6 +81,7 @@ namespace MetadataService.Services.Files
                 //Console.WriteLine("Provider Service list"+loggeduser);
                 //TODO get the providers associated to user
                 req.Items.Add("userid", loggeduser);
+                req.Items.Add("name", loggeduser);
                 if (requestDto.GetType() == typeof(ProviderItem))
                     ((ProviderItem) requestDto).loggeduser = loggeduser;
                 //req.Items.Add("authproxy", authproxy);

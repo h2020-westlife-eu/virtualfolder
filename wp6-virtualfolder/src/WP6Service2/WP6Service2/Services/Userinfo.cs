@@ -20,7 +20,7 @@ namespace WP6Service2
     public class UserinfoService : Service
 	{
 		public object Any(Userinfo request)
-		{			
+		{						
 			return new UserinfoResponse { username = (string) Request.Items["userid"],name=(string) Request.Items["name"]};
 		}
 	}
