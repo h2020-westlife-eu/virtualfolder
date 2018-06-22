@@ -41,7 +41,7 @@ fi
 if [ ! -f ${WP6SRC}/sp_key.pem ]; then
 # installs SAML2 and integrates with Westlife AAI
   echo "Generating mellon configuration"
-  if [ ! -fi mellon_create_metadata.sh ]; then wget https://raw.githubusercontent.com/UNINETT/mod_auth_mellon/master/mellon_create_metadata.sh; fi
+  if [ ! -f mellon_create_metadata.sh ]; then wget https://raw.githubusercontent.com/UNINETT/mod_auth_mellon/master/mellon_create_metadata.sh; fi
   chmod +x mellon_create_metadata.sh
   ./mellon_create_metadata.sh $SP_IDENTIFICATION $SP_ENDPOINT
   # move to /vagrant file - so next bootstrap, provision will be same
