@@ -1,5 +1,6 @@
 [Unit]
 Description=West-Life VirtualFolder MetadataService
+After=autofs.service
 
 [Service]
 Type=simple
