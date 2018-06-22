@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# copy all system config to etc
+# copy all system config to /
 cp -R $WP6SRC/conf-template/* /
