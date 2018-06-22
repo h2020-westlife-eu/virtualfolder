@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# copy all system config to etc
-cp -R $WP6SRC/conf-template/* /
-
 if [[ -n ${SSO_DEPLOYMENT} && ${SSO_DEPLOYMENT} -eq "1" ]] 
 then
   echo Provisioning West-Life SSO 
 # default values of SP_IDENTIFICAION and SP_ENDPOINT, please edit them for production system
 # change the following to identify your site
+if [[ -n ${SP_IDENTIFICATION} ]]
+then
+  echo using SP_IDENTIFICATION=${SP_IDENTIFICATION} and SP_ENDPOINT=${SP_ENDPOINT}
+else
   SP_IDENTIFICATION=http://local.west-life.eu
   SP_ENDPOINT=http://localhost:8080/mellon
+fi
 ########################################################################
 # SSO preparation
 ########################################################################
@@ -34,7 +36,6 @@ if [ -f /etc/cernvm-release ]; then
 else
   yum -y install wget mod_auth_mellon
 fi
-
 
 # generate the configuration if not exists, note that sp-metadata.xml needs to be sent to idp-metadata provider
 if [ ! -f ${WP6SRC}/sp_key.pem ]; then
