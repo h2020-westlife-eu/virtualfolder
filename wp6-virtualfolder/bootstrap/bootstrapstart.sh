@@ -34,7 +34,7 @@ systemctl enable westlife-metadata.service
 service westlife-metadata start
 sleep 2
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then 
-  systemctl enable westlife-vre 
+  systemctl enable westlife-vre.service 
   systemctl start westlife-vre
 elif [[ -n ${SSO_DEPLOYMENT} && ${SSO_DEPLOYMENT} -eq "1" ]]; then
   echo SSO deployment
