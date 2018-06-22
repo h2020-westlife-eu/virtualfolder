@@ -14,7 +14,7 @@ fi
 ########################################################################
 # SSO preparation
 ########################################################################
-# wget  
+# wget
 if [ -f /vagrant/sp_key.pem ]; then
   # copy sp_keys if they exists in /vagrant location
   cp /vagrant/sp_cert.pem /vagrant/sp_key.pem /vagrant/idp-metadata.xml /vagrant/sp-metadata.xml ${WP6SRC}
@@ -41,16 +41,15 @@ fi
 if [ ! -f ${WP6SRC}/sp_key.pem ]; then
 # installs SAML2 and integrates with Westlife AAI
   echo "Generating mellon configuration"
-  wget https://raw.githubusercontent.com/UNINETT/mod_auth_mellon/master/mellon_create_metadata.sh
+  if [ ! -fi mellon_create_metadata.sh ]; then wget https://raw.githubusercontent.com/UNINETT/mod_auth_mellon/master/mellon_create_metadata.sh; fi
   chmod +x mellon_create_metadata.sh
   ./mellon_create_metadata.sh $SP_IDENTIFICATION $SP_ENDPOINT
   # move to /vagrant file - so next bootstrap, provision will be same
-  mv http_*.key ${WP6SRC}/sp_key.pem
-  mv http_*.cert ${WP6SRC}/sp_cert.pem
-  mv http_*.xml ${WP6SRC}/sp-metadata.xml
+  mv http*.key ${WP6SRC}/sp_key.pem
+  mv http*.cert ${WP6SRC}/sp_cert.pem
+  mv http*.xml ${WP6SRC}/sp-metadata.xml
   #get west-life idp metadata
-  wget https://auth.west-life.eu/proxy/saml2/idp/metadata.php
-  mv metadata.php /${WP6SRC}/idp-metadata.xml
+  wget https://auth.west-life.eu/proxy/saml2/idp/metadata.php -O ${WP6SRC}/idp-metadata.xml
 fi
 # else the configuration exists (e.g. in /vagrant), it is reused
 
@@ -60,5 +59,5 @@ mkdir -p /etc/httpd/mellon
 cp ${WP6SRC}/sp_key.pem ${WP6SRC}/sp_cert.pem ${WP6SRC}/sp-metadata.xml ${WP6SRC}/idp-metadata.xml /etc/httpd/mellon
 chmod 600 /etc/httpd/mellon/sp_key.pem
 cp -f /etc/httpd/conf.d/000-default.conf.sso /etc/httpd/conf.d/000-default.conf 
-echo "Check http://localhost:8080/mellon/metadata \nIf not yet registered, send the metadata file: sp-metadata.xml to West-life AAI provider westlife-aai@ics.muni.cz." 
+printf "Check http://localhost:8080/mellon/metadata \nIf not yet registered, send the metadata file: sp-metadata.xml to West-life AAI provider westlife-aai@ics.muni.cz." 
 fi
