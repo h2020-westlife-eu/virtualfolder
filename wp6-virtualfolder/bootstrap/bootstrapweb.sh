@@ -25,22 +25,8 @@
 
 #one of the configuration is syslog - need to restart
 service rsyslog restart
-WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
-sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/virtualfolder\/latest\/www/${WP6SRCESC}\/www/g" /etc/httpd/conf.d/000-default.conf
-
-# copy web app pages
-#cp $WP6SRC/www/* /var/www/html
-#cp -R $WP6SRC/www/css /var/www/html
-#cp -R $WP6SRC/www/img /var/www/html
-#cp -R $WP6SRC/www/scripts /var/www/html
-#cp -R $WP6SRC/www/services2 /var/www/html
-#cp -R $WP6SRC/www/src /var/www/html
-#cp -R $WP6SRC/www/tools /var/www/html
 
 
-#unzip $WP6SRC/thirdparty/ngl.zip -d /var/www
-#sudo cp $WP6SRC/index.html /var/www
-#rm /var/www/html/dokuwiki/install.php
 chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
