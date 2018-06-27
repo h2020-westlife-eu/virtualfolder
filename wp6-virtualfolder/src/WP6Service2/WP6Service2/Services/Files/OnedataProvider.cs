@@ -16,10 +16,9 @@ namespace MetadataService.Services.Files
 {
     public class OnedataProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new OnedataProvider(item, storage, connection, authproxy);
+            return new OnedataProvider(item, storage, connection);
         }
     }
 
@@ -53,8 +52,8 @@ namespace MetadataService.Services.Files
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
         
-        public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy)
-            : base(AdjProvInfo(item), storage, connection, authproxy)
+        public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
+            : base(AdjProvInfo(item), storage, connection)
         {
             accessToken = item.securetoken;
             accessURL = item.accessurl;
