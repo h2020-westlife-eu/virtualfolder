@@ -33,7 +33,11 @@ namespace MetadataService.Services.Files
             Db = connection;
 
             FILESYSTEMFOLDER = Path.Combine(_rootdir, provider.loggeduser, provider.alias);
+            //handle west-life log on - @west-life.eu and other log-on 
+            if (username.EndsWith("@west-life.eu"))
             WEBDAVURL = Webdavroot + provider.alias + "/"; // e.g. /webdav/b2drop will be mapped based on authentication to user's dirs by apache conf
+            else
+            WEBDAVURL = Webdavroot + username+"/"+provider.alias + "/"; // e.g. /webdav/b2drop will be mapped based on authentication to user's dirs by apache conf
             PUBLICWEBDAVURL = PublicWebdavroot+SettingsStorageInDB.getencryptedpath(provider.loggeduser + "/" + provider.alias); // contains encrypted path of user
         }
 
