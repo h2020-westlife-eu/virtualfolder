@@ -22,7 +22,9 @@ namespace MetadataService
         //Run it!
         public static void Main(string[] args)
         {
-            var listeningOn = "http://*:8001/metadataservice/";
+            var port = "8001";
+            var contextpath = "/virtualfolder/api/";
+            var listeningOn = "http://*:"+port+contextpath;
             StartHost(listeningOn, args);
 
             WaitForUnixSignal();

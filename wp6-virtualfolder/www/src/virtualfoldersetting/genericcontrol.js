@@ -1,33 +1,36 @@
 /**
  * Created by Tomas Kulhanek on 1/5/17.
  */
-import {HttpClient,json} from 'aurelia-fetch-client';
+//import {HttpClient,json} from 'aurelia-fetch-client';
+import {ProjectApi} from "../components/projectapi";
 import {computedFrom} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {DropboxControl} from './dropboxcontrol';
 import {SettingsSelected} from './messages';
 import {Vfstorage} from "../utils/vfstorage";
+import {Dataitem} from "../pdbcomponents/dataitem";
 
 export class Genericcontrol {
 
-  static inject = [EventAggregator, HttpClient,DropboxControl];
+  static inject = [EventAggregator, ProjectApi,DropboxControl];
 
 
-  constructor(ea,httpclient,dropboxcontrol) {
+  constructor(ea,pa,dropboxcontrol) {
     this.heading="File Provider";
     this.ea= ea;
     this.dropboxcontrol=dropboxcontrol;
     this.editing=true;
-    this.providerspath = "providers";
+    //this.providerspath = "providers";
     this.filespath = "files";
     this.knowtoken=false;
     this.dropboxauthurl = "";
     this.providers = [];
     this.selectedProvider="";
-    this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/";
+    //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/";
     //console.log('genericcontrol()');
-    this.client=httpclient;
+    //this.client=httpclient;
+    this.pa =pa;
 
     this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
     this.myHeaders = new Headers();
@@ -80,7 +83,23 @@ export class Genericcontrol {
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
     this.dropboxauthurl = this.dropboxcontrol.authurl;
-    this.client.fetch(this.serviceurl+this.providerspath,{headers:this.myHeaders,credentials:'include'})
+    this.pa.getProviders()
+      .then(data=>{
+        if (data) {
+          this.providers = data;
+        }
+      }).catch(error => {
+      //handle 403 unauthorized
+      if (error.statusCode === 403) {
+        //try to login
+        window.location = "/login?next=" + window.location.pathname;
+        //window.location =
+      } else {
+        console.log('Error', error);
+        //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
+      }
+    });
+    /*this.client.fetch(this.serviceurl+this.providerspath,{headers:this.myHeaders,credentials:'include'})
       .then(response => response.json())
       .then(data=> {
         //console.log("data response");
@@ -101,6 +120,7 @@ export class Genericcontrol {
         //alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl);
       }
     });
+    */
     this.dropboxcontrol.initialize();
   }
 
@@ -123,52 +143,19 @@ export class Genericcontrol {
        // Access token
        settings.securetoken = this.securetoken;
      }
-
-     this.submitSettings(settings)
-  }
-
-
-  submitSettings(settings) {
-    this.client.fetch(this.serviceurl+this.filespath,{
-      method: 'put',
-      body: json(settings),
-      headers:this.myHeaders,
-      credentials:'include'
-    })
-      .then(response => response.json())
-      .then(data =>{
-        //console.log("genericcontrol: data response:");
-        //console.log(data);
-        if (Array.isArray(data)) {
-          this.doneCallback(data);
-          //this.providers = data;
-        } else {
-
-          //console.log(data);
-          if (data.ResponseStatus) alert('Sorry.'+data.ResponseStatus.ErrorCode+"\n"+ data.ResponseStatus.Message+"\nSubmit correct username and/or password again.");
-          else alert ('Sorry. Settings not submitted. Check all items are correct and submit again.')
-          console.log(data.ResponseStatus);
-        }
-
-    })
-      .catch(error =>{
+     //console.log("addProvider() debug:",this, this.pa,settings);
+    this.pa.putProvider(settings)
+      .then(data => {
+        //console.log("addProvider() data returned",data);
+        this.ea.publish(new SettingsSubmitted(data));
+        this.clear();
+        
+      })
+      .catch(error => {
         console.log(error);
         alert('Sorry. Settings not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
       });
-
-  }
-
-  doneCallback(data){
-    {
-      //console.log("publishing");
-      this.ea.publish(new SettingsSubmitted(data));
-      this.clear();
-    }
-  }
-
-  errorCallback(error){
-    console.log("GenericControl: Error retrieved:");
-    console.log(error);
+    return true;
   }
 
   selectSettings(settings){

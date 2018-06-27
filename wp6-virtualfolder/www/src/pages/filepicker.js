@@ -1,4 +1,5 @@
 export class Filepicker {
+
   constructor() {
     this.popup;
     this.target;
@@ -21,9 +22,9 @@ export class Filepicker {
   openfilepickerwindow(_target){
     return this.openwindow(_target,"filepickercomponent.html")
   }
+
   openuploaddirpickerwindow(_target){
     return this.openwindow(_target,"uploaddirpickercomponent.html")
-
   }
   //opens popup window in defined location
   openwindow(_target,href) {

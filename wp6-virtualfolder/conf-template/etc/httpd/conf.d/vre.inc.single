@@ -7,3 +7,4 @@
       RewriteRule ^vfsession/(.*) /api/vfsession [L]
 	  Require all granted
     </Directory>
+    

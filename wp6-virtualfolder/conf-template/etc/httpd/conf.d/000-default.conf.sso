@@ -1,0 +1,204 @@
+<VirtualHost *>
+    # 19.06.2018 tomas - Mellon configuration to West-Life SSO and handling webdav and public_webdav
+    # 05.10.2017 tomas - repository module, part of local VF installation
+    # 31.07.2017 tomas - ws proxy module to tunel jupyter notebooks
+    # 13.04.2017 tomas - vre moved to vre.conf, conf for both 80 and 443
+    # 24.05.2016 tomas - upgrade to apache2.4, changed require all granted from order allow,deny, added DavDepthInfinity
+    # 02.06.2016 tomas - replaced dokuwiki with doc - tiddlywiki and WEBDAV
+    # 15.06.2016 tomas - added VRE
+    # 16.11.2016 tomas - added Includes directive
+    # html files which have the +x permission will be parsed with mod_include
+    # this allows include <!--# include file="header.html" --> etc.
+
+# For proxying to jupyter notebook instances  
+LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
+
+# SAML2 configuration with westlife AAI
+<Location />
+    MellonSPPrivateKeyFile /etc/httpd/mellon/sp_key.pem
+    MellonSPCertFile /etc/httpd/mellon/sp_cert.pem
+    MellonSPMetadataFile /etc/httpd/mellon/sp-metadata.xml
+    MellonIdPMetadataFile /etc/httpd/mellon/idp-metadata.xml
+    # Mapping of attribute names to something readable
+    MellonSetEnv "name" "urn:oid:2.16.840.1.113730.3.1.241"
+    MellonSetEnv "mail" "urn:oid:0.9.2342.19200300.100.1.3"
+    MellonSetEnv "eppn" "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
+    MellonSetEnv "entitlement" "urn:oid:1.3.6.1.4.1.5923.1.1.1.7"
+</Location>
+
+# protect location with mellon 
+<Location /virtualfolder/api>
+  # proxy to metadataservice to port 8001
+  ProxyPass http://127.0.0.1:8001/virtualfolder/api retry=0 max=50
+  ProxyPassReverse http://127.0.0.1:8001/virtualfolder/api
+  RequestHeader set X-USERNAME "%{MELLON_eppn}e"
+  RequestHeader set X-NAME "%{MELLON_name}e"
+  RequestHeader set X-EMAIL "%{MELLON_mail}e"
+  RequestHeader set X-GROUPS "%{MELLON_entitlement}e"
+  AuthType Mellon
+  MellonEnable "auth"
+  Require valid-user
+</Location>
+
+<Location /virtualfolder>
+  RequestHeader set X-USERNAME "%{MELLON_eppn}e"
+  RequestHeader set X-NAME "%{MELLON_name}e"
+  RequestHeader set X-EMAIL "%{MELLON_mail}e"
+  RequestHeader set X-GROUPS "%{MELLON_entitlement}e"
+  AuthType Mellon
+  MellonEnable "auth"
+  Require valid-user
+</Location>
+
+    LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
+    
+   <Location "/webdav">
+     AuthType Mellon
+     MellonEnable "auth"
+     Require valid-user
+     RewriteEngine on
+     RewriteRule "/webdav/(.*)" "/localdav2/%{ENV:MELLON_eppn}/$1" [L]
+   </Location>
+   
+   RewriteEngine on
+   RewriteMap davredir prg:/opt/virtualfolder/MetadataService/webdavhash2path
+   RewriteRule "^/public_webdav/([^/]+)$" "/srv/virtualfolder/${davredir:$1}"
+   RewriteRule "^/public_webdav/([^/]+)/(.*)" "/srv/virtualfolder/${davredir:$1}/$2"
+   <Location "/public_webdav">
+     RewriteEngine on
+   </Location>
+    
+    # WebDAV request are redirected to filesystem directory
+    Alias "/localdav2" "/srv/virtualfolder/"
+    <Directory "/srv/virtualfolder">
+  	  RewriteEngine on
+	  RewriteCond "%{ENV:REDIRECT_STATUS}" ^$
+	  RewriteRule . - [L,F]
+	  Options Indexes FollowSymLinks
+	  HeaderName /header.html
+	  ReadmeName /footer.html
+	  IndexOptions +FancyIndexing +SuppressHTMLPreamble +FoldersFirst
+	  IndexIgnore ..
+	  DAV On
+	  DavDepthInfinity on
+	  Require all granted
+    </Directory>
+
+
+	# Web UI of VF - are pure HTML, JS, CSS
+	# XBitHack to enable HTML imports on files with x bit set, <!-- import -->
+	Alias "/virtualfolder" "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/www/"
+	<Directory "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/www">
+	    Require all granted
+		Options FollowSymLinks IncludesNOEXEC
+		AllowOverride All
+		XBitHack On
+	</Directory>
+  
+  # allowing to execute scripts directly
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+    	Require all granted
+	</Directory>
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg. 
+	# proxy:trace5
+	# LogLevel trace5 rewrite:trace5
+	#LoadModule log_forensic_module /usr/lib64/httpd/modules/mod_log_forensic.so 
+	#<IfModule log_forensic_module> 
+	#ForensicLog /var/log/httpd/forensic_log 
+	#</IfModule>
+	#LoadModule dumpio_module modules/mod_dumpio.so
+	
+	#LoadModule dumpio_module modules/mod_dumpio.so
+	#LogLevel debug proxy:trace7 trace1 dumpio:trace7
+	#DumpIOInput On
+	#DumpIOOutput On
+	#DumpIOLogLevel debug
+
+	#CustomLog ${APACHE_LOG_DIR}/access.log combined
+	#ErrorDocument 502 /virtualfolder/error502.html
+	#ErrorDocument 503 /virtualfolder/error503.html
+
+    # SSL proxy for webdav content directly from localhost/webdav/b2drop to b2drop site
+    # This has much better performance than reading the content of the mounted davfs dir
+    SSLProxyEngine On
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+    SSLProxyCheckPeerExpire off
+
+    #ProxyPreserveHost On
+    #ProxyHTMLEnable On
+    #ProxyHTMLLogVerbose On
+    
+    # proxy to vnc.js not yet in production
+    # ProxyPass /vnc.html http://127.0.0.1:6080/vnc.html
+    # ProxyPassReverse /vnc.html http://127.0.0.1:6080/vnc.html
+    # ProxyPass /websockify ws://127.0.0.1:6080/websockify
+    # ProxyPassReverse /websockify ws://127.0.0.1:6080/websockify
+
+
+
+  # proxy to local scipion to port 8000
+  ProxyPass /scipion/ http://127.0.0.1:8000/scipion/
+  ProxyPassReverse /scipion/ http://127.0.0.1:8000/scipion/
+  
+  #proxy to vre moved to vre.inc
+  Include conf.d/vre.inc
+
+  #proxy to virtuoso services
+  ProxyPass /virtuoso http://localhost:8890
+  ProxyPassReverse /virtuoso http://localhost:8890
+  ProxyPass          /conductor     http://localhost:8890/conductor
+  ProxyPassReverse   /conductor     http://localhost:8890/conductor
+  ProxyPass          /about         http://localhost:8890/about
+  ProxyPassReverse   /about         http://localhost:8890/about
+  ProxyPass          /category      http://localhost:8890/category
+  ProxyPassReverse   /category      http://localhost:8890/category
+  ProxyPass          /class         http://localhost:8890/class
+  ProxyPassReverse   /class         http://localhost:8890/class
+  ProxyPass          /data4         http://localhost:8890/data4
+  ProxyPassReverse   /data4         http://localhost:8890/data4
+  ProxyPass          /data3         http://localhost:8890/data3
+  ProxyPassReverse   /data3         http://localhost:8890/data3
+  ProxyPass          /data2         http://localhost:8890/data2
+  ProxyPassReverse   /data2         http://localhost:8890/data2
+  ProxyPass          /data          http://localhost:8890/data
+  ProxyPassReverse   /data          http://localhost:8890/data
+  ProxyPass          /describe      http://localhost:8890/describe
+  ProxyPassReverse   /describe      http://localhost:8890/describe
+  ProxyPass          /delta.vsp     http://localhost:8890/delta.vsp
+  ProxyPassReverse   /delta.vsp     http://localhost:8890/delta.vsp
+  ProxyPass          /fct           http://localhost:8890/fct
+  ProxyPassReverse   /fct           http://localhost:8890/fct
+  ProxyPass          /isparql       http://localhost:8890/isparql
+  ProxyPassReverse   /isparql       http://localhost:8890/isparql
+  ProxyPass          /ontology      http://localhost:8890/ontology
+  ProxyPassReverse   /ontology      http://localhost:8890/ontology
+  ProxyPass          /page          http://localhost:8890/page
+  ProxyPassReverse   /page          http://localhost:8890/page
+  ProxyPass          /property      http://localhost:8890/property
+  ProxyPassReverse   /property      http://localhost:8890/property
+  ProxyPass          /rdfdesc       http://localhost:8890/rdfdesc
+  ProxyPassReverse   /rdfdesc       http://localhost:8890/rdfdesc
+  ProxyPass          /resource      http://localhost:8890/resource
+  ProxyPassReverse   /resource      http://localhost:8890/resource
+  ProxyPass          /services      http://localhost:8890/services
+  ProxyPassReverse   /services      http://localhost:8890/services
+  ProxyPass          /snorql        http://localhost:8890/snorql
+  ProxyPassReverse   /snorql        http://localhost:8890/snorql
+  ProxyPass          /sparql-auth   http://localhost:8890/sparql-auth
+  ProxyPassReverse   /sparql-auth   http://localhost:8890/sparql-auth
+  ProxyPass          /sparql        http://localhost:8890/sparql
+  ProxyPassReverse   /sparql        http://localhost:8890/sparql
+  ProxyPass          /statics       http://localhost:8890/statics
+  ProxyPassReverse   /statics       http://localhost:8890/statics
+  ProxyPass          /void          http://localhost:8890/void
+  ProxyPassReverse   /void          http://localhost:8890/void
+  ProxyPass          /wikicompany   http://localhost:8890/wikicompany
+  ProxyPassReverse   /wikicompany   http://localhost:8890/wikicompany
+</VirtualHost>

@@ -20,6 +20,8 @@ define('app',['exports'], function (exports) {
       config.title = 'West-Life Virtual Folder Router';
 
       config.map([{ route: ['', 'dashboard'], name: 'dashboard', moduleId: 'pages/virtualfolderhome', nav: true, title: 'Dashboard' }, { route: 'setting', name: 'setting', moduleId: 'pages/virtualfoldersetting', nav: true, title: 'Setting' }, { route: 'filemanager', name: 'filemanager', moduleId: 'pages/filemanager', nav: true, title: 'File Manager' }, { route: 'filepicker', name: 'filepicker', moduleId: 'pages/filepicker', nav: true, title: 'File Picker' }]);
+      config.mapUnknownRoutes('pages/virtualfoldersetting');
+
       this.router = router;
     };
 
@@ -145,7 +147,7 @@ define('main',['exports'], function (exports) {
   });
 
   function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources').developmentLogging();
+    aurelia.use.standardConfiguration().plugin('aurelia-dialog').feature('resources').developmentLogging();
     aurelia.start().then(function () {
       return aurelia.setRoot();
     });
@@ -545,7 +547,7 @@ define('autocomplete/vfAutocompleteSearch',['exports', 'aurelia-framework', 'aur
     initializer: null
   }), _applyDecoratedDescriptor(_class.prototype, 'resultGroupsEmpty', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'resultGroupsEmpty'), _class.prototype)), _class));
 });
-define('components/projectapi',["exports", "aurelia-fetch-client"], function (exports, _aureliaFetchClient) {
+define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfstorage"], function (exports, _aureliaFetchClient, _vfstorage) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -567,8 +569,16 @@ define('components/projectapi',["exports", "aurelia-fetch-client"], function (ex
 
       this.httpclient = httpclient;
 
-      this.metadataapiurl = "/metadataservice";
+      this.metadataapiurl = "api";
       this.userinfourl = this.metadataapiurl + "/userinfo";
+      this.fileserviceurl = this.metadataapiurl + "/files";
+      this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
+      this.dataseturl = this.metadataapiurl + "/dataset";
+      this.taskurl = this.metadataapiurl + "/availabletasks";
+      this.userprocessurl = this.metadataapiurl + "/userprocess";
+
+      this.settingsurl = this.metadataapiurl + "/settings";
+      this.providersurl = this.metadataapiurl + "/providers";
       this.httpclient.configure(function (config) {
         config.rejectErrorResponses().withBaseUrl('').withDefaults({
           credentials: 'same-origin',
@@ -578,19 +588,159 @@ define('components/projectapi',["exports", "aurelia-fetch-client"], function (ex
           }
         });
       });
+      this.putHeaders = new Headers();
+      this.putHeaders.append('Accept', 'application/json');
+      this.putHeaders.append('Content-Type', 'application/json');
     }
 
-    ProjectApi.prototype.getUserInfo = function getUserInfo() {
-      console.log("projectapi.getUserInfo:", this.userinfourl);
-      return this.httpclient.fetch(this.userinfourl).then(function (response) {
+    ProjectApi.prototype.fetchJsonLog = function fetchJsonLog(url) {
+      return this.httpclient.fetch(url).then(function (response) {
         return response.json();
       }).then(function (data) {
         return data;
       }).catch(function (error) {
-        console.log('getUserInfo() returns error:');
-
+        console.log("fetch on '" + url + "' returns error:", error);
         throw error;
       });
+    };
+
+    ProjectApi.prototype.head = function head(url) {
+      return this.httpclient.fetch(url, { method: 'head' }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("head on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.deleteJsonLog = function deleteJsonLog(url) {
+      return this.httpclient.fetch(url, { method: "delete" }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("delete on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postJsonLogNoBody = function postJsonLogNoBody(url) {
+      return this.httpclient.fetch(url, { method: 'post' }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postTextLogNoBody = function postTextLogNoBody(url) {
+      return this.httpclient.fetch(url, { method: 'post' }).then(function (data) {
+        return data.text();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.postJsonLog = function postJsonLog(url, datatosend) {
+      return this.httpclient.fetch(url, { method: 'post', body: (0, _aureliaFetchClient.json)(datatosend) }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.putJsonLog = function putJsonLog(url, datatosend) {
+      console.log("put on '" + url + "' test2");
+      return this.httpclient.fetch(url, { method: 'PUT', mode: 'cors', body: (0, _aureliaFetchClient.json)(datatosend), credentials: 'include', headers: this.putHeaders }).then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("put on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
+    ProjectApi.prototype.getUserInfo = function getUserInfo() {
+      return this.fetchJsonLog(this.userinfourl);
+    };
+
+    ProjectApi.prototype.getPublicWebDav = function getPublicWebDav() {
+      return this.fetchJsonLog(this.getpublicwebdavurl);
+    };
+
+    ProjectApi.prototype.getFiles = function getFiles() {
+      var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+      return this.fetchJsonLog(this.fileserviceurl + path);
+    };
+
+    ProjectApi.prototype.getProviders = function getProviders() {
+      return this.fetchJsonLog(this.providersurl);
+    };
+
+    ProjectApi.prototype.putProvider = function putProvider(settings) {
+      return this.putJsonLog(this.fileserviceurl, settings);
+    };
+
+    ProjectApi.prototype.deleteProvider = function deleteProvider(alias) {
+      return this.deleteJsonLog(this.fileserviceurl + "/" + alias);
+    };
+
+    ProjectApi.prototype.getDataset = function getDataset() {
+      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+      var context = id === "" ? "" : "/" + id;
+      return this.fetchJsonLog(this.dataseturl + context);
+    };
+
+    ProjectApi.prototype.addDataset = function addDataset() {
+      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+      var dataset = arguments[1];
+
+      if (id > 0) return this.putJsonLog(this.dataseturl + "/" + this.id, dataset);else return this.postJsonLog(this.dataseturl, dataset);
+    };
+
+    ProjectApi.prototype.getExportedSettings = function getExportedSettings(publickey, selectedaliases) {
+      var queryurl = new URL(this.settingsurl);
+      var params = { PublicKey: publickey, SelectedAliases: selectedaliases };
+      Object.keys(params).forEach(function (key) {
+        return queryurl.searchParams.append(key, params[key]);
+      });
+
+      return this.fetchJsonLog(queryurl);
+    };
+
+    ProjectApi.prototype.getPublicKey = function getPublicKey() {
+      return this.postTextLogNoBody(this.settingsurl);
+    };
+
+    ProjectApi.prototype.putSettings = function putSettings(importmessage) {
+      return this.putJsonLog(this.settingsurl, importmessage);
+    };
+
+    ProjectApi.prototype.getTask = function getTask() {
+      return this.fetchJsonLog(this.taskurl);
+    };
+
+    ProjectApi.prototype.stopTask = function stopTask(taskName) {
+      return this.deleteJsonLog(this.userprocessurl + "/" + taskName);
+    };
+
+    ProjectApi.prototype.startTask = function startTask(taskName) {
+      return this.postJsonLogNoBody(this.userprocessurl + "/" + taskName);
+    };
+
+    ProjectApi.prototype.getFileHead = function getFileHead(filepath) {
+      return this.head(this.fileserviceurl + '/' + filepath);
     };
 
     return ProjectApi;
@@ -672,8 +822,17 @@ define('components/sharedheader',['exports', './projectapi', 'aurelia-framework'
       this.pa.getUserInfo().then(function (data) {
         _this.userinfo = data;
 
-        if (_this.userinfo.username == 'vagrant') _this.userinfo.AccountLink = "";else if (_this.userinfo.username.endsWith("west-life.eu")) _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";else _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
-        _this.userinfo.LogoutLink = "/logout";
+        if (_this.userinfo.username === 'vagrant') {
+          _this.userinfo.AccountLink = "";
+          _this.userinfo.LogoutLink = "/logout";
+        } else if (_this.userinfo.username.endsWith("west-life.eu")) {
+            _this.userinfo.AccountLink = "https://auth.west-life.eu/user/";
+            _this.userinfo.LogoutLink = "/mellon/logout?ReturnTo=/";
+          } else {
+            _this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
+            _this.userinfo.LogoutLink = "/logout";
+          }
+        if (!_this.userinfo.name) _this.userinfo.name = _this.userinfo.username;
         _this.showuserinfo = true;
       }).catch(function (error) {
         console.log("no user info, disable showing it");
@@ -1170,7 +1329,7 @@ define('filepicker/app',['exports', 'aurelia-event-aggregator', './messages', '.
     }
 
     App.prototype.selectFile = function selectFile(file) {
-      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.publicwebdavuri, "*");
+      window.opener.postMessage(window.location.protocol + "//" + window.location.host + file.publicwebdavuri, "*");
       window.close();
     };
 
@@ -1188,7 +1347,7 @@ define('filepicker/environment',["exports"], function (exports) {
     testing: false
   };
 });
-define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../behavior', 'aurelia-framework', '../utils/vfstorage', './pdbresource', './uniprotresource', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _behavior, _aureliaFramework, _vfstorage, _pdbresource, _uniprotresource) {
+define('filepicker/filepanel',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../behavior', 'aurelia-framework', '../utils/vfstorage', './pdbresource', './uniprotresource', 'whatwg-fetch'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _behavior, _aureliaFramework, _vfstorage, _pdbresource, _uniprotresource) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1248,26 +1407,17 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Filepanel = exports.Filepanel = (_class = (_temp = _class2 = function () {
-    function Filepanel(ea, httpclient, pdbresource, uniprotresource) {
+    function Filepanel(ea, pa, pdbresource, uniprotresource) {
       _classCallCheck(this, Filepanel);
 
       _initDefineProp(this, 'panelid', _descriptor, this);
 
       this.ea = ea;
-      this.client = httpclient;
+      this.pa = pa;
       this.files = [];
       this.path = "";
       this.lastpath = this.path;
       this.dynatable = {};
-
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-
-      this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
       this.sorted = { none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16 };
       this.wassorted = this.sorted.none;
       this.baseresources = [{ name: "PDB", info: "Protein Data Bank repository entries from ebi.ac.uk", id: "pdb" }];
@@ -1351,12 +1501,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     Filepanel.prototype.attached = function attached() {
       var _this = this;
 
-      this.client.get(this.serviceurl + this.path).then(function (data) {
-        if (data.response) {
-          _this.populateFiles(data.response);
-        } else {
-            console.log(data);
-          }
+      this.pa.getFiles(this.path).then(function (data) {
+        _this.populateFiles(data);
       }).catch(function (error) {
         if (error.statusCode == 403) {
           _this.ea.publish(new _behavior.HandleLogin(_this.panelid));
@@ -1365,10 +1511,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         } else {
           if (_this.path && _this.path.length > 0) {
             _this.path = "";
-            _this.client.get(_this.serviceurl + _this.path).then(function (data) {
-              if (data.response) {
-                _this.populateFiles(data.response);
-              } else _this.handleError(data);
+            _this.pa.getFiles(_this.path).then(function (data) {
+              _this.populateFiles(data);
             }).catch(function (error) {
               _this.handleError(error);
             });
@@ -1422,11 +1566,8 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
         if (folder) {
           if (folder == '..') this.cdup();else if (folder == '/') this.cdroot();else this.cddown(folder);
         }
-
-        this.client.get(this.serviceurl + this.path).then(function (data) {
-          if (data.response) {
-            _this2.populateFiles(data.response);
-          }
+        this.pa.getFiles(this.path).then(function (data) {
+          _this2.populateFiles(data);
           _this2.lock = false;
         }).catch(function (error) {
           if (error.statusCode == 403) {
@@ -1451,7 +1592,9 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     Filepanel.prototype.populateFiles = function populateFiles(dataresponse) {
       _vfstorage.Vfstorage.setValue("filepanel" + this.panelid, this.path);
 
-      this.files = JSON.parse(dataresponse);
+      if (dataresponse.length > 0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift();else this.currentdir = null;
+
+      this.files = dataresponse;
       this.filescount = this.files.length + this.resources.length;
       var that = this;
       this.files.forEach(function (item, index, arr) {
@@ -1474,24 +1617,13 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     };
 
     Filepanel.prototype.selectFile = function selectFile(file) {
-      var _this3 = this;
-
       if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);else {
-        var fileurl = this.serviceurl + this.path + '/' + file.name;
-        this.client.head(fileurl).then(function (response) {}).catch(function (error) {
+        this.pa.getFileHead(this.path + '/' + file.name).then(function (response) {}).catch(function (error) {
           console.log("Error when geting metadata information about file:");
           console.log(error);
         });
-
-        this.client.get(this.getpublicwebdavurl).then(function (data) {
-          if (data.response) {
-            var mypath2 = JSON.parse(data.response);
-            var mypath = mypath2.signed_url;
-            mypath += _this3.path.startsWith('/') ? _this3.path.slice(1) : _this3.path;
-            file.publicwebdavuri = mypath + "/" + file.name;
-            _this3.ea.publish(new _messages.SelectedFile(file, _this3.panelid));
-          }
-        });
+        console.log("SelectedFile", file);
+        this.ea.publish(new _messages.SelectedFile(file, this.panelid));
       }
     };
 
@@ -1554,7 +1686,7 @@ define('filepicker/filepanel',['exports', 'aurelia-http-client', 'aurelia-event-
     };
 
     return Filepanel;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _pdbresource.Pdbresource, _uniprotresource.Uniprotresource], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi, _pdbresource.Pdbresource, _uniprotresource.Uniprotresource], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -1792,6 +1924,12 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
       var resources = [];
       var that = this;
 
+      function fetchLog(url) {
+        return that.client.fetch(url).then(function (data) {
+          return data;
+        });
+      }
+
       function push1_9() {
         resources.push({ name: "..", info: "UP-DIR", id: "" });
         for (var i = 1; i < 10; i++) {
@@ -1805,7 +1943,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
           for (var i = 0; i <= 9; i++) {
 
-            that.client.fetch(that.requesturlnums + prefix + i + "*").then(function (response) {
+            that.client.fetch(that.requesturlnums + prefix + i + "*", { headers: {} }).then(function (response) {
               return response.json();
             }).then(function (data) {
               var resources2 = [];
@@ -1819,7 +1957,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
           for (var _i = 'a'.charCodeAt(0); _i <= 'z'.charCodeAt(0); _i++) {
 
-            that.client.fetch(that.requesturlnums + prefix + String.fromCharCode(_i) + "*").then(function (response) {
+            that.client.fetch(that.requesturlnums + prefix + String.fromCharCode(_i) + "*", { headers: {} }).then(function (response) {
               return response.json();
             }).then(function (data) {
               var resources2 = [];
@@ -1838,7 +1976,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
           console.log("check0_9a_z");
           resources.push({ name: "..", info: "UP-DIR", id: resource.id, link: resource.name });
           var queryurl = that.requesturlpdbid + resource.name;
-          that.client.fetch(queryurl).then(function (response) {
+          that.client.fetch(queryurl, { headers: {} }).then(function (response) {
             return response.json();
           }).then(function (data) {
             var resources2 = [];
@@ -1872,7 +2010,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
         resources.push({ name: "..", info: "UP-DIR", id: resource.id, link: resource.name });
         var queryurl = that.requesturlfiles + pdbid;
 
-        that.client.fetch(queryurl).then(function (response) {
+        that.client.fetch(queryurl, { headers: {} }).then(function (response) {
           return response.json();
         }).then(function (data) {
           console.log(data);
@@ -1906,7 +2044,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
 
         queryurl = that.pdbredourlfiles + pdbid;
 
-        that.client.fetch(queryurl, { method: 'head' }).then(function (response) {
+        that.client.fetch(queryurl, { method: 'head', headers: {} }).then(function (response) {
           console.log(response);
           var resources2 = [];
           for (var _iterator3 = that.pdbredosuffixes, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
@@ -2030,12 +2168,13 @@ define('filepicker/uniprotresource',["exports"], function (exports) {
     _classCallCheck(this, Uniprotresource);
   };
 });
-define('pages/filemanager',["exports"], function (exports) {
-  "use strict";
+define('pages/filemanager',['exports', 'aurelia-dialog', 'aurelia-framework', '../filemanager2/fmsettings'], function (exports, _aureliaDialog, _aureliaFramework, _fmsettings) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.Filemanager = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2043,9 +2182,24 @@ define('pages/filemanager',["exports"], function (exports) {
     }
   }
 
-  var Filemanager = exports.Filemanager = function Filemanager() {
-    _classCallCheck(this, Filemanager);
-  };
+  var _dec, _class;
+
+  var Filemanager = exports.Filemanager = (_dec = (0, _aureliaFramework.inject)(_aureliaDialog.DialogService), _dec(_class = function () {
+    function Filemanager(ds) {
+      _classCallCheck(this, Filemanager);
+
+      this.dialogService = ds;
+    }
+
+    Filemanager.prototype.setupFileManager = function setupFileManager() {
+      this.dialogService.open({ viewModel: _fmsettings.Prompt, model: 'File Manager Settings' }).then(function (response) {
+
+        if (!response.wasCancelled) {} else {}
+      });
+    };
+
+    return Filemanager;
+  }()) || _class);
 });
 define('pages/filepicker',["exports"], function (exports) {
   "use strict";
@@ -2100,7 +2254,7 @@ define('pages/filepicker',["exports"], function (exports) {
     return Filepicker;
   }();
 });
-define('pages/virtualfolderhome',['exports', 'aurelia-http-client', 'aurelia-event-aggregator'], function (exports, _aureliaHttpClient, _aureliaEventAggregator) {
+define('pages/virtualfolderhome',['exports', '../components/projectapi', 'aurelia-event-aggregator'], function (exports, _projectapi, _aureliaEventAggregator) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2117,36 +2271,46 @@ define('pages/virtualfolderhome',['exports', 'aurelia-http-client', 'aurelia-eve
   var _class, _temp;
 
   var Virtualfolderhome = exports.Virtualfolderhome = (_temp = _class = function () {
-    function Virtualfolderhome(ea, httpclient) {
+    function Virtualfolderhome(ea, projectapi) {
+      var _this = this;
+
       _classCallCheck(this, Virtualfolderhome);
 
       this.ea = ea;
       this.location = window.location.protocol;
       this.islocalhost = this.location.startsWith('http:');
-      this.client = httpclient;
+      this.pa = projectapi;
       this.webdavurl = "";
-      this.requestpublicurl = "/api/authproxy/get_signed_url/";
+
+      this.popup;
+      this.target;
+
+      this.receiveMessage = function (event) {
+        document.getElementById(_this.target).innerHTML = event.data;
+        document.getElementById(_this.target).setAttribute("href", event.data);
+      };
     }
 
-    Virtualfolderhome.prototype.generateurl = function generateurl() {
-      var _this = this;
+    Virtualfolderhome.prototype.attached = function attached() {
+      window.addEventListener("message", this.receiveMessage, false);
+    };
 
-      if (this.webdavurl == "") {
-        this.client.get(this.requestpublicurl).then(function (data) {
-          if (data.response) {
-            var result = JSON.parse(data.response);
-            if (window.location.port == "80" || window.location.port == "") _this.webdavurl = window.location.protocol + "//" + window.location.hostname + result.signed_url;else _this.webdavurl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + result.signed_url;
-          }
-        }).catch(function (error) {
-          if (error.statusCode == 401) {} else {
-            alert("Sorry, cannot generate URL. " + error.statusCode + ':' + error.statusText);
-          }
-        });
-      }
+    Virtualfolderhome.prototype.detached = function detached() {
+      window.removeEventListener("message", this.receiveMessage);
+    };
+
+    Virtualfolderhome.prototype.openuploaddirpickerwindow = function openuploaddirpickerwindow(_target) {
+      return this.openwindow(_target, "uploaddirpickercomponent.html");
+    };
+
+    Virtualfolderhome.prototype.openwindow = function openwindow(_target, href) {
+      this.target = _target;
+      this.popup = window.open(href, 'newwindow', 'width=640, height=480');
+      return false;
     };
 
     return Virtualfolderhome;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('pages/virtualfoldersetting',["exports"], function (exports) {
   "use strict";
@@ -2244,7 +2408,7 @@ define('pdbcomponents/checkurl',['exports', 'aurelia-framework', 'aurelia-fetch-
       var _this = this;
 
       this.client.fetch(this.url, { method: 'HEAD' }).then(function (response) {
-        if (response.status == 200) _this.showit = true;
+        if (response.status === 200) _this.showit = true;
       }).catch(function (error) {
         _this.showit = false;
         console.log('checkurl error:' + error);
@@ -2425,7 +2589,7 @@ define('pdbcomponents/dataitem',['exports', 'aurelia-framework', 'aurelia-fetch-
     }
   })), _class);
 });
-define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-framework', 'aurelia-event-aggregator', '../filepicker/messages', '../utils/vfstorage', 'whatwg-fetch'], function (exports, _aureliaHttpClient, _aureliaFramework, _aureliaEventAggregator, _messages, _vfstorage) {
+define('pdbcomponents/dataset',['exports', '../components/projectapi', 'aurelia-framework', 'aurelia-event-aggregator', '../filepicker/messages', '../utils/vfstorage', 'whatwg-fetch'], function (exports, _projectapi, _aureliaFramework, _aureliaEventAggregator, _messages, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -2503,26 +2667,22 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Dataset = exports.Dataset = (_class = (_temp = _class2 = function () {
-    function Dataset(httpclient, ea) {
+    function Dataset(pa, ea) {
       var _this = this;
 
       _classCallCheck(this, Dataset);
 
       _initDefineProp(this, 'panelid', _descriptor, this);
 
-      this.client = httpclient;
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
+      this.pa = pa;
+
       this.ea = ea;
       this.ea.subscribe(_messages.DatasetFile, function (msg) {
         return _this.addDatasetFile(msg.file, msg.senderid);
       });
 
       this.showitem = true;
-      this.baseurl = this.dataseturl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/dataset";
-      this.showlist = true;
+      this.baseurl = this.showlist = true;
       this.pdbdataset = [];
       this.pdbdataitem = "";
       this.pdblinkset = [];
@@ -2546,8 +2706,8 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.attached = function attached() {
       var _this2 = this;
 
-      this.client.get(this.dataseturl).then(function (data) {
-        _this2.datasetlist = JSON.parse(data.response);
+      this.pa.getDataset().then(function (data) {
+        _this2.datasetlist = data;
       });
     };
 
@@ -2558,9 +2718,8 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     Dataset.prototype.selectdataset = function selectdataset(item) {
       var _this3 = this;
 
-      this.client.get(this.dataseturl + "/" + item.Id).then(function (data) {
-        _this3.submitdataset = JSON.parse(data.response);
-
+      this.pa.getDataset(item.Id).then(function (data) {
+        _this3.submitdataset = data;
         _this3.pdbdataset = _this3.submitdataset.Entries;
         _this3.name = _this3.submitdataset.Name;
         _this3.id = _this3.submitdataset.Id;
@@ -2603,19 +2762,12 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
       this.submitdataset.Name = this.name;
       this.submitdataset.Entries = this.pdbdataset;
 
-      if (this.id > 0) this.client.put(this.dataseturl + "/" + this.id, JSON.stringify(this.submitdataset)).then(function (data) {
-        var myitem = JSON.parse(data.response);
 
+      this.pa.addDataset("/" + this.id, this.submitdataset).then(function (data) {
+        _this4.showlist = true;
+        if (_this4.id === 0) _this4.datasetlist.push({ Id: data.Id, Name: data.Name });
         _this4.showlist = true;
       }).catch(function (error) {
-        console.log(error);
-        alert('Sorry. Dataset not submitted  at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
-      });else this.client.post(this.dataseturl, JSON.stringify(this.submitdataset)).then(function (data) {
-        var myitem = JSON.parse(data.response);
-        _this4.datasetlist.push({ Id: myitem.Id, Name: myitem.Name });
-        _this4.showlist = true;
-      }).catch(function (error) {
-        console.log(error);
         alert('Sorry. Dataset not submitted  at ' + _this4.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
     };
@@ -2628,7 +2780,7 @@ define('pdbcomponents/dataset',['exports', 'aurelia-http-client', 'aurelia-frame
     }]);
 
     return Dataset;
-  }(), _class2.inject = [_aureliaHttpClient.HttpClient, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(), _class2.inject = [_projectapi.ProjectApi, _aureliaEventAggregator.EventAggregator], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -3113,10 +3265,10 @@ define('resources/index',['exports'], function (exports) {
   });
   exports.configure = configure;
   function configure(config) {
-    config.globalResources(['./irep.html', './irepdemo.html', './iadmin.html', './istaff.html', './ifile.html', './ilink.html', './icopy', './ifolder.html', './idata.html', './iproject.html', './itable.html', './ispincog.html', './idelete.html', './inext.html', './icopyicon.html']);
+    config.globalResources(['./irep.html', './irepdemo.html', './iadmin.html', './istaff.html', './ifile.html', './ilink.html', './icopy', './ifolder.html', './idata.html', './iproject.html', './itable.html', './ispincog.html', './idelete.html', './inext.html', './icopyicon.html', './icogs.html']);
   }
 });
-define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaEventAggregator, _behavior, _aureliaHttpClient, _vfstorage) {
+define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', '../components/projectapi', '../utils/vfstorage'], function (exports, _aureliaEventAggregator, _behavior, _projectapi, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3132,64 +3284,57 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
 
   var _class, _temp;
 
-  var getParams = function getParams(query) {
-    if (!query) {
-      return {};
-    }
-
-    return (/^[?#]/.test(query) ? query.slice(1) : query).split('&').reduce(function (params, param) {
-      var _param$split = param.split('='),
-          key = _param$split[0],
-          value = _param$split[1];
-
-      params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
-      return params;
-    }, {});
-  };
-
   var App = exports.App = (_temp = _class = function () {
-    function App(ea, httpclient) {
+    function App(ea, pa) {
+      var _this = this;
+
       _classCallCheck(this, App);
 
       this.ea = ea;
-      this.client = httpclient;
+
+      this.params = pa;
       this.providers = [{ alias: "Loading available providers ...", temporary: true }];
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
-      this.settingsurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/settings";
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
       this.loading = true;
       this.loadederror = false;
+      this.handler = new _behavior.RedirectLogin();
+
+      this.ea.subscribe(_behavior.HandleLogin, function (msg) {
+        return _this.handler.handlelogin();
+      });
+      this.ea.subscribe(_behavior.MayLogout, function (msg) {
+        return _this.handler.maylogout();
+      });
     }
 
     App.prototype.attached = function attached() {
-      var _this = this;
+      var _this2 = this;
 
-      this.params = getParams(window.location.search.substring(1));
+      this.params = _vfstorage.Vfstorage.getParams(window.location.search.substring(1));
       this.publickey = this.params.PublicKey;
 
-      this.client.get(this.serviceurl).then(function (data) {
-        _this.loading = false;
-        _this.loadederror = false;
-        _this.ea.publish(new _behavior.MayLogout(_this.panelid));
-        if (data.response) {
-          var rawproviders = JSON.parse(data.response);
-          _this.providers = rawproviders.map(function (x) {
-            x.selected = false;return x;
-          });
-        }
+      this.pa.getFiles().then(function (data) {
+        _this2.loading = false;
+        _this2.loadederror = false;
+        _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
+        _this2.providers = data.map(function (x) {
+          x.selected = false;return x;
+        });
       }).catch(function (error) {
         console.log("aliastable.attached() error:");
         console.log(error);
 
-        _this.loading = false;
-        _this.loadederror = true;
+        _this2.loading = false;
+        _this2.loadederror = true;
         if (error.statusCode === 403) {
-          _this.ea.publish(new _behavior.HandleLogin(_this.panelid));
-        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
+          _this2.ea.publish(new _behavior.HandleLogin(_this2.panelid));
+        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this2.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
       });
+    };
+
+    App.prototype.handleError = function handleError(url, error) {
+      console.log("aliastable.attached() error:");
+      console.log(error);
+      alert('Sorry. Error when accessing ' + url + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
     };
 
     App.prototype.include = function include(provider) {
@@ -3203,43 +3348,27 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
     };
 
     App.prototype.import = function _import() {
-      var selectedaliases = "";
-      for (var _iterator = this.providers, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
+      var _this3 = this;
 
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
-        }
-
-        var p = _ref;
-
-        if (p.selected) selectedaliases += p.alias + ';';
-      }
-      if (selectedaliases.length > 0) selectedaliases = selectedaliases.substring(0, selectedaliases.length - 1);
-
-      var queryurl = new URL(this.settingsurl);
-      var params = { PublicKey: this.publickey, SelectedAliases: selectedaliases };
-      Object.keys(params).forEach(function (key) {
-        return queryurl.searchParams.append(key, params[key]);
-      });
-
-      this.client.get(this.queryurl).then(function (data) {
-        if (data.response) {
-          console.log("SyncSetting.app import settings encrypteddata:", data.response);
-          var message = { EncryptedSettings: data.response, aliases: selectedaliases };
-          window.opener.postMessage(JSON.stringify(message), "*");
-          window.close();
-        }
+      var selectedaliases = this.providers.filter(function (prov) {
+        return prov.selected;
+      }).map(function (prov) {
+        return prov.alias;
+      }).join(';');
+      console.log('syncsetting, import:', selectedaliases);
+      if (selectedaliases.length === 0) return;
+      this.pa.getExportedSettings(this.publickey, selectedaliases).then(function (response) {
+        console.log("SyncSetting.app import settings encrypteddata:", response);
+        var message = { EncryptedSettings: response, aliases: selectedaliases };
+        window.opener.postMessage(JSON.stringify(message), "*");
+        window.close();
+      }).catch(function (error) {
+        return _this3.handleError(queryurl, error);
       });
     };
 
     return App;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('syncsetting/environment',["exports"], function (exports) {
   "use strict";
@@ -3600,8 +3729,7 @@ define('uploaddirpicker/app',['exports', 'aurelia-event-aggregator', '../filepic
     }
 
     App.prototype.selectFile = function selectFile(file) {
-      window.opener.postMessage(window.location.protocol + "//" + window.location.hostname + file.webdavuri, "*");
-
+      window.opener.postMessage(window.location.protocol + "//" + window.location.host + file.publicwebdavuri, "*");
       window.close();
     };
 
@@ -3647,7 +3775,7 @@ define('uploaddirpicker/main',['exports', '../environment'], function (exports, 
     });
   }
 });
-define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', '../filepicker/filepanel'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _aureliaFramework, _filepanel) {
+define('uploaddirpicker/uploaddirpanel',['exports', '../components/projectapi', 'aurelia-event-aggregator', '../filepicker/messages', 'aurelia-framework', '../filepicker/filepanel'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _aureliaFramework, _filepanel) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -3733,10 +3861,10 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
   var Uploaddirpanel = exports.Uploaddirpanel = (_class = (_temp = _class2 = function (_Filepanel) {
     _inherits(Uploaddirpanel, _Filepanel);
 
-    function Uploaddirpanel(ea, httpclient) {
+    function Uploaddirpanel(ea, pa) {
       _classCallCheck(this, Uploaddirpanel);
 
-      var _this = _possibleConstructorReturn(this, _Filepanel.call(this, ea, httpclient));
+      var _this = _possibleConstructorReturn(this, _Filepanel.call(this, ea, pa));
 
       _initDefineProp(_this, 'panelid', _descriptor, _this);
 
@@ -3748,24 +3876,11 @@ define('uploaddirpicker/uploaddirpanel',['exports', 'aurelia-http-client', 'aure
     };
 
     Uploaddirpanel.prototype.selectThisDir = function selectThisDir() {
-      var _this2 = this;
-
-      var myfile = {};
-      myfile.name = this.path;
-      this.client.get(this.getpublicwebdavurl).then(function (data) {
-        if (data.response) {
-          var mypath2 = JSON.parse(data.response);
-          var mypath = mypath2.signed_url;
-          mypath += _this2.path.startsWith('/') ? _this2.path.slice(1) : _this2.path;
-          var mydir = {};
-          mydir.webdavuri = mypath;
-          _this2.ea.publish(new _messages.SelectedFile(mydir, _this2.panelid));
-        }
-      });
+      if (this.currentdir) this.ea.publish(new _messages.SelectedFile(this.currentdir, this.panelid));
     };
 
     return Uploaddirpanel;
-  }(_filepanel.Filepanel), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
+  }(_filepanel.Filepanel), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'panelid', [_aureliaFramework.bindable], {
     enumerable: true,
     initializer: null
   })), _class);
@@ -3783,7 +3898,9 @@ define('utils/vfstorage',["exports"], function (exports) {
     }
   }
 
-  var Vfstorage = exports.Vfstorage = function () {
+  var _class, _temp;
+
+  var Vfstorage = exports.Vfstorage = (_temp = _class = function () {
     function Vfstorage() {
       _classCallCheck(this, Vfstorage);
     }
@@ -3803,7 +3920,7 @@ define('utils/vfstorage',["exports"], function (exports) {
     };
 
     Vfstorage.getBaseUrl = function getBaseUrl() {
-      return "virtualfolderbaseurl" in window ? virtualfolderbaseurl : "";
+      return "virtualfolderbaseurl" in window ? virtualfolderbaseurl : window.location.protocol + "//" + window.location.host;
     };
 
     Vfstorage.parseQueryString = function parseQueryString(str) {
@@ -3842,7 +3959,20 @@ define('utils/vfstorage',["exports"], function (exports) {
     };
 
     return Vfstorage;
-  }();
+  }(), _class.getParams = function (query) {
+    if (!query) {
+      return {};
+    }
+
+    return (/^[?#]/.test(query) ? query.slice(1) : query).split('&').reduce(function (params, param) {
+      var _param$split = param.split('='),
+          key = _param$split[0],
+          value = _param$split[1];
+
+      params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+      return params;
+    }, {});
+  }, _temp);
 });
 define('virtualfoldermodules/app',["exports"], function (exports) {
   "use strict";
@@ -4006,7 +4136,7 @@ define('virtualfoldermodules/main',['exports', '../environment'], function (expo
     });
   }
 });
-define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
+define('virtualfoldermodules/modulecontrol',['exports', '../components/projectapi', '../utils/vfstorage'], function (exports, _projectapi, _vfstorage) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4024,7 +4154,7 @@ define('virtualfoldermodules/modulecontrol',['exports', 'aurelia-http-client', '
     function Modulecontrol() {
       _classCallCheck(this, Modulecontrol);
 
-      this.client = new _aureliaHttpClient.HttpClient();
+      this.client = new HttpClient();
       this.url = window.location.href;
       this.baseurl = _vfstorage.Vfstorage.getBaseUrl();
       this.enabled = false;
@@ -4178,8 +4308,8 @@ define('virtualfoldermodules/scipioncontrol',["exports", "./modulecontrol", "aur
 
       _initDefineProp(_this, "classin", _descriptor, _this);
 
-      _this.url = "/metadataservice/sbservice/scipion";
-      _this.posturl = "/metadataservice/sbservice/scipion";
+      _this.url = "/virtualfolder/api/sbservice/scipion";
+      _this.posturl = "/virtualfolder/api/sbservice/scipion";
       return _this;
     }
 
@@ -4284,7 +4414,7 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "au
 
       _initDefineProp(_this, "classin", _descriptor, _this);
 
-      _this.url = "/metadataservice/sbservice/virtuoso";
+      _this.url = "/virtualfolder/api/sbservice/virtuoso";
       return _this;
     }
 
@@ -4296,7 +4426,7 @@ define('virtualfoldermodules/virtuosocontrol',["exports", "./modulecontrol", "au
     }
   })), _class);
 });
-define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', '../behavior', '../pdbcomponents/dataitem'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages, _vfstorage, _behavior, _dataitem) {
+define('virtualfoldersetting/aliastable',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', '../behavior', '../pdbcomponents/dataitem'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _vfstorage, _behavior, _dataitem) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4313,52 +4443,31 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
   var _class, _temp;
 
   var Aliastable = exports.Aliastable = (_temp = _class = function () {
-    function Aliastable(ea, httpclient) {
+    function Aliastable(ea, pa) {
       var _this = this;
 
       _classCallCheck(this, Aliastable);
 
       this.ea = ea;
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/files";
+
       this.ea.subscribe(_messages.SettingsSubmitted, function (msg) {
         return _this.submitSettings(msg.settings);
       });
-      this.client = httpclient;
+
+      this.pa = pa;
       this.providers = [{ alias: "Loading available providers ...", temporary: true }];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
-
-      this.localsettingservice = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/settings";
-
-      this.receiveMessage = function (event) {
-        console.log("Aliastable() received message:", event.data);
-        _this.importSettings(event.data);
-      };
     }
 
     Aliastable.prototype.attached = function attached() {
       var _this2 = this;
 
-      window.addEventListener("message", this.receiveMessage, false);
-
-      this.client.get(this.serviceurl).then(function (data) {
+      this.pa.getFiles().then(function (data) {
         _this2.ea.publish(new _behavior.MayLogout(_this2.panelid));
-        if (data.response) {
-          _this2.providers = JSON.parse(data.response);
-        }
+        _this2.providers = data;
       }).catch(function (error) {
-        console.log("aliastable.attached() error:");
-        console.log(error);
-
         if (error.statusCode === 403) {
           _this2.ea.publish(new _behavior.HandleLogin(_this2.panelid));
-        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this2.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
-      });
-
-      this.client.post(this.localsettingservice).then(function (data) {
-        _this2.publickey = data.response;
+        } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. HTTP status:' + error.statusCode + ' ' + error.statusText);
       });
     };
 
@@ -4370,75 +4479,15 @@ define('virtualfoldersetting/aliastable',['exports', 'aurelia-http-client', 'aur
       var _this3 = this;
 
       if (!confirm('Do you really want to delete the provider with alias "' + settings.alias + '" ?')) return;
-      this.client.delete(this.serviceurl + "/" + settings.alias).then(function (data) {
-        if (data.response) {
-          _this3.providers = JSON.parse(data.response);
-        }
+      this.pa.deleteProvider(settings.alias).then(function (data) {
+        _this3.providers = data;
       }).catch(function (error) {
-        console.log(error);
-
-        alert('Sorry. Settings not deleted at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
+        alert('Sorry. Settings not deleted. error:' + error.response + " status:" + error.statusText);
       });
-    };
-
-    Aliastable.prototype.importProvider = function importProvider() {
-      this.remoteurl = window.prompt("Enter URL of West-Life Virtual Volder instance:( https://[yourdomain]/virtualfolder/)", "https://portal.west-life.eu/virtualfolder/");
-      var remotesettingsurl = new URL(this.remoteurl + 'syncsettingcomponent.html');
-      var params = { PublicKey: this.publickey };
-      Object.keys(params).forEach(function (key) {
-        return remotesettingsurl.searchParams.append(key, params[key]);
-      });
-      this.openwindow(remotesettingsurl);
-    };
-
-    Aliastable.prototype.detached = function detached() {
-      window.removeEventListener("message", this.receiveMessage);
-    };
-
-    Aliastable.prototype.openwindow = function openwindow(href) {
-      this.popup = window.open(href, 'newwindow', 'width=640, height=480');
-      return false;
-    };
-
-    Aliastable.prototype.importSettings = function importSettings(data) {
-      var message = JSON.parse(data);
-
-      var conflicts = this.resolveConflicts(message.aliases);
-      var importmessage = { PublicKey: this.publickey, EncryptedSettings: message.EncryptedSettings, ConflictedAliases: conflicts.oldnames, NewNameAliases: conflicts.newnames };
-    };
-
-    Aliastable.prototype.resolveConflicts = function resolveConflicts(aliases) {
-      var aliasarr = aliases.split(';');
-      var conflicts = { oldnames: "", newnames: "" };
-      for (var _iterator = this.providers, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
-
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
-        }
-
-        var pr = _ref;
-
-        if (aliasarr.indexOf(pr.alias) >= 0) {
-          if (conflicts.oldnames.length > 0) {
-            conflicts.oldnames += ';';conflicts.newnames += ';';
-          }
-
-          conflicts.oldnames += pr.alias;
-
-          var suffix = "" + Math.floor(Math.random() * 1000 + 1);
-          conflicts.newnames += pr.alias + suffix;
-        }
-      }
     };
 
     return Aliastable;
-  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('virtualfoldersetting/app',['exports', 'aurelia-event-aggregator', '../behavior'], function (exports, _aureliaEventAggregator, _behavior) {
   'use strict';
@@ -4546,7 +4595,7 @@ define('virtualfoldersetting/dropboxcontrol',['exports', 'aurelia-event-aggregat
     return DropboxControl;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol', '../utils/vfstorage'], function (exports, _aureliaFetchClient, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol, _vfstorage) {
+define('virtualfoldersetting/genericcontrol',['exports', '../components/projectapi', 'aurelia-framework', 'aurelia-event-aggregator', './messages', './dropboxcontrol', '../utils/vfstorage', '../pdbcomponents/dataitem'], function (exports, _projectapi, _aureliaFramework, _aureliaEventAggregator, _messages, _dropboxcontrol, _vfstorage, _dataitem) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -4610,7 +4659,7 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
   var _dec, _dec2, _dec3, _dec4, _desc, _value, _class, _class2, _temp;
 
   var Genericcontrol = exports.Genericcontrol = (_dec = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec2 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec3 = (0, _aureliaFramework.computedFrom)('selectedProvider'), _dec4 = (0, _aureliaFramework.computedFrom)('selectedProvider'), (_class = (_temp = _class2 = function () {
-    function Genericcontrol(ea, httpclient, dropboxcontrol) {
+    function Genericcontrol(ea, pa, dropboxcontrol) {
       var _this = this;
 
       _classCallCheck(this, Genericcontrol);
@@ -4619,15 +4668,14 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       this.ea = ea;
       this.dropboxcontrol = dropboxcontrol;
       this.editing = true;
-      this.providerspath = "providers";
+
       this.filespath = "files";
       this.knowtoken = false;
       this.dropboxauthurl = "";
       this.providers = [];
       this.selectedProvider = "";
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/";
 
-      this.client = httpclient;
+      this.pa = pa;
 
       this.ea.subscribe(_messages.SettingsSelected, function (msg) {
         return _this.selectSettings(msg.settings);
@@ -4650,25 +4698,24 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
       var _this2 = this;
 
       this.dropboxauthurl = this.dropboxcontrol.authurl;
-      this.client.fetch(this.serviceurl + this.providerspath, { headers: this.myHeaders, credentials: 'include' }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
+      this.pa.getProviders().then(function (data) {
         if (data) {
           _this2.providers = data;
         }
       }).catch(function (error) {
-        if (error.statusCode == 403) {
-          console.log("genericcontrol.attached() redirecting");
+        if (error.statusCode === 403) {
           window.location = "/login?next=" + window.location.pathname;
         } else {
-          console.log('Error');
-          console.log(error);
+          console.log('Error', error);
         }
       });
+
       this.dropboxcontrol.initialize();
     };
 
     Genericcontrol.prototype.addProvider = function addProvider() {
+      var _this3 = this;
+
       var settings = {};
       settings.type = this.selectedProvider;
       settings.alias = this.alias;
@@ -4682,42 +4729,15 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
         settings.securetoken = this.password;
         settings.username = this.username;
       }
-      this.submitSettings(settings);
-    };
 
-    Genericcontrol.prototype.submitSettings = function submitSettings(settings) {
-      var _this3 = this;
-
-      this.client.fetch(this.serviceurl + this.filespath, {
-        method: 'put',
-        body: (0, _aureliaFetchClient.json)(settings),
-        headers: this.myHeaders,
-        credentials: 'include'
-      }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (Array.isArray(data)) {
-          _this3.doneCallback(data);
-        } else {
-          if (data.ResponseStatus) alert('Sorry.' + data.ResponseStatus.ErrorCode + "\n" + data.ResponseStatus.Message + "\nSubmit correct username and/or password again.");else alert('Sorry. Settings not submitted. Check all items are correct and submit again.');
-          console.log(data.ResponseStatus);
-        }
+      this.pa.putProvider(settings).then(function (data) {
+        _this3.ea.publish(new _messages.SettingsSubmitted(data));
+        _this3.clear();
       }).catch(function (error) {
         console.log(error);
         alert('Sorry. Settings not submitted  at ' + _this3.serviceurl + ' error:' + error.response + " status:" + error.statusText);
       });
-    };
-
-    Genericcontrol.prototype.doneCallback = function doneCallback(data) {
-      {
-        this.ea.publish(new _messages.SettingsSubmitted(data));
-        this.clear();
-      }
-    };
-
-    Genericcontrol.prototype.errorCallback = function errorCallback(error) {
-      console.log("GenericControl: Error retrieved:");
-      console.log(error);
+      return true;
     };
 
     Genericcontrol.prototype.selectSettings = function selectSettings(settings) {
@@ -4757,7 +4777,109 @@ define('virtualfoldersetting/genericcontrol',['exports', 'aurelia-fetch-client',
     }]);
 
     return Genericcontrol;
-  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _aureliaFetchClient.HttpClient, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
+  }(), _class2.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi, _dropboxcontrol.DropboxControl], _temp), (_applyDecoratedDescriptor(_class.prototype, 'selectedDropbox', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedDropbox'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedB2Drop', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedB2Drop'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedFileSystem', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedFileSystem'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'selectedWebDav', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'selectedWebDav'), _class.prototype)), _class));
+});
+define('virtualfoldersetting/importprovider',['exports', '../components/projectapi', 'aurelia-event-aggregator', './messages', '../utils/vfstorage', './aliastable'], function (exports, _projectapi, _aureliaEventAggregator, _messages, _vfstorage, _aliastable) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Importprovider = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _class, _temp;
+
+  var Importprovider = exports.Importprovider = (_temp = _class = function () {
+    function Importprovider(ea, pa) {
+      var _this = this;
+
+      _classCallCheck(this, Importprovider);
+
+      this.importingSettings = false;
+      this.ea = ea;
+      this.publickey = undefined;
+
+      this.pa = pa;
+
+      this.receiveMessage = function (event) {
+        console.log("Aliastable() received message:", event.data);
+        _this.confirmSettings(event.data);
+      };
+      this.remoteurl = "https://portal.west-life.eu/virtualfolder/";
+    }
+
+    Importprovider.prototype.attached = function attached() {
+      var _this2 = this;
+
+      window.addEventListener("message", this.receiveMessage, false);
+
+      this.pa.getPublicKey().then(function (data) {
+        console.log("getPublicKey()", data);
+        _this2.publickey = data;
+      }).catch(function (error) {
+        alert('Sorry error when generating keys for import:' + error.response + " status:" + error.statusText);
+      });
+    };
+
+    Importprovider.prototype.submitSettings = function submitSettings(settings) {
+      this.providers = settings;
+    };
+
+    Importprovider.prototype.importProvider = function importProvider() {
+      var remotesettingsurl = new URL(this.remoteurl + 'syncsettingcomponent.html');
+      var params = { PublicKey: this.publickey };
+      Object.keys(params).forEach(function (key) {
+        return remotesettingsurl.searchParams.append(key, params[key]);
+      });
+      this.openwindow(remotesettingsurl);
+    };
+
+    Importprovider.prototype.detached = function detached() {
+      window.removeEventListener("message", this.receiveMessage);
+    };
+
+    Importprovider.prototype.openwindow = function openwindow(href) {
+      this.popup = window.open(href, 'newwindow', 'width=640, height=480');
+      return false;
+    };
+
+    Importprovider.prototype.confirmSettings = function confirmSettings(data) {
+      this.message = JSON.parse(data);
+      this.conflicts = { oldnames: this.message.aliases, newnames: this.message.aliases };
+      this.aliasestmp = this.message.aliases.split(";");
+      this.aliases = this.aliasestmp.map(function (item) {
+        return { oldname: item, newname: item };
+      });
+      this.importingSettings = true;
+    };
+
+    Importprovider.prototype.importSettings2 = function importSettings2() {
+      var _this3 = this;
+
+      this.importingSettings = false;
+
+
+      this.conflicts = { oldnames: this.aliases.map(function (item) {
+          return item.oldname;
+        }).join(';'), newnames: this.aliases.map(function (item) {
+          return item.newname;
+        }).join(';') };
+
+      var importmessage = { PublicKey: this.publickey, EncryptedSettings: this.message.EncryptedSettings, ConflictedAliases: this.conflicts.oldnames, NewNameAliases: this.conflicts.newnames };
+
+      this.pa.putSettings(importmessage).then(function (data) {
+        _this3.ea.publish(new _messages.SettingsSubmitted(data));
+      });
+    };
+
+    return Importprovider;
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator, _projectapi.ProjectApi], _temp);
 });
 define('virtualfoldersetting/main',['exports', '../environment'], function (exports, _environment) {
   'use strict';
@@ -4852,6 +4974,7 @@ define('virtualfoldersetting/storageprovider',['exports', 'aurelia-event-aggrega
       _classCallCheck(this, Storageprovider);
 
       this.showprovider = false;
+      this.showimport = false;
       ea.subscribe(_messages.SettingsSubmitted, function (msg) {
         return _this.submitSettings(msg.settings);
       });
@@ -4862,6 +4985,12 @@ define('virtualfoldersetting/storageprovider',['exports', 'aurelia-event-aggrega
 
     Storageprovider.prototype.newProvider = function newProvider() {
       this.showprovider = true;
+      this.showimport = false;
+    };
+
+    Storageprovider.prototype.importProvider = function importProvider() {
+      this.showprovider = false;
+      this.showimport = true;
     };
 
     Storageprovider.prototype.submitSettings = function submitSettings(settings) {
@@ -4875,8 +5004,8 @@ define('virtualfoldersetting/storageprovider',['exports', 'aurelia-event-aggrega
     return Storageprovider;
   }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
-define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '../utils/vfstorage'], function (exports, _aureliaHttpClient, _vfstorage) {
-  'use strict';
+define('virtualfoldersetting/taskcontrol',["exports", "../components/projectapi", "../utils/vfstorage"], function (exports, _projectapi, _vfstorage) {
+  "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -4892,17 +5021,11 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
   var _class, _temp;
 
   var Taskcontrol = exports.Taskcontrol = (_temp = _class = function () {
-    function Taskcontrol(httpclient) {
+    function Taskcontrol(pa) {
       _classCallCheck(this, Taskcontrol);
 
-      this.serviceurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/availabletasks";
-      this.userprocessurl = _vfstorage.Vfstorage.getBaseUrl() + "/metadataservice/userprocess/";
-      this.client = httpclient;
+      this.pa = pa;
       this.tasks = [];
-      this.client.configure(function (config) {
-        config.withHeader('Accept', 'application/json');
-        config.withHeader('Content-Type', 'application/json');
-      });
       this.descriptions = [];
       this.descriptions["jupyter"] = "Jupyter notebook web application instance";
       this.descriptions["notebook"] = "Jupyter notebook web application instance";
@@ -4913,18 +5036,15 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
     Taskcontrol.prototype.attached = function attached() {
       var _this = this;
 
-      this.client.get(this.serviceurl).then(function (data) {
-        if (data.response) {
-          _this.tasks = JSON.parse(data.response);
+      this.pa.getTask().then(function (data) {
+        if (data) {
+          _this.tasks = data;
           var that = _this;
           _this.tasks.forEach(function (task) {
             task.Description = that.descriptions[task.Name] || "";
             task.Updating = false;
           });
         }
-      }).catch(function (error) {
-        console.log("taskcontrol.attached() error:");
-        console.log(error);
       });
     };
 
@@ -4965,15 +5085,14 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
 
       return new Promise(function (resolve, reject) {
         if (task.Running) {
-          _this2.client.delete(_this2.userprocessurl + task.Name).then(function (data) {
+          _this2.pa.stopTask(task.Name).then(function (data) {
             resolve('Deleted');
           }).catch(function (error) {
             reject(error);
           });
         } else {
-          _this2.client.post(_this2.userprocessurl + task.Name).then(function (data) {
-            var updatedtask = JSON.parse(data.response);
-            resolve(updatedtask.LocalUrl);
+          _this2.pa.startTask(task.Name).then(function (data) {
+            resolve(data.LocalUrl);
           }).catch(function (error) {
             reject(error);
           });
@@ -4982,7 +5101,7 @@ define('virtualfoldersetting/taskcontrol',['exports', 'aurelia-http-client', '..
     };
 
     return Taskcontrol;
-  }(), _class.inject = [_aureliaHttpClient.HttpClient], _temp);
+  }(), _class.inject = [_projectapi.ProjectApi], _temp);
 });
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -8919,39 +9038,40 @@ define('aurelia-dialog/dialog-service',["require", "exports", "aurelia-dependenc
 });
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./w3.css\"></require>\n  <require from=\"components/sharedheader\"></require>\n  <require from=\"components/sharedfooter.html\"></require>\n  <sharedheader router.bind=\"router\"></sharedheader>\n  <router-view></router-view>\n  <sharedfooter></sharedfooter>\n\n</template>\n"; });
-define('text!icons.css', ['module'], function(module) { module.exports = ".fa {\n  display: inline-block;\n  font-size: inherit;\n  text-rendering: auto;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  width: 16px;\n}\n.fa-remove:before,\n.fa-close:before,\n.fa-times:before {\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20width%3D%27100%25%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2021.9%2021.9%27%20enable-background%3D%27new%200%200%2021.9%2021.9%27%3E%20%3Cg%3E%20%3Cg%3E%20%3Cpath%20d%3D%27M14.1%2C11.3c-0.2-0.2-0.2-0.5%2C0-0.7l7.5-7.5c0.2-0.2%2C0.3-0.5%2C0.3-0.7s-0.1-0.5-0.3-0.7l-1.4-1.4C20%2C0.1%2C19.7%2C0%2C19.5%2C0%20%20c-0.3%2C0-0.5%2C0.1-0.7%2C0.3l-7.5%2C7.5c-0.2%2C0.2-0.5%2C0.2-0.7%2C0L3.1%2C0.3C2.9%2C0.1%2C2.6%2C0%2C2.4%2C0S1.9%2C0.1%2C1.7%2C0.3L0.3%2C1.7C0.1%2C1.9%2C0%2C2.2%2C0%2C2.4%20%20s0.1%2C0.5%2C0.3%2C0.7l7.5%2C7.5c0.2%2C0.2%2C0.2%2C0.5%2C0%2C0.7l-7.5%2C7.5C0.1%2C19%2C0%2C19.3%2C0%2C19.5s0.1%2C0.5%2C0.3%2C0.7l1.4%2C1.4c0.2%2C0.2%2C0.5%2C0.3%2C0.7%2C0.3%20%20s0.5-0.1%2C0.7-0.3l7.5-7.5c0.2-0.2%2C0.5-0.2%2C0.7%2C0l7.5%2C7.5c0.2%2C0.2%2C0.5%2C0.3%2C0.7%2C0.3s0.5-0.1%2C0.7-0.3l1.4-1.4c0.2-0.2%2C0.3-0.5%2C0.3-0.7%20%20s-0.1-0.5-0.3-0.7L14.1%2C11.3z%27%2F%3E%20%3C%2Fg%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E \");\n}\n.fa-cog:before {\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20489.7%20489.7%27%20style%3D%27enable-background%3Anew%200%200%20489.7%20489.7%3B%27%3E%20%20%3Cg%3E%20%20%3Cg%3E%20%20%3Cpath%20d%3D%27M60.6%2C461.95c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3s12.3-5.5%2C12.3-12.3v-301.6c34.4-5.9%2C60.8-35.8%2C60.8-71.9c0-40.3-32.8-73-73-73%20%20s-73%2C32.7-73%2C73c0%2C36.1%2C26.3%2C66%2C60.8%2C71.9v301.6H60.6z%20M24.3%2C88.45c0-26.7%2C21.8-48.5%2C48.5-48.5s48.5%2C21.8%2C48.5%2C48.5%20%20s-21.8%2C48.5-48.5%2C48.5S24.3%2C115.25%2C24.3%2C88.45z%27%2F%3E%20%20%3Cpath%20d%3D%27M317.1%2C401.25c0-36.1-26.3-66-60.8-71.9V27.75c0-6.8-5.5-12.3-12.3-12.3s-12.3%2C5.5-12.3%2C12.3v301.6%20%20c-34.4%2C5.9-60.8%2C35.8-60.8%2C71.9c0%2C40.3%2C32.8%2C73%2C73%2C73S317.1%2C441.45%2C317.1%2C401.25z%20M195.6%2C401.25c0-26.7%2C21.8-48.5%2C48.5-48.5%20%20s48.5%2C21.8%2C48.5%2C48.5s-21.8%2C48.5-48.5%2C48.5S195.6%2C427.95%2C195.6%2C401.25z%27%2F%3E%20%20%3Cpath%20d%3D%27M416.6%2C474.25c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-301.6c34.4-5.9%2C60.8-35.8%2C60.8-71.9c0-40.3-32.8-73-73-73s-73%2C32.7-73%2C73%20%20c0%2C36.1%2C26.3%2C66%2C60.8%2C71.9v301.6C404.3%2C468.75%2C409.8%2C474.25%2C416.6%2C474.25z%20M368.1%2C88.45c0-26.7%2C21.8-48.5%2C48.5-48.5%20%20s48.5%2C21.8%2C48.5%2C48.5s-21.8%2C48.5-48.5%2C48.5C389.8%2C136.95%2C368.1%2C115.25%2C368.1%2C88.45z%27%2F%3E%20%20%3C%2Fg%3E%20%20%3C%2Fg%3E%20%20%3C%2Fsvg%3E  \");\n}\n.fa-window-minimize:before{\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20489.3%20489.3%27%20style%3D%27enable-background%3Anew%200%200%20489.3%20489.3%3B%27%3E%3Cg%3E%09%3Cg%3E%09%09%3Cpath%20d%3D%27M0%2C12.251v464.7c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h224c6.8%2C0%2C12.3-5.5%2C12.3-12.3s-5.5-12.3-12.3-12.3H24.5v-440.2h440.2v210.5%09%09%09c0%2C6.8%2C5.5%2C12.2%2C12.3%2C12.2s12.3-5.5%2C12.3-12.2v-222.7c0-6.8-5.5-12.2-12.3-12.2H12.3C5.5-0.049%2C0%2C5.451%2C0%2C12.251z%27%2F%3E%09%09%3Cpath%20d%3D%27M476.9%2C489.151c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-170.3c0-6.8-5.5-12.3-12.3-12.3H306.6c-6.8%2C0-12.3%2C5.5-12.3%2C12.3v170.4%09%09%09c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h170.3V489.151z%20M318.8%2C318.751h145.9v145.9H318.8V318.751z%27%2F%3E%09%09%3Cpath%20d%3D%27M135.9%2C257.651c0%2C6.8%2C5.5%2C12.3%2C12.3%2C12.3h109.5c6.8%2C0%2C12.3-5.5%2C12.3-12.3v-109.5c0-6.8-5.5-12.3-12.3-12.3%09%09%09s-12.3%2C5.5-12.3%2C12.3v79.9l-138.7-138.7c-4.8-4.8-12.5-4.8-17.3%2C0c-4.8%2C4.8-4.8%2C12.5%2C0%2C17.3l138.7%2C138.7h-79.9%09%09%09C141.4%2C245.351%2C135.9%2C250.851%2C135.9%2C257.651z%27%2F%3E%09%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\");\n}\n.fa-window-maximize:before{\n  content: url(\"data:image/svg+xml,%3Csvg%20version%3D%271.1%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20x%3D%270px%27%20y%3D%270px%27%20viewBox%3D%270%200%20258.008%20258.008%27%20style%3D%27enable-background%3Anew%200%200%20258.008%20258.008%3B%27%20%20xml%3Aspace%3D%27preserve%27%3E%20%20%3Cg%3E%20%20%3Cg%3E%20%20%3Cpath%20d%3D%27M125.609%2C122.35H10.049C4.5%2C122.35%2C0%2C126.85%2C0%2C132.399v115.56c0%2C5.549%2C4.5%2C10.048%2C10.049%2C10.048H125.61%20%20c5.548%2C0%2C10.046-4.499%2C10.046-10.048v-115.56C135.656%2C126.85%2C131.158%2C122.35%2C125.609%2C122.35z%20M115.559%2C237.909H20.098v-95.463%20%20h95.461V237.909z%27%2F%3E%20%20%3Cpath%20d%3D%27M247.958%2C0.001H10.049C4.5%2C0.001%2C0%2C4.5%2C0%2C10.049v93.312c0%2C5.55%2C4.5%2C10.05%2C10.049%2C10.05c5.55%2C0%2C10.049-4.5%2C10.049-10.05%20%20V20.098h217.812v217.812h-82.915c-5.55%2C0-10.05%2C4.5-10.05%2C10.05c0%2C5.549%2C4.5%2C10.048%2C10.05%2C10.048h92.964%20%20c5.55%2C0%2C10.05-4.499%2C10.05-10.048V10.049C258.008%2C4.5%2C253.508%2C0.001%2C247.958%2C0.001z%27%2F%3E%20%20%3Cpath%20d%3D%27M154.35%2C106.876c1.965%2C1.961%2C4.534%2C2.942%2C7.105%2C2.942c2.57%2C0%2C5.142-0.981%2C7.104-2.942l31.755-31.757V89.57%20%20c0%2C5.549%2C4.499%2C10.047%2C10.05%2C10.047c5.549%2C0%2C10.048-4.498%2C10.048-10.047V53.054c0-0.365-0.068-0.713-0.107-1.068%20%20c0.329-2.933-0.588-5.979-2.837-8.229c-2.146-2.148-5.023-3.079-7.831-2.873c-0.233-0.017-0.461-0.072-0.696-0.072h-36.513%20%20c-5.551%2C0-10.051%2C4.5-10.051%2C10.05c0%2C5.549%2C4.5%2C10.049%2C10.051%2C10.049h13.679L154.35%2C92.665%20%20C150.426%2C96.589%2C150.426%2C102.952%2C154.35%2C106.876z%27%2F%3E%20%20%3C%2Fg%3E%20%20%3C%2Fg%3E%20%20%3C%2Fsvg%3E\");\n}\n\n.fa-caret-down:before{\n  content:url(\"data:image/svg+xml,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' x='0px' y='0px'  viewBox='0 0 292.362 292.362' style='enable-background:new 0 0 292.362 292.362;'  xml:space='preserve'>  <g>  <path d='M286.935,69.377c-3.614-3.617-7.898-5.424-12.848-5.424H18.274c-4.952,0-9.233,1.807-12.85,5.424  C1.807,72.998,0,77.279,0,82.228c0,4.948,1.807,9.229,5.424,12.847l127.907,127.907c3.621,3.617,7.902,5.428,12.85,5.428  s9.233-1.811,12.847-5.428L286.935,95.074c3.613-3.617,5.427-7.898,5.427-12.847C292.362,77.279,290.548,72.998,286.935,69.377z'/>  </g> </svg>\");\n}\n.fa-start:before{\n  content:url('data:image/svg+xml,<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\"  viewBox=\"0 0 16 16\" style=\"enable-background:new 0 0 16 16;\" xml:space=\"preserve\">  <g>  <path d=\"M8,0C3.5,0,0,3.5,0,8s3.5,8,8,8s8-3.5,8-8S12.5,0,8,0z M8,14c-3.5,0-6-2.5-6-6s2.5-6,6-6s6,2.5,6,6  S11.5,14,8,14z\"/>  <polygon points=\"6,12 11,8 6,4\"/></g></svg>');\n}\n.fa-stop:before{\n  content:url('data:image/svg+xml,<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\"  viewBox=\"0 0 508.52 508.52\" style=\"enable-background:new 0 0 508.52 508.52;\" xml:space=\"preserve\"><g><path d=\"M254.26,0C113.845,0,0,113.845,0,254.26s113.845,254.26,254.26,254.26s254.26-113.845,254.26-254.26S394.675,0,254.26,0z M254.26,476.737c-122.68,0-222.477-99.829-222.477-222.477c0-122.68,99.797-222.477,222.477-222.477c122.649,0,222.477,99.797,222.477,222.477C476.737,376.908,376.908,476.737,254.26,476.737z\"/><path d=\"M317.825,158.912h-127.13c-17.544,0-31.782,14.239-31.782,31.782v127.13c0,17.544,14.239,31.783,31.782,31.783h127.13c17.544,0,31.783-14.239,31.783-31.783v-127.13C349.607,173.151,335.369,158.912,317.825,158.912z\"/></g></svg>');\n}\n\n/* most icons derived from http://www.flaticon.com/free-icon/caret-down_25243, needs to attribute*/\n\n.vf-transition{\n  -webkit-transition: all 0.5s ease-in-out;\n  -moz-transition: all 0.5s ease-in-out;\n  -ms-transition: all 0.5s ease-in-out;\n  transition: visibility 0.5s, height 0.5s ease-in-out;\n}\n.vf-code-2{line-height:1;font-size:10px}\n\n.CodeMirror {\n  height: 75%!important;\n}\n\n"; });
+define('text!icons.css', ['module'], function(module) { module.exports = ".vf-code-2{line-height:1;font-size:10px}\n\n.CodeMirror {\n  height: 75%!important;\n}\n\n"; });
 define('text!w3.css', ['module'], function(module) { module.exports = "/* W3.CSS 2.99 Mar 2017 by Jan Egil and Borge Refsnes */\nhtml{box-sizing:border-box}*,*:before,*:after{box-sizing:inherit}\n/* Extract from normalize.css by Nicolas Gallagher and Jonathan Neal git.io/normalize */\nhtml{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}\narticle,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}\naudio,canvas,progress,video{display:inline-block}progress{vertical-align:baseline}\naudio:not([controls]){display:none;height:0}[hidden],template{display:none}\na{background-color:transparent;-webkit-text-decoration-skip:objects}\na:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}\ndfn{font-style:italic}mark{background:#ff0;color:#000}\nsmall{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}\nsub{bottom:-0.25em}sup{top:-0.5em}figure{margin:1em 40px}\nimg{border-style:none}svg:not(:root){overflow:hidden}\ncode,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}\nhr{box-sizing:content-box;height:0;overflow:visible}\nbutton,input,select,textarea{font:inherit;margin:0}optgroup{font-weight:bold}\nbutton,input{overflow:visible}button,select{text-transform:none}\nbutton,html [type=button],[type=reset],[type=submit]{-webkit-appearance:button}\nbutton::-moz-focus-inner, [type=button]::-moz-focus-inner, [type=reset]::-moz-focus-inner, [type=submit]::-moz-focus-inner{border-style:none;padding:0}\nbutton:-moz-focusring, [type=button]:-moz-focusring, [type=reset]:-moz-focusring, [type=submit]:-moz-focusring{outline:1px dotted ButtonText}\nfieldset{border:1px solid #c0c0c0;margin:0 2px;padding:.35em .625em .75em}\nlegend{color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}\n[type=checkbox],[type=radio]{padding:0}\n[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}\n[type=search]{-webkit-appearance:textfield;outline-offset:-2px}\n[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}\n::-webkit-input-placeholder{color:inherit;opacity:0.54}\n::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}\n/* End extract */\nhtml,body{font-family:Verdana,sans-serif;font-size:15px;line-height:1.5}html{overflow-x:hidden}\nh1,h2,h3,h4,h5,h6,.w3-slim,.w3-wide{font-family:\"Segoe UI\",Arial,sans-serif}\nh1{font-size:36px}h2{font-size:30px}h3{font-size:24px}h4{font-size:20px}h5{font-size:18px}h6{font-size:16px}\n.w3-serif{font-family:\"Times New Roman\",Times,serif}\nh1,h2,h3,h4,h5,h6{font-weight:400;margin:10px 0}.w3-wide{letter-spacing:4px}\nh1 a,h2 a,h3 a,h4 a,h5 a,h6 a{font-weight:inherit}\nhr{border:0;border-top:1px solid #eee;margin:20px 0}\na{color:inherit}\n.w3-image{max-width:100%;height:auto}\n.w3-table,.w3-table-all{border-collapse:collapse;border-spacing:0;width:100%;display:table}\n.w3-table-all{border:1px solid #ccc}\n.w3-bordered tr,.w3-table-all tr{border-bottom:1px solid #ddd}\n.w3-striped tbody tr:nth-child(even){background-color:#f1f1f1}\n.w3-table-all tr:nth-child(odd){background-color:#fff}\n.w3-table-all tr:nth-child(even){background-color:#f1f1f1}\n.w3-hoverable tbody tr:hover,.w3-ul.w3-hoverable li:hover{background-color:#ccc}\n.w3-centered tr th,.w3-centered tr td{text-align:center}\n.w3-table td,.w3-table th,.w3-table-all td,.w3-table-all th{padding:8px 8px;display:table-cell;text-align:left;vertical-align:top}\n.w3-table th:first-child,.w3-table td:first-child,.w3-table-all th:first-child,.w3-table-all td:first-child{padding-left:16px}\n.w3-btn,.w3-btn-block,.w3-button{border:none;display:inline-block;outline:0;padding:6px 16px;vertical-align:middle;overflow:hidden;text-decoration:none!important;color:#fff;background-color:#000;text-align:center;cursor:pointer;white-space:nowrap}\n.w3-btn:hover,.w3-btn-block:hover,.w3-btn-floating:hover,.w3-btn-floating-large:hover{box-shadow:0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)}\n.w3-button{color:#000;background-color:#e1e1e1;padding:8px 16px}.w3-button:hover{color:#000!important;background-color:#ccc!important}\n.w3-btn,.w3-btn-floating,.w3-btn-floating-large,.w3-closenav,.w3-opennav,.w3-btn-block,.w3-button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}\n.w3-btn-floating,.w3-btn-floating-large{display:inline-block;text-align:center;color:#fff;background-color:#000;position:relative;overflow:hidden;z-index:1;padding:0;border-radius:50%;cursor:pointer;font-size:24px}\n.w3-btn-floating{width:40px;height:40px;line-height:40px}.w3-btn-floating-large{width:56px;height:56px;line-height:56px}\n.w3-disabled,.w3-btn:disabled,.w3-button:disabled,.w3-btn-floating:disabled,.w3-btn-floating-large:disabled{cursor:not-allowed;opacity:0.3}.w3-disabled *,:disabled *{pointer-events:none}\n.w3-btn.w3-disabled:hover,.w3-btn-block.w3-disabled:hover,.w3-btn:disabled:hover,.w3-btn-floating.w3-disabled:hover,.w3-btn-floating:disabled:hover,\n.w3-btn-floating-large.w3-disabled:hover,.w3-btn-floating-large:disabled:hover{box-shadow:none}\n.w3-btn-group .w3-btn{float:left}.w3-btn-block{width:100%}\n.w3-btn-bar .w3-btn{box-shadow:none;background-color:inherit;color:inherit;float:left}.w3-btn-bar .w3-btn:hover{background-color:#ccc}\n.w3-badge,.w3-tag,.w3-sign{background-color:#000;color:#fff;display:inline-block;padding-left:8px;padding-right:8px;text-align:center}\n.w3-badge{border-radius:50%}\nul.w3-ul{list-style-type:none;padding:0;margin:0}ul.w3-ul li{padding:6px 2px 6px 16px;border-bottom:1px solid #ddd}ul.w3-ul li:last-child{border-bottom:none}\n.w3-tooltip,.w3-display-container{position:relative}.w3-tooltip .w3-text{display:none}.w3-tooltip:hover .w3-text{display:inline-block}\n.w3-navbar{list-style-type:none;margin:0;padding:0;overflow:hidden}\n.w3-navbar li{float:left}.w3-navbar li a,.w3-navitem,.w3-navbar li .w3-btn,.w3-navbar li .w3-input{display:block;padding:8px 16px}.w3-navbar li .w3-btn,.w3-navbar li .w3-input{border:none;outline:none;width:100%}\n.w3-navbar li a:hover{color:#000;background-color:#ccc}\n.w3-navbar .w3-dropdown-hover,.w3-navbar .w3-dropdown-click{position:static}\n.w3-navbar .w3-dropdown-hover:hover{background-color:#ccc;color:#000}\n.w3-navbar a,.w3-topnav a,.w3-sidenav a,.w3-dropdown-content a,.w3-accordion-content a,.w3-dropnav a,.w3-navblock a{text-decoration:none!important}\n.w3-navbar .w3-opennav.w3-right{float:right!important}.w3-topnav{padding:8px 8px}\n.w3-navblock .w3-dropdown-hover:hover,.w3-navblock .w3-dropdown-click:hover{background-color:#ccc;color:#000}\n.w3-navblock .w3-dropdown-hover,.w3-navblock .w3-dropdown-click{width:100%}.w3-navblock .w3-dropdown-hover .w3-dropdown-content,.w3-navblock .w3-dropdown-click .w3-dropdown-content{min-width:100%}\n.w3-topnav a{padding:0 8px;border-bottom:3px solid transparent;-webkit-transition:border-bottom .25s;transition:border-bottom .25s}\n.w3-topnav a:hover{border-bottom:3px solid #fff}.w3-topnav .w3-dropdown-hover a{border-bottom:0}\n.w3-opennav,.w3-closenav{color:inherit}.w3-opennav:hover,.w3-closenav:hover{cursor:pointer;opacity:0.8}\n.w3-btn,.w3-btn-floating,.w3-dropnav a,.w3-btn-floating-large,.w3-btn-block, .w3-navbar a,.w3-navblock a,.w3-sidenav a,.w3-pagination li a,.w3-hoverable tbody tr,.w3-hoverable li,\n.w3-accordion-content a,.w3-dropdown-content a,.w3-dropdown-click:hover,.w3-dropdown-hover:hover,.w3-opennav,.w3-closenav,.w3-closebtn,*[class*=\"w3-hover-\"]\n{-webkit-transition:background-color .25s,color .15s,box-shadow .25s,opacity 0.25s,filter 0.25s,border 0.15s;transition:background-color .25s,color .15s,box-shadow .15s,opacity .25s,filter .25s,border .15s}\n.w3-ripple:active{opacity:0.5}.w3-ripple{-webkit-transition:opacity 0s;transition:opacity 0s}\n.w3-sidenav,.w3-sidebar{height:100%;width:200px;background-color:#fff;position:fixed!important;z-index:1;overflow:auto}\n.w3-sidenav a,.w3-navblock a{padding:4px 2px 4px 16px}.w3-sidenav a:hover,.w3-navblock a:hover{background-color:#ccc;color:#000}.w3-sidenav a,.w3-dropnav a,.w3-navblock a{display:block}\n.w3-sidenav .w3-dropdown-hover:hover,.w3-sidenav .w3-dropdown-hover:first-child,.w3-sidenav .w3-dropdown-click:hover,.w3-dropnav a:hover{background-color:#ccc;color:#000}\n.w3-sidenav .w3-dropdown-hover,.w3-sidenav .w3-dropdown-click,.w3-bar-block .w3-dropdown-hover,.w3-bar-block .w3-dropdown-click{width:100%}\n.w3-sidenav .w3-dropdown-hover .w3-dropdown-content,.w3-sidenav .w3-dropdown-click .w3-dropdown-content,.w3-bar-block .w3-dropdown-hover .w3-dropdown-content,.w3-bar-block .w3-dropdown-click .w3-dropdown-content{min-width:100%}\n.w3-bar-block .w3-dropdown-hover .w3-button,.w3-bar-block .w3-dropdown-click .w3-button{width:100%;text-align:left;background-color:inherit;color:inherit;padding:6px 2px 6px 16px}\n.w3-main,#main{transition:margin-left .4s}\n.w3-modal{z-index:3;display:none;padding-top:100px;position:fixed;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgb(0,0,0);background-color:rgba(0,0,0,0.4)}\n.w3-modal-content{margin:auto;background-color:#fff;position:relative;padding:0;outline:0;width:600px}.w3-closebtn{text-decoration:none;float:right;font-size:24px;font-weight:bold;color:inherit}\n.w3-closebtn:hover,.w3-closebtn:focus{color:#000;text-decoration:none;cursor:pointer}\n.w3-pagination{display:inline-block;padding:0;margin:0}.w3-pagination li{display:inline}\n.w3-pagination li a{text-decoration:none;color:#000;float:left;padding:8px 16px}\n.w3-pagination li a:hover{background-color:#ccc}\n.w3-input-group,.w3-group{margin-top:24px;margin-bottom:24px}\n.w3-input{padding:8px;display:block;border:none;border-bottom:1px solid #808080;width:100%}\n.w3-label{color:#009688}.w3-input:not(:valid)~.w3-validate{color:#f44336}\n.w3-select{padding:9px 0;width:100%;color:#000;border:1px solid transparent;border-bottom:1px solid #009688}\n.w3-select select:focus{color:#000;border:1px solid #009688}.w3-select option[disabled]{color:#009688}\n.w3-dropdown-click,.w3-dropdown-hover{position:relative;display:inline-block;cursor:pointer}\n.w3-dropdown-hover:hover .w3-dropdown-content{display:block;z-index:1}\n.w3-dropdown-click:hover{background-color:#ccc;color:#000}\n.w3-dropdown-hover:hover > .w3-button:first-child,.w3-dropdown-click:hover > .w3-button:first-child{background-color:#ccc;color:#000}\n.w3-dropdown-content{cursor:auto;color:#000;background-color:#fff;display:none;position:absolute;min-width:160px;margin:0;padding:0}\n.w3-dropdown-content a{padding:6px 16px;display:block}\n.w3-dropdown-content a:hover{background-color:#ccc}\n.w3-accordion{width:100%;cursor:pointer}\n.w3-accordion-content{cursor:auto;display:none;position:relative;width:100%;margin:0;padding:0}\n.w3-accordion-content a{padding:6px 16px;display:block}.w3-accordion-content a:hover{background-color:#ccc}\n.w3-progress-container{width:100%;height:1.5em;position:relative;background-color:#f1f1f1}\n.w3-progressbar{background-color:#757575;height:100%;position:absolute;line-height:inherit}\ninput[type=checkbox].w3-check,input[type=radio].w3-radio{width:24px;height:24px;position:relative;top:6px}\ninput[type=checkbox].w3-check:checked+.w3-validate,input[type=radio].w3-radio:checked+.w3-validate{color:#009688}\ninput[type=checkbox].w3-check:disabled+.w3-validate,input[type=radio].w3-radio:disabled+.w3-validate{color:#aaa}\n.w3-bar{width:100%;overflow:hidden}.w3-center .w3-bar{display:inline-block;width:auto}\n.w3-bar .w3-bar-item{padding:8px 16px;float:left;background-color:inherit;color:inherit;width:auto;border:none;outline:none;display:block}\n.w3-bar .w3-dropdown-hover,.w3-bar .w3-dropdown-click{position:static;float:left}\n.w3-bar .w3-button{background-color:inherit;color:inherit;white-space:normal}\n.w3-bar-block .w3-bar-item{width:100%;display:block;padding:6px 2px 6px 16px;text-align:left;background-color:inherit;color:inherit;border:none;outline:none}\n.w3-block{display:block;width:100%}\n.w3-responsive{overflow-x:auto}\n.w3-container:after,.w3-container:before,.w3-panel:after,.w3-panel:before,.w3-row:after,.w3-row:before,.w3-row-padding:after,.w3-row-padding:before,.w3-cell-row:before,.w3-cell-row:after,\n.w3-topnav:after,.w3-topnav:before,.w3-clear:after,.w3-clear:before,.w3-btn-group:before,.w3-btn-group:after,.w3-btn-bar:before,.w3-btn-bar:after,.w3-bar:before,.w3-bar:after\n{content:\"\";display:table;clear:both}\n.w3-col,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter{float:left;width:100%}\n.w3-col.s1{width:8.33333%}\n.w3-col.s2{width:16.66666%}\n.w3-col.s3{width:24.99999%}\n.w3-col.s4{width:33.33333%}\n.w3-col.s5{width:41.66666%}\n.w3-col.s6{width:49.99999%}\n.w3-col.s7{width:58.33333%}\n.w3-col.s8{width:66.66666%}\n.w3-col.s9{width:74.99999%}\n.w3-col.s10{width:83.33333%}\n.w3-col.s11{width:91.66666%}\n.w3-col.s12,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter{width:99.99999%}\n@media (min-width:601px){\n  .w3-col.m1{width:8.33333%}\n  .w3-col.m2{width:16.66666%}\n  .w3-col.m3,.w3-quarter{width:24.99999%}\n  .w3-col.m4,.w3-third{width:33.33333%}\n  .w3-col.m5{width:41.66666%}\n  .w3-col.m6,.w3-half{width:49.99999%}\n  .w3-col.m7{width:58.33333%}\n  .w3-col.m8,.w3-twothird{width:66.66666%}\n  .w3-col.m9,.w3-threequarter{width:74.99999%}\n  .w3-col.m10{width:83.33333%}\n  .w3-col.m11{width:91.66666%}\n  .w3-col.m12{width:99.99999%}}\n@media (min-width:993px){\n  .w3-col.l1{width:8.33333%}\n  .w3-col.l2{width:16.66666%}\n  .w3-col.l3,.w3-quarter{width:24.99999%}\n  .w3-col.l4,.w3-third{width:33.33333%}\n  .w3-col.l5{width:41.66666%}\n  .w3-col.l6,.w3-half{width:49.99999%}\n  .w3-col.l7{width:58.33333%}\n  .w3-col.l8,.w3-twothird{width:66.66666%}\n  .w3-col.l9,.w3-threequarter{width:74.99999%}\n  .w3-col.l10{width:83.33333%}\n  .w3-col.l11{width:91.66666%}\n  .w3-col.l12{width:99.99999%}}\n.w3-content{max-width:980px;margin:auto}\n.w3-rest{overflow:hidden}\n.w3-layout-container,.w3-cell-row{display:table;width:100%}.w3-layout-row{display:table-row}.w3-layout-cell,.w3-layout-col,.w3-cell{display:table-cell}\n.w3-layout-top,.w3-cell-top{vertical-align:top}.w3-layout-middle,.w3-cell-middle{vertical-align:middle}.w3-layout-bottom,.w3-cell-bottom{vertical-align:bottom}\n.w3-hide{display:none!important}.w3-show-block,.w3-show{display:block!important}.w3-show-inline-block{display:inline-block!important}\n@media (max-width:600px){.w3-modal-content{margin:0 10px;width:auto!important}.w3-modal{padding-top:30px}\n  .w3-topnav a{display:block}.w3-navbar li:not(.w3-opennav){float:none;width:100%!important}.w3-navbar li.w3-right{float:none!important}\n  .w3-topnav .w3-dropdown-hover .w3-dropdown-content,.w3-navbar .w3-dropdown-click .w3-dropdown-content,.w3-navbar .w3-dropdown-hover .w3-dropdown-content,.w3-dropdown-hover.w3-mobile .w3-dropdown-content,.w3-dropdown-click.w3-mobile .w3-dropdown-content{position:relative}\n  .w3-topnav,.w3-navbar{text-align:center}.w3-hide-small{display:none!important}.w3-layout-col,.w3-mobile{display:block;width:100%!important}.w3-bar-item.w3-mobile,.w3-dropdown-hover.w3-mobile,.w3-dropdown-click.w3-mobile{text-align:center}\n  .w3-dropdown-hover.w3-mobile,.w3-dropdown-hover.w3-mobile .w3-btn,.w3-dropdown-hover.w3-mobile .w3-button,.w3-dropdown-click.w3-mobile,.w3-dropdown-click.w3-mobile .w3-btn,.w3-dropdown-click.w3-mobile .w3-button{width:100%}}\n@media (max-width:768px){.w3-modal-content{width:500px}.w3-modal{padding-top:50px}}\n@media (min-width:993px){.w3-modal-content{width:900px}.w3-hide-large{display:none!important}.w3-sidenav.w3-collapse,.w3-sidebar.w3-collapse{display:block!important}}\n@media (max-width:992px) and (min-width:601px){.w3-hide-medium{display:none!important}}\n@media (max-width:992px){.w3-sidenav.w3-collapse,.w3-sidebar.w3-collapse{display:none}.w3-main{margin-left:0!important;margin-right:0!important}}\n.w3-top,.w3-bottom{position:fixed;width:100%;z-index:1}.w3-top{top:0}.w3-bottom{bottom:0}\n.w3-overlay{position:fixed;display:none;width:100%;height:100%;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,0.5);z-index:2}\n.w3-left{float:left!important}.w3-right{float:right!important}\n.w3-tiny{font-size:10px!important}.w3-small{font-size:12px!important}\n.w3-medium{font-size:15px!important}.w3-large{font-size:18px!important}\n.w3-xlarge{font-size:24px!important}.w3-xxlarge{font-size:36px!important}\n.w3-xxxlarge{font-size:48px!important}.w3-jumbo{font-size:64px!important}\n.w3-vertical{word-break:break-all;line-height:1;text-align:center;width:0.6em}\n.w3-left-align{text-align:left!important}.w3-right-align{text-align:right!important}\n.w3-justify{text-align:justify!important}.w3-center{text-align:center!important}\n.w3-display-topleft{position:absolute;left:0;top:0}.w3-display-topright{position:absolute;right:0;top:0}\n.w3-display-bottomleft{position:absolute;left:0;bottom:0}.w3-display-bottomright{position:absolute;right:0;bottom:0}\n.w3-display-middle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%)}\n.w3-display-left{position:absolute;top:50%;left:0%;transform:translate(0%,-50%);-ms-transform:translate(-0%,-50%)}\n.w3-display-right{position:absolute;top:50%;right:0%;transform:translate(0%,-50%);-ms-transform:translate(0%,-50%)}\n.w3-display-topmiddle{position:absolute;left:50%;top:0;transform:translate(-50%,0%);-ms-transform:translate(-50%,0%)}\n.w3-display-bottommiddle{position:absolute;left:50%;bottom:0;transform:translate(-50%,0%);-ms-transform:translate(-50%,0%)}\n.w3-display-container:hover .w3-display-hover{display:block}.w3-display-container:hover span.w3-display-hover{display:inline-block}.w3-display-hover{display:none}\n.w3-display-position{position:absolute}\n.w3-circle{border-radius:50%!important}\n.w3-round-small{border-radius:2px!important}.w3-round,.w3-round-medium{border-radius:4px!important}\n.w3-round-large{border-radius:8px!important}.w3-round-xlarge{border-radius:16px!important}\n.w3-round-xxlarge{border-radius:32px!important}.w3-round-jumbo{border-radius:64px!important}\n.w3-border-0{border:0!important}.w3-border{border:1px solid #ccc!important}\n.w3-border-top{border-top:1px solid #ccc!important}.w3-border-bottom{border-bottom:1px solid #ccc!important}\n.w3-border-left{border-left:1px solid #ccc!important}.w3-border-right{border-right:1px solid #ccc!important}\n.w3-margin{margin:16px!important}.w3-margin-0{margin:0!important}\n.w3-margin-top{margin-top:16px!important}.w3-margin-bottom{margin-bottom:16px!important}\n.w3-margin-left{margin-left:16px!important}.w3-margin-right{margin-right:16px!important}\n.w3-section{margin-top:16px!important;margin-bottom:16px!important}\n.w3-padding-tiny{padding:2px 4px!important}.w3-padding-small{padding:4px 8px!important}\n.w3-padding-medium,.w3-padding,.w3-form{padding:8px 16px!important}\n.w3-padding-large{padding:12px 24px!important}.w3-padding-xlarge{padding:16px 32px!important}\n.w3-padding-xxlarge{padding:24px 48px!important}.w3-padding-jumbo{padding:32px 64px!important}\n.w3-padding-4{padding-top:4px!important;padding-bottom:4px!important}\n.w3-padding-8{padding-top:8px!important;padding-bottom:8px!important}\n.w3-padding-12{padding-top:12px!important;padding-bottom:12px!important}\n.w3-padding-16{padding-top:16px!important;padding-bottom:16px!important}\n.w3-padding-24{padding-top:24px!important;padding-bottom:24px!important}\n.w3-padding-32{padding-top:32px!important;padding-bottom:32px!important}\n.w3-padding-48{padding-top:48px!important;padding-bottom:48px!important}\n.w3-padding-64{padding-top:64px!important;padding-bottom:64px!important}\n.w3-padding-128{padding-top:128px!important;padding-bottom:128px!important}\n.w3-padding-0{padding:0!important}\n.w3-padding-top{padding-top:8px!important}.w3-padding-bottom{padding-bottom:8px!important}\n.w3-padding-left{padding-left:16px!important}.w3-padding-right{padding-right:16px!important}\n.w3-topbar{border-top:6px solid #ccc!important}.w3-bottombar{border-bottom:6px solid #ccc!important}\n.w3-leftbar{border-left:6px solid #ccc!important}.w3-rightbar{border-right:6px solid #ccc!important}\n.w3-row-padding,.w3-row-padding>.w3-half,.w3-row-padding>.w3-third,.w3-row-padding>.w3-twothird,.w3-row-padding>.w3-threequarter,.w3-row-padding>.w3-quarter,.w3-row-padding>.w3-col{padding:0 8px}\n.w3-spin{animation:w3-spin 2s infinite linear;-webkit-animation:w3-spin 2s infinite linear}\n@-webkit-keyframes w3-spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}\n@keyframes w3-spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}\n.w3-container{padding:0.01em 16px}\n.w3-panel{padding:0.01em 16px;margin-top:16px!important;margin-bottom:16px!important}\n.w3-example{background-color:#f1f1f1;padding:0.01em 16px}\n.w3-code,.w3-codespan{font-family:Consolas,\"courier new\";font-size:16px}\n.w3-code{line-height:1.4;width:auto;background-color:#fff;padding:8px 12px;border-left:4px solid #4CAF50;word-wrap:break-word}\n.w3-codespan{color:crimson;background-color:#f1f1f1;padding-left:4px;padding-right:4px;font-size:110%}\n.w3-example,.w3-code{margin:20px 0}.w3-card{border:1px solid #ccc}\n.w3-card-2,.w3-example{box-shadow:0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!important}\n.w3-card-4,.w3-hover-shadow:hover{box-shadow:0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)!important}\n.w3-card-8{box-shadow:0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)!important}\n.w3-card-12{box-shadow:0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)!important}\n.w3-card-16{box-shadow:0 16px 24px 0 rgba(0,0,0,0.22),0 25px 55px 0 rgba(0,0,0,0.21)!important}\n.w3-card-24{box-shadow:0 24px 24px 0 rgba(0,0,0,0.2),0 40px 77px 0 rgba(0,0,0,0.22)!important}\n.w3-animate-fading{-webkit-animation:fading 10s infinite;animation:fading 10s infinite}\n@-webkit-keyframes fading{0%{opacity:0}50%{opacity:1}100%{opacity:0}}\n@keyframes fading{0%{opacity:0}50%{opacity:1}100%{opacity:0}}\n.w3-animate-opacity{-webkit-animation:opac 0.8s;animation:opac 0.8s}\n@-webkit-keyframes opac{from{opacity:0} to{opacity:1}}\n@keyframes opac{from{opacity:0} to{opacity:1}}\n.w3-animate-top{position:relative;-webkit-animation:animatetop 0.4s;animation:animatetop 0.4s}\n@-webkit-keyframes animatetop{from{top:-300px;opacity:0} to{top:0;opacity:1}}\n@keyframes animatetop{from{top:-300px;opacity:0} to{top:0;opacity:1}}\n.w3-animate-left{position:relative;-webkit-animation:animateleft 0.4s;animation:animateleft 0.4s}\n@-webkit-keyframes animateleft{from{left:-300px;opacity:0} to{left:0;opacity:1}}\n@keyframes animateleft{from{left:-300px;opacity:0} to{left:0;opacity:1}}\n.w3-animate-right{position:relative;-webkit-animation:animateright 0.4s;animation:animateright 0.4s}\n@-webkit-keyframes animateright{from{right:-300px;opacity:0} to{right:0;opacity:1}}\n@keyframes animateright{from{right:-300px;opacity:0} to{right:0;opacity:1}}\n.w3-animate-bottom{position:relative;-webkit-animation:animatebottom 0.4s;animation:animatebottom 0.4s}\n@-webkit-keyframes animatebottom{from{bottom:-300px;opacity:0} to{bottom:0px;opacity:1}}\n@keyframes animatebottom{from{bottom:-300px;opacity:0} to{bottom:0;opacity:1}}\n.w3-animate-zoom {-webkit-animation:animatezoom 0.6s;animation:animatezoom 0.6s}\n@-webkit-keyframes animatezoom{from{-webkit-transform:scale(0)} to{-webkit-transform:scale(1)}}\n@keyframes animatezoom{from{transform:scale(0)} to{transform:scale(1)}}\n.w3-animate-input{-webkit-transition:width 0.4s ease-in-out;transition:width 0.4s ease-in-out}.w3-animate-input:focus{width:100%!important}\n.w3-opacity,.w3-hover-opacity:hover{opacity:0.60;-webkit-backface-visibility:hidden}\n.w3-opacity-off,.w3-hover-opacity-off:hover{opacity:1;-webkit-backface-visibility:hidden}\n.w3-opacity-max{opacity:0.25;-webkit-backface-visibility:hidden}\n.w3-opacity-min{opacity:0.75;-webkit-backface-visibility:hidden}\n.w3-greyscale-max,.w3-grayscale-max,.w3-hover-greyscale:hover,.w3-hover-grayscale:hover{-webkit-filter:grayscale(100%);filter:grayscale(100%)}\n.w3-greyscale,.w3-grayscale{-webkit-filter:grayscale(75%);filter:grayscale(75%)}\n.w3-greyscale-min,.w3-grayscale-min{-webkit-filter:grayscale(50%);filter:grayscale(50%)}\n.w3-sepia{-webkit-filter:sepia(75%);filter:sepia(75%)}\n.w3-sepia-max,.w3-hover-sepia:hover{-webkit-filter:sepia(100%);filter:sepia(100%)}\n.w3-sepia-min{-webkit-filter:sepia(50%);filter:sepia(50%)}\n.w3-text-shadow{text-shadow:1px 1px 0 #444}.w3-text-shadow-white{text-shadow:1px 1px 0 #ddd}\n.w3-transparent{background-color:transparent!important}\n.w3-hover-none:hover{box-shadow:none!important;background-color:transparent!important}\n/* Colors */\n.w3-amber,.w3-hover-amber:hover{color:#000!important;background-color:#ffc107!important}\n.w3-aqua,.w3-hover-aqua:hover{color:#000!important;background-color:#00ffff!important}\n.w3-blue,.w3-hover-blue:hover{color:#fff!important;background-color:#2196F3!important}\n.w3-light-blue,.w3-hover-light-blue:hover{color:#000!important;background-color:#87CEEB!important}\n.w3-brown,.w3-hover-brown:hover{color:#fff!important;background-color:#795548!important}\n.w3-cyan,.w3-hover-cyan:hover{color:#000!important;background-color:#00bcd4!important}\n.w3-blue-grey,.w3-hover-blue-grey:hover,.w3-blue-gray,.w3-hover-blue-gray:hover{color:#fff!important;background-color:#607d8b!important}\n.w3-green,.w3-hover-green:hover{color:#fff!important;background-color:#4CAF50!important}\n.w3-light-green,.w3-hover-light-green:hover{color:#000!important;background-color:#8bc34a!important}\n.w3-indigo,.w3-hover-indigo:hover{color:#fff!important;background-color:#3f51b5!important}\n.w3-khaki,.w3-hover-khaki:hover{color:#000!important;background-color:#f0e68c!important}\n.w3-lime,.w3-hover-lime:hover{color:#000!important;background-color:#cddc39!important}\n.w3-orange,.w3-hover-orange:hover{color:#000!important;background-color:#ff9800!important}\n.w3-deep-orange,.w3-hover-deep-orange:hover{color:#fff!important;background-color:#ff5722!important}\n.w3-pink,.w3-hover-pink:hover{color:#fff!important;background-color:#e91e63!important}\n.w3-purple,.w3-hover-purple:hover{color:#fff!important;background-color:#9c27b0!important}\n.w3-deep-purple,.w3-hover-deep-purple:hover{color:#fff!important;background-color:#673ab7!important}\n.w3-red,.w3-hover-red:hover{color:#fff!important;background-color:#f44336!important}\n.w3-sand,.w3-hover-sand:hover{color:#000!important;background-color:#fdf5e6!important}\n.w3-teal,.w3-hover-teal:hover{color:#fff!important;background-color:#009688!important}\n.w3-yellow,.w3-hover-yellow:hover{color:#000!important;background-color:#ffeb3b!important}\n.w3-white,.w3-hover-white:hover{color:#000!important;background-color:#fff!important}\n.w3-black,.w3-hover-black:hover{color:#fff!important;background-color:#000!important}\n.w3-grey,.w3-hover-grey:hover,.w3-gray,.w3-hover-gray:hover{color:#000!important;background-color:#9e9e9e!important}\n.w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}\n.w3-dark-grey,.w3-hover-dark-grey:hover,.w3-dark-gray,.w3-hover-dark-gray:hover{color:#fff!important;background-color:#616161!important}\n.w3-pale-red,.w3-hover-pale-red:hover{color:#000!important;background-color:#ffdddd!important}\n.w3-pale-green,.w3-hover-pale-green:hover{color:#000!important;background-color:#ddffdd!important}\n.w3-pale-yellow,.w3-hover-pale-yellow:hover{color:#000!important;background-color:#ffffcc!important}\n.w3-pale-blue,.w3-hover-pale-blue:hover{color:#000!important;background-color:#ddffff!important}\n.w3-text-amber,.w3-hover-text-amber:hover{color:#ffc107!important}\n.w3-text-aqua,.w3-hover-text-aqua:hover{color:#00ffff!important}\n.w3-text-blue,.w3-hover-text-blue:hover{color:#2196F3!important}\n.w3-text-light-blue,.w3-hover-text-light-blue:hover{color:#87CEEB!important}\n.w3-text-brown,.w3-hover-text-brown:hover{color:#795548!important}\n.w3-text-cyan,.w3-hover-text-cyan:hover{color:#00bcd4!important}\n.w3-text-blue-grey,.w3-hover-text-blue-grey:hover,.w3-text-blue-gray,.w3-hover-text-blue-gray:hover{color:#607d8b!important}\n.w3-text-green,.w3-hover-text-green:hover{color:#4CAF50!important}\n.w3-text-light-green,.w3-hover-text-light-green:hover{color:#8bc34a!important}\n.w3-text-indigo,.w3-hover-text-indigo:hover{color:#3f51b5!important}\n.w3-text-khaki,.w3-hover-text-khaki:hover{color:#b4aa50!important}\n.w3-text-lime,.w3-hover-text-lime:hover{color:#cddc39!important}\n.w3-text-orange,.w3-hover-text-orange:hover{color:#ff9800!important}\n.w3-text-deep-orange,.w3-hover-text-deep-orange:hover{color:#ff5722!important}\n.w3-text-pink,.w3-hover-text-pink:hover{color:#e91e63!important}\n.w3-text-purple,.w3-hover-text-purple:hover{color:#9c27b0!important}\n.w3-text-deep-purple,.w3-hover-text-deep-purple:hover{color:#673ab7!important}\n.w3-text-red,.w3-hover-text-red:hover{color:#f44336!important}\n.w3-text-sand,.w3-hover-text-sand:hover{color:#fdf5e6!important}\n.w3-text-teal,.w3-hover-text-teal:hover{color:#009688!important}\n.w3-text-yellow,.w3-hover-text-yellow:hover{color:#d2be0e!important}\n.w3-text-white,.w3-hover-text-white:hover{color:#fff!important}\n.w3-text-black,.w3-hover-text-black:hover{color:#000!important}\n.w3-text-grey,.w3-hover-text-grey:hover,.w3-text-gray,.w3-hover-text-gray:hover{color:#757575!important}\n.w3-text-light-grey,.w3-hover-text-light-grey:hover,.w3-text-light-gray,.w3-hover-text-light-gray:hover{color:#f1f1f1!important}\n.w3-text-dark-grey,.w3-hover-text-dark-grey:hover,.w3-text-dark-gray,.w3-hover-text-dark-gray:hover{color:#3a3a3a!important}\n.w3-border-amber,.w3-hover-border-amber:hover{border-color:#ffc107!important}\n.w3-border-aqua,.w3-hover-border-aqua:hover{border-color:#00ffff!important}\n.w3-border-blue,.w3-hover-border-blue:hover{border-color:#2196F3!important}\n.w3-border-light-blue,.w3-hover-border-light-blue:hover{border-color:#87CEEB!important}\n.w3-border-brown,.w3-hover-border-brown:hover{border-color:#795548!important}\n.w3-border-cyan,.w3-hover-border-cyan:hover{border-color:#00bcd4!important}\n.w3-border-blue-grey,.w3-hover-border-blue-grey:hover,.w3-border-blue-gray,.w3-hover-border-blue-gray:hover{border-color:#607d8b!important}\n.w3-border-green,.w3-hover-border-green:hover{border-color:#4CAF50!important}\n.w3-border-light-green,.w3-hover-border-light-green:hover{border-color:#8bc34a!important}\n.w3-border-indigo,.w3-hover-border-indigo:hover{border-color:#3f51b5!important}\n.w3-border-khaki,.w3-hover-border-khaki:hover{border-color:#f0e68c!important}\n.w3-border-lime,.w3-hover-border-lime:hover{border-color:#cddc39!important}\n.w3-border-orange,.w3-hover-border-orange:hover{border-color:#ff9800!important}\n.w3-border-deep-orange,.w3-hover-border-deep-orange:hover{border-color:#ff5722!important}\n.w3-border-pink,.w3-hover-border-pink:hover{border-color:#e91e63!important}\n.w3-border-purple,.w3-hover-border-purple:hover{border-color:#9c27b0!important}\n.w3-border-deep-purple,.w3-hover-border-deep-purple:hover{border-color:#673ab7!important}\n.w3-border-red,.w3-hover-border-red:hover{border-color:#f44336!important}\n.w3-border-sand,.w3-hover-border-sand:hover{border-color:#fdf5e6!important}\n.w3-border-teal,.w3-hover-border-teal:hover{border-color:#009688!important}\n.w3-border-yellow,.w3-hover-border-yellow:hover{border-color:#ffeb3b!important}\n.w3-border-white,.w3-hover-border-white:hover{border-color:#fff!important}\n.w3-border-black,.w3-hover-border-black:hover{border-color:#000!important}\n.w3-border-grey,.w3-hover-border-grey:hover,.w3-border-gray,.w3-hover-border-gray:hover{border-color:#9e9e9e!important}\n.w3-border-light-grey,.w3-hover-border-light-grey:hover,.w3-border-light-gray,.w3-hover-border-light-gray:hover{border-color:#f1f1f1!important}\n.w3-border-dark-grey,.w3-hover-border-dark-grey:hover,.w3-border-dark-gray,.w3-hover-border-dark-gray:hover{border-color:#616161!important}\n.w3-border-pale-red,.w3-hover-border-pale-red:hover{border-color:#ffe7e7!important}.w3-border-pale-green,.w3-hover-border-pale-green:hover{border-color:#e7ffe7!important}\n.w3-border-pale-yellow,.w3-hover-border-pale-yellow:hover{border-color:#ffffcc!important}.w3-border-pale-blue,.w3-hover-border-pale-blue:hover{border-color:#e7ffff!important}\n\n"; });
-define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
-define('text!components/heads.css', ['module'], function(module) { module.exports = "nav {\n    float:right!important;\n    border-radius:8px!important;\n  }\n\n  nav ul {\n    margin: 0;\n    padding: 0;\n    list-style: none;\n  }\n\n  nav a:link,\n  nav a:visited {\n    color: #f0f0f0;\n    text-decoration: none;\n  }\n\n  nav li li a:link,\n  nav li li a:visited {\n    color: #303030;\n    text-decoration: none;\n    padding: 6px 8px;\n  }\n\n  nav a {\n    display: block;\n\n  }\n\n  nav li {\n    font-family: 'Lato', sans-serif;\n    font-weight: 400;\n    float: left;\n    background-color: #393b3e;\n    color:#f0f0f0 !important;\n    margin-right: 0px;\n    position: relative;\n    padding: 0.9em;\n  }\n\n  nav li li{\n    width: 160px;\n    z-index:4;\n    background-color:#f0f0f0;\n    padding: 0;\n  }\n\n  nav li:hover {\n    background-color: #55afff;\n  }\n  nav li li:hover {\n    background-color: #757575;\n  }\n\n\n  nav ul ul  {\n    position: absolute;\n    visibility: hidden;\n  }\n\n  nav ul ul ul{\n    position: absolute;\n    right: 100%;\n    top: -2px;\n    border: solid 1px transparent;\n  }\n\n  nav li:hover > ul {\n    visibility: visible;\n  }\n\n  body {\n    line-height: 1.5;\n    font-size:15px;\n    margin:0;\n  }\n\n  .vf-black {\n    color:#fff!important;\n    background-color:#000!important;\n  }\n  .vf-modal{z-index:3;display:none;padding-top:100px;position:fixed;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgb(0,0,0);background-color:rgba(0,0,0,0.4)}\n  .vf-modal-content{margin:auto;background-color:#fff;position:relative;padding:0;outline:0;width:600px}.w3-closebtn{text-decoration:none;float:right;font-size:24px;font-weight:bold;color:inherit}\n  .vf-sand{color:#000!important;background-color:#fdf5e6!important}\n  .vf-card-2{}\n  .vf-white{color:#000!important;background-color:#fff!important}\n  .vf-right-border{\n    border-top-right-radius: 16px;\n    border-bottom-right-radius: 16px;\n  }\n\n.aurelia-hide-remove {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.aurelia-hide-add {\n  -webkit-animation: fadeOut 2s;\n  animation: fadeOut 2s;\n}\n\n.aurelia-hide-enter {\n  animation: fadeOut 2s;\n}\n.aurelia-hide-leave {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.au-leave-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeOut 2s;\n}\n.animation-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.aurelia-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.au-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n/* CSS3-Animations */\n@-webkit-keyframes fadeIn {\n  0%   { opacity: 0; }\n  100% { opacity: 1; }\n}\n\n@keyframes fadeIn {\n  0%   { opacity: 0; }\n  100% { opacity: 1; }\n}\n\n@-webkit-keyframes fadeOut {\n  0%   { opacity: 1; }\n  100% { opacity: 0; }\n}\n\n@keyframes fadeOut {\n  0%   { opacity: 1; }\n  100% { opacity: 0; }\n}\n"; });
-define('text!filemanager2/app.css', ['module'], function(module) { module.exports = "ux-dialog-overlay.active {background-color: black;opacity: .5;}\n"; });
-define('text!tabs/simpletabs.css', ['module'], function(module) { module.exports = "simple-tabs .tabs-headers {\n  position: relative;\n}\n\nsimple-tabs .tabs-headers  ul{\n  margin: 5px 0;\n  padding: 5px 0;\n}\n\nsimple-tabs .tab-header {\n  display: inline-block;\n  padding: 5px;\n  text-align: center;\n  color: #a2a2a2;\n}\n\nsimple-tabs .tab-header:hover {\n  cursor: pointer;\n  opacity: 0.8;\n}\n\nsimple-tabs .tab-header[data-active=true] {\n  color: #000;\n}\n\nsimple-tabs .tab-slots {\n  position: relative;\n  margin: 10px 0;\n}\n\nsimple-tabs .slide {\n  position: absolute;\n  bottom: 0;\n  background: #42a5f5;\n  height: 4px;\n  left: 0px;\n  width: 50%;\n  transition: left 0.3s ease-in-out;\n}\n\n\nsimple-tab {\n  /*position: absolute;*/\n  width: 100%;\n  display: none;\n}\n\nsimple-tab[data-active=true] {\n  display: block;\n}\n\n"; });
 define('text!navitem.html', ['module'], function(module) { module.exports = "<template>\n  <a href=\"${href}\" class=\"w3-button  w3-small w3-padding-4 vf-right-border\">\n  <slot></slot>\n  </a>\n</template>\n"; });
+define('text!autocomplete/vfAutocompleteSearch.css', ['module'], function(module) { module.exports = ".result-container{\n  font-family: 'helvetica neue', arial, sans-serif;\n  width: auto;\n  /*border: solid 1px #b6b6b6;*/\n  position: fixed;\n  display: inline-block;\n  background: #fff;\n  z-index: 999;\n  box-shadow: 0px -5px 21px -12px rgba(0, 0, 0, 0.2), 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);\n  margin-top: 2px;\n  margin-bottom: 20px;\n  overflow-y: auto;\n}\n\n.result-card{\n  margin: 5px;\n  padding: 5px;\n  border: solid 1px rgba(115, 179, 96, 5);\n  width:250px;\n  max-height: 370px;\n  overflow-y: scroll; /*tomas changed */\n  box-sizing: content-box !important;\n  float:left;\n}\n\n.result-card-heading{\n  box-sizing: content-box !important;\n  border: 1px solid rgb(115, 179, 96);\n  background: rgba(115, 179, 96, 1);\n  color: #fff;\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  text-align: left;\n  flex-basis: auto !important;\n}\n\n.result-card-footer{\n  height:20px;\n  padding: 5px 10px;\n  line-height:20px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  border-top: 1px dotted #999;\n  text-align: right;\n  font-size: 12px;\n  font-weight: bold;\n}\n\n.result-card-item, .result-card-item:visited{\n  font-size: 11.5px;\n  border-bottom: 1px dotted #999;\n  cursor: pointer;\n  text-decoration: none;\n  color: #232323;\n}\n\n.result-card-item:hover{\n  text-decoration: none;\n  background: rgba(115, 179, 96, 0.2);\n}\n\n.result-card-item:last-child{\n  border-bottom: none !important;\n}\n\n.result-card-item:first-child{\n  margin-top:5px;\n}\n\n.result-card-item-label{\n  float:left;\n  width: 75%;\n  text-align: left;\n  height: 20px;\n  line-height: 20px;\n/*  padding: 5px 0px 5px 10px;*/\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.result-card-item-count{\n  width: 25%;\n  text-align: right;\n  height: 20px;\n  line-height: 20px;\n  padding: 5px 5px 5px 0px;\n}\n\n.show-more-link, .show-more-link:visited{\n  text-decoration: none;\n  color:#000;\n}\n\n.show-more-link:hover{\n  text-decoration: none;\n  color: rgba(115, 179, 96, 1);\n}\n\n.result-card-item-count-heading{\n  font-size: 12px;\n  display: inline-block;\n  float: right;\n}\n\na.result-card-item-count-heading, a.result-card-item-count-heading:hover,\na.result-card-item-count-heading:active, a.result-card-item-count-heading:visited {\n  color: #fff;\n  cursor: pointer;\n  text-decoration: none;\n  font-size: 14px;\n}\n\n.norecords-result-card{\n  margin: 0 5px;\n  padding: 5px;\n  font-size: 14px;\n  color: #666;\n  width:250px;\n}\n\n.scrollbar-element{\n  max-height:inherit;\n}\n\n.ps-container:hover>.ps-scrollbar-x-rail, .ps-container:hover>.ps-scrollbar-y-rail {\n  opacity: 1 !important;\n}\n"; });
 define('text!advancedfilepicker/advancedfilepicker.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filepicker/filepanel\"></require>\n  <require from=\"./viewpanel2\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      <filepanel pid=\"left\"></filepanel>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      <viewpanel2 pid=\"right\"></viewpanel2>\n    </div>\n  </div>\n</template>\n"; });
+define('text!components/heads.css', ['module'], function(module) { module.exports = "nav {\n    float:right!important;\n    border-radius:8px!important;\n  }\n\n  nav ul {\n    margin: 0;\n    padding: 0;\n    list-style: none;\n  }\n\n  nav a:link,\n  nav a:visited {\n    color: #f0f0f0;\n    text-decoration: none;\n  }\n\n  nav li li a:link,\n  nav li li a:visited {\n    color: #303030;\n    text-decoration: none;\n    padding: 6px 8px;\n  }\n\n  nav a {\n    display: block;\n\n  }\n\n  nav li {\n    font-family: 'Lato', sans-serif;\n    font-weight: 400;\n    float: left;\n    background-color: #393b3e;\n    color:#f0f0f0 !important;\n    margin-right: 0px;\n    position: relative;\n    padding: 0.9em;\n  }\n\n  nav li li{\n    width: 160px;\n    z-index:4;\n    background-color:#f0f0f0;\n    padding: 0;\n  }\n\n  nav li:hover {\n    background-color: #55afff;\n  }\n  nav li li:hover {\n    background-color: #757575;\n  }\n\n\n  nav ul ul  {\n    position: absolute;\n    visibility: hidden;\n  }\n\n  nav ul ul ul{\n    position: absolute;\n    right: 100%;\n    top: -2px;\n    border: solid 1px transparent;\n  }\n\n  nav li:hover > ul {\n    visibility: visible;\n  }\n\n  body {\n    line-height: 1.5;\n    font-size:15px;\n    margin:0;\n  }\n\n  .vf-black {\n    color:#fff!important;\n    background-color:#000!important;\n  }\n  .vf-modal{z-index:3;display:none;padding-top:100px;position:fixed;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgb(0,0,0);background-color:rgba(0,0,0,0.4)}\n  .vf-modal-content{margin:auto;background-color:#fff;position:relative;padding:0;outline:0;width:600px}.w3-closebtn{text-decoration:none;float:right;font-size:24px;font-weight:bold;color:inherit}\n  .vf-sand{color:#000!important;background-color:#fdf5e6!important}\n  .vf-card-2{}\n  .vf-white{color:#000!important;background-color:#fff!important}\n  .vf-right-border{\n    border-top-right-radius: 16px;\n    border-bottom-right-radius: 16px;\n  }\n\n.aurelia-hide-remove {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.aurelia-hide-add {\n  -webkit-animation: fadeOut 2s;\n  animation: fadeOut 2s;\n}\n\n.aurelia-hide-enter {\n  animation: fadeOut 2s;\n}\n.aurelia-hide-leave {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.au-leave-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeOut 2s;\n}\n.animation-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.aurelia-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n.au-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n\n/* CSS3-Animations */\n@-webkit-keyframes fadeIn {\n  0%   { opacity: 0; }\n  100% { opacity: 1; }\n}\n\n@keyframes fadeIn {\n  0%   { opacity: 0; }\n  100% { opacity: 1; }\n}\n\n@-webkit-keyframes fadeOut {\n  0%   { opacity: 1; }\n  100% { opacity: 0; }\n}\n\n@keyframes fadeOut {\n  0%   { opacity: 1; }\n  100% { opacity: 0; }\n}\n"; });
 define('text!advancedfilepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./advancedfilepicker\"></require>\n  <advancedfilepicker>\n\n  </advancedfilepicker>\n</template>\n"; });
+define('text!filemanager2/app.css', ['module'], function(module) { module.exports = "ux-dialog-overlay.active {background-color: black;opacity: .5;}\n"; });
 define('text!advancedfilepicker/viewpanel2.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/viewpanel\"></require>\n  <require from=\"../tabs/simpletabs\"></require>\n  <require from=\"../tabs/simpletab\"></require>\n  <require from=\"../tabs/simpletabs.css\"></require>\n  <require from='../editor/fileeditor'></require>\n  <require from=\"../pdbcomponents/viewpanel\"></require>\n\n  <div class=\"w3-margin-right w3-margin-left w3-margin-bottom\">\n    <simpletabs>\n      <simpletab name=\"RAW view\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n      </simpletab>\n      <simpletab name=\"PDB view\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n      </simpletab>\n    </simpletabs>\n  </div>\n\n\n</template>\n"; });
+define('text!tabs/simpletabs.css', ['module'], function(module) { module.exports = "simple-tabs .tabs-headers {\n  position: relative;\n}\n\nsimple-tabs .tabs-headers  ul{\n  margin: 5px 0;\n  padding: 5px 0;\n}\n\nsimple-tabs .tab-header {\n  display: inline-block;\n  padding: 5px;\n  text-align: center;\n  color: #a2a2a2;\n}\n\nsimple-tabs .tab-header:hover {\n  cursor: pointer;\n  opacity: 0.8;\n}\n\nsimple-tabs .tab-header[data-active=true] {\n  color: #000;\n}\n\nsimple-tabs .tab-slots {\n  position: relative;\n  margin: 10px 0;\n}\n\nsimple-tabs .slide {\n  position: absolute;\n  bottom: 0;\n  background: #42a5f5;\n  height: 4px;\n  left: 0px;\n  width: 50%;\n  transition: left 0.3s ease-in-out;\n}\n\n\nsimple-tab {\n  /*position: absolute;*/\n  width: 100%;\n  display: none;\n}\n\nsimple-tab[data-active=true] {\n  display: block;\n}\n\n"; });
 define('text!autocomplete/vfAutocompleteSearch.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./vfAutocompleteSearch.css\"></require>\n\n\n  <input ref=\"input\" autocomplete=\"off\" value.bind=\"value & debounce:750\"\n         blur.trigger=\"blurSuggestions($event)\"\n         keydown.delegate=\"keypressed($event)\"\n         placeholder.bind=\"placeholder\" focus.trigger=\"focusSuggestions()\"\n         size.bind=\"size\">\n\n  <div ref=\"results\" show.bind=\"showing\" class=\"result-container\">\n    <div repeat.for=\"resultGroup of resultGroups\" class=\"result-card\">\n\n        <header class=\"result-card-heading\">${resultGroup.groupValue} (${resultGroup.doclist.numFound})</header>\n        <div class=\"result-card-body\">\n          <span repeat.for=\"doclistRec of resultGroup.doclist.docs\">\n\n            <div class=\"result-card-item\"><button type=\"button\" class=\"result-card-item-label w3-button w3-padding-0\" click.trigger=\"clicked(doclistRec)\" >${doclistRec.value}</button> <span class=\"result-card-item-count\">(${doclistRec.num_pdb_entries})</span></div>\n          </span>\n\n        </div>\n        <footer class=\"result-card-footer\">\n\n          <a class=\"result-card-item-label\" href=\"#\" click.delegate=\"searchMore(resultGroup.doclist.docs[0].var_name)\">More...</a>\n        </footer>\n\n    </div>\n    <div show.bind=\"resultGroupsEmpty\">Enter PDB or UnitProt accession code, protein name or related terms.</div>\n  </div>\n</div>\n</template>\n"; });
 define('text!components/instructmenu.html', ['module'], function(module) { module.exports = "<template>\n  <li class=\"nav-item active\">\n    <a href=\"https://about.west-life.eu/network/west-life/west-life\">Home</a>\n  </li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/services\">Services</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://portal.west-life.eu/virtualfolder/\">Data Access</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/bioinformatic-tools\">Bioinformatics Tools</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/integrative-modelling\">Integrative Modelling</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/mx\">Crystallography</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/em\">Electron Microscopy</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/nmr\">NMR</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/vm\">Virtual Machines</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/services/3rd-party-services\">3rd Party Services</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/toolbox\">Search Services</a>\n  </li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/search-support\">Support</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/integrative-modelling\">Integrative Modelling</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock\">HADDOCK</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock--supported-co-factors-and-modified-amino-acids\">HADDOCK – supported co-factors and modified amino acids</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock-22--default-settings\">HADDOCK 2.2 – Default settings</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/haddock/haddock--review\">HADDOCK - Review</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/disvis\">DISVIS</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/powerfit\">PowerFit</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/pdbe\">PDBe</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/pdbe/pdbe-rest-api\">PDBe REST API</a>\n      </li></ul></li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/crystallography\">Crystallography</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp4\">CCP4</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp4/ccp4-online\">CCP4-Online</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/xia2-workflow\">XIA2 Workflow</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/electron-microscopy\">Electron Microscopy</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools\">Scipion Web Tools</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-movie-alignment\">My Movie Alignment</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-first-map\">My First Map</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-res-map\">My Res Map</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/scipion-web-tools/my-reliability-tool\">My Reliability Tool</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/ccp-em\">CCP4-EM</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/NMR\">NMR</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr\">WeNMR</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/gromacs\">GROMACS</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/cs-rosetta3\">CS-Rosetta3</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/unio\">UNIO</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/xplor-nih\">XPLOR-NIH</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/anisofit\">ANISOFIT</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/fanten\">FANTEN</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/amber\">AMBER</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/wenmr/antechamber\">ANTECHAMBER</a>\n      </li></ul></li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs\">West-Life Virtual Machine</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/aria-login\">Logging in with ARIA</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms\">EGI Platforms</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/htc-platform\">HTC Platform</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/registering-with-enmreu-vo\">Registration with ENMR.EU VO</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/vo-registration-troubleshooting\">VO registration troubleshooting</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://github.com/DIRACGrid/DIRAC/wiki/DIRAC-Tutorials\">Job submission using DIRAC system</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/federated-cloud\">Federated Cloud</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/accelerated-computing-platforms\">Accelerated Computing Platforms</a>\n      <ul>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/htc-ac\">HTC-AC</a>\n      </li>                        <li class=\"nav-item\">\n        <a href=\"https://about.west-life.eu/network/west-life/cloud-ac\">Cloud-AC</a>\n      </li></ul></li>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/documentation/egi-platforms/onedata-storage\">Onedata Storage</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/support/tutorials\">Tutorials</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/support/webinars\">Webinars</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/forums\">Forums</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://www.structuralbiology.eu/forums/category/55?t=westlife\">West-Life Forum</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/haddock\">Haddock</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/disvis\">DisVis</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"http://ask.bioexcel.eu/c/powerfit\">PowerFit</a>\n    </li>                        <li class=\"nav-item\">\n      <a href=\"https://sourceforge.net/p/scipion/mailman/scipion-users/\">Scipion</a>\n    </li></ul></li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/news\">News</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"#x\">About</a>\n  <ul>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/project\">Project</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/partners\">Partners</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/advisoryboard\">Advisory Board</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages\">Work Packages</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages/deliverables\">Deliverables</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/about/work-packages/milestones\">Milestones</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"http://internal-wiki.west-life.eu/\">Internal Wiki</a>\n  </li>                        <li class=\"nav-item\">\n    <a href=\"https://about.west-life.eu/network/west-life/outreach\">Publicity</a>\n    <ul>                        <li class=\"nav-item\">\n      <a href=\"https://about.west-life.eu/network/west-life/outreach/Publications\">Publications</a>\n    </li></ul></li>                        <li class=\"nav-item\">\n    <a href=\"http://internal-wiki.west-life.eu/images/e/e0/WestLife-Flyer-WC-Final.pdf\">Flyer</a>\n  </li></ul></li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/cloud\">Cloud</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/developer-help\">Developers</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/contact\">Contact</a>\n</li>                        <li class=\"nav-item\">\n  <a href=\"https://about.west-life.eu/network/west-life/introduction\">Introduction</a>\n</li>\n</template>\n"; });
-define('text!components/sharedfooter.html', ['module'], function(module) { module.exports = "<template>\n<footer>\n    <div class=\"w3-clear w3-margin-top\"></div>\n    <div class=\"w3-center w3-bottom w3-bottombar w3-tiny\">\n        West-Life Virtual Folder documentation at <a href=\"https://h2020-westlife-eu.gitbooks.io/virtual-folder-docs/\" target=\"_blank\">gitbooks.io</a>\n    </div>\n</footer>\n</template>\n"; });
-define('text!components/sharedheader.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <require from=\"./heads.css\"></require>\n  <require from=\"./instructmenu.html\"></require>\n  <div class=\"vf-white\">\n    <a href=\"/\">\n      <picture>\n        <source srcset=\"img/westlife-logo.png\">\n        <img class=\"logo\" style=\"height:60px\" src=\"img/westlife-logo.png\" alt=\"brand logo\">\n      </picture>\n\n    </a>\n    <nav class=\"vf-white\">\n\n      <ul>\n        <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n          <ul show.bind=\"showuserinfo\">\n            <li repeat.for=\"row of router.navigation\" class=\"nav-item\"><a href.bind=\"row.href\">${row.title}</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">'${userinfo.username}' account</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n            </li>\n          </ul>\n          <ul show.bind=\"!showuserinfo\">\n            <li class=\"nav-item\"><a href=\"/login\">Login</a></li>\n          </ul>\n        </li>\n        <instructmenu></instructmenu>\n      </ul>\n    </nav>\n  </div>\n</template>\n"; });
+define('text!components/sharedfooter.html', ['module'], function(module) { module.exports = "<template>\n<footer>\n    <div class=\"w3-clear w3-margin-top\"></div>\n</footer>\n</template>\n"; });
+define('text!components/sharedheader.html', ['module'], function(module) { module.exports = "<template bindable=\"router\">\n  <require from=\"./heads.css\"></require>\n  <require from=\"./instructmenu.html\"></require>\n  <div class=\"vf-white\">\n    <a href=\"/\">\n      <picture>\n        <source srcset=\"img/westlife-logo.png\">\n        <img class=\"logo\" style=\"height:60px\" src=\"img/westlife-logo.png\" alt=\"brand logo\">\n      </picture>\n\n    </a>\n    <nav class=\"vf-white\">\n\n      <ul>\n        <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n          <ul show.bind=\"showuserinfo\">\n            <li repeat.for=\"row of router.navigation\" class=\"nav-item\"><a href.bind=\"row.href\">${row.title}</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">'${userinfo.name}' account</a></li>\n            <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n          <ul show.bind=\"!showuserinfo\">\n            <li class=\"nav-item\"><a href=\"/login\">Login</a></li>\n            <li class=\"nav-item\"><a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide\" target=\"_blank\">Documentation-User's Guide</a></li>\n          </ul>\n        </li>\n        <instructmenu></instructmenu>\n      </ul>\n    </nav>\n  </div>\n</template>\n"; });
 define('text!components/userinfo.html', ['module'], function(module) { module.exports = "<template>\n  <li class=\"nav-item\"><a href=\"#/\">Virtual Folder</a>\n  <ul>\n    <li class=\"nav-item\"><a href=\"#/setting\">Settings</a></li>\n    <li class=\"nav-item\"><a  href=\"#/filemanager\">File Manager</a></li>\n    <li class=\"nav-item\"><a  href=\"#/filepicker\">File Picker</a></li>\n    <li class=\"nav-item\" show.bind=\"!showuserinfo\"><a href=\"/login\">Login</a></li>\n    <li class=\"nav-item\" show.bind=\"showuserinfo\"> ${userinfo.FirstName} ${userinfo.LastName}\n    <ul>\n      <li class=\"nav-item\"><a href.bind=\"userinfo.AccountLink\">User Account Info</a></li>\n      <li class=\"nav-item\"><a href.bind=\"userinfo.LogoutLink\">Logout</a></li>\n    </ul>\n    </li>\n  </ul>\n  </li>\n</template>\n"; });
 define('text!editor/fileeditor.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"codemirror/lib/codemirror.css\"></require>\n  <require from=\"codemirror/theme/eclipse.css\"></require>\n  <div show.bind=\"!isimage\" class=\"w3-card-2 w3-pale-blue w3-code-2\">\n    Viewing file:<i class=\"w3-tiny\">${filename}</i>\n  <textarea ref=\"cmTextarea\">\n\n  </textarea>\n  </div>\n  <div if.bind=\"isimage\" class=\"w3-card-2 w3-code-2\">\n    <img src.bind=\"imageurl\" class=\"w3-image\"/>\n  </div>\n</template>\n"; });
-define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n  <require from=\"../navitem\"></require>\n\n    <!--    <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    -->\n    <div class=\"w3-margin\">\n      <navitem href=\"index.html\">VF Home</navitem>\n      <navitem href=\"filemanager.html\">File Manager</navitem>\n      <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i>\n    </div>\n    <div class=\"w3-half\">\n     <div class=\"w3-responsive\">\n        <panel pid=\"left\"></panel>\n     </div>\n    </div>\n\n    <div class=\"w3-half\">\n      <div class=\"w3-responsive\">\n        <panel pid=\"right\"></panel>\n      </div>\n    </div>\n\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
+define('text!filemanager2/app.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"./panel\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"./app.css\"></require>\n  <require from=\"../navitem\"></require>\n\n    <!--    <h3>Virtual Folder - File manager<i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cog\" click.delegate=\"setupFileManager()\"></i></h3>\n    -->\n    <div class=\"w3-margin\">\n      <navitem href=\"index.html\">VF Home</navitem>\n      <navitem href=\"filemanager.html\">File Manager</navitem>\n      <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cogs\" click.delegate=\"setupFileManager()\"></i>\n    </div>\n    <div class=\"w3-half\">\n     <div class=\"w3-responsive\">\n        <panel pid=\"left\"></panel>\n     </div>\n    </div>\n\n    <div class=\"w3-half\">\n      <div class=\"w3-responsive\">\n        <panel pid=\"right\"></panel>\n      </div>\n    </div>\n\n\n  <div class=\"w3-clear\"></div>\n</template>\n"; });
 define('text!filemanager2/fmsettings.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-card w3-sand\">\n  <ai-dialog>\n    <ai-dialog-body>\n      <h3>${message}</h3>\n      <form>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizepdb\"/>\n      <label>click on *.pdb file will visualize in LiteMol(unchecked - shaw RAW in Edit)</label>\n      <br/>\n      <input class=\"w3-check\" type=\"checkbox\" checked.bind=\"visualizeimg\"/>\n      <label>click on *.jpg|gif|png|bmp|svg file will show image(unchecked - shaw RAW in Edit tab)</label>\n\n      </form>\n    </ai-dialog-body>\n\n    <ai-dialog-footer>\n      <button class=\"w3-btn\" click.trigger = \"close()\">Close</button>\n    </ai-dialog-footer>\n\n  </ai-dialog>\n  </div>\n</template>\n"; });
 define('text!filemanager2/panel.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../filepicker/filepanel\"></require>\n    <require from=\"../pdbcomponents/viewpanel\"></require>\n    <require from=\"../pdbcomponents/dataset\"></require>\n    <require from=\"../tabs/tabs\"></require>\n    <require from='../editor/fileeditor'></require>\n\n  <div class=\"w3-margin-right w3-margin-left w3-margin-bottom\">\n    <tabs tabs.bind=\"paneltabs\"></tabs>\n    <div show.bind=\"selectedList\">\n        <filepanel panelid.bind=\"pid\"></filepanel>\n    </div>\n\n    <div show.bind=\"selectedView\">\n        <fileeditor pid.bind=\"pid\"></fileeditor>\n    </div>\n\n    <div show.bind=\"selectedVisual\">\n        <viewpanel pid.bind=\"pid\"></viewpanel>\n    </div>\n\n    <div show.bind=\"selectedDataset\">\n      <dataset panelid.bind=\"pid\"></dataset>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!filepicker/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./filepanel\"></require>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-card-2 w3-center\">\n    <h3>Virtual Folder - File Picker</h3>\n  </div>\n<div class=\"w3-margin w3-padding w3-card\">\n  <filepanel></filepanel>\n</div>\n</template>\n"; });
-define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <require from=\"./uniprotpanel\"></require>\n  <require from=\"./pdbpanel\"></require>\n    <div class=\"w3-card-2 w3-white w3-hoverable w3-padding\">\n\n      <pdbpanel panelid=\"panelid\" if.bind=\"isPdb\"></pdbpanel>\n\n      <uniprotpanel panelid=\"panelid\" if.bind=\"isUniprot\"></uniprotpanel>\n\n\n      <span class=\"w3-padding-tiny\">${path} contains</span><span class=\"w3-padding-tiny\" show.bind=\"!lock\">${filescount} items.</span><button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"refresh()\">refresh</button> <button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"goroot()\">/</button>\n        <img class=\"w3-display-position\" show.bind=\"lock\" src=\"img/vfloader.gif\"/>\n        <div class=\"w3-clear\"></div>\n\n\n        <table id=\"${panelid}\" class.bind=\"lock? 'w3-disabled': ''\">\n            <thead show.bind=\"isFiles\">\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n                <th title=\"information icons\">i</th>\n            </tr>\n            </thead>\n\n            <tbody>\n\n            <!-- Files from mounted storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\">\n              <td click.trigger=\"selectFile(file)\">${file.name}</td><td click.trigger=\"selectFile(file)\">${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td><td><span show.bind=\"! file.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td>\n            </tr>\n            </tbody>\n          <thead show.bind=\"!isFiles\">\n          <tr>\n            <th style=\"text-align:left\" >name</th>\n            <th colspan=\"3\" style=\"text-align:left;width:100%\">info</th>\n            <th title=\"information icons\">i</th>\n\n          </tr>\n          </thead>\n          <tbody>\n\n            <!-- Files/resources from third party storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"resource of resources\">\n              <td  click.trigger=\"selectResource(resource)\">${resource.name}</td><td  click.trigger=\"selectResource(resource)\" colspan=\"3\">${resource.info}</td><td class=\"w3-tiny\"><span show.bind=\"! resource.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td><td><input show.bind=\"resource.url\" class=\"w3-check w3-tiny\" type=\"checkbox\" model.bind=\"resource\" checked.bind=\"selectedResources\" click.trigger=\"checkResource(resource)\" title=\"Mark to download to VF\"/></td>\n            </tr>\n            </tbody>\n        </table>\n\n    </div>\n</template>\n\n"; });
+define('text!filepicker/filepanel.html', ['module'], function(module) { module.exports = "<template bindable=\"panelid\">\n  <require from=\"./uniprotpanel\"></require>\n  <require from=\"./pdbpanel\"></require>\n    <div class=\"w3-card-2 w3-white w3-hoverable w3-padding\">\n\n      <pdbpanel panelid=\"panelid\" if.bind=\"isPdb\"></pdbpanel>\n\n      <uniprotpanel panelid=\"panelid\" if.bind=\"isUniprot\"></uniprotpanel>\n\n\n      <span class=\"w3-padding-tiny\">${path} contains</span><span class=\"w3-padding-tiny\" show.bind=\"!lock\">${filescount} items.</span><button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"refresh()\">refresh</button> <button class=\"w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right\" click.delegate=\"goroot()\">/</button>\n        <img class=\"w3-display-position\" show.bind=\"lock\" src=\"img/vfloader.gif\"/>\n        <div class=\"w3-clear\"></div>\n\n\n        <table id=\"${panelid}\" class.bind=\"lock? 'w3-disabled': ''\">\n            <thead show.bind=\"isFiles\">\n            <tr>\n                <th style=\"text-align:left\" click.delegate=\"sortByName()\">name</th>\n                <th style=\"text-align:left\" click.delegate=\"sortByExt()\">ext</th>\n                <th style=\"text-align:right\" click.delegate=\"sortBySize()\">size</th>\n                <th style=\"text-align:center\" click.delegate=\"sortByDate()\">date</th>\n                <th title=\"information icons\">i</th>\n            </tr>\n            </thead>\n\n            <tbody>\n\n            <!-- Files from mounted storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"file of files\">\n              <td click.trigger=\"selectFile(file)\">${file.name}</td><td click.trigger=\"selectFile(file)\">${file.ext}</td><td class=\"w3-right\">${file.nicesize}</td><td align=\"center\">${file.nicedate}</td><td><span show.bind=\"! file.available\" title=\"Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.\">*</span></td>\n            </tr>\n            </tbody>\n          <thead show.bind=\"!isFiles\">\n          <tr>\n            <th style=\"text-align:left\" >name</th>\n            <th colspan=\"3\" style=\"text-align:left;width:100%\">info</th>\n            <th title=\"information icons\">i</th>\n\n          </tr>\n          </thead>\n          <tbody>\n\n            <!-- Files/resources from third party storages -->\n            <tr class=\"w3-hover-green\" repeat.for=\"resource of resources\">\n              <td  click.trigger=\"selectResource(resource)\">${resource.name}</td>\n              <td  click.trigger=\"selectResource(resource)\" colspan=\"3\">${resource.info}</td>\n              <td class=\"w3-tiny\">\n                <span show.bind=\"! resource.available\" title=\"Available only for web applications.\">*</span>\n              </td>\n              <td>\n                <!--input show.bind=\"resource.url\" class=\"w3-check w3-tiny\" type=\"checkbox\" model.bind=\"resource\" checked.bind=\"selectedResources\" click.trigger=\"checkResource(resource)\" title=\"Mark to download to VF\"/-->\n              </td>\n            </tr>\n            </tbody>\n        </table>\n\n    </div>\n</template>\n\n"; });
 define('text!filepicker/pdbpanel.html', ['module'], function(module) { module.exports = "<template>\n  <p> Selecting resource from Protein Data Bank.</p>\n</template>\n"; });
 define('text!filepicker/uniprotpanel.html', ['module'], function(module) { module.exports = "<template>\n  <p> Selecting resource from Uniprot Data Bank.</p>\n</template>\n"; });
-define('text!pages/filemanager.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filemanager2/panel\"></require>\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      <panel pid=\"left\"></panel>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      <panel pid=\"right\"></panel>\n    </div>\n  </div>\n\n</template>\n"; });
+define('text!pages/filemanager.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../filemanager2/panel\"></require>\n  <div class=\"w3-card-2 w3-white w3-margin w3-center\">\n    <h4>File Manager\n    <i show.bind=\"!provider.temporary\" class=\"w3-right w3-padding-8 fa fa-cogs\" click.delegate=\"setupFileManager()\" title=\"change setting of file manager\"></i>\n    </h4>\n  </div>\n  \n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"left\"></panel>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-responsive\">\n      \n      <panel pid=\"right\"></panel>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pages/filepicker.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class=\"w3-white w3-card w3-round-large w3-margin w3-padding\">\n    <h1>File picker</h1>\n    Pick file from public portal: <a class=\"w3-button\" click.delegate=\"openwindow('fileid',\n   'https://portal.west-life.eu/virtualfolder/filepickercomponent.html'\n   )\">West-life File</a>\n\n    <p>File URL:<a id=\"fileid\" href=\"\"></a></p>\n    Pick file from this VF instance:<a class=\"w3-button\" click.delegate=\"openfilepickerwindow('file')\">VF file</a>\n\n    <p>File URL:<a id=\"file\" href=\"\"></a></p>\n    <h1>Upload-dir picker</h1>\n    Pick directory from this VF instance:<a class=\"w3-button\" click.delegate=\"openuploaddirpickerwindow('uploaddir')\">VF dir</a>\n\n    <p>Directory URL:<a id=\"uploaddir\" href=\"\"></a></p>\n  </div>\n\n  </body>\n\n</template>\n"; });
-define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n        You can access the files directly using WEBDAV protocol.\n        <button class=\"w3-button\" click.delegate=\"generateurl()\">Generate public URL for WEBDAV access</button>\n      </p>\n      <p>\n        <input readonly value.bind=\"webdavurl\" class=\"w3-border w3-input\"/>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        Disclaimer: URL generated by this tool allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fullfill only your tasks. The URLs will expire in (??) days after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n  <!-- TODO check if tasks are available by backend -->\n  <div if.bind=\"islocalhost\" class=\"w3-half\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n  </div>\n</template>\n"; });
+define('text!pages/virtualfolderhome.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n\n  <div class=\"w3-twothird\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Settings</h3>\n      <p>\n        You can aggregate multiple web based storages and access to the content from one place.\n        Currently supported storage providers: B2DROP, DROPBox, any service providing WEBDAV endpoint.\n        <a href=\"#/setting\" class=\"w3-button\">Settings</a>\n      </p>\n\n    </div>\n\n    <div if.bind=\"islocalhost\" class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>Available local services</h3>\n      <div>\n        <taskcontrol></taskcontrol>\n      </div>\n    </div>\n\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>File Manager</h3>\n      <p>\n        You can browse files from all registered providers from one place.\n        Clicking on a file will open it's content in second panel:\n        These tools are integrated: Litemol viewer visualizes file with \"pdb\" or \"ent\" extension.\n        Dataset and PDB components viewer - if you click on \"Dataset\" tab.\n        <a href=\"#/filemanager\" class=\"w3-button\">File Manager</a>\n      </p>\n    </div>\n  </div>\n\n  <div class=\"w3-third\">\n    <div class=\"w3-card-2 w3-white w3-margin w3-padding\">\n      <h3>WEBDAV access</h3>\n      <p>\n         You can access the files directly using WEBDAV protocol.\n      </p>\n      <p>\n         1. step, pick a folder:<a class=\"w3-button\" click.delegate=\"openuploaddirpickerwindow('uploaddir')\">VF dir</a>\n      </p>\n      <p>2. click or copy this folder URL:<br/>\n        <a id=\"uploaddir\" href=\"\" class=\"w3-border w3-input w3-tiny\"></a>\n      </p>\n      <p class=\"w3-panel w3-pale-yellow w3-small\">\n        URL generated by this widget allows access to the resources, datasets and files without any\n        other authentication mechanism. Use it to fulfil only your tasks. All generated URLs expire next calendar month after creation.\n      </p>\n      <p>\n        Use <a href=\"#/filepicker\" class=\"w3-button\">File picker</a> to generate individual WEBDAV capable links to individual files or directories.\n      </p>\n      <p>Follow <a href=\"https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/integration-guide/select-file-or-dir-from-virtual-folder\">documentation</a> to integrate file picking or directory picking into your web application.</p>\n    </div>\n  </div>\n\n\n</template>\n"; });
 define('text!pages/virtualfoldersetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../virtualfoldersetting/storageprovider\"></require>\n  <require from=\"../virtualfoldersetting/taskcontrol\"></require>\n  <require from=\"../virtualfoldersetting/clouddeployment\"></require>\n\n  <storageprovider></storageprovider>\n\n  <div if.bind=\"islocalhost\">\n    <taskcontrol></taskcontrol>\n  </div>\n\n  <div if.bind=\"islocalhost\">\n    <clouddeployment></clouddeployment>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/checkurl.html', ['module'], function(module) { module.exports = "<template>\n  <span show.bind=\"showit\">\n      <slot></slot>\n  </span>\n  <span show.bind=\"!showit\">${failmessage}</span>\n</template>\n"; });
 define('text!pdbcomponents/dataitem.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"./checkurl\"></require>\n  <require from=\"../w3.css\"></require>\n  <require from=\"../icons.css\"></require>\n\n  <i if.bind=\"showitem\" class=\"fa fa-window-minimize\" click.delegate=\"hideitem()\"></i>\n  <i if.bind=\"!showitem\" class=\"fa fa-window-maximize\" click.delegate=\"hideitem()\"></i>\n\n  <span class=\"w3-right\" show.bind=\"itemPDBEntry\">recognized as PDB entry</span>\n  <span class=\"w3-right\" show.bind=\"itemUniprotEntry\">recognized as UniProt entry</span>\n  <br/><span if.bind=\"itemPDBEntry\">PDB Links:<a href='javascript:void(0);' class='pdb-links' pdb-id=\"${item.Name}\">${item.Name}</a></span>\n  <span if.bind=\"itemUniprotEntry\">UniProt Link <a href=\"http://www.uniprot.org/uniprot/${item.Name}\">${item.Name}</a></span>\n  <div if.bind=\"showitem\">\n    <div id=\"pdblinks-${item.Name}\" if.bind=\"itemPDBEntry\">\n      <hideable defaulthide=true title=\"PDB Litemol Viewer\"><div style=\"position:relative;height:400px;width:600px;\"><pdb-lite-mol pdb-id=\"'${item.Name}'\" hide-controls=\"true\" load-ed-maps=\"true\"></pdb-lite-mol></div></hideable>\n      <checkurl url=\"//www.cmbi.ru.nl/pdb_redo/${pdbredo}/${item.Name}/pdbe.json\" failmessage=\"\">\n      <hideable title=\"PDB Redo\">\n        <!--checkurl url=\"//pdb-redo.eu/db/${item.Name}/pdbe.json\" failmessage=\"No PDB-REDO data available for this structure.\"-->\n          <pdb-redo pdb-id=\"${item.Name}\"></pdb-redo>\n        <!--/checkurl-->\n      </hideable>\n      </checkurl>\n      <checkurl url=\"//www.mrc-lmb.cam.ac.uk/rajini/api/${item.Name}\" failmessage=\"\">\n      <hideable title=\"PDB Residue interaction\"><pdb-residue-interactions pdb-id=\"${item.Name}\"></pdb-residue-interactions></hideable>\n      </checkurl>\n      <hideable title=\"PDB 3D complex\">\n        <checkurl url=\"//shmoo.weizmann.ac.il/elevy/3dcomplexV5/dataV5/json_v3/${item.Name}.json\" failmessage=\"No 3D-complex data available for this structure.\">\n          <pdb-3d-complex pdb-id=\"${item.Name}\" assembly-id=\"1\"></pdb-3d-complex>\n        </checkurl>\n      </hideable>\n\n      <hr/>\n      Showing entity-id:<select name=\"entityids\" value.bind=\"selectedid\" change.delegate=\"selectedValueChanged()\"><option repeat.for=\"entityid of entityids\" value=\"${entityid}\">${entityid}</option></select>\n      <hideable title=\"PDB Topology Viewer\"><pdb-topology-viewer ref=\"el1\" entry-id=\"${item.Name}\" entity-id=\"1\"></pdb-topology-viewer></hideable>\n      <hideable title=\"PDB Sequence Viewer\"><pdb-seq-viewer ref=\"el2\" entry-id=\"${item.Name}\" entity-id=\"1\" height=\"370\"></pdb-seq-viewer></hideable>\n    </div>\n\n    <div id=\"uniprot-${item.Name}\" if.bind=\"itemUniprotEntry\">\n      <hideable title=\"PDB UniProt Viewer\"><pdb-uniprot-viewer entry-id=\"${item.Name}\" height=\"320\"></pdb-uniprot-viewer></hideable>\n    </div>\n\n    <div id=\"link-${item.Name}\">\n      <a href=\"${item.Url}\">${item.Url}</a>\n    </div>\n  </div>\n\n</template>\n"; });
 define('text!pdbcomponents/dataset.html', ['module'], function(module) { module.exports = "<template>\n\n  <require from=\"./pdb-id\"></require>\n  <require from=\"./pdb-ids\"></require>\n  <require from=\"./entry-id\"></require>\n  <require from=\"./dataitem\"></require>\n  <require from=\"./hideable\"></require>\n  <require from=\"../autocomplete/vfAutocompleteSearch\"></require>\n\n  <div class=\"w3-card-2 w3-pale-blue w3-padding w3-margin-right\">\n    <p>This is currently prototype of dataset manipulating dialogs showing integration with third party tools. </p>\n    <div show.bind=\"showlist\">\n      <table class=\"w3-table\">\n        <tr ><td class=\"w3-large w3-hover-green\" click.delegate=\"createnewdataset()\">Create New Dataset</td>\n\n        </tr>\n        <tr repeat.for=\"item of datasetlist\"><td class=\"w3-large w3-hover-green\" click.delegate=\"selectdataset(item)\">${item.Name}</td>\n          <td click.delegate=\"removedataset(item)\"\n                class=\"w3-button w3-btn\">&times;</td>\n        </tr>\n      </table>\n    </div>\n\n    <div show.bind=\"!showlist\">\n      <div class=\"w3-display-container w3-large w3-hover-green\" click.delegate=\"unselectdataset(item)\">${name}</div>\n\n      <form>\n        PDB or related item to add:<br/>\n        <vf-autocomplete-search submit.call=\"additem(item)\" placeholder=\"1cbs (PDB entry) or P12355 (Uniprot entry)\" size=\"40\"></vf-autocomplete-search>\n      </form>\n\n      <hr/>\n      <hideable title=\"PDB Prints\"><pdb-prints pdb-ids='${pdbdataset}' settings='{\"size\": 24 }'></pdb-prints></hideable>\n      <br/>\n      <ul>\n        <li repeat.for=\"item of pdbdataset\"><span class=\"w3-black w3-center\">${item.Name}</span>\n          <i class=\"fa fa-remove\" click.delegate=\"removeitem(item)\"></i>\n          <dataitem item.bind=\"item\"></dataitem>\n        </li>\n      </ul>\n\n      dataset name:\n      <input value.bind=\"name\" change.trigger=\"changename()\"/>\n      <br/>\n\n      <!-- will be enabled after backend service is available -->\n      <button type=\"button\" click.delegate=\"submit()\" disabled.bind=\"!canSubmit\">Publish dataset</button>\n    </div>\n\n  </div>\n</template>\n"; });
 define('text!pdbcomponents/hideable.html', ['module'], function(module) { module.exports = "<template>\n    <require from=\"../icons.css\"></require>\n    <button class=\"w3-bold w3-white w3-button w3-block w3-padding-0 w3-border\" click.delegate=\"changeshowit()\">${title} <i class=\"fa fa-caret-down\"></i></button>\n    <span show.bind=\"showit\" class=\"vf-transition\">\n      <slot></slot>\n    </span>\n</template>\n"; });
-define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-pale-blue w3-card-2 w3-padding w3-margin-right\">\n    Viewing: <i class=\"w3-tiny\">${pdburl}</i>\n    <br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input><br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbredoentry\"\n           change.delegate='loadfromredo()'/>from PDB-REDO database</input>\n  </div>\n\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"'110d'\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n</template>\n"; });
+define('text!pdbcomponents/viewpanel.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"w3-pale-blue w3-card-2 w3-padding w3-margin-right\">\n    Viewing: <i class=\"w3-tiny\">${pdburl}</i>\n    <br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbentry\"\n           change.delegate='loadpdb()'/>from PDB database</input><br/>\n    Load Entry\n    <input id=\"pdbid\" title=\"type PDB id and press enter\" placeholder=\"1r6a\"\n           maxlength=\"4\" size=\"4\" value.bind=\"pdbredoentry\"\n           change.delegate='loadfromredo()'/>from PDB-REDO database</input>\n  </div>\n\n    <div id=\"pdbwrapper\">\n        <div style=\"position:relative;height:600px;width:800px;\" id=\"pdbviewer\">\n            <pdb-lite-mol pdb-id=\"''\" load-ed-maps=\"true\"></pdb-lite-mol>\n        </div>\n    </div>\n</template>\n"; });
 define('text!resources/iadmin.html', ['module'], function(module) { module.exports = "<template>\n<span class=\"fa-stack\">\n        <i class=\"fa fa-square-o fa-stack-2x\"></i>\n        <i class=\"fa fa-id-badge fa-stack-1x\"></i>\n</span>\n</template>\n"; });
+define('text!resources/icogs.html', ['module'], function(module) { module.exports = "<template>\n  <i class=\"fa-check fa-cogs\"></i>\n</template>\n"; });
 define('text!resources/icopy.html', ['module'], function(module) { module.exports = "<template bindable=\"href\">\n  <!-- make input element small - hidden will not allow to select/copy text to clipboard -->\n  <input type=\"text\" ref=\"hrefid\" style=\"overflow: hidden;width: 0px;height:0px\"/>\n  <!-- overlap the input element small remaining box with icon - margin -10px -->\n  <span title=\"Copy url to clipboard\" click.trigger=\"copyclipboard()\" style=\"margin:0px 0px 0px -15px\">\n    <i class=\"fa fa-clipboard\"></i>\n  </span>\n</template>\n"; });
 define('text!resources/icopyicon.html', ['module'], function(module) { module.exports = "<template>\n  <i class=\"fa fa-clipboard\"></i>\n</template>\n"; });
 define('text!resources/idata.html', ['module'], function(module) { module.exports = "<template>\n  <i class=\"fa fa-database\"></i>\n</template>\n"; });
@@ -8977,10 +9097,10 @@ define('text!virtualfoldermodules/ccp4control.html', ['module'], function(module
 define('text!virtualfoldermodules/modulesetting.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./scipioncontrol\"></require>\n  <require from=\"./virtuosocontrol\"></require>\n  <require from=\"./ccp4control\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Available modules\" defaulthide=\"true\">ipionco\n    <scipioncontrol></scipioncontrol>\n    <ccp4control></ccp4control>\n    <virtuosocontrol></virtuosocontrol>\n  </hideable>\n</template>\n"; });
 define('text!virtualfoldermodules/scipioncontrol.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class.bind=\"classin\">\n\n    <h4>Scipion</h4>\n    <p>Scipion is an image processing framework to obtain 3D models\n      of macromolecular complexes using Electron Microscopy.</p>\n    <p>West-life portal allows access to Scipion software tools without need to install them separatately. </p>\n    <p show.bind=\"!enabled\">To enable and start local copy of Scipion Webtools, please click the Enable button.</p>\n    <button show.bind=\"!enabled\" class=\"w3-btn w3-round-large\" click.trigger=\"enable()\">Enable Scipion</button>\n    <p show.bind=\"enabled\">\n      Access Scipion Services:<a href=\"http://localhost:8001/\">local Scipion webtool</a>\n    </p>\n</div>\n</template>\n"; });
 define('text!virtualfoldermodules/virtuosocontrol.html', ['module'], function(module) { module.exports = "<template>\n\n  <div class.bind=\"classin\">\n    <h4>Virtuoso</h4>\n    <p>Virtuoso-opensource is Virtuoso is a scalable cross-platform server that combines Relational, Graph, and Document Data Management with Web Application Server and Web Services Platform functionality.\n    </p>\n    <p>To enable and start local instance of Virtuoso, please click the Enable button.</p>\n    <button class=\"w3-btn w3-round-large\" onclick=\"$.post('/metadataservice/sbservice/virtuoso'); this.disabled=true\">Enable Virtuoso</button>\n    <p>\n      Access Virtuoso Services:<a href=\"/virtuoso\">local Virtuoso webtool</a>\n    </p>\n    </div>\n</template>\n"; });
-define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../icons.css\"></require>\n  <div class=\"w3-white w3-padding\">\n\n      <table class=\"w3-white \">\n        <thead>\n        <tr><th colspan=\"3\">List of connected providers</th> </tr>\n        <tr>\n          <th align=\"left\">Alias</th>\n          <th align=\"left\">Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td>\n          <td>${provider.type}</td>\n          <td><a href=\"#/filemanager\"class=\"w3-button\">Browse content</a></td>\n          <td align=\"center\">\n            <i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i>\n          </td>\n        </tr>\n        </tbody>\n        <tfoot>\n        <tr>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large w3-blue\" type=\"submit\" class=\"w3-buttons\">Add new file provider</button></td>\n          <td colspan=\"3\"><button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" class=\"w3-buttons\">Import from public Virtual Folder</button></td>\n        </tr>\n        </tfoot>\n      </table>\n\n  </div>\n</template>\n"; });
+define('text!virtualfoldersetting/aliastable.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../icons.css\"></require>\n  <div class=\"w3-white w3-padding\">\n\n      <table class=\"w3-white \">\n        <thead>\n        <tr><th colspan=\"3\">List of connected providers</th> </tr>\n        <tr>\n          <th align=\"left\">Alias</th>\n          <th align=\"left\">Type</th>\n          <th></th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr class=\"w3-hover-green\" repeat.for=\"provider of providers\">\n          <td>${provider.alias}</td>\n          <td>${provider.type}</td>\n          <td><a href=\"#/filemanager\"class=\"w3-button\">Browse content</a></td>\n          <td align=\"center\">\n            <i show.bind=\"!provider.temporary\" class=\"fa fa-remove\" click.delegate=\"removeProvider(provider)\"></i>\n          </td>\n        </tr>\n        </tbody>\n      </table>\n\n  </div>\n</template>\n"; });
 define('text!virtualfoldersetting/app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"storageprovider\"></require>\n  <require from=\"taskcontrol\"></require>\n  <require from=\"clouddeployment\"></require>\n  <require from=\"w3.css\"></require>\n\n  <storageprovider></storageprovider>\n\n  <div if.bind=\"islocalhost\">\n    <taskcontrol></taskcontrol>\n  </div>\n\n  <div if.bind=\"islocalhost\">\n    <clouddeployment></clouddeployment>\n  </div>\n\n</template>\n"; });
 define('text!virtualfoldersetting/clouddeployment.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Cloud deployment\" defaulthide=\"true\">\n    <div class=\"w3-card-4 w3-sand\">\n      <h3>Available virtual machines</h3>\n      <table class=\"w3-table w3-striped w3-hoverable\">\n        <thead>\n        <tr>\n          <th>name</th>\n          <th>location</th>\n          <th>capacity</th>\n          <th>mounted VF</th>\n          <th>task status</th>\n        </tr>\n        </thead>\n\n        <tr>\n          <td>West-Life VF 17.05</td>\n          <td>EGI FedCloud, CESNET</td>\n          <td>8GB RAM, 50GB scratch disc</td>\n          <td>mounted - all (b2drop,dropbox,pcloud)</td>\n          <td class=\"w3-pale-green\">OK, CPU utilization 50%</td>\n          <td><a href=\"#\">Connect to console</a></td>\n        </tr>\n\n        <tr>\n          <td>West-Life VF 17.05</td>\n          <td>EGI FedCloud, INFN</td>\n          <td>16GB RAM, 50GB scratch disc</td>\n          <td>mounted - all (b2drop,dropbox,pcloud)</td>\n          <td class=\"w3-pale-red\">halted</td>\n        </tr>\n        <tr>\n          <td><button class=\"w3-button\">Create new VM</button></td>\n        </tr>\n      </table>\n    </div>\n  </hideable>\n\n</template>\n"; });
-define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-sand w3-padding w3-margin\">\n\n    <form submit.trigger=\"addProvider()\">\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. \n            \n          <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">Register</a>\n            </p>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\"  maxlength=\"1024\" value.bind=\"username\" placeholder=\"B2DROP username\" /><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\" placeholder=\"B2DROP password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\"  class=\"w3-bar\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these B2DROP files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these B2DROP files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know the secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have a DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"\n\t\t   /><br/>\n            Alias (optional):<input class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t           tooltip=\"Name for subfolder where these Dropbox files will be mounted\"\n\t    /><br/>\n            <span class=\"w3-tiny\">Name for subfolder where these Dropbox files will be mounted.</span>\n\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these local files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these Filesystem files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input class=\"w3-bar\" type=\"text\" name=\"accessurl\" maxlength=\"1024\" value.bind=\"accessurl\" \n\t  placeholder=\"https://...\" /><br/>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\"  maxlength=\"1024\" value.bind=\"alias\"\n\t     tooltip=\"Name for subfolder where this Webdav folder will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these WebDAV files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\">Add</button>\n        </div>\n\n      </div>\n\n    </form>\n\n\n  </div>\n\n</template>\n"; });
-define('text!virtualfoldersetting/storageprovider.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./aliastable\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Storage providers\">\n    <div class=\"w3-container\">\n      <form submit.trigger=\"newProvider()\" class=\"w3-half\">\n        <aliastable></aliastable>\n      </form>\n\n      <genericcontrol show.bind=\"showprovider\" class=\"w3-half\"></genericcontrol>\n\n    </div>\n  </hideable>\n\n</template>\n"; });
-define('text!virtualfoldersetting/taskcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n    <hideable title=\"Third party services\">\n      <div class=\"w3-container\">\n    <table class=\"w3-white \">\n      <thead>\n      <tr>\n        <th align=\"left\">Name</th>\n        <th align=\"left\">Description</th>\n        <th></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"task of tasks\">\n        <td><b>${task.Name}</b></td>\n        <td>${task.Description}</td>\n        <td show.bind=\"!task.Updating\">\n          <i class=\"fa fa-start\" click.delegate=\"starttask(task)\" show.bind=\"!task.Running\" title=\"not running - you may start it\"></i>\n          <i class=\"fa fa-stop\" click.delegate=\"stoptask(task)\"  show.bind=\"task.Running\" title=\"running - you may stop it\"></i>\n        </td>\n        <td show.bind=\"task.Updating\">\n          <img src=\"img/vfloader.gif\">\n        </td>\n        <td show.bind=\"task.Running\" class=\"w3-small w3-text-blue w3-hover-text-white\">service UI available at: <a href.bind=\"task.LocalUrl\" target=\"_blank\">${task.LocalUrl}</a></td>\n      </tr>\n      </tbody>\n    </table>\n      </div>\n    </hideable>\n\n\n</template>\n"; });
-//# sourceMappingURL=app-bundle.js.map
+define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../w3.css\"></require>\n  <div class=\"w3-sand w3-padding w3-margin\">\n\n    <div>\n\n\n      <select class=\"w3-select\" name=\"option\" value.bind=\"selectedProvider\">\n        <option value=\"\" disabled selected>Choose provider</option>\n        <option repeat.for=\"provider of providers\" value.bind=\"provider\">${provider}</option>\n      </select>\n\n      <div show.bind=\"selectedProvider\">\n\n        <div show.bind=\"selectedB2Drop\">\n          <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. \n            \n          <a href=\"https://b2drop.eudat.eu/pwm/public/NewUser?\">Register</a>\n            </p>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\"  maxlength=\"1024\" value.bind=\"username\" placeholder=\"B2DROP username\" /><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\" placeholder=\"B2DROP password\"/><br/>\n          Alias (optional):<input type=\"text\" name=\"alias\"  class=\"w3-bar\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these B2DROP files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these B2DROP files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedDropbox\">\n          <p>DROPBOX is a commercial data store and exchange service.\n            West-life portal can use your DROPBOX account to access and download your data files. </p>\n\n          <input type=\"checkbox\" ref=\"knownSecureToken\"/><span class=\"w3-tiny\">I know the secure token </span>\n          <div show.bind=\"!knowntoken\">\n            <p>You need to have a DROPBOX account. </p>\n            <a class=\"w3-btn w3-round-large\" href=\"${dropboxauthurl}\" id=\"authlink\">Connect to DROPBOX</a>\n          </div>\n          <div show.bind=\"knowntoken\">Secure token:\n            <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"securetoken\"\n                   readonly.bind=\"!editing\"\n\t\t   /><br/>\n            Alias (optional):<input class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t           tooltip=\"Name for subfolder where these Dropbox files will be mounted\"\n\t    /><br/>\n            <span class=\"w3-tiny\">Name for subfolder where these Dropbox files will be mounted.</span>\n\n            <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n\n          </div>\n\n        </div>\n\n        <div show.bind=\"selectedFileSystem\">\n          Internal path to be linked:\n          <input  class=\"w3-bar\" type=\"text\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"filesystempath\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\" maxlength=\"1024\" value.bind=\"alias\"\n\t      tooltip=\"Name for subfolder where these local files will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these Filesystem files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n        <div show.bind=\"selectedWebDav\">\n          <p>WebDAV is standard protocol to access files via the web. If you have address (WebDAV url) of a\n            service, you can add it to West-life virtual folder directly.</p>\n          WebDAV URL:<input class=\"w3-bar\" type=\"text\" name=\"accessurl\" maxlength=\"1024\" value.bind=\"accessurl\" \n\t  placeholder=\"https://...\" /><br/>\n          Username:<input  class=\"w3-bar\" type=\"text\" name=\"username\" maxlength=\"1024\" value.bind=\"username\"/><br/>\n          Password:<input  class=\"w3-bar\" type=\"password\" name=\"securetoken\" maxlength=\"1024\" value.bind=\"password\"/><br/>\n          Alias (optional):<input  class=\"w3-bar\" type=\"text\" name=\"alias\"  maxlength=\"1024\" value.bind=\"alias\"\n\t     tooltip=\"Name for subfolder where this Webdav folder will be mounted\"\n\t  /><br/>\n          <span class=\"w3-tiny\">Name for subfolder where these WebDAV files will be mounted.</span>\n          <button class=\"w3-btn w3-round-large w3-right\" type=\"submit\" click.trigger=\"addProvider()\">Add</button>\n        </div>\n\n      </div>\n\n    </div>\n\n\n  </div>\n\n</template>\n"; });
+define('text!virtualfoldersetting/importprovider.html', ['module'], function(module) { module.exports = "<template>\n  \n  <span class=\"w3-tiny\">Enter URL of West-Life Virtual Folder instance( https://[yourdomain]/virtualfolder/):</span>\n    <input value.bind=\"remoteurl\" placeholder=\"https://portal.west-life.eu/virtualfolder/\" class=\"w3-bar\" maxlength=\"1024\"/>\n    <ispincog show.bind=\"!publickey\" title=\"Generating keys for import. Wait for couple of seconds.\"></ispincog><span show.bind=\"!publickey\" class=\"w3-tiny\">Generating keys for import. Wait for couple of seconds.</span>\n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" disabled.bind=\"!publickey\">OK</button>\n  <br/>\n  <div show.bind=\"importingSettings\">\n    <table class=\"w3-light-grey\">\n      <tr class=\"w3-blue\">\n        <th scope=\"col\">Remote VF Provider alias</th>\n        <th scope=\"col\">Save as local VF Provider alias</th>\n      </tr>\n      <tr class=\"w3-hover-green w3-white\" repeat.for=\"alias of aliases\">\n        <td>${alias.oldname}</td>\n        <td><input value.bind=\"alias.newname\" class=\"w3-bar\"/> </td>\n      </tr>\n    </table>\n    Ensure local names do not conflict. \n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importSettings2()\">Confirm import</button>\n  </div>\n  \n</template>\n"; });
+define('text!virtualfoldersetting/storageprovider.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./importprovider\"></require>\n  <require from=\"./aliastable\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Storage providers\">\n    <div class=\"w3-container\">\n      <div class=\"w3-half\">\n        <p class=\"w3-panel w3-pale-yellow w3-small\">\n          Using <i>Add new file provider</i> or <i>Import file provider</i> you agree, \n          that Virtual Folder stores authentication token or other type of credentials \n          encrypted in VF database. \n          This information is used only when a resources (files, folders) are read/updated via Virtual Folder portal or via link generated by some Virtual Folder widget. \n          If you remove selected file provider then corresponding token or credentials are deleted and all links to it become invalid.</p>\n        <aliastable></aliastable>\n        \n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"newProvider()\" class=\"w3-buttons\">Add new file provider</button>\n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" class=\"w3-buttons\" title=\"Import from another Virtual Folder instance\">Import file provider</button>\n        \n      </div>\n\n      <genericcontrol show.bind=\"showprovider\" class=\"w3-half\"></genericcontrol>\n      <importprovider if.bind=\"showimport\" class=\"w3-half\"></importprovider>\n\n    </div>\n  </hideable>\n\n</template>\n"; });
+define('text!virtualfoldersetting/taskcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n    <hideable title=\"Third party services\">\n      <div class=\"w3-container\">\n    <table class=\"w3-white \">\n      <thead>\n      <tr>\n        <th align=\"left\">Name</th>\n        <th align=\"left\">Description</th>\n        <th></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"task of tasks\">\n        <td><b>${task.Name}</b></td>\n        <td>${task.Description}</td>\n        <td show.bind=\"!task.Updating\">\n          <i class=\"fa fa-play-circle-o\" click.delegate=\"starttask(task)\" show.bind=\"!task.Running\" title=\"not running - you may start it\"></i>\n          <i class=\"fa fa-stop-circle-o\" click.delegate=\"stoptask(task)\"  show.bind=\"task.Running\" title=\"running - you may stop it\"></i>\n        </td>\n        <td show.bind=\"task.Updating\">\n          <img src=\"img/vfloader.gif\">\n        </td>\n        <td show.bind=\"task.Running\" class=\"w3-small w3-text-blue w3-hover-text-white\">service UI available at: <a href.bind=\"task.LocalUrl\" target=\"_blank\">${task.LocalUrl}</a></td>\n      </tr>\n      </tbody>\n    </table>\n      </div>\n    </hideable>\n\n\n</template>\n"; });

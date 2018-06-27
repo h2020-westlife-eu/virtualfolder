@@ -1,4 +1,5 @@
 ﻿
+using System;
 using MetadataService.Services.Files;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
@@ -12,6 +13,7 @@ namespace WP6Service2
 
 	public class UserinfoResponse {
 		public string username { get; set; }
+		public string name { get; set; }
 	}
 
     [EnableCors(allowCredentials:true)]
@@ -20,7 +22,7 @@ namespace WP6Service2
 	{
 		public object Any(Userinfo request)
 		{
-			return new UserinfoResponse { username = (string) Request.Items["userid"]};
+			return new UserinfoResponse {username = (string) Request.Items["userid"], name = (string) Request.Items["name"]};
 		}
 	}
 

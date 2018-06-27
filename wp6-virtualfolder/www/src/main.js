@@ -8,6 +8,7 @@ Promise.config({
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
+    .plugin('aurelia-dialog')
     .feature('resources')
     .developmentLogging();
   aurelia.start().then(() => aurelia.setRoot());

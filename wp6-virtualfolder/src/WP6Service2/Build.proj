@@ -26,7 +26,8 @@
     <Target Name="Build">
         <Message Text="Build $(Configuration)" />
         <MSBuild Projects="WP6Service2/MetadataService.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
-        <MSBuild Projects="MetadataServiceTest/MetadataServiceTest.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
+        <MSBuild Projects="MetadataServiceTest/MetadataServiceTest.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="True"/>
+        <MSBuild Projects="webdavhash2path/webdavhash2path.csproj" Properties="Configuration=$(Configuration)" ContinueOnError="False"/>
     </Target>
 
     <UsingTask AssemblyFile="packages/MSBuildTasks.1.5.0.235/tools/MSBuild.Community.Tasks.dll" TaskName="NUnit"/>

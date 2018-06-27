@@ -68,42 +68,11 @@ namespace MetadataService.Services.Files
 
     [EnableCors(allowCredentials:true)]
     [VreCookieRequestFilter]
-    public class ProviderService : Service
+    public class ProviderService : GenericProviderMethods
     {
-        private readonly ISettingsStorage storage;
-
-
-        //configures the storage
-        public ProviderService()
-        {
-            storage = SettingsStorageInDB.GetInstance();
-            //storage = SettingsStorageInFile.GetInstance();
-        }
-
+        
         //private static Dictionary<string,IProviderCreator> AvailableProviders; //provider name and factory method
         //   private Dictionary<string, UserProvider> UserProviders = new Dictionary<string, UserProvider>();
-
-        /*gets providers associated to the user, initialize object when needed */
-        private List<ProviderItem> getUserProviderItems()
-        {
-            return getUserProviders().getProviderItems();
-        }
-
-        /** determining which configured provider belongs to the user logged within this request */
-        private UserProvider getUserProviders()
-        {
-            try
-            {
-                var userid = (string) Request.Items["userid"];
-                var userauthproxy = (string) Request.Items["authproxy"];
-                if (userid.Length == 0) throw new UnauthorizedAccessException();
-                return UserProvider.GetInstance(userid, userauthproxy, storage, Db);
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new UnauthorizedAccessException();
-            }
-        }                
 
         /** returns list of configured file providers */
         public ProviderList Get(ProviderItem request)

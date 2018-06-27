@@ -10,6 +10,8 @@ export class App {
       {route: 'filepicker', name: 'filepicker', moduleId: 'pages/filepicker', nav: true, title: 'File Picker'}
 
     ]);
+    config.mapUnknownRoutes('pages/virtualfoldersetting');
+    //config.fallbackRoute('setting');
     this.router = router;
   }
 

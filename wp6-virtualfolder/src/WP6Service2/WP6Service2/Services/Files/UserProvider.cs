@@ -13,11 +13,11 @@ namespace MetadataService.Services.Files
         private static readonly object userlock = new object();
         private readonly List<ProviderItem> _providers; //list of configured providers
         private readonly Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
-        private readonly string userauthproxy;
+        //private readonly string userauthproxy;
 
-        private UserProvider(string _userid, string _userauthproxy, ISettingsStorage storage, IDbConnection db)
+        private UserProvider(string _userid, ISettingsStorage storage, IDbConnection db)
         {
-            userauthproxy = _userauthproxy;
+            //userauthproxy = _userauthproxy;
             lock (userlock) //seems two threads enters this section
             {
                 if (_providers == null)
@@ -34,7 +34,7 @@ namespace MetadataService.Services.Files
                             if (ProviderFactory.AvailableProviders.TryGetValue(pf.type, out impl))
                             {
                                 _providers.Add(pf);
-                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db, userauthproxy));
+                                linkedimpl.Add(pf.alias, impl.CreateProvider(pf, storage, db));
                             }
                             else
                             {
@@ -49,11 +49,11 @@ namespace MetadataService.Services.Files
             }
         }
 
-        public static UserProvider GetInstance(string _userid, string _userauthproxy, ISettingsStorage storage,
+        public static UserProvider GetInstance(string _userid, ISettingsStorage storage,
             IDbConnection db)
         {
             if (!_instances.ContainsKey(_userid))
-                _instances[_userid] = new UserProvider(_userid, _userauthproxy, storage, db);
+                _instances[_userid] = new UserProvider(_userid, storage, db);
             return _instances[_userid];
         }
 
@@ -82,10 +82,14 @@ namespace MetadataService.Services.Files
             IProviderCreator impl = null;
             if (ProviderFactory.AvailableProviders.TryGetValue(provideritem.type, out impl))
             {
+                //if the same provider exists, delete first
+                if (_providers.Exists(x => x.alias == provideritem.alias)) Delete(provideritem);
+                //set default alias
                 if (string.IsNullOrEmpty(provideritem.alias))
                     provideritem.alias = firstempty(provideritem.type.ToLower());
-                var aprovider = impl.CreateProvider(provideritem, storage, connection, userauthproxy);
-
+                //create provider
+                var aprovider = impl.CreateProvider(provideritem, storage, connection);                
+                
                 _providers.Add(provideritem);
                 linkedimpl.Add(provideritem.alias, aprovider);
                 aprovider.StoreSettings(provideritem);

@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
+using System.Text;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
+using ServiceStack.CacheAccess;
 using ServiceStack.Common;
 using ServiceStack.ServiceClient.Web;
 using WP6Service2.Services.Dataset;
@@ -170,6 +172,12 @@ namespace MetadataServiceTest
             //check whether number of relation increased by 3, then delete
             var client = new JsonServiceClient(_baseUri);
             var entries = client.Get(new GetEntries());
+            //remove all existing entries
+            foreach (var entry in entries)
+            {
+                client.Delete(new DeleteDataset {Id = entry.Id});
+            }
+            entries = client.Get(new GetEntries());
             Assert.False(entries.Select(x => x.Name).Contains("2hh6"));
             Assert.False(entries.Select(x => x.Name).Contains("3cs6"));
             Assert.False(entries.Select(x => x.Name).Contains("4yg6"));
@@ -536,7 +544,8 @@ namespace MetadataServiceTest
             var pi = createTestFilesystemProviderItem(name);            
             //var providerlist = client.Get(new ProviderItem());
             //register test filesystem provider
-            var providerlistwithnew = client.Put(pi);
+            //var providerlistwithnew =
+            client.Put(pi);
             //get list of providers - to compare at the end of the test
             var providerlist = client.Get(new ProviderItem());
             int plength = providerlist.Count;
@@ -556,6 +565,30 @@ namespace MetadataServiceTest
             {
                 client.Delete(item);
             }            
+        }
+
+        [Test]
+        public void StringUrlComplessDecompressTestCase()
+        {
+            var str = new[] {"vagrant", "3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu", "3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test1","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test2","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test3","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test1","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test2","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test3","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test1/experiment/data/2hhd.pdb","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test2/test2/test2/txt.txt","3ehdj59sdh584j3ldfh349sjdl3958ghzx@west-life.eu/b2drop/test3/test.txt"};
+            var pkey = "1234567812345678";
+            var iv = "0123456789abcdef";
+            //var encstr = new String[]{};
+            foreach (var s in str)
+            {
+                var zipped = AESThenHMAC.Zip(s);
+                var zipped2 = AESThenHMAC.Zip2(s);
+                Console.WriteLine("Original: "+s+" original length:"+s.Length+" zipped.Length:"+zipped.Length+" zipped2.Length:"+zipped2.Length);
+                var enc = AESThenHMAC.Encrypt(s,Encoding.Default.GetBytes(pkey),Encoding.Default.GetBytes(iv));
+                Console.WriteLine("Encrypted: "+enc+" encrypted length:"+enc.Length);
+                var dec = AESThenHMAC.Decrypt(enc, Encoding.Default.GetBytes(pkey),Encoding.Default.GetBytes(iv));
+                //test decoded should be equal to original
+                Assert.AreEqual(s,dec);
+                var enc2 = SettingsStorageInDB.getencryptedpath(s);
+                var dec2 = SettingsStorageInDB.getdecryptedpath(enc2);
+                Console.WriteLine("Encrypted2:"+enc2+" encrypted length2:"+enc2.Length);
+                Assert.AreEqual(s,dec2);
+            }
         }
 
     }

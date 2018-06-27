@@ -2,7 +2,8 @@
  * Created by Tomas Kulhanek on 1/16/17.
  */
 
-import {HttpClient} from 'aurelia-http-client';
+//import {HttpClient} from 'aurelia-http-client';
+import {ProjectApi} from "../components/projectapi";
 import {Vfstorage} from '../utils/vfstorage';
 //import {bindable} from 'aurelia-framework';
 

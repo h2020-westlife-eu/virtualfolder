@@ -13,10 +13,9 @@ namespace MetadataService.Services.Files
 {
     public class WebDavProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new WebDavProvider(item, storage, connection, authproxy);
+            return new WebDavProvider(item, storage, connection);
         }
     }
 
@@ -25,17 +24,22 @@ namespace MetadataService.Services.Files
         private static readonly HashSet<string> Initializedproviders = new HashSet<string>();
         private static readonly object Initlock = new object();
         private readonly string _providerurl = ""; //"https://b2drop.eudat.eu/remote.php/webdav"
+        private const string Vfscriptsdirvariable = "VF_SCRIPTS_DIR";
+        private static readonly string Scriptsdir = Environment.GetEnvironmentVariable(Vfscriptsdirvariable) != null
+            ? Environment.GetEnvironmentVariable(Vfscriptsdirvariable)
+            : "/opt/virtualfolder/scripts/";
+        private static readonly string Mountscript = Scriptsdir+"mountb2drop.sh";
 
 
         /** default constructor */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string authproxy) :
-            this(item, storage, connection, item.accessurl, authproxy)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection) :
+            this(item, storage, connection, item.accessurl)
         {
         }
 
         /** constructor for subclasses, where accessurl is known */
-        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string accessurl,
-            string authproxy) : base(item, storage, connection, authproxy)
+        public WebDavProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection, string accessurl)
+            : base(item, storage, connection)
         {
             _providerurl = accessurl;
             //var task = Initialize(item);
@@ -75,10 +79,15 @@ namespace MetadataService.Services.Files
             var _path = path ?? "";
             if (_path.Contains(".."))
                 _path = ""; //prevents directory listing outside
-            //MAIN splitter for strategies of listing files
-            //return DropBoxFS.ListOfFiles(path);
+            var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
+                               (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+            if (!dirnotempty)
+            {
+                //try to refresh umount mount
+                Initialize(null);
+            }
 
-            return FileSystemProvider.ListOfFiles(FILESYSTEMFOLDER, WEBDAVURL, PUBLICWEBDAVURL, _path);
+            return ListOfFiles(FILESYSTEMFOLDER, username,alias, _path);
         }
 
         public override bool DeleteSettings()
@@ -87,7 +96,7 @@ namespace MetadataService.Services.Files
             return base.DeleteSettings();
         }
 
-        
+        //if request == null -> refresh, otherwise add
         private void Initialize(ProviderItem request)
         {
             lock (Initlock)
@@ -95,7 +104,10 @@ namespace MetadataService.Services.Files
                 if (Initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
                     Console.WriteLine("provider at " + FILESYSTEMFOLDER + "already initialized for " + username);
-                    return;
+                    var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
+                                       (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+                    if (dirnotempty) return;
+                    else Console.WriteLine("but seems empty, try to reinitialize");
                 }
                 //else
                 Initializedproviders.Add(FILESYSTEMFOLDER);
@@ -113,12 +125,31 @@ namespace MetadataService.Services.Files
                 {
                     Console.WriteLine("Directory empty " + ex.Message+" , trying to mount.");
                 }
+                int exitcode;
                 
-                    int exitcode;
+                if (request == null)
+                {
+                    string output = Utils.ExecuteShell("/bin/bash", new[]
+                    {
+                        //"-H -u vagrant", 
+                        //TODO make path of mountb2drop script configurable
+                        Mountscript,
+                        "refresh",
+                        _providerurl,
+                        FILESYSTEMFOLDER,
+                        username,
+                        ".",
+                        WEBDAVURL
+                    }, out exitcode);
+                    Console.WriteLine(output);
+                }
+                else
+                {
                     request.output = Utils.ExecuteShell("/bin/bash", new[]
                     {
-                        //"-H -u vagrant",
-                        "/home/vagrant/scripts/mountb2drop.sh",
+                        //"-H -u vagrant", 
+                        //TODO make path of mountb2drop script configurable
+                        Mountscript,
                         "add",
                         _providerurl,
                         FILESYSTEMFOLDER,
@@ -127,7 +158,8 @@ namespace MetadataService.Services.Files
                         WEBDAVURL
                     }, out exitcode);
                     Console.WriteLine(request.output);
-                
+                }
+
             }
         }
 
@@ -145,7 +177,7 @@ namespace MetadataService.Services.Files
                 int exitcode;
                 var output = Utils.ExecuteShell("/bin/bash", new[]
                 {
-                    "/home/vagrant/scripts/mountb2drop.sh",
+                    Mountscript,
                     "remove",
                     _providerurl,
                     FILESYSTEMFOLDER,

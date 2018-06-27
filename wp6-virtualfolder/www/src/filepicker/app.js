@@ -14,7 +14,7 @@ export class App {
   }
 
   selectFile(file){
-    window.opener.postMessage(window.location.protocol+"//"+window.location.hostname+file.publicwebdavuri, "*");
+    window.opener.postMessage(window.location.protocol+"//"+window.location.host+file.publicwebdavuri, "*");
     window.close();
   }
 

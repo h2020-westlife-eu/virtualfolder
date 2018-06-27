@@ -19,8 +19,7 @@ VF_SKIP_APACHE_CONF=1 #will skip to proxy directly to b2drop or webdav - will go
 
 
 function checkproxy {
-  if [ $http_proxy ]; then
-    echo Checking Davfs2 proxy
+  if [ $http_proxy ]; then    
     if grep -q "^proxy" /etc/davfs2/davfs2.conf ; then
        echo "proxy already set"
     else
@@ -31,7 +30,7 @@ function checkproxy {
 
 function checkargs {
   if [[ $1 == http* ]]; then
-     echo url ok
+     echo -n "url OK"
   else
      echo url needs to be in form http:// or https://
      echo -$1:$2:$3:***:$5-
@@ -64,35 +63,31 @@ function checkargs {
      fi
   fi
 }
-function addfstab {
-  echo adding item to fstab [url] [localpath] $1 $2
-  LOCALPATH=`readlink -f $2`
-  if grep -q "$1 $LOCALPATH" /etc/fstab; then
-    echo "already set"
+function addfstab {  
+  # LOCALPATH=`readlink -f $2`
+  if grep -q "$1 $2 " /etc/fstab; then
+    echo "fstab already set"
   else
-    echo "$1 $LOCALPATH davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
   fi
 }
 
-function removefstab {
-  echo removing [url] [localpath]
-  grep -v "$1 $2" /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
+function removefstab {  
+  grep -v "$1 $2 " /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
 }
 
-function addsecrets {
-  echo adding to secrets file
+function addsecrets {  
   mkdir -p ~/.davfs2
   touch ~/.davfs2/secrets
-  if grep -q "$1 $2" ~/.davfs2/secrets; then
-    echo "already set"
+  if grep -q "$1 $2 " ~/.davfs2/secrets; then
+    echo "secrets already set"
   else
     echo $1 $2 $3 | tee -a ~/.davfs2/secrets > /dev/null
   fi
   chmod go-rwx ~/.davfs2/secrets
 }
 
-function removesecrets {
-  echo removing secrets
+function removesecrets {  
   grep -v "$1 $2" ~/.davfs2/secrets > /tmp/secrets && sudo mv /tmp/secrets ~/.davfs2/secrets
   chmod go-rwx ~/.davfs2/secrets
 }
@@ -131,14 +126,13 @@ function addapacheproxy {
 }
 
 function removeapacheproxy {
- echo removing apache proxy
+ 
  L1=`grep -n -m 1 "\<Location $1" $HTTPD_CONF | cut -f1 -d:`
- echo from row $L1
+ 
  if [ -z $L1 ]; then
    echo is unset
  elif [ "$L1" -gt "0" ]; then
-   let L2=$L1+6
-   echo to row $L2
+   let L2=$L1+6 
    sudo sed -i "$L1,$L2 d" $HTTPD_CONF
  fi
 }
@@ -161,6 +155,7 @@ checkargs $2 $3 $4 $5 $6
 LOCALPATH=`readlink -f $3`
 
 if [ $1 == 'add' ]; then
+  echo "Adding $2 $3 "
   checkproxy
   addfstab $2 $LOCALPATH
   addsecrets $LOCALPATH $4 $5
@@ -177,6 +172,7 @@ if [ $1 == 'add' ]; then
 fi
 
 if [ $1 == 'remove' ]; then
+  echo "Removing $2 $3"
   #workaround, without sudo doesnt work
   LOCALPATH=`readlink -f $3`
   sudo umount $LOCALPATH
@@ -186,6 +182,17 @@ if [ $1 == 'remove' ]; then
   removesecrets $3 $4
   echo "unmounted $3"
   exit
+fi
+
+if [ $1 == 'refresh' ]; then
+  echo "Refreshing $2 $3"
+  LOCALPATH=`readlink -f $3`
+  if [ ! -d $3 ]; then
+    echo "previous mountpoint is corrupted, trying to unmount"
+    sudo umount $3
+  fi
+  #user needs to be member of group davfs2
+  mount $LOCALPATH
 fi
 
 help

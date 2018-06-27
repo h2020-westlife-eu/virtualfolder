@@ -9,14 +9,19 @@ namespace WP6Service2.Services.PerUserProcess
     */
     public static class AvailableJobs
     {
+        private const string Vfscriptsdirvariable = "VF_SCRIPTS_DIR";
+        private static readonly string Scriptsdir = Environment.GetEnvironmentVariable(Vfscriptsdirvariable) != null
+            ? Environment.GetEnvironmentVariable(Vfscriptsdirvariable)
+            : "/opt/virtualfolder/scripts/";
+        
         private static readonly string[][] services =
         {
-            new[] {"ccp4suite", "/bin/sudo", "/home/vagrant/bootstrap/bootstrapcvmfsccp4.sh yes"},
-            new[] {"scipion", "/bin/bash", "/home/vagrant/scripts/startScipionWeb.sh"},
-            new[] {"virtuoso", "/bin/bash", "/home/vagrant/scripts/startVirtuoso.sh"},
-            new[] {"notebook","/bin/bash","/home/vagrant/scripts/startJupyter.sh"},
-            new[] {"lab","/bin/bash","/home/vagrant/scripts/startJupyterlab.sh"},
-            new[] {"vminstance","/bin/bash","/home/vagrant/scripts/startvm.sh"}
+            new[] {"ccp4suite", "/bin/sudo", Scriptsdir +"bootstrapcvmfsccp4.sh yes"},
+            new[] {"scipion", "/bin/bash", Scriptsdir +"startScipionWeb.sh"},
+            new[] {"virtuoso", "/bin/bash", Scriptsdir +"startVirtuoso.sh"},
+            new[] {"notebook","/bin/bash",Scriptsdir +"startJupyter.sh"},
+            new[] {"lab","/bin/bash",Scriptsdir +"startJupyterlab.sh"},
+            new[] {"vminstance","/bin/bash",Scriptsdir +"startvm.sh"}
         };
         private static readonly List<JobType> list;
         private static readonly string ALLOW_ALL = "VF_ALLOW_ALL";

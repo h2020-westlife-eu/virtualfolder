@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -407,5 +408,103 @@ namespace MetadataService.Services.Settings
             return SimpleDecrypt(encryptedMessage, cryptKey, authKey,
                 cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
         }
-    }
+
+        private static SymmetricAlgorithm _cryptoService = new AesCryptoServiceProvider();
+
+        static AESThenHMAC()
+        {
+            _cryptoService.Mode = CipherMode.CBC;
+        }
+
+        // maybe use AesCryptoServiceProvider instead?
+
+        // vector and key have to match between encryption and decryption
+        public static string Encrypt(string text, byte[] key, byte[] vector)
+        {
+            //generate random salt first character
+            var rnd = new RNGCryptoServiceProvider();
+            var salt = new byte[8];
+            rnd.GetBytes(salt);
+            
+            return Convert.ToBase64String( //encode in base64
+                Transform( //encrypts
+                    Zip2(Encoding.ASCII.GetString(salt)+text), //adds salt to string and zip 
+                    _cryptoService.CreateEncryptor(key, vector)));
+        }
+
+        // vector and key have to match between encryption and decryption
+        public static string Decrypt(string text, byte[] key, byte[] vector)
+        {
+            return Unzip2( //unzip
+                Transform( //decrypt
+                    Convert.FromBase64String(text), //decode base64 
+                    _cryptoService.CreateDecryptor(key, vector)))
+                .Substring(8); //remove first character as it is salt
+        }
+
+        private static byte[] Transform(string text, ICryptoTransform cryptoTransform)
+        {
+            return Transform(Encoding.Default.GetBytes(text),cryptoTransform);
+        }
+        
+        private static byte[] Transform(byte[] input, ICryptoTransform cryptoTransform)
+        {            
+            MemoryStream stream = new MemoryStream();
+            CryptoStream cryptoStream = new CryptoStream(stream, cryptoTransform, CryptoStreamMode.Write);            
+
+            cryptoStream.Write(input, 0, input.Length);
+            cryptoStream.FlushFinalBlock();
+
+            return stream.ToArray();
+        }
+        
+        public static byte[] Zip(string str) {
+            var bytes = Encoding.UTF8.GetBytes(str);
+
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream()) {
+                using (var gs = new GZipStream(mso, CompressionMode.Compress)) {
+                    msi.CopyTo(gs);
+                }
+
+                var zipped = mso.ToArray();
+                //Console.Error.WriteLine("debug, zip input length:"+bytes.Length+" outputlength:"+zipped.Length);
+                return zipped;
+            }
+        }
+
+        public static string Unzip(byte[] bytes) {
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream()) {
+                using (var gs = new GZipStream(msi, CompressionMode.Decompress)) {
+                    gs.CopyTo(mso);                    
+                }
+                return Encoding.UTF8.GetString(mso.ToArray());
+            }
+        }
+        public static byte[] Zip2(string str) {
+            var bytes = Encoding.UTF8.GetBytes(str);
+
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream()) {
+                using (var gs = new DeflateStream(mso, CompressionMode.Compress)) {
+                    msi.CopyTo(gs);
+                }
+
+                var zipped = mso.ToArray();
+                //Console.Error.WriteLine("debug, zip input length:"+bytes.Length+" outputlength:"+zipped.Length);
+                return zipped;
+            }
+        }
+
+        public static string Unzip2(byte[] bytes) {
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream()) {
+                using (var gs = new DeflateStream(msi, CompressionMode.Decompress)) {
+                    gs.CopyTo(mso);                    
+                }
+                return Encoding.UTF8.GetString(mso.ToArray());
+            }
+        }
+    }    
 }

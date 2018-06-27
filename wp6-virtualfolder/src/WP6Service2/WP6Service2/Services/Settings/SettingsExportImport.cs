@@ -47,7 +47,7 @@ namespace MetadataService.Services.Settings
     }
 
     [Route("/settings", "PUT")]
-    public class ImportSettings : IReturnVoid
+    public class ImportSettings : IReturn<List<ProviderItem>>
     {
         public string PublicKey{ get; set; }
         public string EncryptedSettings{ get; set; }
@@ -57,28 +57,29 @@ namespace MetadataService.Services.Settings
 
     [EnableCors(allowCredentials:true)]
     [VreCookieRequestFilter]
-    public class SettingsService : Service
+    public class SettingsService : GenericProviderMethods
     {
-        private readonly ISettingsStorage storage = SettingsStorageInDB.GetInstance();
+        private const int DwKeySize = 2048;
 
         /** export settings, returns base64 encrypted json of selected aliases */
         public string Get(ExportSettings request)
         {
             var userid = (string) Request.Items["userid"];
-            var userauthproxy = (string) Request.Items["authproxy"];
-            var encryptedSettings = exportSettings(request.PublicKey,userid,userauthproxy,request.SelectedAliases);            
+            //var userauthproxy = (string) Request.Items["authproxy"];
+            var encryptedSettings = exportSettings(request.PublicKey,userid,request.SelectedAliases);            
             return encryptedSettings;
         }
 
         /** put encrypted settings into local database == import */
-        public void Put(ImportSettings request)
+        public List<ProviderItem> Put(ImportSettings request)
         {
-            var userid = (string) Request.Items["userid"];
-            var userauthproxy = (string) Request.Items["authproxy"];
-            importSettings(userid,userauthproxy,request.PublicKey, request.EncryptedSettings, request.ConflictedAliases,
+            var userid = (string) Request.Items["userid"];            
+            importSettings(userid,request.PublicKey, request.EncryptedSettings, request.ConflictedAliases,
                 request.NewNameAliases);
+            return getUserProviderItems();
         }
-
+        
+        
         /** post, no values are expected, generates key pair, public key is returned - it can be used to encrypt settings by another instance */
         public string Post(GeneratePublicKey request)
         {
@@ -89,7 +90,8 @@ namespace MetadataService.Services.Settings
         //generate priv-pub key, rewrite already existing one
         private string generatePrivatePublicKey(string userid)
         {
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(4096);
+            
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(DwKeySize);
             SettingsKeys sk = new SettingsKeys() { Owner = userid,PublicKey=rsa.ToXmlString(false),PrivateKey = rsa.ToXmlString(true)};
             Db.Save<SettingsKeys>(sk);
             return sk.PublicKey;
@@ -98,13 +100,14 @@ namespace MetadataService.Services.Settings
         
 
         /** Encrypts selected aliases using pkey provided for the user identified by userid.
-         * The aliases must be delimited by ';'. The list is converted to JSON, then encrypted and then encoded into base64.
-         * Base64 string is returned
+         * The aliases must be delimited by ';'.
+         * Return value contains base64 encoded and encrypted symetric key delimited by comma from second base64 encoded and encrypted JSON
+         * of selected settings
          */
-        private string exportSettings(string pkey,string userid,string userauthproxy, string aliases)
+        private string exportSettings(string pkey,string userid, string aliases)
         {
             // Convert the text to an array of bytes   
-            UnicodeEncoding byteConverter = new UnicodeEncoding();
+            UTF8Encoding byteConverter = new UTF8Encoding();
             
             try
             {
@@ -119,19 +122,26 @@ namespace MetadataService.Services.Settings
                 var myproviders= providers.Where(x => listaliases.Contains(x.alias)).ToList();
                 //encode into json
                 var text = myproviders.ToJson();            
-                byte[] dataToEncrypt = byteConverter.GetBytes(text);  
+                byte[] dataToEncrypt = byteConverter.GetBytes(text);
+                byte[] encryptedKey;
                 byte[] encryptedData;   
                 //encrypt json
                 using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())  
                 {  
-                    // Set the rsa pulic key   
-                    rsa.FromXmlString(pkey);  
+                    // Set the rsa public private key   
+                    rsa.FromXmlString(pkey);
+                    
+                    // Generate random symetric key
+                    var password = RandomPrefix.RandomString((DwKeySize / 8) - 42);
   
-                    // Encrypt the data and store it in the encyptedData Array   
-                    encryptedData = rsa.Encrypt(dataToEncrypt, false);   
+                    // Encrypt the symetrickey and data and store it in the encyptedData Array   
+                    encryptedKey = rsa.Encrypt(byteConverter.GetBytes(password), false);
+                    encryptedData =
+                        AESThenHMAC.SimpleEncryptWithPassword(dataToEncrypt, password); //dataToEncrypt, false);
                 }
                 //base64 encrypted data
-                return System.Convert.ToBase64String(encryptedData);
+                
+                return System.Convert.ToBase64String(encryptedKey)+","+System.Convert.ToBase64String(encryptedData);
             }
             catch (KeyNotFoundException)
             {
@@ -143,22 +153,26 @@ namespace MetadataService.Services.Settings
          * imports Settings in encrypted encsetting string.
          * encsetting must be base64 encoded, it is decoded and decrypted using private key. Public key is useddecrypt settings using private key, checks if publickey == stored PublicKey
          */
-        private void importSettings(string userid,string userauthproxy,string publickey, string encsettings,string conflict,string rename)
+        private void importSettings(string userid,string publickey, string encsettings,string conflict,string rename)
         {
+            UTF8Encoding byteConverter = new UTF8Encoding();            
             //check if publickey equals the corresponding pub-priv key pair in memory.
             var sk = Db.First<SettingsKeys>(x => x.Owner == userid);
             if (! publickey.Equals(sk.PublicKey)) throw new ApplicationException("public key doesn't correspond to stored private key"); 
             //base64 decode
-            var encryptedsettings = System.Convert.FromBase64String(encsettings);
+            var keysetting = encsettings.Split(',');
+            var encryptedkey = System.Convert.FromBase64String(keysetting[0]);
+            var encryptedsettings = System.Convert.FromBase64String(keysetting[1]);
             //decrypt
+            string decryptedKey;
             byte[] decryptedData;  
             using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())  
             {  
                 // Set the private key of the algorithm   
-                rsa.FromXmlString(sk.PrivateKey);  
-                decryptedData = rsa.Decrypt(encryptedsettings, false);   
-            } 
-            UnicodeEncoding byteConverter = new UnicodeEncoding();  
+                rsa.FromXmlString(sk.PrivateKey);
+                decryptedKey =  byteConverter.GetString(rsa.Decrypt(encryptedkey, false));
+                decryptedData = AESThenHMAC.SimpleDecryptWithPassword(encryptedsettings,decryptedKey); //dataToEncrypt, false);   
+            }             
             var jsonsettings = byteConverter.GetString(decryptedData);
             //no it is json, convert it to List
             var myproviders = jsonsettings.FromJson<List<ProviderItem>>();
@@ -172,9 +186,12 @@ namespace MetadataService.Services.Settings
                 
             }
             //now we have in myproviders renamed aliases, put them one by one
-            var service = UserProvider.GetInstance(userid, userauthproxy, storage, Db);
+            var service = UserProvider.GetInstance(userid, storage, Db);
             foreach (var item in myproviders)
             {
+                //change loggeduser from remote system to current user
+                item.loggeduser = userid;
+                item.output = "";
                 service.Add(item,storage,Db);
             }
         }

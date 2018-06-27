@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using Dropbox.Api.TeamLog;
 using MetadataService.Services.Settings;
 
 namespace MetadataService.Services.Files
 {
     public class FileSystemProviderCreator : IProviderCreator
     {
-        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy)
+        public AFileProvider CreateProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
         {
-            return new FileSystemProvider(item, storage, connection, authproxy); //.securetoken,item.alias);
+            return new FileSystemProvider(item, storage, connection); //.securetoken,item.alias);
         }
     }
 
@@ -21,8 +21,8 @@ namespace MetadataService.Services.Files
 //        private string webdavfolder;// = "/home/vagrant/work/";
         //public string publicwebdavhash = "webdav";
 
-        public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection,
-            string authproxy) : base(item, storage, connection, authproxy)
+        public FileSystemProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection
+            ) : base(item, storage, connection)
         {
             //webdavfolder = "/home/" + item.username + "/virtualfolder/"+ item.alias;
             localpath = item.securetoken;
@@ -63,64 +63,14 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             //Console.WriteLine("ListOfFiles( "+path+" )");
-            return ListOfFiles(localpath, Webdavroot + username + "/" + alias + "/", PUBLICWEBDAVURL + "/", path);
+            return ListOfFiles(localpath, username,alias , path);
             //return listOfFiles; //returns all
         }
 
-        public static List<SBFile> ListOfFiles(string pathprefix, string webdavprefix, string publicwebdavprefix,
-            string path)
-        {
-            var myfi = new FileInfo(Path.Combine(pathprefix, path));
-            if ((myfi.Attributes & FileAttributes.Directory) != 0)
-            {
-                var di = new DirectoryInfo(Path.Combine(pathprefix, path));
-                var fis = di.GetFileSystemInfos();
-                var listOfFiles = new List<SBFile>();
-                //mapping FileSystemInfos into list structure returned to client
-                foreach (var fi in fis)
-                {
-                    var isdirectory = !(fi.GetType() == typeof(FileInfo));
-                    var mysize = isdirectory ? 0 : (ulong) ((FileInfo) fi).Length;
-                    var mypath = path == "" ? path : path + "/";
-                    var myfiletype = (isdirectory ? FileType.Directory : FileType.None) | FileType.Read |
-                                     ((fi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
-                                     FileType.Available;
-                    listOfFiles.Add(new SBFile
-                    {
-                        path = path,
-                        name = fi.Name,
-                        attributes = fi.Attributes, //.ToString(),
-                        size = mysize,
-                        date = fi.LastWriteTime,
-                        filetype = myfiletype,
-                        webdavuri = webdavprefix + mypath + fi.Name,
-                        publicwebdavuri = publicwebdavprefix + mypath + fi.Name
-                    });
-                }
-                ;
-                return listOfFiles;
-            }
-            else //it is file
-            {
-                var listOfFiles = new List<SBFile>
-                {
-                    new SBFile
-                    {
-                        path = path,
-                        name = myfi.Name,
-                        attributes = myfi.Attributes, //.ToString(),
-                        size = (ulong) myfi.Length,
-                        date = myfi.LastWriteTime,
-                        filetype = FileType.None | FileType.Read |
-                                   ((myfi.Attributes & FileAttributes.ReadOnly) > 0 ? FileType.None : FileType.Write) |
-                                   FileType.Available,
-                        webdavuri = path,
-                        publicwebdavuri = publicwebdavprefix + "/" + path
-                    }
-                };
 
-                return listOfFiles;
-            }
+        private static string publicwebdav(string path)
+        {
+            return "/public_webdav/" + SettingsStorageInDB.getencryptedpath(path);
         }
     }
 }

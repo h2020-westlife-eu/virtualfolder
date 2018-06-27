@@ -22,26 +22,11 @@
 #firewall-cmd --reload
 
 # prepare and restart apache, rewrite configuration
-# copy all system config to etc
-cp -R $WP6SRC/conf-template/* /
+
 #one of the configuration is syslog - need to restart
 service rsyslog restart
-WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
-sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/virtualfolder\/latest\/www/${WP6SRCESC}\/www/g" /etc/httpd/conf.d/000-default.conf
-
-# copy web app pages
-#cp $WP6SRC/www/* /var/www/html
-#cp -R $WP6SRC/www/css /var/www/html
-#cp -R $WP6SRC/www/img /var/www/html
-#cp -R $WP6SRC/www/scripts /var/www/html
-#cp -R $WP6SRC/www/services2 /var/www/html
-#cp -R $WP6SRC/www/src /var/www/html
-#cp -R $WP6SRC/www/tools /var/www/html
 
 
-#unzip $WP6SRC/thirdparty/ngl.zip -d /var/www
-#sudo cp $WP6SRC/index.html /var/www
-#rm /var/www/html/dokuwiki/install.php
 chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
@@ -84,18 +69,17 @@ usermod -a -G davfs2 apache
 # set the default group of user vagrant to davfs2, to be able to mount
 usermod -g davfs2 vagrant
 
-# download and install b2drop webdav connection
-ln -s $WP6SRC/scripts /home/vagrant/scripts
+mkdir -p /opt/virtualfolder
+ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
+dos2unix /opt/virtualfolder/scripts/*
+chmod ugo+x /opt/virtualfolder/scripts/*
 
-dos2unix /home/vagrant/scripts/*
-chmod ugo+x /home/vagrant/scripts/*
-
-chown root:root /home/vagrant/scripts/mountb2drop.sh
-chmod 4755 /home/vagrant/scripts/mountb2drop.sh
+chown root:root /opt/virtualfolder/scripts/mountb2drop.sh
+chmod 4755 /opt/virtualfolder/scripts/mountb2drop.sh
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
-  cat /home/vagrant/scripts/sudoers >>/etc/sudoers
+  cat /opt/virtualfolder/scripts/sudoers >>/etc/sudoers
   #chmod 0440 /etc/sudoers
 fi
 
