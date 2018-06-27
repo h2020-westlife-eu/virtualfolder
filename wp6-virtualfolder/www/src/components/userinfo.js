@@ -11,8 +11,13 @@ export class Userinfo {
   attached(){
     this.pa.getUserInfo().then(data => {
         console.log(data);
-        this.userinfo=data;
-        this.showuserinfo=true;
+        if (data.username === "") {
+          console.log("no user info, disable showing it");
+          this.showuserinfo=false;
+        } else {
+          this.userinfo = data;
+          this.showuserinfo = true;
+        }
       })
       .catch(error => {
         console.log("no user info, disable showing it");

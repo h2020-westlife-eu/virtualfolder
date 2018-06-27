@@ -875,8 +875,13 @@ define('components/userinfo',["exports", "./projectapi"], function (exports, _pr
 
       this.pa.getUserInfo().then(function (data) {
         console.log(data);
-        _this.userinfo = data;
-        _this.showuserinfo = true;
+        if (data.username === "") {
+          console.log("no user info, disable showing it");
+          _this.showuserinfo = false;
+        } else {
+          _this.userinfo = data;
+          _this.showuserinfo = true;
+        }
       }).catch(function (error) {
         console.log("no user info, disable showing it");
         _this.showuserinfo = false;
