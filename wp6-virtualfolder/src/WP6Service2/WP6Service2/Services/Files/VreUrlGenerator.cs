@@ -42,20 +42,22 @@ namespace MetadataService.Services.Files
                                  
         }
 
-        private string GetAuthProxy(string _sessionid, string _domain)
+        private string GetAuthProxy(string _sessionid)
         {
             var client = new JsonServiceClient(_vreapiurl);
+            var myUri = new Uri(_vreapiurl);
+            var domain = myUri.Host;
             try
             {
                 client.CookieContainer = new CookieContainer();
-                client.CookieContainer.Add(new Cookie("sessionid", _sessionid) {Domain = _domain});
+                client.CookieContainer.Add(new Cookie("sessionid", _sessionid) {Domain = domain});
                 var response = client.Get<DjangoAuthproxyInfo>(_authproxyserviceurl);
                 return response.signed_url;
             }
             catch (Exception e) //
             {
                 Console.WriteLine("error during getting authproxy info of sessionid " + _sessionid + " domain " +
-                                  _domain + " \n" + e.Message + e.StackTrace);
+                                  domain + " \n" + e.Message + e.StackTrace);
                 return "NULL";
             }                
         }
@@ -64,7 +66,7 @@ namespace MetadataService.Services.Files
         {
             try
             {
-                if (_authproxy == "") _authproxy = GetAuthProxy(req.Cookies["sessionid"].Value, req.GetUrlHostName());
+                if (_authproxy == "") _authproxy = GetAuthProxy(req.Cookies["sessionid"].Value);
             }
             catch (Exception e)
             {
