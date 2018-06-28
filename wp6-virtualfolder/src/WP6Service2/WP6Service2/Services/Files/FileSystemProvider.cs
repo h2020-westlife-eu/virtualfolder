@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using Dropbox.Api.TeamLog;
 using MetadataService.Services.Settings;
+using ServiceStack.ServiceHost;
 
 namespace MetadataService.Services.Files
 {
@@ -55,7 +56,7 @@ namespace MetadataService.Services.Files
             }
         }
 
-        public override object GetFileOrList(string Path)
+        public override object GetFileOrList(string Path,IHttpRequest req)
         {
             var path = Path ?? "";
             if (path.Contains(".."))
@@ -63,6 +64,7 @@ namespace MetadataService.Services.Files
             //MAIN splitter for strategies of listing files
             //return DropBoxFS.ListOfFiles(path);
             //Console.WriteLine("ListOfFiles( "+path+" )");
+            Ug.HandleRequest(req);
             return ListOfFiles(localpath, username,alias , path);
             //return listOfFiles; //returns all
         }

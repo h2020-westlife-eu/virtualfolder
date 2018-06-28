@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using MetadataService.Services.Settings;
+using ServiceStack.ServiceHost;
 
 namespace MetadataService.Services.Files
 {
@@ -135,11 +136,11 @@ namespace MetadataService.Services.Files
             return linkedimpl.Keys;
         }
 
-        public object GetFileList(GetFiles request)
+        public object GetFileList(GetFiles request,IHttpRequest req)
         {
             AFileProvider provider = null;
             if (linkedimpl.TryGetValue(request.Providerpath, out provider))
-                return provider.GetFileOrList(request.Path);
+                return provider.GetFileOrList(request.Path,req);
             Console.WriteLine("provider implementation not found for path:" + request.Providerpath);
             throw new ApplicationException("provider implementation not found for path:" + request.Providerpath);
         }

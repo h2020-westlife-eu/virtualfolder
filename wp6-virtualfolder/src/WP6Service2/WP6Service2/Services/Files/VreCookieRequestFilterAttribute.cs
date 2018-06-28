@@ -18,6 +18,9 @@ namespace MetadataService.Services.Files
     {
         private const string _API_URL_VARIABLE_NAME = "VF_VRE_API_URL";
         private const string _httpLocalhostApi = "http://localhost/api/";
+        private readonly string _vreapiurl = Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME) != null
+            ? Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME)
+            : _httpLocalhostApi;
         private const string _sessionserviceurl = "vfsession/";
 //        private const string _authproxyserviceurl = "authproxy/get_signed_url/";
 
@@ -26,9 +29,7 @@ namespace MetadataService.Services.Files
         private static readonly object initlock = new object();
         
 
-        private readonly string _vreapiurl = Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME) != null
-            ? Environment.GetEnvironmentVariable(_API_URL_VARIABLE_NAME)
-            : _httpLocalhostApi;
+
 
         static VreCookieRequestFilterAttribute()
         {
@@ -64,7 +65,7 @@ namespace MetadataService.Services.Files
                         req.Items.Add("name", req.Headers.Get("X-NAME"));
                         req.Items.Add("email", req.Headers.Get("X-EMAIL"));
                         req.Items.Add("groups", req.Headers.Get("X-GROUPS"));
-                        //req.Items.Add("authproxy", "/webdav/" + mellonuser);
+//                        req.Items.Add("authproxy", "");
                         if (requestDto.GetType() == typeof(ProviderItem))
                             ((ProviderItem) requestDto).loggeduser = mellonuser;
                         return;
@@ -76,7 +77,7 @@ namespace MetadataService.Services.Files
 
                 //get user info related to session id fromVRE
                 var loggeduser = GetAssociatedUser(mysession.Value);
-                //var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
+//                var authproxy = GetAuthProxy(mysession.Value, req.GetUrlHostName());
 
                 //Console.WriteLine("Provider Service list"+loggeduser);
                 //TODO get the providers associated to user
@@ -84,7 +85,7 @@ namespace MetadataService.Services.Files
                 req.Items.Add("name", loggeduser);
                 if (requestDto.GetType() == typeof(ProviderItem))
                     ((ProviderItem) requestDto).loggeduser = loggeduser;
-                //req.Items.Add("authproxy", authproxy);
+//                req.Items.Add("authproxy", authproxy);
             }
         }
 
