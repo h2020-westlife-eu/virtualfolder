@@ -25,7 +25,7 @@ namespace MetadataService.Services.Files
 
         public override string GetRootPublicWebDavUrl()
         {
-            return Webdavroot + authproxy;
+            return Webdavroot + authproxy +"/"+provider.alias;
 //                SettingsStorageInDB.getencryptedpath(
 //                    provider.loggeduser + "/" + provider.alias); // contains encrypted path of user            
         }
@@ -33,7 +33,7 @@ namespace MetadataService.Services.Files
 
         public override string GetPublicWebDavUrl(string path)
         {
-            return Webdavroot + authproxy+ path;
+            return Webdavroot + authproxy+ "/"+provider.alias+path;
         }
 
         private string authproxy;
