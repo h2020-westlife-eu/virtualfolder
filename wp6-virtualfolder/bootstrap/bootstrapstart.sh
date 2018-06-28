@@ -25,7 +25,9 @@ chmod 700 /var/lib/westlife
 # SELinux setting, allow proxy from apache to other services and security context to dir
 if hash setsebool 2>/dev/null; then
   setsebool -P httpd_can_network_connect 1
-  chcon -R --reference=/var/www $WP6SRC/www
+  #chcon -R --reference=/var/www $WP6SRC/www
+  #chcon -R --reference=/var/www /srv/virtualfolder
+  setenforce 0 # setenforce 1 and chcon -R /srv/virtualfolder seems not be enough to allow access to webdav files
   firewall-cmd --zone=public --add-port=80/tcp --permanent
   firewall-cmd --reload
 fi

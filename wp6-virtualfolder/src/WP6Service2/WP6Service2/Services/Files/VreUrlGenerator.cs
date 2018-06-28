@@ -25,7 +25,7 @@ namespace MetadataService.Services.Files
 
         public override string GetRootPublicWebDavUrl()
         {
-            return Webdavroot + authproxy +"/"+provider.alias;
+            return _authproxy +provider.alias;
 //                SettingsStorageInDB.getencryptedpath(
 //                    provider.loggeduser + "/" + provider.alias); // contains encrypted path of user            
         }
@@ -33,10 +33,10 @@ namespace MetadataService.Services.Files
 
         public override string GetPublicWebDavUrl(string path)
         {
-            return Webdavroot + authproxy+ "/"+provider.alias+path;
+            return _authproxy+ provider.alias+"/"+path;
         }
 
-        private string authproxy;
+        private string _authproxy="";
         public VreUrlGenerator(ProviderItem p) : base(p)
         {
                                  
@@ -64,12 +64,12 @@ namespace MetadataService.Services.Files
         {
             try
             {
-                if (authproxy == "") authproxy = GetAuthProxy(req.Cookies["sessionid"].Value, req.GetUrlHostName());
+                if (_authproxy == "") _authproxy = GetAuthProxy(req.Cookies["sessionid"].Value, req.GetUrlHostName());
             }
             catch (Exception e)
             {
                 Console.WriteLine("error during handling request "+e.Message + e.StackTrace);
-                authproxy = "NULL";
+                _authproxy = "NULL";
             }
         }
     }
