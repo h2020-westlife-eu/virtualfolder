@@ -10,7 +10,7 @@ export class App {
   constructor(ea,pa) {
     this.ea=ea;
     //this.client=httpclient;
-    this.params = pa;
+    this.pa = pa;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
     this.loading =true;
     this.loadederror = false;
