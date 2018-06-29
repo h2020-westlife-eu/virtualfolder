@@ -22,7 +22,7 @@ namespace MetadataServiceTest
     [TestFixture]
     public class Test
     {
-        private readonly string _baseUri = "http://localhost:8001/metadataservice/";
+        private readonly string _baseUri = "http://localhost:8001/virtualfolder/api/";
         //private readonly string _baseUri = "http://localhost:8002/metadataservice/";
         private readonly string homeVagrantWork = "/srv/virtualfolder/";
         

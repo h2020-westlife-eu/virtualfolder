@@ -15,7 +15,6 @@ import {Vfstorage} from '../utils/vfstorage';
 
 //import $ from 'jquery';
 
-
 export class Fileeditor {
   static inject = [Element,EventAggregator, HttpClient];
   @bindable pid;
@@ -42,7 +41,9 @@ export class Fileeditor {
   }
 
   selectFile(file,senderid) {
-    let that =this
+    this.disablenextbuttons=false;
+    this.offset = 0;
+    let that =this;
     if (senderid!=this.pid) {
       this.imageurl = file.webdavuri;
       //visualizeimg is set & image extension is detected
@@ -64,10 +65,10 @@ export class Fileeditor {
       //console.log("fileeditor.selectfile() visualizeimg: isimage:")
       //console.log(this.isimage);
       if (!this.isimage)
-        this.client.fetch(file.webdavuri, {credentials: 'same-origin'})
+        //fetch first 4 kb
+        this.client.fetch(file.webdavuri, {credentials: 'same-origin',headers:{'Range':'bytes='+this.offset+'-'+(this.offset+4095)}})
           .then(response => response.text())
           .then(data =>{
-
             console.log("fileeditor.selectfile() loading:" + file.webdavuri);
             console.log(data);
             that.codemirror.setValue(data);
@@ -78,7 +79,44 @@ export class Fileeditor {
           alert('Error retrieving content from ' + file.webdavuri);
           console.log(error);
         });
-
     }
+  }
+  
+  fetchNext() {
+    this.offset+=4096;
+    this.client.fetch(this.filename, {credentials: 'same-origin',headers:{'Range':'bytes='+this.offset+'-'+(this.offset+4095)}})
+      .then(response => response.text())
+      .then(data =>{
+          //console.log("fileeditor.selectfile() loading:" + this.file.webdavuri);
+          //console.log(data);
+          this.codemirror.replaceRange(data, CodeMirror.Pos(this.codemirror.lastLine()));
+          //this.codemirror.setValue(data);
+          this.codemirror.refresh();
+        }
+      ).catch(error => {
+        if (error.status === 416) {
+          //reached end of file
+          this.disablenextbuttons=true;
+        } else {
+          alert('Error retrieving content from ' + this.filename);
+          console.log(error);
+        }
+    });
+  }
+  
+  fetchRest() {
+    this.client.fetch(this.file.webdavuri, {credentials: 'same-origin'})
+      .then(response => response.text())
+      .then(data =>{
+          console.log("fileeditor.selectfile() loading:" + this.filename);
+          console.log(data);
+          that.codemirror.setValue(data);
+          that.codemirror.refresh();
+        }
+      ).catch(error => {
+      alert('Error retrieving content from ' + this.filename);
+      console.log(error);
+    });
+    
   }
 }

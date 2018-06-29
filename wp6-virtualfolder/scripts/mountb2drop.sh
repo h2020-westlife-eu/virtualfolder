@@ -193,6 +193,8 @@ if [ $1 == 'refresh' ]; then
   fi
   #user needs to be member of group davfs2
   mount $LOCALPATH
+  echo "refreshed $LOCALPATH"
+  exit
 fi
 
 help

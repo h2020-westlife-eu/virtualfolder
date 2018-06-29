@@ -90,6 +90,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Dataset\DatasetService.cs" />
+    <Compile Include="Services\Files\ApacheUrlGenerator.cs" />
     <Compile Include="Services\Files\B2DropProvider.cs" />
     <Compile Include="Services\Files\DropboxProvider.cs" />
     <Compile Include="Services\Files\FileSystemProvider.cs" />
@@ -99,9 +100,11 @@
     <Compile Include="Services\Files\ProviderFactory.cs" />
     <Compile Include="Services\Files\ProviderService.cs" />
     <Compile Include="Services\Files\AFileProvider.cs" />
+    <Compile Include="Services\Files\UrlGenerator.cs" />
     <Compile Include="Services\Files\UserProvider.cs" />
     <Compile Include="Services\Files\Utils.cs" />
     <Compile Include="Services\Files\VreCookieRequestFilterAttribute.cs" />
+    <Compile Include="Services\Files\VreUrlGenerator.cs" />
     <Compile Include="Services\Files\WebDavProvider.cs" />
     <Compile Include="Services\PerUserProcess\AvailableJobs.cs" />
     <Compile Include="Services\PerUserProcess\DefaultJob.cs" />

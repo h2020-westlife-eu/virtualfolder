@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using MetadataService.Services.Settings;
+using ServiceStack.ServiceHost;
 using HttpMethod = System.Net.Http.HttpMethod;
 
 namespace MetadataService.Services.Files
@@ -74,13 +75,14 @@ namespace MetadataService.Services.Files
 
         }
 
-        public override object GetFileOrList(string path)
+        public override object GetFileOrList(string path,IHttpRequest req)
         {
             var _path = path ?? "";
             if (_path.Contains(".."))
                 _path = ""; //prevents directory listing outside
             var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
                                (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+            Ug.HandleRequest(req);
             if (!dirnotempty)
             {
                 //try to refresh umount mount

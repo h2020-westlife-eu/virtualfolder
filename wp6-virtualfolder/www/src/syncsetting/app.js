@@ -10,7 +10,7 @@ export class App {
   constructor(ea,pa) {
     this.ea=ea;
     //this.client=httpclient;
-    this.params = pa;
+    this.pa = pa;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
     this.loading =true;
     this.loadederror = false;
@@ -54,21 +54,21 @@ export class App {
 
   include(provider) {
     provider.selected = true;
-    console.log("syncsetting. include()",provider);
+    //console.log("syncsetting. include()",provider);
   }
   
   notinclude(provider) {
     provider.selected = false;
-    console.log("syncsetting. notinclude()",provider);
+    //console.log("syncsetting. notinclude()",provider);
   }
 
   import() {
     let selectedaliases = this.providers.filter( prov => prov.selected).map(prov => prov.alias).join(';');
-    console.log('syncsetting, import:',selectedaliases);
+    //console.log('syncsetting, import:',selectedaliases);
     if (selectedaliases.length===0) return; //nothing is selected return
     this.pa.getExportedSettings(this.publickey, selectedaliases)
       .then(response =>{
-        console.log("SyncSetting.app import settings encrypteddata:",response);
+        //console.log("SyncSetting.app import settings encrypteddata:",response);
         let message = {EncryptedSettings:response,aliases:selectedaliases};
         window.opener.postMessage(JSON.stringify(message), "*");
         window.close();

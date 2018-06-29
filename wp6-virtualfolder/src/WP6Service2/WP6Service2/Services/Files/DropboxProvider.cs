@@ -13,6 +13,7 @@ using Dropbox.Api;
 using MetadataService.Services.Settings;
 using ServiceStack.Common;
 using ServiceStack.Common.Web;
+using ServiceStack.ServiceHost;
 using ServiceStack.Text;
 
 namespace MetadataService.Services.Files
@@ -42,12 +43,15 @@ namespace MetadataService.Services.Files
             DROPBOXURIROOT = "/virtualfolder/api/"+"files/" + alias;
         }
 
-        public override object GetFileOrList(string Path)
+        public override object GetFileOrList(string Path,IHttpRequest req)
         {
             var path = Path ?? "";
             if (path.Contains(".."))
                 path = ""; //prevents directory listing outside
             //MAIN splitter for strategies of listing files
+            //Some Url Generator may need to handle current http request.
+            Ug.HandleRequest(req);
+            
             return ListOfFiles(path);
         }
 
@@ -226,7 +230,7 @@ namespace MetadataService.Services.Files
                     //TODO introduce GET on file - which will download the file and redirects to webdav uri
                     webdavuri = DROPBOXURIROOT + mypath,
                     //generate public webdavuri for current directory
-                    publicwebdavuri = PUBLICWEBDAVURL + mypath
+                    publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath
                 });
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
@@ -242,7 +246,7 @@ namespace MetadataService.Services.Files
                                    (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = DROPBOXURIROOT + mypath+ fi.Name, 
-                        publicwebdavuri = PUBLICWEBDAVURL + mypath + fi.Name
+                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name
                     });
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
@@ -279,7 +283,7 @@ namespace MetadataService.Services.Files
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
             if (IsLocal(filepath))
-                return filepath.Replace(DROPBOXURIROOT, PUBLICWEBDAVURL);
+                return filepath.Replace(DROPBOXURIROOT, Ug.GetRootPublicWebDavUrl());
             return filepath;
         }
 

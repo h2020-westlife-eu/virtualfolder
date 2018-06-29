@@ -6,7 +6,7 @@ After=autofs.service
 Type=simple
 Environment=VF_VRE_API_URL=http://localhost/api/
 Environment=VF_STORAGE_DIR=/srv/virtualfolder/
-Environment=VF_SCRIPTS_DIR=/opt/virtualfolder/scripts
+Environment=VF_SCRIPTS_DIR=/opt/virtualfolder/scripts/
 Environment=VF_ALLOW_FILESYSTEM=true
 Environment=VF_ALLOW_MODULES=true
 Environment=VF_ALLOW_LAB=true

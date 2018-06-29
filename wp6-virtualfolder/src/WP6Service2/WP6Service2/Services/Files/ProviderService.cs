@@ -109,7 +109,7 @@ namespace MetadataService.Services.Files
         public object Get(GetFiles request)
         {
             //delegate to provider
-            return getUserProviders().GetFileList(request);
+            return getUserProviders().GetFileList(request,base.Request);
         }
 
         public void Options(GetFiles request){ }
@@ -119,7 +119,7 @@ namespace MetadataService.Services.Files
             //delegate to provider
             try
             {
-                getUserProviders().GetFileList(request);
+                getUserProviders().GetFileList(request,base.Request);
                 Response.StatusCode = 200;
             }
             catch (Exception e)

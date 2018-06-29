@@ -162,7 +162,7 @@ export class ProjectApi {
 
   getExportedSettings(publickey, selectedaliases) {
 //use public key and selectedaliases to construct request with params 
-    let queryurl = new URL(this.settingsurl);
+    let queryurl = new URL(this.settingsurl,window.location.href);
     let params = {PublicKey: publickey, SelectedAliases: selectedaliases};
     Object.keys(params).forEach(key => queryurl.searchParams.append(key, params[key]));
 //now request client
