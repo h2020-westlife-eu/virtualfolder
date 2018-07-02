@@ -8,6 +8,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using MetadataService.Services.Settings;
+using ServiceStack.ServiceHost;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -69,11 +70,15 @@ namespace MetadataService.Services.Files
             Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
         }
 
-        public override object GetFileOrList(string path)
+        public override object GetFileOrList(string path, IHttpRequest req)
         {
+            Ug.HandleRequest(req);
+
             var result = new List<SBFile>();
             
             var normPath = path == null ? "" : path.Trim().Trim(new char[] {'/'});
+
+            var publicWebdavPrefix = normPath == "" ? Ug.GetRootPublicWebDavUrl() : Ug.GetPublicWebDavUrl(path);
             
             var pathAttrs = (JObject) processRequest(attrAPIURL + "/" + normPath);
 
@@ -104,34 +109,48 @@ namespace MetadataService.Services.Files
 
                 dirItems.Sort();
 
+                // Added reference to the this directory
+                result.Add(new SBFile {
+                    path = normPath,
+                    name = ".",
+                    attributes = calcFileAttrs(pathAttrs),
+                    size = 0,
+                    date = calcDate(pathAttrs),
+                    filetype = calcFileType(pathAttrs),
+                    webdavuri = WEBDAVURL + normPath + "/",
+                    publicwebdavuri = publicWebdavPrefix + "/"
+                });
+
                 foreach(var fItem in dirItems)
                 {
                     var filePath = normPath == "" ? fItem : normPath + "/" + fItem;
                     var fileAttrs = (JObject) processRequest(attrAPIURL + "/" + filePath);
 
                     result.Add(new SBFile {
-                        path=filePath,
+                        path = normPath,
                         name = (string) fileAttrs[OD_ATTR_NAME],
                         attributes = calcFileAttrs(fileAttrs),
                         size = (ulong) fileAttrs[OD_ATTR_SIZE],
                         date = calcDate(pathAttrs),
-                        filetype = calcFileType(fileAttrs), 
-                        webdavuri = WEBDAVURL + filePath,
-                        publicwebdavuri = PUBLICWEBDAVURL + "/" + filePath
+                        filetype = calcFileType(fileAttrs),
+                        webdavuri = WEBDAVURL + normPath + "/" + fItem,
+                        publicwebdavuri = publicWebdavPrefix + "/" + fItem
                     });
                 }
             }
             else
             {
+                var fileName = (string) pathAttrs[OD_ATTR_NAME];
+
                 result.Add(new SBFile {
-                    path=normPath,
-                    name = (string) pathAttrs[OD_ATTR_NAME],
+                    path = Path.GetDirectoryName(path),
+                    name = fileName,
                     attributes = calcFileAttrs(pathAttrs),
                     size = (ulong) pathAttrs[OD_ATTR_SIZE],
                     date = calcDate(pathAttrs),
                     filetype = calcFileType(pathAttrs),
                     webdavuri = WEBDAVURL + normPath,
-                    publicwebdavuri = PUBLICWEBDAVURL + "/" + normPath
+                    publicwebdavuri = publicWebdavPrefix + "/" + fileName
                 });
             }
 
