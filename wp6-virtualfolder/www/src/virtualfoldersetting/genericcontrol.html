@@ -80,6 +80,15 @@
           <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
         </div>
 
+        <div show.bind="selectedOnedata">
+          OneProvider host:<input class="w3-bar" type="text" maxlength="1024" 
+                                 name="accessurl" value.bind="accessurl"
+	                             placeholder="<hostname>[:port]" /><br/>
+          Access token:<input class="w3-bar" type="password" maxlength="1024"
+                              name="securetoken" value.bind="securetoken"/><br/>
+          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+        </div>
+
       </div>
 
     </div>

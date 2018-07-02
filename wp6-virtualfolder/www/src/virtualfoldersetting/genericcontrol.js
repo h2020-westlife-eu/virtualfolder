@@ -58,6 +58,11 @@ export class Genericcontrol {
     return this.selectedProvider=='WebDav';
   }
 
+  @computedFrom('selectedProvider')
+  get selectedOnedata() {
+    return this.selectedProvider=='Onedata';
+  }
+
   get knowntoken(){
     if (this.knownSecureToken) return this.knownSecureToken.checked;
   }
@@ -132,6 +137,11 @@ export class Genericcontrol {
        settings.accessurl=this.accessurl;
        settings.securetoken = this.password;
        settings.username = this.username;
+     } else if (this.selectedOnedata) {
+       // OneProvider host&port
+       settings.accessurl=this.accessurl;
+       // Access token
+       settings.securetoken = this.securetoken;
      }
      //console.log("addProvider() debug:",this, this.pa,settings);
     this.pa.putProvider(settings)
