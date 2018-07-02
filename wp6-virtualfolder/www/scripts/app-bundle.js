@@ -60,10 +60,12 @@ define('behavior',["exports"], function (exports) {
       var loginb = document.getElementById("loginbutton");
       var logoutb = document.getElementById("logoutbutton");
 
-      logoutb.removeAttribute("style");
-      loginb.removeAttribute("style");
-      loginb.className = "w3-hide";
-      logoutb.className = "w3-sign";
+      if (logoutb && loginb) {
+        logoutb.removeAttribute("style");
+        loginb.removeAttribute("style");
+        loginb.className = "w3-hide";
+        logoutb.className = "w3-sign";
+      }
     };
 
     return RedirectLogin;
@@ -78,20 +80,25 @@ define('behavior',["exports"], function (exports) {
       var loginb = document.getElementById("loginbutton");
       var logoutb = document.getElementById("logoutbutton");
 
-      logoutb.removeAttribute("style");
-      loginb.removeAttribute("style");
-      loginb.className = "w3-sign";
-      logoutb.className = "w3-hide";
+      if (logoutb && loginb) {
+        logoutb.removeAttribute("style");
+        loginb.removeAttribute("style");
+        loginb.className = "w3-sign";
+        logoutb.className = "w3-hide";
+      }
     };
 
     ShowLoginButton.prototype.maylogout = function maylogout() {
       var loginb = document.getElementById("loginbutton");
       var logoutb = document.getElementById("logoutbutton");
 
-      logoutb.removeAttribute("style");
-      loginb.removeAttribute("style");
-      loginb.className = "w3-hide";
-      logoutb.className = "w3-sign";
+      if (logoutb && loginb) {
+
+        logoutb.removeAttribute("style");
+        loginb.removeAttribute("style");
+        loginb.className = "w3-hide";
+        logoutb.className = "w3-sign";
+      }
     };
 
     return ShowLoginButton;
@@ -604,6 +611,17 @@ define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfs
       });
     };
 
+    ProjectApi.prototype.fetchTextLog = function fetchTextLog(url) {
+      return this.httpclient.fetch(url).then(function (response) {
+        return response.text();
+      }).then(function (data) {
+        return data;
+      }).catch(function (error) {
+        console.log("fetch on '" + url + "' returns error:", error);
+        throw error;
+      });
+    };
+
     ProjectApi.prototype.head = function head(url) {
       return this.httpclient.fetch(url, { method: 'head' }).then(function (data) {
         return data;
@@ -716,7 +734,7 @@ define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfs
         return queryurl.searchParams.append(key, params[key]);
       });
 
-      return this.fetchJsonLog(queryurl);
+      return this.fetchTextLog(queryurl);
     };
 
     ProjectApi.prototype.getPublicKey = function getPublicKey() {
@@ -3373,12 +3391,6 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
       });
     };
 
-    App.prototype.handleError = function handleError(url, error) {
-      console.log("aliastable.attached() error:");
-      console.log(error);
-      alert('Sorry. Error when accessing ' + url + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
-    };
-
     App.prototype.include = function include(provider) {
       provider.selected = true;
     };
@@ -3388,8 +3400,6 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
     };
 
     App.prototype.import = function _import() {
-      var _this3 = this;
-
       var selectedaliases = this.providers.filter(function (prov) {
         return prov.selected;
       }).map(function (prov) {
@@ -3402,7 +3412,7 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
         window.opener.postMessage(JSON.stringify(message), "*");
         window.close();
       }).catch(function (error) {
-        return _this3.handleError(queryurl, error);
+        return alert("Sorry, error occured " + error);
       });
     };
 

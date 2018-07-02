@@ -44,13 +44,6 @@ export class App {
           alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
       });
   }
-  
-  handleError(url,error){
-    console.log("aliastable.attached() error:");
-    console.log(error);
-    alert('Sorry. Error when accessing '+url+' HTTP status:'+error.statusCode+' '+error.statusText)
-    
-  }
 
   include(provider) {
     provider.selected = true;
@@ -73,7 +66,7 @@ export class App {
         window.opener.postMessage(JSON.stringify(message), "*");
         window.close();
       })
-      .catch(error => this.handleError(queryurl,error));
+      .catch(error => alert("Sorry, error occured "+error));
   }
 
 }

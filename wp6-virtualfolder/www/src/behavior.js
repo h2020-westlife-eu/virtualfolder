@@ -21,10 +21,12 @@ export class RedirectLogin {
     let loginb = document.getElementById("loginbutton");
     let logoutb = document.getElementById("logoutbutton");
     //removes style - by default style=display:none
-    logoutb.removeAttribute("style");
-    loginb.removeAttribute("style");
-    loginb.className = "w3-hide";
-    logoutb.className = "w3-sign";
+    if (logoutb && loginb) {
+      logoutb.removeAttribute("style");
+      loginb.removeAttribute("style");
+      loginb.className = "w3-hide";
+      logoutb.className = "w3-sign";
+    }
   }
 
 }
@@ -39,10 +41,12 @@ export class ShowLoginButton {
     let loginb = document.getElementById("loginbutton");
     let logoutb = document.getElementById("logoutbutton");
     //removes style - by default style=display:none
-    logoutb.removeAttribute("style");
-    loginb.removeAttribute("style");
-    loginb.className = "w3-sign";
-    logoutb.className = "w3-hide";
+    if (logoutb && loginb) {
+      logoutb.removeAttribute("style");
+      loginb.removeAttribute("style");
+      loginb.className = "w3-sign";
+      logoutb.className = "w3-hide";
+    }
   }
 
   maylogout() {
@@ -50,10 +54,13 @@ export class ShowLoginButton {
     let loginb = document.getElementById("loginbutton");
     let logoutb = document.getElementById("logoutbutton");
     //removes style - by default style=display:none
-    logoutb.removeAttribute("style");
-    loginb.removeAttribute("style");
-    loginb.className = "w3-hide";
-    logoutb.className = "w3-sign";
+    if (logoutb && loginb) {
+
+      logoutb.removeAttribute("style");
+      loginb.removeAttribute("style");
+      loginb.className = "w3-hide";
+      logoutb.className = "w3-sign";
+    }
   }
 
 }

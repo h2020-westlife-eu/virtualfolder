@@ -50,6 +50,19 @@ export class ProjectApi {
       });
   }
 
+  //generic methods to fetch, (no json serialization) and log error
+  fetchTextLog(url) {
+    return this.httpclient.fetch(url)
+      .then(response => response.text())
+      .then(data => {
+        return data;
+      })
+      .catch(error => {
+        console.log("fetch on '" + url + "' returns error:", error);
+        throw error;
+      });
+  }
+
   head(url) {
     return this.httpclient.fetch(url,{method:'head'})
       .then(data => {
@@ -166,7 +179,7 @@ export class ProjectApi {
     let params = {PublicKey: publickey, SelectedAliases: selectedaliases};
     Object.keys(params).forEach(key => queryurl.searchParams.append(key, params[key]));
 //now request client
-    return this.fetchJsonLog(queryurl);
+    return this.fetchTextLog(queryurl);
 //create selectedaliases
   }
 
