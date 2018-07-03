@@ -20,14 +20,15 @@ for i in {1..3}; do
     if [ ! -f /opt/virtualfolder/MetadataService/MetadataService.exe ]
     then
        echo Building MetadataService
-	#clean from previous try
-	rm -rf /opt/virtualfolder/MetadataService
-	rm -rf /opt/virtualfolder/src
-	# build metadataservice
-	cp -R $WP6SRC/src /opt/virtualfolder
+	  #clean from previous try
+	  rm -rf /opt/virtualfolder/MetadataService
+	  rm -rf /opt/virtualfolder/src
+	  # build metadataservice
+	  # cp -R $WP6SRC/src /opt/virtualfolder
 
-    cert-sync /etc/pki/tls/certs/ca-bundle.crt
-	$WP6SRC/scripts/timeout3.sh -t 90 xbuild /opt/virtualfolder/src/WP6Service2/Build.proj
+      cert-sync /etc/pki/tls/certs/ca-bundle.crt
+	  $WP6SRC/scripts/timeout3.sh -t 90 xbuild $WP6SRC/src/WP6Service2/Build.proj
+	  cp -R $WP6SRC/MetadataService /opt/virtualfolder
     fi
 done
 mkdir -p /var/log/westlife
@@ -36,7 +37,7 @@ chmod -R go+wx /var/log/westlife
 #generate random key
 if [ -f /etc/westlife/metadata.key ]
 then
-   source /etc/wyuestlife/metadata.key
+   source /etc/westlife/metadata.key
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
