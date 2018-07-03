@@ -39,7 +39,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 #venv to cvmfs
-VIRTUAL_ENV="/cvmfs/west-life.egi.eu/software/vre/17.03/.pyvenv"
+VIRTUAL_ENV="/opt/vre/.pyvenv"
 
 # VIRTUAL_ENV="/home/vagrant/VRE-master/.pyvenv"
 export VIRTUAL_ENV

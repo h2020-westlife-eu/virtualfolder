@@ -87,8 +87,8 @@ LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
 	# Web UI of VF - are pure HTML, JS, CSS
 	# XBitHack to enable HTML imports on files with x bit set, <!-- import -->
-	Alias "/virtualfolder" "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/www/"
-	<Directory "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/www">
+	Alias "/virtualfolder" "/opt/virtualfolder/www/"
+	<Directory "/opt/virtualfolder/www">
 	    Require all granted
 		Options FollowSymLinks IncludesNOEXEC
 		AllowOverride All

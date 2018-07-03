@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 export WP6SRCESC=$(echo $WP6SRC | sed 's_/_\\/_g')
 export VREESC= $(echo $VREDIR | sed 's_/_\\/_g')
-sed -i -e "s/\ExecStart.*$/ExecStart=${VREESC}\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1${VREESC}\/VRE-master/g" /etc/systemd/system/westlife-vre.service
-sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/opt\/virtualfolder\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
+#sed -i -e "s/\ExecStart.*$/ExecStart=${VREESC}\/VRE-master\/rundevvre.sh/g" /etc/systemd/system/westlife-vre.service
+#sed -i -e "s/^\(WorkingDirectory\s*=\s*\).*$/\1${VREESC}\/VRE-master/g" /etc/systemd/system/westlife-vre.service
+#sed -i -e "s/\ExecStart.*$/ExecStart=\/bin\/mono \/opt\/virtualfolder\/MetadataService\/MetadataService.exe/g" /etc/systemd/system/westlife-metadata.service
 if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
 then 
   sed -i -e "s/\Environment=VF_ALLOW_LAB=.*$/Environment=VF_ALLOW_LAB=true/g" /etc/systemd/system/westlife-metadata.service  

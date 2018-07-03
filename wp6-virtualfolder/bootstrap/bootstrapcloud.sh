@@ -2,6 +2,9 @@
 #transcript from bootstrap scripts in order to prepare environment in clean VM
 echo Provisioning West-Life Virtual Folder
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
+#make link to VF and VRE
+ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest /opt/virtualfolder
+ln -s /cvmfs/west-life.egi.eu/software/vre/latest /opt/vre
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc; fi
 service rsyslog restart
 yum -y install epel-release
@@ -14,8 +17,6 @@ chmod go+wx /var/log/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
-#make link to scripts
-ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest /opt/virtualfolder
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
@@ -68,6 +69,7 @@ if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then
   systemctl enable westlife-vre 
   systemctl start westlife-vre
 fi
-if [ -d /vagrant ]; then /cvmfs/west-life.egi.eu/software/virtualfolder/latest/scripts/addfilesystemprovider.sh; fi
+# if vagrant dir is present, register it as default filesystem provider for vagrant/default user
+if [ -d /vagrant ]; then /opt/virtualfolder/scripts/addfilesystemprovider.sh; fi
 echo -e "BOOTSTRAP FINISHED, Virtual Folder provisioned.\nTo access VF services launch browser at http://localhost/"
 
