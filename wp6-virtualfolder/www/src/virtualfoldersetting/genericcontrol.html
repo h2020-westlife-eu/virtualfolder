@@ -26,10 +26,10 @@
           Username:<input  class="w3-bar" type="text" name="username"  maxlength="1024" value.bind="username" placeholder="B2DROP username" /><br/>
           Password:<input  class="w3-bar" type="password" name="securetoken" maxlength="1024" value.bind="password" placeholder="B2DROP password"/><br/>
           Alias (optional):<input type="text" name="alias"  class="w3-bar" maxlength="1024" value.bind="alias"
-	      tooltip="Name for subfolder where these B2DROP files will be mounted"
+	      tooltip="set new name for subfolder in virtual folder context"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these B2DROP files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
+          <button class="w3-btn w3-round-large w3-right"  click.trigger="addProvider()">Add</button>
         </div>
 
         <div show.bind="selectedDropbox">
@@ -46,11 +46,11 @@
                    readonly.bind="!editing"
 		   /><br/>
             Alias (optional):<input class="w3-bar" type="text" name="alias" maxlength="1024" value.bind="alias"
-	           tooltip="Name for subfolder where these Dropbox files will be mounted"
+	           tooltip="set new name for subfolder in virtual folder context"
 	    /><br/>
             <span class="w3-tiny">Name for subfolder where these Dropbox files will be mounted.</span>
 
-            <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
+            <button class="w3-btn w3-round-large w3-right" click.trigger="addProvider()">Add</button>
 
           </div>
 
@@ -60,10 +60,10 @@
           Internal path to be linked:
           <input  class="w3-bar" type="text" name="securetoken" maxlength="1024" value.bind="filesystempath"/><br/>
           Alias (optional):<input  class="w3-bar" type="text" name="alias" maxlength="1024" value.bind="alias"
-	      tooltip="Name for subfolder where these local files will be mounted"
+	      tooltip="set new name for subfolder in virtual folder context"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these Filesystem files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
+          <button class="w3-btn w3-round-large w3-right" click.trigger="addProvider()">Add</button>
         </div>
 
         <div show.bind="selectedWebDav">
@@ -74,10 +74,10 @@
           Username:<input  class="w3-bar" type="text" name="username" maxlength="1024" value.bind="username"/><br/>
           Password:<input  class="w3-bar" type="password" name="securetoken" maxlength="1024" value.bind="password"/><br/>
           Alias (optional):<input  class="w3-bar" type="text" name="alias"  maxlength="1024" value.bind="alias"
-	     tooltip="Name for subfolder where this Webdav folder will be mounted"
+	     tooltip="set new name for subfolder in virtual folder context"
 	  /><br/>
           <span class="w3-tiny">Name for subfolder where these WebDAV files will be mounted.</span>
-          <button class="w3-btn w3-round-large w3-right" type="submit" click.trigger="addProvider()">Add</button>
+          <button class="w3-btn w3-round-large w3-right" click.trigger="addProvider()">Add</button>
         </div>
 
         <div show.bind="selectedOnedata">
@@ -86,7 +86,10 @@
 	                             placeholder="<hostname>[:port]" /><br/>
           Access token:<input class="w3-bar" type="password" maxlength="1024"
                               name="securetoken" value.bind="securetoken"/><br/>
-          <button class="w3-btn w3-round-large w3-right" type="submit">Add</button>
+          Alias (optional):<input  class="w3-bar" type="text" name="alias"  maxlength="1024" value.bind="alias"
+                                   tooltip="set new name for subfolder in virtual folder context"
+        /><br/>
+          <button class="w3-btn w3-round-large w3-right" click.trigger="addProvider()">Add</button>
         </div>
 
       </div>

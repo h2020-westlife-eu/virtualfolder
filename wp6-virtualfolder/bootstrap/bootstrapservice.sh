@@ -36,7 +36,7 @@ chmod -R go+wx /var/log/westlife
 #generate random key
 if [ -f /etc/westlife/metadata.key ]
 then
-   source /etc/westlife/metadata.key
+   source /etc/wyuestlife/metadata.key
    export VF_STORAGE_PKEY
 else
    export VF_STORAGE_PKEY=`openssl rand -base64 32`

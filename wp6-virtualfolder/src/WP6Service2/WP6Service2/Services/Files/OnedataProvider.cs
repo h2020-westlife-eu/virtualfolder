@@ -59,9 +59,9 @@ namespace MetadataService.Services.Files
             accessToken = item.securetoken;
             accessURL = item.accessurl;
             
-            spaceAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/spaces";
-            fileAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/files";
-            attrAPIURL = $"https://{item.accessurl}/api/v3/oneprovider/attributes";            
+            spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", item.accessurl);
+            fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", item.accessurl);
+            attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", item.accessurl);            
 
             ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
@@ -322,12 +322,12 @@ namespace MetadataService.Services.Files
 
         public override string ToString()
         {
-            return $"{resource}: {statusCode}";
+            return string.Format("{0}: {1}", resource, statusCode);
         }
 
         public override int GetHashCode()
         {
-            return $"{resource}-{statusCode}".GetHashCode();
+            return string.Format("{0}-{1}", resource, statusCode).GetHashCode();
         }
 
         public override bool Equals(object obj)
