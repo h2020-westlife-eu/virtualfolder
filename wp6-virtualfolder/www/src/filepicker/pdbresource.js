@@ -6,10 +6,10 @@
 import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
 export class Pdbresource {
-  static inject = [HttpClient];
+  //static inject = [HttpClient];
 
-  constructor(httpclient) {
-    this.client=httpclient;
+  constructor() {
+    this.client=new HttpClient();
     this.requesturlpdbid="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
     this.requesturlnums="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
     this.requesturlfiles="//www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
@@ -54,7 +54,7 @@ export class Pdbresource {
     let that = this;
     
     function fetchLog(url) {
-      return that.client.fetch(url) 
+      return that.client.fetch(url, {headers:{}}) 
         .then(data => {return data});
 
     }
@@ -154,7 +154,7 @@ export class Pdbresource {
         });
 
       //get link to pdb redo files
-      queryurl = that.pdbredourlfiles+pdbid;
+      queryurl = that.pdbredourl+pdbid+"/data.json";
 
       that.client.fetch(queryurl, {method:'head',headers:{}})
         .then(response => {

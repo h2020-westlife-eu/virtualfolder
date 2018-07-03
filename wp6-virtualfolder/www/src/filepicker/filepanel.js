@@ -259,17 +259,21 @@ export class Filepanel {
 
       //HEAD the file - so it can be obtained - cached by metadata service, fix #45
       //let fileurl = this.serviceurl + this.path + '/' + file.name
+      if (this.path) //path exists -standard file 
       this.pa.getFileHead(this.path + '/' + file.name)
         .then(response => {
             //console.log('file head'+fileurl);
             //console.log(response);
+            this.ea.publish(new SelectedFile(file, this.panelid));
           }
         ).catch(error => {
         console.log("Error when geting metadata information about file:");
         console.log(error);
       });
-      console.log("SelectedFile",file);
-      this.ea.publish(new SelectedFile(file, this.panelid));
+      else //path don't exist, probably resource
+        this.ea.publish(new SelectedFile(file, this.panelid));       
+      //console.log("SelectedFile",file);
+      
       //constructs public url
       /*this.pa.getPublicWebDav()
         .then(data => {

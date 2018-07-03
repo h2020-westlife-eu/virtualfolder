@@ -14117,6 +14117,290 @@ define('aurelia-logging-console',['exports', 'aurelia-logging'], function (expor
     return ConsoleAppender;
   }();
 });
+define('aurelia-metadata',['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Origin = exports.metadata = undefined;
+  exports.decorators = decorators;
+  exports.deprecated = deprecated;
+  exports.mixin = mixin;
+  exports.protocol = protocol;
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
+
+  function isObject(val) {
+    return val && (typeof val === 'function' || (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object');
+  }
+
+  var metadata = exports.metadata = {
+    resource: 'aurelia:resource',
+    paramTypes: 'design:paramtypes',
+    propertyType: 'design:type',
+    properties: 'design:properties',
+    get: function get(metadataKey, target, targetKey) {
+      if (!isObject(target)) {
+        return undefined;
+      }
+      var result = metadata.getOwn(metadataKey, target, targetKey);
+      return result === undefined ? metadata.get(metadataKey, Object.getPrototypeOf(target), targetKey) : result;
+    },
+    getOwn: function getOwn(metadataKey, target, targetKey) {
+      if (!isObject(target)) {
+        return undefined;
+      }
+      return Reflect.getOwnMetadata(metadataKey, target, targetKey);
+    },
+    define: function define(metadataKey, metadataValue, target, targetKey) {
+      Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
+    },
+    getOrCreateOwn: function getOrCreateOwn(metadataKey, Type, target, targetKey) {
+      var result = metadata.getOwn(metadataKey, target, targetKey);
+
+      if (result === undefined) {
+        result = new Type();
+        Reflect.defineMetadata(metadataKey, result, target, targetKey);
+      }
+
+      return result;
+    }
+  };
+
+  var originStorage = new Map();
+  var unknownOrigin = Object.freeze({ moduleId: undefined, moduleMember: undefined });
+
+  var Origin = exports.Origin = function () {
+    function Origin(moduleId, moduleMember) {
+      
+
+      this.moduleId = moduleId;
+      this.moduleMember = moduleMember;
+    }
+
+    Origin.get = function get(fn) {
+      var origin = originStorage.get(fn);
+
+      if (origin === undefined) {
+        _aureliaPal.PLATFORM.eachModule(function (key, value) {
+          if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
+            for (var name in value) {
+              var exp = value[name];
+              if (exp === fn) {
+                originStorage.set(fn, origin = new Origin(key, name));
+                return true;
+              }
+            }
+          }
+
+          if (value === fn) {
+            originStorage.set(fn, origin = new Origin(key, 'default'));
+            return true;
+          }
+
+          return false;
+        });
+      }
+
+      return origin || unknownOrigin;
+    };
+
+    Origin.set = function set(fn, origin) {
+      originStorage.set(fn, origin);
+    };
+
+    return Origin;
+  }();
+
+  function decorators() {
+    for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
+      rest[_key] = arguments[_key];
+    }
+
+    var applicator = function applicator(target, key, descriptor) {
+      var i = rest.length;
+
+      if (key) {
+        descriptor = descriptor || {
+          value: target[key],
+          writable: true,
+          configurable: true,
+          enumerable: true
+        };
+
+        while (i--) {
+          descriptor = rest[i](target, key, descriptor) || descriptor;
+        }
+
+        Object.defineProperty(target, key, descriptor);
+      } else {
+        while (i--) {
+          target = rest[i](target) || target;
+        }
+      }
+
+      return target;
+    };
+
+    applicator.on = applicator;
+    return applicator;
+  }
+
+  function deprecated(optionsOrTarget, maybeKey, maybeDescriptor) {
+    function decorator(target, key, descriptor) {
+      var methodSignature = target.constructor.name + '#' + key;
+      var options = maybeKey ? {} : optionsOrTarget || {};
+      var message = 'DEPRECATION - ' + methodSignature;
+
+      if (typeof descriptor.value !== 'function') {
+        throw new SyntaxError('Only methods can be marked as deprecated.');
+      }
+
+      if (options.message) {
+        message += ' - ' + options.message;
+      }
+
+      return _extends({}, descriptor, {
+        value: function deprecationWrapper() {
+          if (options.error) {
+            throw new Error(message);
+          } else {
+            console.warn(message);
+          }
+
+          return descriptor.value.apply(this, arguments);
+        }
+      });
+    }
+
+    return maybeKey ? decorator(optionsOrTarget, maybeKey, maybeDescriptor) : decorator;
+  }
+
+  function mixin(behavior) {
+    var instanceKeys = Object.keys(behavior);
+
+    function _mixin(possible) {
+      var decorator = function decorator(target) {
+        var resolvedTarget = typeof target === 'function' ? target.prototype : target;
+
+        var i = instanceKeys.length;
+        while (i--) {
+          var property = instanceKeys[i];
+          Object.defineProperty(resolvedTarget, property, {
+            value: behavior[property],
+            writable: true
+          });
+        }
+      };
+
+      return possible ? decorator(possible) : decorator;
+    }
+
+    return _mixin;
+  }
+
+  function alwaysValid() {
+    return true;
+  }
+  function noCompose() {}
+
+  function ensureProtocolOptions(options) {
+    if (options === undefined) {
+      options = {};
+    } else if (typeof options === 'function') {
+      options = {
+        validate: options
+      };
+    }
+
+    if (!options.validate) {
+      options.validate = alwaysValid;
+    }
+
+    if (!options.compose) {
+      options.compose = noCompose;
+    }
+
+    return options;
+  }
+
+  function createProtocolValidator(validate) {
+    return function (target) {
+      var result = validate(target);
+      return result === true;
+    };
+  }
+
+  function createProtocolAsserter(name, validate) {
+    return function (target) {
+      var result = validate(target);
+      if (result !== true) {
+        throw new Error(result || name + ' was not correctly implemented.');
+      }
+    };
+  }
+
+  function protocol(name, options) {
+    options = ensureProtocolOptions(options);
+
+    var result = function result(target) {
+      var resolvedTarget = typeof target === 'function' ? target.prototype : target;
+
+      options.compose(resolvedTarget);
+      result.assert(resolvedTarget);
+
+      Object.defineProperty(resolvedTarget, 'protocol:' + name, {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: true
+      });
+    };
+
+    result.validate = createProtocolValidator(options.validate);
+    result.assert = createProtocolAsserter(name, options.validate);
+
+    return result;
+  }
+
+  protocol.create = function (name, options) {
+    options = ensureProtocolOptions(options);
+    var hidden = 'protocol:' + name;
+    var result = function result(target) {
+      var decorator = protocol(name, options);
+      return target ? decorator(target) : decorator;
+    };
+
+    result.decorates = function (obj) {
+      return obj[hidden] === true;
+    };
+    result.validate = createProtocolValidator(options.validate);
+    result.assert = createProtocolAsserter(name, options.validate);
+
+    return result;
+  };
+});
 define('aurelia-pal',['exports'], function (exports) {
   'use strict';
 
@@ -14922,290 +15206,6 @@ define('aurelia-path',['exports'], function (exports) {
     }
     return queryParams;
   }
-});
-define('aurelia-metadata',['exports', 'aurelia-pal'], function (exports, _aureliaPal) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Origin = exports.metadata = undefined;
-  exports.decorators = decorators;
-  exports.deprecated = deprecated;
-  exports.mixin = mixin;
-  exports.protocol = protocol;
-
-  var _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  
-
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
-  function isObject(val) {
-    return val && (typeof val === 'function' || (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object');
-  }
-
-  var metadata = exports.metadata = {
-    resource: 'aurelia:resource',
-    paramTypes: 'design:paramtypes',
-    propertyType: 'design:type',
-    properties: 'design:properties',
-    get: function get(metadataKey, target, targetKey) {
-      if (!isObject(target)) {
-        return undefined;
-      }
-      var result = metadata.getOwn(metadataKey, target, targetKey);
-      return result === undefined ? metadata.get(metadataKey, Object.getPrototypeOf(target), targetKey) : result;
-    },
-    getOwn: function getOwn(metadataKey, target, targetKey) {
-      if (!isObject(target)) {
-        return undefined;
-      }
-      return Reflect.getOwnMetadata(metadataKey, target, targetKey);
-    },
-    define: function define(metadataKey, metadataValue, target, targetKey) {
-      Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
-    },
-    getOrCreateOwn: function getOrCreateOwn(metadataKey, Type, target, targetKey) {
-      var result = metadata.getOwn(metadataKey, target, targetKey);
-
-      if (result === undefined) {
-        result = new Type();
-        Reflect.defineMetadata(metadataKey, result, target, targetKey);
-      }
-
-      return result;
-    }
-  };
-
-  var originStorage = new Map();
-  var unknownOrigin = Object.freeze({ moduleId: undefined, moduleMember: undefined });
-
-  var Origin = exports.Origin = function () {
-    function Origin(moduleId, moduleMember) {
-      
-
-      this.moduleId = moduleId;
-      this.moduleMember = moduleMember;
-    }
-
-    Origin.get = function get(fn) {
-      var origin = originStorage.get(fn);
-
-      if (origin === undefined) {
-        _aureliaPal.PLATFORM.eachModule(function (key, value) {
-          if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
-            for (var name in value) {
-              var exp = value[name];
-              if (exp === fn) {
-                originStorage.set(fn, origin = new Origin(key, name));
-                return true;
-              }
-            }
-          }
-
-          if (value === fn) {
-            originStorage.set(fn, origin = new Origin(key, 'default'));
-            return true;
-          }
-
-          return false;
-        });
-      }
-
-      return origin || unknownOrigin;
-    };
-
-    Origin.set = function set(fn, origin) {
-      originStorage.set(fn, origin);
-    };
-
-    return Origin;
-  }();
-
-  function decorators() {
-    for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
-    }
-
-    var applicator = function applicator(target, key, descriptor) {
-      var i = rest.length;
-
-      if (key) {
-        descriptor = descriptor || {
-          value: target[key],
-          writable: true,
-          configurable: true,
-          enumerable: true
-        };
-
-        while (i--) {
-          descriptor = rest[i](target, key, descriptor) || descriptor;
-        }
-
-        Object.defineProperty(target, key, descriptor);
-      } else {
-        while (i--) {
-          target = rest[i](target) || target;
-        }
-      }
-
-      return target;
-    };
-
-    applicator.on = applicator;
-    return applicator;
-  }
-
-  function deprecated(optionsOrTarget, maybeKey, maybeDescriptor) {
-    function decorator(target, key, descriptor) {
-      var methodSignature = target.constructor.name + '#' + key;
-      var options = maybeKey ? {} : optionsOrTarget || {};
-      var message = 'DEPRECATION - ' + methodSignature;
-
-      if (typeof descriptor.value !== 'function') {
-        throw new SyntaxError('Only methods can be marked as deprecated.');
-      }
-
-      if (options.message) {
-        message += ' - ' + options.message;
-      }
-
-      return _extends({}, descriptor, {
-        value: function deprecationWrapper() {
-          if (options.error) {
-            throw new Error(message);
-          } else {
-            console.warn(message);
-          }
-
-          return descriptor.value.apply(this, arguments);
-        }
-      });
-    }
-
-    return maybeKey ? decorator(optionsOrTarget, maybeKey, maybeDescriptor) : decorator;
-  }
-
-  function mixin(behavior) {
-    var instanceKeys = Object.keys(behavior);
-
-    function _mixin(possible) {
-      var decorator = function decorator(target) {
-        var resolvedTarget = typeof target === 'function' ? target.prototype : target;
-
-        var i = instanceKeys.length;
-        while (i--) {
-          var property = instanceKeys[i];
-          Object.defineProperty(resolvedTarget, property, {
-            value: behavior[property],
-            writable: true
-          });
-        }
-      };
-
-      return possible ? decorator(possible) : decorator;
-    }
-
-    return _mixin;
-  }
-
-  function alwaysValid() {
-    return true;
-  }
-  function noCompose() {}
-
-  function ensureProtocolOptions(options) {
-    if (options === undefined) {
-      options = {};
-    } else if (typeof options === 'function') {
-      options = {
-        validate: options
-      };
-    }
-
-    if (!options.validate) {
-      options.validate = alwaysValid;
-    }
-
-    if (!options.compose) {
-      options.compose = noCompose;
-    }
-
-    return options;
-  }
-
-  function createProtocolValidator(validate) {
-    return function (target) {
-      var result = validate(target);
-      return result === true;
-    };
-  }
-
-  function createProtocolAsserter(name, validate) {
-    return function (target) {
-      var result = validate(target);
-      if (result !== true) {
-        throw new Error(result || name + ' was not correctly implemented.');
-      }
-    };
-  }
-
-  function protocol(name, options) {
-    options = ensureProtocolOptions(options);
-
-    var result = function result(target) {
-      var resolvedTarget = typeof target === 'function' ? target.prototype : target;
-
-      options.compose(resolvedTarget);
-      result.assert(resolvedTarget);
-
-      Object.defineProperty(resolvedTarget, 'protocol:' + name, {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: true
-      });
-    };
-
-    result.validate = createProtocolValidator(options.validate);
-    result.assert = createProtocolAsserter(name, options.validate);
-
-    return result;
-  }
-
-  protocol.create = function (name, options) {
-    options = ensureProtocolOptions(options);
-    var hidden = 'protocol:' + name;
-    var result = function result(target) {
-      var decorator = protocol(name, options);
-      return target ? decorator(target) : decorator;
-    };
-
-    result.decorates = function (obj) {
-      return obj[hidden] === true;
-    };
-    result.validate = createProtocolValidator(options.validate);
-    result.assert = createProtocolAsserter(name, options.validate);
-
-    return result;
-  };
 });
 define('aurelia-polyfills',['aurelia-pal'], function (_aureliaPal) {
   'use strict';
@@ -38953,4 +38953,4 @@ define('aurelia-testing/wait',["require", "exports"], function (require, exports
     exports.waitForDocumentElements = waitForDocumentElements;
 });
 
-function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","whatwg-fetch":"../node_modules/whatwg-fetch/fetch","aurelia-fetch-client":"../node_modules/aurelia-fetch-client/dist/amd/aurelia-fetch-client","text":"../node_modules/text/text","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"dropbox","location":"../node_modules/dropbox/dist","main":"Dropbox-sdk.min.js"},{"name":"aurelia-dialog","location":"../node_modules/aurelia-dialog/dist/amd","main":"aurelia-dialog"},{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","behavior","environment","main","navitem","advancedfilepicker/advancedfilepicker","advancedfilepicker/app","advancedfilepicker/environment","advancedfilepicker/main","advancedfilepicker/viewpanel2","autocomplete/vfAutocompleteSearch","components/projectapi","components/sharedheader","components/userinfo","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/fmsettings","filemanager2/main","filemanager2/panel","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","filepicker/pdbpanel","filepicker/pdbresource","filepicker/uniprotpanel","filepicker/uniprotresource","pages/filemanager","pages/filepicker","pages/virtualfolderhome","pages/virtualfoldersetting","pdbcomponents/checkurl","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/icopy","resources/index","syncsetting/app","syncsetting/environment","syncsetting/main","tabs/messages","tabs/simpletab","tabs/simpletabs","tabs/tabs","uploaddirpicker/app","uploaddirpicker/main","uploaddirpicker/uploaddirpanel","utils/vfstorage","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/clouddeployment","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/importprovider","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/storageprovider","virtualfoldersetting/taskcontrol","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css","aurelia-dialog/dialog-configuration","aurelia-dialog/renderer","aurelia-dialog/dialog-settings","aurelia-dialog/dialog-renderer","aurelia-dialog/ux-dialog","aurelia-dialog/ux-dialog-header","aurelia-dialog/dialog-controller","aurelia-dialog/lifecycle","aurelia-dialog/dialog-close-error","aurelia-dialog/dialog-cancel-error","aurelia-dialog/ux-dialog-body","aurelia-dialog/ux-dialog-footer","aurelia-dialog/attach-focus","aurelia-dialog/dialog-service","icons","w3","components/heads","components/instructmenu","components/sharedfooter","resources/iadmin","resources/icogs","resources/icopyicon","resources/idata","resources/idelete","resources/ifile","resources/ifolder","resources/ilink","resources/inext","resources/iproject","resources/irep","resources/irepdemo","resources/ispincog","resources/istaff","resources/itable"]}})}
+function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"../node_modules/aurelia-binding/dist/amd/aurelia-binding","aurelia-bootstrapper":"../node_modules/aurelia-bootstrapper/dist/amd/aurelia-bootstrapper","aurelia-dependency-injection":"../node_modules/aurelia-dependency-injection/dist/amd/aurelia-dependency-injection","aurelia-event-aggregator":"../node_modules/aurelia-event-aggregator/dist/amd/aurelia-event-aggregator","aurelia-framework":"../node_modules/aurelia-framework/dist/amd/aurelia-framework","aurelia-history":"../node_modules/aurelia-history/dist/amd/aurelia-history","aurelia-history-browser":"../node_modules/aurelia-history-browser/dist/amd/aurelia-history-browser","aurelia-loader":"../node_modules/aurelia-loader/dist/amd/aurelia-loader","aurelia-loader-default":"../node_modules/aurelia-loader-default/dist/amd/aurelia-loader-default","aurelia-logging":"../node_modules/aurelia-logging/dist/amd/aurelia-logging","aurelia-logging-console":"../node_modules/aurelia-logging-console/dist/amd/aurelia-logging-console","aurelia-metadata":"../node_modules/aurelia-metadata/dist/amd/aurelia-metadata","aurelia-pal":"../node_modules/aurelia-pal/dist/amd/aurelia-pal","aurelia-pal-browser":"../node_modules/aurelia-pal-browser/dist/amd/aurelia-pal-browser","aurelia-path":"../node_modules/aurelia-path/dist/amd/aurelia-path","aurelia-polyfills":"../node_modules/aurelia-polyfills/dist/amd/aurelia-polyfills","aurelia-route-recognizer":"../node_modules/aurelia-route-recognizer/dist/amd/aurelia-route-recognizer","aurelia-router":"../node_modules/aurelia-router/dist/amd/aurelia-router","aurelia-task-queue":"../node_modules/aurelia-task-queue/dist/amd/aurelia-task-queue","aurelia-templating":"../node_modules/aurelia-templating/dist/amd/aurelia-templating","aurelia-templating-binding":"../node_modules/aurelia-templating-binding/dist/amd/aurelia-templating-binding","aurelia-http-client":"../node_modules/aurelia-http-client/dist/amd/aurelia-http-client","whatwg-fetch":"../node_modules/whatwg-fetch/fetch","aurelia-fetch-client":"../node_modules/aurelia-fetch-client/dist/amd/aurelia-fetch-client","text":"../node_modules/text/text","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"dropbox","location":"../node_modules/dropbox/dist","main":"Dropbox-sdk.min.js"},{"name":"aurelia-dialog","location":"../node_modules/aurelia-dialog/dist/amd","main":"aurelia-dialog"},{"name":"codemirror","location":"../node_modules/codemirror","main":"lib/codemirror"},{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","behavior","environment","main","navitem","advancedfilepicker/advancedfilepicker","advancedfilepicker/app","advancedfilepicker/environment","advancedfilepicker/main","advancedfilepicker/viewpanel2","autocomplete/vfAutocompleteSearch","components/projectapi","components/sharedheader","components/userinfo","editor/fileeditor","filemanager2/app","filemanager2/environment","filemanager2/fmsettings","filemanager2/main","filemanager2/panel","filepicker/app","filepicker/environment","filepicker/filepanel","filepicker/main","filepicker/messages","filepicker/pdbpanel","filepicker/pdbresource","filepicker/uniprotpanel","filepicker/uniprotresource","pages/filemanager","pages/filepicker","pages/virtualfolderhome","pages/virtualfoldersetting","pdbcomponents/checkurl","pdbcomponents/dataitem","pdbcomponents/dataset","pdbcomponents/entry-id","pdbcomponents/hideable","pdbcomponents/pdb-id","pdbcomponents/pdb-ids","pdbcomponents/sasclient","pdbcomponents/viewpanel","resources/icopy","resources/index","syncsetting/app","syncsetting/environment","syncsetting/main","tabs/messages","tabs/simpletab","tabs/simpletabs","tabs/tabs","uploaddirpicker/app","uploaddirpicker/main","uploaddirpicker/uploaddirpanel","utils/vfstorage","virtualfoldermodules/app","virtualfoldermodules/ccp4control","virtualfoldermodules/main","virtualfoldermodules/modulecontrol","virtualfoldermodules/modulesetting","virtualfoldermodules/scipioncontrol","virtualfoldermodules/virtuosocontrol","virtualfoldersetting/aliastable","virtualfoldersetting/app","virtualfoldersetting/clouddeployment","virtualfoldersetting/dropboxcontrol","virtualfoldersetting/genericcontrol","virtualfoldersetting/importprovider","virtualfoldersetting/main","virtualfoldersetting/messages","virtualfoldersetting/storageprovider","virtualfoldersetting/taskcontrol","codemirror/mode/clike/clike","codemirror/mode/htmlmixed/htmlmixed","codemirror/mode/xml/xml","codemirror/mode/javascript/javascript","codemirror/mode/css/css","aurelia-dialog/dialog-configuration","aurelia-dialog/renderer","aurelia-dialog/dialog-settings","aurelia-dialog/dialog-renderer","aurelia-dialog/ux-dialog","aurelia-dialog/ux-dialog-header","aurelia-dialog/dialog-controller","aurelia-dialog/lifecycle","aurelia-dialog/dialog-close-error","aurelia-dialog/dialog-cancel-error","aurelia-dialog/ux-dialog-body","aurelia-dialog/ux-dialog-footer","aurelia-dialog/attach-focus","aurelia-dialog/dialog-service","icons","w3","components/heads","components/instructmenu","components/sharedfooter","resources/iadmin","resources/icogs","resources/icopyicon","resources/idata","resources/idelete","resources/ifile","resources/ifolder","resources/ilink","resources/inext","resources/iproject","resources/irep","resources/irepdemo","resources/ispincog","resources/istaff","resources/itable"]}})}

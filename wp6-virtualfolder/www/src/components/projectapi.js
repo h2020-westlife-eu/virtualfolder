@@ -27,14 +27,16 @@ export class ProjectApi {
         .withDefaults({
           credentials: 'same-origin',
           headers: {
-            'Accept': 'application/json',             
-            'X-Requested-With': 'Fetch'
-          }
+            'Accept': 'application/json'
+          }             
+          //          'X-Requested-With': 'Fetch'
+          // }          
         })
     });
     this.putHeaders= new Headers();
     this.putHeaders.append('Accept', 'application/json');
     this.putHeaders.append('Content-Type', 'application/json');
+    this.emptyHeaders = new Headers();
   }
 
   //generic methods to fetch, serialize to json and log error
@@ -52,7 +54,7 @@ export class ProjectApi {
 
   //generic methods to fetch, (no json serialization) and log error
   fetchTextLog(url) {
-    return this.httpclient.fetch(url)
+    return this.httpclient.fetch(url,{headers:this.emptyHeaders})
       .then(response => response.text())
       .then(data => {
         return data;

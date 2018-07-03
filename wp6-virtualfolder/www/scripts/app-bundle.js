@@ -590,14 +590,14 @@ define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfs
         config.rejectErrorResponses().withBaseUrl('').withDefaults({
           credentials: 'same-origin',
           headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'Fetch'
+            'Accept': 'application/json'
           }
         });
       });
       this.putHeaders = new Headers();
       this.putHeaders.append('Accept', 'application/json');
       this.putHeaders.append('Content-Type', 'application/json');
+      this.emptyHeaders = new Headers();
     }
 
     ProjectApi.prototype.fetchJsonLog = function fetchJsonLog(url) {
@@ -612,7 +612,7 @@ define('components/projectapi',["exports", "aurelia-fetch-client", "../utils/vfs
     };
 
     ProjectApi.prototype.fetchTextLog = function fetchTextLog(url) {
-      return this.httpclient.fetch(url).then(function (response) {
+      return this.httpclient.fetch(url, { headers: this.emptyHeaders }).then(function (response) {
         return response.text();
       }).then(function (data) {
         return data;
@@ -988,7 +988,7 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
   var _desc, _value, _class, _descriptor, _class2, _temp;
 
   var Fileeditor = exports.Fileeditor = (_class = (_temp = _class2 = function () {
-    function Fileeditor(el, ea, httpclient) {
+    function Fileeditor(el, ea) {
       var _this = this;
 
       _classCallCheck(this, Fileeditor);
@@ -997,7 +997,12 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
 
       this.el = el;
       this.ea = ea;
-      this.client = httpclient;
+      this.client = new _aureliaFetchClient.HttpClient();
+      this.client.configure(function (config) {
+        config.rejectErrorResponses().withBaseUrl('').withDefaults({
+          credentials: 'same-origin'
+        });
+      });
       this.ea.subscribe(_messages.EditFile, function (msg) {
         return _this.selectFile(msg.file, msg.senderid);
       });
@@ -1017,6 +1022,8 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
     };
 
     Fileeditor.prototype.selectFile = function selectFile(file, senderid) {
+      var _this2 = this;
+
       this.disablenextbuttons = false;
       this.offset = 0;
       var that = this;
@@ -1028,50 +1035,57 @@ define('editor/fileeditor',["exports", "codemirror", "aurelia-event-aggregator",
         if (!this.isimage) this.client.fetch(file.webdavuri, { credentials: 'same-origin', headers: { 'Range': 'bytes=' + this.offset + '-' + (this.offset + 4095) } }).then(function (response) {
             return response.text();
           }).then(function (data) {
-            console.log("fileeditor.selectfile() loading:" + file.webdavuri);
-            console.log(data);
             that.codemirror.setValue(data);
             that.codemirror.refresh();
             that.filename = file.webdavuri;
           }).catch(function (error) {
-            alert('Error retrieving content from ' + file.webdavuri);
-            console.log(error);
+            if (error.name === "TypeError") {
+              console.log('fetch on range rejected, trying without range');
+              _this2.client.fetch(file.webdavuri, { credentials: 'same-origin' }).then(function (response) {
+                return response.text();
+              }).then(function (data) {
+                that.codemirror.setValue(data);
+                that.codemirror.refresh();
+                that.filename = file.webdavuri;
+              });
+            } else {
+              alert('Error retrieving content from ' + file.webdavuri);
+              console.log('Error:', error);
+            }
           });
       }
     };
 
     Fileeditor.prototype.fetchNext = function fetchNext() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.offset += 4096;
       this.client.fetch(this.filename, { credentials: 'same-origin', headers: { 'Range': 'bytes=' + this.offset + '-' + (this.offset + 4095) } }).then(function (response) {
         return response.text();
       }).then(function (data) {
-        _this2.codemirror.replaceRange(data, CodeMirror.Pos(_this2.codemirror.lastLine()));
+        _this3.codemirror.replaceRange(data, CodeMirror.Pos(_this3.codemirror.lastLine()));
 
-        _this2.codemirror.refresh();
+        _this3.codemirror.refresh();
       }).catch(function (error) {
         if (error.status === 416) {
-          _this2.disablenextbuttons = true;
+          _this3.disablenextbuttons = true;
         } else {
-          alert('Error retrieving content from ' + _this2.filename);
+          alert('Error retrieving content from ' + _this3.filename);
           console.log(error);
         }
       });
     };
 
     Fileeditor.prototype.fetchRest = function fetchRest() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.client.fetch(this.file.webdavuri, { credentials: 'same-origin' }).then(function (response) {
         return response.text();
       }).then(function (data) {
-        console.log("fileeditor.selectfile() loading:" + _this3.filename);
-        console.log(data);
         that.codemirror.setValue(data);
         that.codemirror.refresh();
       }).catch(function (error) {
-        alert('Error retrieving content from ' + _this3.filename);
+        alert('Error retrieving content from ' + _this4.filename);
         console.log(error);
       });
     };
@@ -1677,13 +1691,15 @@ define('filepicker/filepanel',['exports', '../components/projectapi', 'aurelia-e
     };
 
     Filepanel.prototype.selectFile = function selectFile(file) {
+      var _this3 = this;
+
       if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);else {
-        this.pa.getFileHead(this.path + '/' + file.name).then(function (response) {}).catch(function (error) {
-          console.log("Error when geting metadata information about file:");
-          console.log(error);
-        });
-        console.log("SelectedFile", file);
-        this.ea.publish(new _messages.SelectedFile(file, this.panelid));
+        if (this.path) this.pa.getFileHead(this.path + '/' + file.name).then(function (response) {
+            _this3.ea.publish(new _messages.SelectedFile(file, _this3.panelid));
+          }).catch(function (error) {
+            console.log("Error when geting metadata information about file:");
+            console.log(error);
+          });else this.ea.publish(new _messages.SelectedFile(file, this.panelid));
       }
     };
 
@@ -1946,13 +1962,11 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
     }
   }
 
-  var _class, _temp;
-
-  var Pdbresource = exports.Pdbresource = (_temp = _class = function () {
-    function Pdbresource(httpclient) {
+  var Pdbresource = exports.Pdbresource = function () {
+    function Pdbresource() {
       _classCallCheck(this, Pdbresource);
 
-      this.client = httpclient;
+      this.client = new _aureliaFetchClient.HttpClient();
       this.requesturlpdbid = "//www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
       this.requesturlnums = "//www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
       this.requesturlfiles = "//www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
@@ -1985,7 +1999,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
       var that = this;
 
       function fetchLog(url) {
-        return that.client.fetch(url).then(function (data) {
+        return that.client.fetch(url, { headers: {} }).then(function (data) {
           return data;
         });
       }
@@ -2102,7 +2116,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
           callback.appendResources(resources2);
         });
 
-        queryurl = that.pdbredourlfiles + pdbid;
+        queryurl = that.pdbredourl + pdbid + "/data.json";
 
         that.client.fetch(queryurl, { method: 'head', headers: {} }).then(function (response) {
           console.log(response);
@@ -2141,7 +2155,7 @@ define('filepicker/pdbresource',["exports", "aurelia-fetch-client"], function (e
     };
 
     return Pdbresource;
-  }(), _class.inject = [_aureliaFetchClient.HttpClient], _temp);
+  }();
 });
 define('filepicker/uniprotpanel',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
   'use strict';
@@ -9162,3 +9176,4 @@ define('text!virtualfoldersetting/genericcontrol.html', ['module'], function(mod
 define('text!virtualfoldersetting/importprovider.html', ['module'], function(module) { module.exports = "<template>\n  <p class=\"w3-panel w3-pale-yellow w3-small\">\n    Using <i>Add new file provider</i> or <i>Import file provider</i> you agree,\n    that Virtual Folder stores authentication token or other type of credentials\n    encrypted in VF database.\n    This information is used only when a resources (files, folders) are read/updated via Virtual Folder portal or via link generated by some Virtual Folder widget.\n    If you remove selected file provider then corresponding token or credentials are deleted and all links to it become invalid.</p>\n  \n  <span class=\"w3-tiny\">Enter URL of West-Life Virtual Folder instance( https://[yourdomain]/virtualfolder/):</span>\n    <input value.bind=\"remoteurl\" placeholder=\"https://portal.west-life.eu/virtualfolder/\" class=\"w3-bar\" maxlength=\"1024\"/>\n    <ispincog show.bind=\"!publickey\" title=\"Generating keys for import. Wait for couple of seconds.\"></ispincog><span show.bind=\"!publickey\" class=\"w3-tiny\">Generating keys for import. Wait for couple of seconds.</span>\n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" disabled.bind=\"!publickey\">OK</button>\n  <br/>\n  <div show.bind=\"importingSettings\">\n    <table class=\"w3-light-grey\">\n      <tr class=\"w3-blue\">\n        <th scope=\"col\">Remote VF Provider alias</th>\n        <th scope=\"col\">Save as local VF Provider alias</th>\n      </tr>\n      <tr class=\"w3-hover-green w3-white\" repeat.for=\"alias of aliases\">\n        <td>${alias.oldname}</td>\n        <td><input value.bind=\"alias.newname\" class=\"w3-bar\"/> </td>\n      </tr>\n    </table>\n    Ensure local names do not conflict. \n    <button class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importSettings2()\">Confirm import</button>\n  </div>\n  \n</template>\n"; });
 define('text!virtualfoldersetting/storageprovider.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./genericcontrol\"></require>\n  <require from=\"./importprovider\"></require>\n  <require from=\"./aliastable\"></require>\n  <require from=\"../pdbcomponents/hideable\"></require>\n\n  <hideable title=\"Storage providers\">\n    <div class=\"w3-container\">\n      <div class=\"w3-half\">\n        <aliastable></aliastable>\n        \n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"newProvider()\" class=\"w3-buttons\">Add new file provider</button>\n        <button  class=\"w3-btn w3-round-large w3-blue\" click.delegate=\"importProvider()\" class=\"w3-buttons\" title=\"Import from another Virtual Folder instance\">Import file provider</button>\n        \n      </div>\n\n      <genericcontrol show.bind=\"showprovider\" class=\"w3-half\"></genericcontrol>\n      <importprovider if.bind=\"showimport\" class=\"w3-half\"></importprovider>\n\n    </div>\n  </hideable>\n\n</template>\n"; });
 define('text!virtualfoldersetting/taskcontrol.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../pdbcomponents/hideable\"></require>\n    <hideable title=\"Third party services\">\n      <div class=\"w3-container\">\n    <table class=\"w3-white \">\n      <thead>\n      <tr>\n        <th align=\"left\">Name</th>\n        <th align=\"left\">Description</th>\n        <th></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"w3-hover-green\" repeat.for=\"task of tasks\">\n        <td><b>${task.Name}</b></td>\n        <td>${task.Description}</td>\n        <td show.bind=\"!task.Updating\">\n          <i class=\"fa fa-play-circle-o\" click.delegate=\"starttask(task)\" show.bind=\"!task.Running\" title=\"not running - you may start it\"></i>\n          <i class=\"fa fa-stop-circle-o\" click.delegate=\"stoptask(task)\"  show.bind=\"task.Running\" title=\"running - you may stop it\"></i>\n        </td>\n        <td show.bind=\"task.Updating\">\n          <img src=\"img/vfloader.gif\">\n        </td>\n        <td show.bind=\"task.Running\" class=\"w3-small w3-text-blue w3-hover-text-white\">service UI available at: <a href.bind=\"task.LocalUrl\" target=\"_blank\">${task.LocalUrl}</a></td>\n      </tr>\n      </tbody>\n    </table>\n      </div>\n    </hideable>\n\n\n</template>\n"; });
+//# sourceMappingURL=app-bundle.js.map

@@ -19,10 +19,18 @@ export class Fileeditor {
   static inject = [Element,EventAggregator, HttpClient];
   @bindable pid;
 
-  constructor(el,ea,httpclient) {
+  constructor(el,ea) {
     this.el = el;
     this.ea = ea;
-    this.client = httpclient;
+    this.client = new HttpClient();
+    this.client.configure(config => {
+      config
+        .rejectErrorResponses()
+        .withBaseUrl('')
+        .withDefaults({
+          credentials: 'same-origin'
+        })
+    });
     this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
     this.isimage=false;
     this.filename="";
@@ -69,15 +77,30 @@ export class Fileeditor {
         this.client.fetch(file.webdavuri, {credentials: 'same-origin',headers:{'Range':'bytes='+this.offset+'-'+(this.offset+4095)}})
           .then(response => response.text())
           .then(data =>{
-            console.log("fileeditor.selectfile() loading:" + file.webdavuri);
-            console.log(data);
+            //console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+            //console.log(data);
             that.codemirror.setValue(data);
             that.codemirror.refresh();
             that.filename=file.webdavuri;
           }
         ).catch(error => {
-          alert('Error retrieving content from ' + file.webdavuri);
-          console.log(error);
+          if (error.name ==="TypeError") {
+            //fetch for range header failed, so try to get full file
+            console.log('fetch on range rejected, trying without range');
+            this.client.fetch(file.webdavuri, {credentials: 'same-origin'})
+              .then(response => response.text())
+              .then(data => {
+                //console.log("fileeditor.selectfile() loading:" + file.webdavuri);
+                //console.log(data);
+                that.codemirror.setValue(data);
+                that.codemirror.refresh();
+                that.filename = file.webdavuri;
+              });
+          }
+          else {
+            alert('Error retrieving content from ' + file.webdavuri);
+            console.log('Error:',error);
+          }
         });
     }
   }
@@ -108,8 +131,8 @@ export class Fileeditor {
     this.client.fetch(this.file.webdavuri, {credentials: 'same-origin'})
       .then(response => response.text())
       .then(data =>{
-          console.log("fileeditor.selectfile() loading:" + this.filename);
-          console.log(data);
+          //console.log("fileeditor.selectfile() loading:" + this.filename);
+          //console.log(data);
           that.codemirror.setValue(data);
           that.codemirror.refresh();
         }
