@@ -155,7 +155,7 @@ checkargs $2 $3 $4 $5 $6
 LOCALPATH=`readlink -f $3`
 
 if [ $1 == 'add' ]; then
-  echo "Adding $2 $3 "
+  echo "Adding $2 $3 localpath:$LOCALPATH"
   checkproxy
   addfstab $2 $LOCALPATH
   addsecrets $LOCALPATH $4 $5

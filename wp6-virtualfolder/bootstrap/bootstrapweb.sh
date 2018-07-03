@@ -3,9 +3,6 @@
 # 02.06.2016 tomas - added WEBDAV & tiddlywiki for virtual folder documentation, probably more CMS should be supported
 # 17.06.2016 tomas - added noninteractive for davfs2 in ubuntu1604
 # 16.11.2016 tomas - added permission +x for SSI support
-# install lamp
-#sudo apt-get update
-#sudo DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 unzip libapache2-mod-encoding davfs2 inotify-tools php  libapache2-mod-php
 
 # enable firewall
 #ufw allow 22
@@ -26,7 +23,6 @@
 #one of the configuration is syslog - need to restart
 service rsyslog restart
 
-
 chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
@@ -34,10 +30,6 @@ find /var/www/html -type d -exec chmod ugo+rx {} \;
 #add +x permission on all html files which has include directive
 chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
 
-echo Adding EPEL repository
-echo Warning: This operation might be slown down by repeating requests to SL servers.
-echo minrate=10 >> /etc/yum.conf
-echo timeout=60 >> /etc/yum.conf
 yum -y install epel-release
 yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
 yum repolist
@@ -57,11 +49,6 @@ chmod go+rx /home/vagrant
 # workaround issue #6 store some config 
 mkdir /etc/westlife
 
-#chown vagrant:vagrant /srv/virtualfolder
-# dir for local copy (owncloud synchronized)
-#mkdir /home/vagrant/b2drop
-#chown vagrant:vagrant /home/vagrant/b2drop
-# dir for logs
 chown apache:apache /srv/virtualfolder
 #adding vagrant and apache into davfs2 group
 usermod -a -G davfs2 vagrant
@@ -71,6 +58,10 @@ usermod -g davfs2 vagrant
 
 mkdir -p /opt/virtualfolder
 ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
+ln -s $WP6SRC/www /opt/virtualfolder/www
+chown -R apache:apache /opt/virtualfolder/www
+chmod -R 644 /opt/virtualfolder/www
+
 dos2unix /opt/virtualfolder/scripts/*
 chmod ugo+x /opt/virtualfolder/scripts/*
 
