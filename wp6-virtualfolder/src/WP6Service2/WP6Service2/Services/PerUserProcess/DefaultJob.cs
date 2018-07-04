@@ -18,6 +18,7 @@ namespace WP6Service2.Services.PerUserProcess
         private int pid;
         public DefaultJob(string jobname,IHttpRequest _request,IDbConnection _db,int _pid=0,string args="")
         {
+            if (AvailableJobs.getList().Count==0) throw new InvalidOperationException("Cannot create job.'"+jobname+"' not available.");
             jobtype = AvailableJobs.getList().First(x => x.Name == jobname);
             request = _request;
             db = _db;

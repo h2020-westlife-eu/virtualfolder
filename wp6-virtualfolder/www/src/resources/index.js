@@ -7,6 +7,7 @@ export function configure(config) {
     './istaff.html',
     './ifile.html',
     './ilink.html',
+    './ilinkfolder.html',
     './icopy',
     './ifolder.html',
     './idata.html',

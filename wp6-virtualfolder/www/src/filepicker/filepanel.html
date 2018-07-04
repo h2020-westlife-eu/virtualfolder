@@ -39,10 +39,13 @@
               <td class="w3-tiny" click.trigger="selectFile(file)">${file.ext}</td>
               <td click.trigger="selectFile(file)">${file.nicesize}</td>
               <td click.trigger="selectFile(file)">${file.nicedate}</td>
-              <td>
-                <ilink href.bind="file.webdavuri"></ilink>
-                <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
+              <td show.bind="file.webdavuri">
+                <span  show.bind="file.available">
+                <ilink show.bind="! file.isdir" href.bind="file.webdavuri"></ilink>
+                <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri"></ilinkfolder>
                 <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
+                </span>
+                <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
               </td>
             </tr>
             </tbody>

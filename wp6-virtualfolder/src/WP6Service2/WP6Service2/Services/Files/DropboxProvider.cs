@@ -245,8 +245,8 @@ namespace MetadataService.Services.Files
                         filetype = FileType.Directory | FileType.Read | FileType.Write |
                                    (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT + mypath+ fi.Name, 
-                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name
+                        webdavuri = DROPBOXURIROOT + mypath+ fi.Name+"/", 
+                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name+"/"
                     });
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
