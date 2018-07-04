@@ -15,7 +15,7 @@ export class Tabs {
 
 
     constructor(el,ea) {
-        this.id = el.id;
+        //this.id = el.id;
         this.element= el;
         this.ea=ea;
         this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
@@ -31,7 +31,7 @@ export class Tabs {
 
     selectVisualize(file,senderid){
       //just switch the tab
-      console.log("selectVisualize senderid:"+senderid+ " this.id:"+this.id)
+      console.log("selectVisualize senderid:"+senderid)
       if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
         this.activeid.active = false;
 
@@ -42,7 +42,7 @@ export class Tabs {
     }
 
     selectEdit(file,senderid) {
-      console.log("selectEdit senderid:"+senderid+ " this.id:"+this.id)
+      console.log("selectEdit senderid:"+senderid)
       console.log(this.tabs);
       console.log(this.activeid);
       if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid

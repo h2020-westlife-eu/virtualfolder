@@ -59,8 +59,8 @@ usermod -g davfs2 vagrant
 mkdir -p /opt/virtualfolder
 ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
 ln -s $WP6SRC/www /opt/virtualfolder/www
-chown -R apache:apache /opt/virtualfolder/www
-chmod -R 644 /opt/virtualfolder/www
+# chown -R apache:apache /opt/virtualfolder/www
+chmod -R 755 /opt/virtualfolder/www
 
 dos2unix /opt/virtualfolder/scripts/*
 chmod ugo+x /opt/virtualfolder/scripts/*

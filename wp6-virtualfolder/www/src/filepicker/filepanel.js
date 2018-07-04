@@ -75,7 +75,7 @@ export class Filepanel {
   }
 
   addUpDir() {
-    this.files.unshift({name: "..", nicesize: "UP-DIR", date: "", available: true}); //up dir item
+    this.files.unshift({name: "..", nicesize: "UP-DIR", date: "", available: true,isdir:true}); //up dir item
   }
 
   sortByName() {
@@ -241,10 +241,12 @@ export class Filepanel {
       arr[index].nicedate = that.dateTimeReviver(null, arr[index].date);
       if (!arr[index].ext) arr[index].ext = "";
       arr[index].available = !!(arr[index].filetype & 8); //available if the filetype attribute contains flag 8
-      if (arr[index].attributes & 16) arr[index].nicesize = "DIR";
-      else
-      //convert to 4GB or 30MB or 20kB or 100b
+      if (arr[index].attributes & 16) { arr[index].nicesize = "DIR";arr[index].isdir =true; }
+      else {
+        arr[index].isdir =false;
+        //convert to 4GB or 30MB or 20kB or 100b
         arr[index].nicesize = ~~(arr[index].size / 1000000000) > 0 ? ~~(arr[index].size / 1000000000) + "GB" : (~~(arr[index].size / 1000000) > 0 ? ~~(arr[index].size / 1000000) + "MB" : (~~(arr[index].size / 1000) > 0 ? ~~(arr[index].size / 1000) + "kB" : arr[index].size + " b"));
+      }
     });
     if (this.path.length > 0) {//non root path
       this.addUpDir();

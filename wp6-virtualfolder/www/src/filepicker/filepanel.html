@@ -16,9 +16,10 @@
         <table id="${panelid}" class.bind="lock? 'w3-disabled': ''">
             <thead show.bind="isFiles">
             <tr>
+                <th></th>
                 <th style="text-align:left" click.delegate="sortByName()">name</th>
                 <th style="text-align:left" click.delegate="sortByExt()">ext</th>
-                <th style="text-align:right" click.delegate="sortBySize()">size</th>
+                <th style="text-align:center" click.delegate="sortBySize()">size</th>
                 <th style="text-align:center" click.delegate="sortByDate()">date</th>
                 <th title="information icons">i</th>
             </tr>
@@ -28,7 +29,21 @@
 
             <!-- Files from mounted storages -->
             <tr class="w3-hover-green" repeat.for="file of files">
-              <td click.trigger="selectFile(file)">${file.name}</td><td click.trigger="selectFile(file)">${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
+              <td click.trigger="selectFile(file)"><ifile if.bind="! file.isdir"></ifile><ifolder if.bind="file.isdir"></ifolder></td>
+              <td click.trigger="selectFile(file)" if.bind="! file.isdir" title="click to preview file in right panel">
+          <span style="display:block;overflow:hidden;">
+          ${file.name}
+          </span>
+              </td>
+              <td click.trigger="selectFile(file)" if.bind="file.isdir" title="click to go to directory"><b>${file.name}</b></td>
+              <td class="w3-tiny" click.trigger="selectFile(file)">${file.ext}</td>
+              <td click.trigger="selectFile(file)">${file.nicesize}</td>
+              <td click.trigger="selectFile(file)">${file.nicedate}</td>
+              <td>
+                <ilink href.bind="file.webdavuri"></ilink>
+                <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
+                <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
+              </td>
             </tr>
             </tbody>
           <thead show.bind="!isFiles">
