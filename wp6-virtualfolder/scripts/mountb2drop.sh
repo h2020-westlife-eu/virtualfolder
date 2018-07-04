@@ -153,6 +153,9 @@ echo - [webdavuri] url to proxy directly to the webdavprovider
 checkargs $2 $3 $4 $5 $6
 # some paths containing symbolic link are expanded by davfs and then not associated correctly
 LOCALPATH=`readlink -f $3`
+if [[ -z "${LOCALPATH// }" ]]; then
+  LOCALPATH=$3;
+fi
 
 if [ $1 == 'add' ]; then
   echo "Adding $2 $3 localpath:$LOCALPATH"
@@ -174,7 +177,7 @@ fi
 if [ $1 == 'remove' ]; then
   echo "Removing $2 $3"
   #workaround, without sudo doesnt work
-  LOCALPATH=`readlink -f $3`
+  #LOCALPATH=`readlink -f $3`
   sudo umount $LOCALPATH
   rm -d $3
   removeapacheproxy $5
@@ -186,11 +189,11 @@ fi
 
 if [ $1 == 'refresh' ]; then
   echo "Refreshing $2 $3"
-  LOCALPATH=`readlink -f $3`
+  #LOCALPATH=`readlink -f $3`
   if [ ! -d $3 ]; then
     echo "previous mountpoint is corrupted, trying to unmount"
-    sudo umount $3
-  fi
+    sudo umount $3    
+  fi  
   #user needs to be member of group davfs2
   mount $LOCALPATH
   echo "refreshed $LOCALPATH"
