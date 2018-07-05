@@ -27,8 +27,9 @@ chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
 
-#add +x permission on all html files which has include directive
-chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
+##add +x permission on all html files which has include directive
+# x-bit hack no longer needed
+#chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
 
 yum -y install epel-release
 yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
