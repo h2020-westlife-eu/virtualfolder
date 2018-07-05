@@ -37,7 +37,7 @@ export class App {
         //handle 403 unauthorized
         this.loading =false;
         this.loadederror = true;
-        if (error.statusCode === 403) {
+        if (error.status === 403) {
           this.ea.publish(new HandleLogin(this.panelid));
         } else
           alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)

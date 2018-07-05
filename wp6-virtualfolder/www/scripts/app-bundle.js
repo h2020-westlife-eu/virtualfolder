@@ -3419,7 +3419,7 @@ define('syncsetting/app',['exports', 'aurelia-event-aggregator', '../behavior', 
 
         _this.loading = false;
         _this.loadederror = true;
-        if (error.statusCode === 403) {
+        if (error.status === 403) {
           _this.ea.publish(new _behavior.HandleLogin(_this.panelid));
         } else alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. ' + _this.serviceurl + ' HTTP status:' + error.statusCode + ' ' + error.statusText);
       });
