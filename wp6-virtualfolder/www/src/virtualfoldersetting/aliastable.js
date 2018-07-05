@@ -21,14 +21,13 @@ export class Aliastable {
   constructor(ea,pa){
     this.ea=ea;
     //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
-    this.ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
     //this.client=httpclient;
     this.pa=pa;
     this.providers=[{alias:"Loading available providers ...",temporary:true}];
   }
 
   attached() {
-    
+    this.s1 = this.ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) );
     this.pa.getFiles()
       .then(data => {
         this.ea.publish(new MayLogout(this.panelid));
@@ -41,6 +40,9 @@ export class Aliastable {
           } else
         alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. HTTP status:'+error.statusCode+' '+error.statusText)
       });
+  }
+  detached(){
+    this.s1.dispose()
   }
 
   submitSettings(settings) {

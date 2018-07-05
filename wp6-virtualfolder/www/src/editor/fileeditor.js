@@ -31,12 +31,12 @@ export class Fileeditor {
           credentials: 'same-origin'
         })
     });
-    this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
     this.isimage=false;
     this.filename="";
   }
 
   attached() {
+    this.subscription = this.ea.subscribe(EditFile, msg => this.selectFile(msg.file,msg.senderid));
     let editor = this.el.querySelector(".Codemirror");
     //prevent blured render if not shown before
     //if (editor==null)
@@ -46,6 +46,10 @@ export class Fileeditor {
       lineWrapping: true
     });
     this.codemirror.refresh();
+  }
+  
+  detached(){
+    this.subscription.dispose();
   }
 
   selectFile(file,senderid) {

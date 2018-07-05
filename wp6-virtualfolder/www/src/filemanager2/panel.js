@@ -13,17 +13,23 @@ export class Panel {
     constructor(ea) {
         this.ea = ea;
 
-        this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
-        this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
         //generate unique id from time
         //this.pid = new Date().valueOf();
         this.selectedView=this.selectedVisual=this.selectedDataset=false;
         this.selectedList=true;
     }
+    attached(){
+      this.s1=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
+      this.s2=this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
+    }
+    detached(){
+      this.s1.dispose();
+      this.s2.dispose();
+    }
 
     bind(){
       this.ids=[this.pid+'.list',this.pid+'.view',this.pid+'.visual',this.pid+'.analyse',this.pid+'.dataset']; //prefix uid to tab ids
-
+      
       this.selectedTab= this.ids[0];
       this.paneltabs = [
         { id: this.ids[0], label: 'File List'},

@@ -18,8 +18,15 @@ export class Tabs {
         //this.id = el.id;
         this.element= el;
         this.ea=ea;
-        this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
-        this.ea.subscribe(EditFile, msg => this.selectEdit(msg.file,msg.senderid));
+    }
+    
+    attached(){
+      this.s1=this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
+      this.s2=this.ea.subscribe(EditFile, msg => this.selectEdit(msg.file,msg.senderid));
+    }
+    detached(){
+      this.s1.dispose();
+      this.s2.dispose();
     }
 
     bind() {

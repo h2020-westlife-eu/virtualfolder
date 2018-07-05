@@ -24,7 +24,6 @@ export class Dataset {
     this.pa = pa;
     
     this.ea = ea;
-    this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
 
     this.showitem=true;
     this.baseurl =
@@ -62,10 +61,15 @@ export class Dataset {
   }
 
   attached(){
+    this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     this.pa.getDataset().then(data=>
     {
       this.datasetlist = data;
     })
+  }
+  detached(){
+    //unsubscribe 
+    this.s1.dispose();
   }
 
   unselectdataset(item){
