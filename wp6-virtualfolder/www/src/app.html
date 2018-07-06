@@ -2,6 +2,9 @@
   <require from="./w3.css"></require>
   <require from="components/sharedheader"></require>
   <require from="components/sharedfooter.html"></require>
+  <ul>
+  <li repeat.for="row of router.navigation" class="nav-item"><a href.bind="row.href">${row.title}</a></li>
+  </ul>
   <sharedheader router.bind="router"></sharedheader>
   <router-view></router-view>
   <sharedfooter></sharedfooter>

@@ -1,84 +1,58 @@
-import gulp from 'gulp';
-import browserSync from 'browser-sync';
-import historyApiFallback from 'connect-history-api-fallback/lib';
+import {config} from './build';
+import configureEnvironment from './environment';
+import webpack from 'webpack';
+import Server from 'webpack-dev-server';
 import project from '../aurelia.json';
-import build from './build';
-import {CLIOptions} from 'aurelia-cli';
+import {CLIOptions, reportWebpackReadiness} from 'aurelia-cli';
+import gulp from 'gulp';
+import {buildWebpack} from './build';
 
-function log(message) {
-  console.log(message); //eslint-disable-line no-console
-}
+function runWebpack(done) {
+  // https://webpack.github.io/docs/webpack-dev-server.html
+  let opts = {
+    host: 'localhost',
+    publicPath: config.output.publicPath,
+    filename: config.output.filename,
+    hot: project.platform.hmr || CLIOptions.hasFlag('hmr'),
+    port: project.platform.port,
+    contentBase: config.output.path,
+    historyApiFallback: true,
+    open: project.platform.open,
+    stats: {
+      colors: require('supports-color')
+    }
+  };
 
-function onChange(path) {
-  log(`File Changed: ${path}`);
-}
-
-function reload(done) {
-  browserSync.reload();
-  done();
-}
-
-//tomas added ssi and proxy declaration
-var ssi = require('browsersync-ssi');
-var metadataserviceproxy = require('http-proxy-middleware');
-var webdavproxy = require('http-proxy-middleware');
-var loginproxy = require('http-proxy-middleware');
-var apiproxy = require('http-proxy-middleware');
-
-let serve = gulp.series(
-  build,
-  done => {
-    browserSync({
-      online: false,
-      open: false,
-      port: 9000,
-      logLevel: 'silent',
-      server: {
-        baseDir: ['.'],
-        middleware: [historyApiFallback(), function(req, res, next) {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-          next();
-        }, //tomas added ssi and proxy
-          ssi({
-          baseDir: './',
-          ext: '.html'
-          }),
-          metadataserviceproxy('/metadataservice',{target: 'http://localhost:8001/', changeOrigin: true,logLevel:'debug'}),
-          webdavproxy('/webdav',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'}),
-          loginproxy('/login',{target: 'http://localhost/login', changeOrigin: true,logLevel:'debug'}),
-          apiproxy('/api',{target: 'http://localhost/', changeOrigin: true,logLevel:'debug'})
-        ]
-      }
-    }, function(err, bs) {
-      let urls = bs.options.get('urls').toJS();
-      log(`Application Available At: ${urls.local}`);
-      log(`BrowserSync Available At: ${urls.ui}`);
-      done();
-    });
+  if (!CLIOptions.hasFlag('watch')) {
+    opts.lazy = true;
   }
-);
 
-let refresh = gulp.series(
-  build,
-  reload
-);
+  if (project.platform.hmr || CLIOptions.hasFlag('hmr')) {
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    config.entry.app.unshift(`webpack-dev-server/client?http://${opts.host}:${opts.port}/`, 'webpack/hot/dev-server');
+  }
 
-let watch = function() {
-  gulp.watch(project.transpiler.source, refresh).on('change', onChange);
-  gulp.watch(project.markupProcessor.source, refresh).on('change', onChange);
-  gulp.watch(project.cssProcessor.source, refresh).on('change', onChange);
-};
+  const compiler = webpack(config);
+  let server = new Server(compiler, opts);
 
-let run;
+  server.listen(opts.port, opts.host, function(err) {
+    if (err) throw err;
 
-if (CLIOptions.hasFlag('watch')) {
-  run = gulp.series(
-    serve,
-    watch
-  );
-} else {
-  run = serve;
+    if (opts.lazy) {
+      buildWebpack(() => {
+        reportWebpackReadiness(opts);
+        done();
+      });
+    } else {
+      reportWebpackReadiness(opts);
+      done();
+    }
+  });
 }
 
-export default run;
+const run = gulp.series(
+  configureEnvironment,
+  runWebpack
+);
+
+export { run as default };

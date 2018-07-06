@@ -35,6 +35,21 @@ export class Dataset {
     this.pdbdataitem = "";
     this.submitdisabled2 = true;
     this.id=0;
+    this.form = {components: [
+        {
+          type: 'textfield',
+          input: true,
+          key: 'firstName',
+          label: 'First Name'
+        },
+        {
+          type: 'textfield',
+          input: true,
+          key: 'lastName',
+          label: 'Last Name'
+        }
+      ]}
+      this.submission = {}
   }
 
   createnewdataset(){

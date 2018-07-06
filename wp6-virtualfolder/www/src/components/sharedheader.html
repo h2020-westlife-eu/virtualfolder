@@ -5,16 +5,15 @@
     <a href="/">
       <picture>
         <source srcset="img/westlife-logo.png">
-        <img class="logo" style="height:60px" src="img/westlife-logo.png" alt="brand logo">
+        <img class="logo" style="height:60px" src="../img/westlife-logo.png" alt="brand logo">
       </picture>
-
     </a>
+    
     <nav class="vf-white">
-
       <ul>
         <li class="nav-item"><a href="#/">Virtual Folder</a>
           <ul show.bind="showuserinfo">
-            <li repeat.for="row of router.navigation" class="nav-item"><a href.bind="row.href">${row.title}</a></li>
+            <li repeat.for="item of navs" class="nav-item"><a href.bind="item.href">${item.title}</a></li>
             <li class="nav-item"><a href.bind="userinfo.AccountLink">'${userinfo.name}' account</a></li>
             <li class="nav-item"><a href.bind="userinfo.LogoutLink">Logout</a></li>
             <li class="nav-item"><a href="https://h2020-westlife-eu.gitbook.io/virtual-folder-docs/virtual-folder/users-guide" target="_blank">Documentation-User's Guide</a></li>

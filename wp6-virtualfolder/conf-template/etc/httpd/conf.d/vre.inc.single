@@ -1,7 +1,7 @@
     # single VRE
     # returns static json response on api/authproxy/get_signed_url and /api/vfsession
-    Alias "/api" "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre/api/"
-    <Directory "/cvmfs/west-life.egi.eu/software/virtualfolder/latest/singlevre/api">
+    Alias "/api" "/opt/virtualfolder/singlevre/api/"
+    <Directory "/opt/virtualfolder/singlevre/api">
       RewriteEngine on
       RewriteRule ^authproxy/get_signed_url/(.*) /api/authproxy/get_signed_url [L]
       RewriteRule ^vfsession/(.*) /api/vfsession [L]
