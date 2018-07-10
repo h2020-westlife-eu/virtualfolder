@@ -18,12 +18,20 @@ namespace MetadataService
     public class Program
     {
         private static AppHost _appHost;
+        private static string VF_CPVAR = "VF_CONTEXTPATH";
+        private static string VF_PVAR = "VF_PORT";
+        private static string contextpath = Environment.GetEnvironmentVariable(VF_CPVAR) != null
+            ? Environment.GetEnvironmentVariable(VF_CPVAR)
+            : "/virtualfolder/api/";
+        private static string port = Environment.GetEnvironmentVariable(VF_PVAR) != null
+            ? Environment.GetEnvironmentVariable(VF_PVAR)
+            : "8001";
 
         //Run it!
         public static void Main(string[] args)
         {
             var port = "8001";
-            var contextpath = "/virtualfolder/api/";
+            //var contextpath = ;
             var listeningOn = "http://*:"+port+contextpath;
             StartHost(listeningOn, args);
 

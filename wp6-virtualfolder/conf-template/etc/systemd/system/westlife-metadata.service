@@ -5,6 +5,8 @@ After=autofs.service
 [Service]
 Type=simple
 Environment=VF_VRE_API_URL=http://localhost/api/
+Environment=VF_PORT=8001
+Environment=VF_CONTEXTPATH=/virtualfolder/api/
 Environment=VF_STORAGE_DIR=/srv/virtualfolder/
 Environment=VF_SCRIPTS_DIR=/opt/virtualfolder/scripts/
 Environment=VF_ALLOW_FILESYSTEM=true
