@@ -7,8 +7,20 @@
 if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
 then 
   echo Provisioning Jupyter notebook and dependencies
-  DIR=$WP6SRC
-  VERSION=jupyter
+  if [[ -n "$DIR" ]]
+  then
+    echo DIR is set to $DIR
+  else 
+    DIR=$WP6SRC
+    echo setting DIR to $DIR
+  fi
+  if [[ -n "$VERSION" ]]
+  then
+    echo VERSION is set to $VERSION
+  else 
+    VERSION=jupyter
+    echo setting VERSION to $VERSION
+  fi
 
 #sudo in case this script is executed after installation
 sudo yum install -y wget bzip2
@@ -34,7 +46,9 @@ conda install -y -c conda-forge bqplot mpld3 ipython-sql
 # jupyter nglview and ssbio
 pip install nglview ssbio
 jupyter-nbextension enable nglview --py --sys-prefix
-DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
+
+ln -s /opt/jupyter $DIR/$VERSION
+#DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 #sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
 #sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
 

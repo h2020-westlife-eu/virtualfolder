@@ -48,8 +48,8 @@ export class Dataset {
           key: 'lastName',
           label: 'Last Name'
         }
-      ]}
-      this.submission = {}
+      ]};
+      this.submission = {data:{firstName:"Tomas",lastName:"Kulhanek"}}
   }
 
   createnewdataset(){

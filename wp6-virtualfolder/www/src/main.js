@@ -13,8 +13,9 @@ export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
+    .plugin(PLATFORM.moduleName('aurelia-formio'))
     .feature(PLATFORM.moduleName('resources/index'));
-  console.log("aurelia tomas log");
+  
   if (environment.debug) {
     aurelia.use.developmentLogging();
   }
