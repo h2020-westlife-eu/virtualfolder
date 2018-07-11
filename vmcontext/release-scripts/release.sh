@@ -28,6 +28,7 @@ chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
 ./release-copy.sh www/css $VERSION
 ./release-copy.sh www/img $VERSION
 ./release-copy.sh www/scripts $VERSION
+./release-copy.sh www/dist $VERSION
 ./release-copy.sh www/src $VERSION
 ./release-copy.sh www/test $VERSION
 ./release-copy.sh www/tools $VERSION
