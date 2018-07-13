@@ -47,6 +47,8 @@ conda install -y -c conda-forge bqplot mpld3 ipython-sql
 pip install nglview ssbio
 jupyter-nbextension enable nglview --py --sys-prefix
 
+# jupyter prov-o support 
+pip install prov
 ln -s /opt/jupyter $DIR/$VERSION
 #DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 #sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
