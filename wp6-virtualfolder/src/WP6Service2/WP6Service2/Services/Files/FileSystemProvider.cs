@@ -31,6 +31,11 @@ namespace MetadataService.Services.Files
             MakeLinkToFolder(localpath, FILESYSTEMFOLDER);
         }
 
+        ~FileSystemProvider()
+        {
+            RemoveLink();
+        }
+
         private void MakeLinkToFolder(string localpath, string link)
         {
             if (Directory.Exists(link)) return; //link already exists
@@ -45,8 +50,7 @@ namespace MetadataService.Services.Files
         {
             try
             {
-                var output = Utils.ExecuteShell("/bin/rm", new[] {FILESYSTEMFOLDER});
-                Console.WriteLine(output);
+                RemoveLink();
                 return base.DeleteSettings();
             }
             catch (Exception e)
@@ -54,6 +58,12 @@ namespace MetadataService.Services.Files
                 Console.WriteLine(e.Message + e.StackTrace);
                 throw e;
             }
+        }
+
+        private void RemoveLink()
+        {
+            var output = Utils.ExecuteShell("/bin/rm", new[] {FILESYSTEMFOLDER});
+            Console.WriteLine("removing link "+output);
         }
 
         public override object GetFileOrList(string Path,IHttpRequest req)

@@ -58,14 +58,16 @@ namespace MetadataService.Services.Files
             {
 
                 //create new instance
-                _instances[_userid] = new UserProvider(_userid, storage, db);                
+                _instances[_userid] = new UserProvider(_userid, storage, db);    
+              //
                 //consider to release instances
                 if (_instances.Count > 1)
                 {
                     //release instances older than month
                     //TimeSpan t = new DateTime()-;
                     var currenttime = new DateTime();
-                    var oldinstances = _instancedates.Where(x => (currenttime - x.Value).TotalDays>30 );//x =>
+                    //remove instances older than 15, 10 8 6 5 4 3 2  1 days 
+                    var oldinstances = _instancedates.Where(x => (currenttime - x.Value).TotalDays>( 30 /_instances.Count)+1);//x =>
                     foreach (var oldinstance in oldinstances)
                     {
                         //_instances[oldinstance.Key];

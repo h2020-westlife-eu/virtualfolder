@@ -43,6 +43,18 @@ namespace MetadataService.Services.Files
             DROPBOXURIROOT = "/virtualfolder/api/"+"files/" + alias;
         }
 
+        ~DropboxProvider()
+        {
+            RemoveDir();
+        }
+
+        private void RemoveDir()
+        {
+        //consider to push content to dropbox first
+            Directory.Delete(FILESYSTEMFOLDER,true);
+        }
+
+
         public override object GetFileOrList(string Path,IHttpRequest req)
         {
             var path = Path ?? "";

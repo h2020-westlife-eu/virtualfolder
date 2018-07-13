@@ -52,7 +52,13 @@ namespace MetadataService.Services.Files
                     response.StatusCode+" "+response.Content);
             //task.Start();
         }
-
+        
+        
+//destructor deinitializes, frees resources
+        ~WebDavProvider()
+        {
+            DeInitialize();
+        }
         private HttpResponseMessage CheckProvider(string accessurl, ProviderItem request)
         {
             var client = new HttpClient(); //JsonServiceClient(accessurl);
