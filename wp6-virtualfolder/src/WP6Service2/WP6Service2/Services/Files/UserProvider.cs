@@ -10,6 +10,7 @@ namespace MetadataService.Services.Files
     public class UserProvider
     {
         private static readonly Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
+        private static readonly Dictionary<string, DateTime> _instancedates = new Dictionary<string, DateTime>();
 
         private static readonly object userlock = new object();
         private readonly List<ProviderItem> _providers; //list of configured providers
@@ -54,7 +55,25 @@ namespace MetadataService.Services.Files
             IDbConnection db)
         {
             if (!_instances.ContainsKey(_userid))
-                _instances[_userid] = new UserProvider(_userid, storage, db);
+            {
+
+                //create new instance
+                _instances[_userid] = new UserProvider(_userid, storage, db);                
+                //consider to release instances
+                if (_instances.Count > 1)
+                {
+                    //release instances older than month
+                    //TimeSpan t = new DateTime()-;
+                    var currenttime = new DateTime();
+                    var oldinstances = _instancedates.Where(x => (currenttime - x.Value).TotalDays>30 );//x =>
+                    foreach (var oldinstance in oldinstances)
+                    {
+                        //_instances[oldinstance.Key];
+                        _instances.Remove(oldinstance.Key);
+                    }                                        
+                }
+            }
+            _instancedates[_userid]= new DateTime();
             return _instances[_userid];
         }
 

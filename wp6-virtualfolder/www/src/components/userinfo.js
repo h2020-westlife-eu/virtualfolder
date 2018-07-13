@@ -10,7 +10,8 @@ export class Userinfo {
 
   attached(){
     this.pa.getUserInfo().then(data => {
-        console.log(data);
+        //console.log(data);
+        console.log(new Date().toLocaleString()+" userinfo:",data);
         if (data.username === "") {
           console.log("no user info, disable showing it");
           this.showuserinfo=false;

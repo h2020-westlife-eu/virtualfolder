@@ -7,7 +7,8 @@ import * as Bluebird from 'bluebird';
 //import 'fetch';
 
 // remove out if you don't want a Promise polyfill (remove also from webpack.config.js)
-Bluebird.config({ warnings: { wForgottenReturn: false } });
+//Bluebird.config({ warnings: { wForgottenReturn: false } });
+Bluebird.config( { warnings: false, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use

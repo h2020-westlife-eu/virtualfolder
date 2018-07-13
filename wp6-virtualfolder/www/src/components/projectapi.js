@@ -41,9 +41,11 @@ export class ProjectApi {
 
   //generic methods to fetch, serialize to json and log error
   fetchJsonLog(url) {
+    console.log(new Date().toLocaleString()+" Get from url:"+url);
     return this.httpclient.fetch(url)
       .then(response => response.json())
       .then(data => {
+        console.log(new Date().toLocaleString()+" response from url:"+url);
         return data;
       })
       .catch(error => {
