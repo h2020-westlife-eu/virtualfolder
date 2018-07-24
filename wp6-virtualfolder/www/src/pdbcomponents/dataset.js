@@ -3,15 +3,13 @@
  */
 
 import 'whatwg-fetch';
-//import {HttpClient} from "aurelia-http-client";
 import {ProjectApi} from "../components/projectapi";
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {DatasetFile} from '../filepicker/messages';
 import {Vfstorage} from '../utils/vfstorage';
 
-//Model view controller
-//Model view viewmodel
+
 /** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
  * holds dataset structure and includes dataitems
  *
@@ -22,12 +20,9 @@ export class Dataset {
 
   constructor (pa,ea) {
     this.pa = pa;
-    
     this.ea = ea;
-
     this.showitem=true;
     this.baseurl =
-//    this.dataseturl=Vfstorage.getBaseUrl()+"/metadataservice/dataset";
     this.showlist=true;
     this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
     this.pdbdataitem = "";
@@ -59,7 +54,7 @@ export class Dataset {
     this.pdbdataitem = "";
     this.submitdisabled2 = true;
     let date = new Date();
-    this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
+    //this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
     this.id = 0;
     this.showlist=false;
   }
@@ -77,14 +72,23 @@ export class Dataset {
 
   attached(){
     this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
+    this.s2=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
+
+    //this.s2=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     this.pa.getDataset().then(data=>
     {
       this.datasetlist = data;
     })
   }
+  
   detached(){
     //unsubscribe 
     this.s1.dispose();
+    this.s2.dispose();
+  }
+  
+  selectFile(){
+    //do some
   }
 
   unselectdataset(item){
@@ -110,17 +114,11 @@ export class Dataset {
   }
 
   additem(item){
-    //console.log("additem()");
-    //console.log(item);
     this.pdbdataset.unshift(item);
-    //console.log(this.pdbdataset);
-    //this.canSubmit = this.pdbdataset.length>0?true:false;
   }
 
   addDatasetFile(file,senderid) {
     if (senderid!== this.panelid) {
-      //console.log("dataset.adddatasetfile()");
-      //console.log(file);
       if (window.confirm("The file " + file.name + " will be added to dataset.")) {
         let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"}
         this.pdbdataset.unshift(item);
@@ -145,10 +143,6 @@ export class Dataset {
     this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
-    //this.submitdataset.Urls =
-    //console.log(this.submitdataset);
-    //console.log(JSON.stringify(this.submitdataset));
-    //PUT = UPDATE, POST = create new
     
       this.pa.addDataset("/"+this.id,this.submitdataset)
         .then(data =>{

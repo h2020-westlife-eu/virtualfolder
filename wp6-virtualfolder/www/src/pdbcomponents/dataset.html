@@ -11,11 +11,6 @@
 
   <div class="w3-card-2 w3-padding w3-margin-right">
     <p>This is currently prototype of dataset manipulating dialogs showing integration with third party tools. </p>
-    <p> my form</p>
-    <formio form.bind="form" submission.bind="submission"></formio>
-    <p> au json schema form</p>
-    <au-json-schema-form schema.bind="schema" form.bind="form" model.two-way="model" options.bind="{validateOnRender: true}"></au-json-schema-form>
-    
     <div show.bind="showlist">
       <table class="w3-table">
         <tr ><td class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</td>

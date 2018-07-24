@@ -35,7 +35,7 @@ export class Panel {
         { id: this.ids[0], label: 'File List'},
         { id: this.ids[1], label: 'View/Edit'},
         { id: this.ids[2], label: 'Visualize'},
-        { id: this.ids[3], label: 'Dataset'}
+        { id: this.ids[3], label: 'Metadata'}
       ];
     }
 
