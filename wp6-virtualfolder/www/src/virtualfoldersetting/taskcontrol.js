@@ -46,18 +46,40 @@ export class Taskcontrol {
     task.Updating=true;
     this.updatetask(task).then((msg) => {
       //sleep(2000); //sleep 2 seconds - just that the server has time to reload
-      setTimeout( () => {
-          task.Updating = false;
+      //setTimeout( () => {
+          task.Updating = true;
           task.Running = true;
+          task.Warning = false;
           task.LocalUrl = msg;
-          console.log("task.LocalUrl:" + task.LocalUrl);
-        }, 2000);}
+          task.attempt = 1; 
+          let timerid = setInterval(this.checkurl,2000,task,this.pa);
+          setTimeout(()=> {clearInterval(timerid); if (task.Updating){ task.Updating = false; task.Warning=true;}}, 20000)
+      }
       )
     .catch((reason) => {
         task.Updating=false;
         console.log('start failed');
         console.log(reason)
       })
+  }
+  
+  checkurl(task,pa){
+    //check only if it is still in updating state
+      if (task.Updating) 
+      pa.head(task.LocalUrl).then(()=> {task.Updating = false;})
+        .catch((reason)=>{
+          if (reason.status === 405 ) {
+            //HTTP method not allowed, but very probably returned from Jupyter
+            task.Updating = false;
+          }
+          else {
+            task.Updating = true;
+            console.log('url not yet available after ' + task.attempt + ' attempt:');
+            task.attempt++;
+          }
+        })
+    
+  
   }
 
   stoptask(task1){
