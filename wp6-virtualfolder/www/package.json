@@ -1,11 +1,8 @@
 {
-  "name": "vfui2",
-  "description": "An Aurelia client application.",
-  "version": "0.1.0",
-  "repository": {
-    "type": "???",
-    "url": "???"
-  },
+  "name": "westlife-virtual-folder-client",
+  "description": "Exemplar VF client application for H2020 West-life WP6.",
+  "version": "18.07",
+  "repository": "https://github.com/h2020-westlife-eu/virtualfolder",
   "license": "MIT",
   "dependencies": {
     "aurelia-animator-css": "^1.0.4",
@@ -28,7 +25,7 @@
     "uglify-js": "^3.3.15",
     "vinyl-fs": "^3.0.2",
     "babel-eslint": "7.2.3",
-    "eslint": "^4.0.0",
+    "eslint": "~3.19.0",
     "babel-loader": "^7.1.4",
     "babel-core": "^6.26.0",
     "babel-plugin-syntax-flow": "^6.18.0",
@@ -79,7 +76,8 @@
     "opn": "^5.3.0",
     "webpack-bundle-analyzer": "latest",
     "whatwg-fetch": "^2.0.3",
-    "dropbox": "^2.0.0"
+    "dropbox": "^2.0.0",
+    "aurelia-ace-editor": "^1.0.7"
   },
   "jest": {
     "modulePaths": [

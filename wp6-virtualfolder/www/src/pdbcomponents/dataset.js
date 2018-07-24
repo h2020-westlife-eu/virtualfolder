@@ -6,8 +6,8 @@ import 'whatwg-fetch';
 import {ProjectApi} from "../components/projectapi";
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {DatasetFile} from '../filepicker/messages';
-import {Vfstorage} from '../utils/vfstorage';
+import {SelectedFile} from '../filepicker/messages';
+//import {Vfstorage} from '../utils/vfstorage';
 
 
 /** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
@@ -71,24 +71,33 @@ export class Dataset {
   }
 
   attached(){
-    this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
+    //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     this.s2=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
 
     //this.s2=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
-    this.pa.getDataset().then(data=>
+    /*this.pa.getDataset().then(data=>
     {
       this.datasetlist = data;
     })
+      .catch(reason =>{
+        console.log("some error:",reason)
+      })
+      */
   }
   
   detached(){
     //unsubscribe 
-    this.s1.dispose();
+    //this.s1.dispose();
     this.s2.dispose();
   }
   
-  selectFile(){
+  selectFile(file,senderid){
     //do some
+    
+    if (this.panelid===senderid) {
+      console.log("metadata of:", file);
+      this.name = file.webdavuri;
+    }
   }
 
   unselectdataset(item){
@@ -120,7 +129,7 @@ export class Dataset {
   addDatasetFile(file,senderid) {
     if (senderid!== this.panelid) {
       if (window.confirm("The file " + file.name + " will be added to dataset.")) {
-        let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"}
+        let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"};
         this.pdbdataset.unshift(item);
       }
     }

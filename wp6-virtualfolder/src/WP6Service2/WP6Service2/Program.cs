@@ -174,7 +174,25 @@ namespace MetadataService
                     CreateTablesV1705(db);
                     CreateTablesV1707(db);
                     CreateTablesV1805(db);
+                    CreateTablesV1807(db);
                 }
+            }
+
+            private void CreateTablesV1807(IDbConnection db)
+            {
+                var dbsettings = SettingsStorageInDB.getDBSettings(db);
+                var version = new Version(dbsettings.VirtualFolderVersion);
+                if (version.Build < 6768)
+                {
+                    //remove all datasets and create new dataset table
+                        db.DropAndCreateTable<Dataset>();
+                    //db.AddColumn(typeof(Dataset),"s");
+                        db.DropAndCreateTable<DatasetEntry>();
+                        db.DropAndCreateTable<DatasetEntries>();
+                    //update version of db
+                    SettingsStorageInDB.storeSetting(db);
+                }
+                //throw new NotImplementedException();
             }
 
             private void CreateTablesV1805(IDbConnection db)

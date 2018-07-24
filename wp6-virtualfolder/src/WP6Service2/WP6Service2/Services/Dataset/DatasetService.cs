@@ -12,12 +12,13 @@ using ServiceStack.ServiceInterface.Cors;
 namespace WP6Service2.Services.Dataset
 {
     /* database schema */
-    public class Dataset //dataset name, owner, id
+    public class Dataset //dataset name, owner, id, 
     {
         [AutoIncrement]
         public long Id { get; set; }
         public string Owner { get; set; }
         public string Name { get; set; }
+        public string Metadata { get; set; } //metadata content
     }
 
     public class DatasetEntry //entry of a dataset, consist of entryname (2hhd), type (PDB), url (http://pdb.org/2hhd.pdb)
@@ -51,7 +52,8 @@ namespace WP6Service2.Services.Dataset
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public List<DatasetEntry> Entries { get; set; }
+        public string Metadata { get; set; }
+        public List<DatasetEntry> Entries { get; set; }    
     }
 
     [Route("/dataset/{Id}", ",DELETE")]
@@ -232,7 +234,7 @@ namespace WP6Service2.Services.Dataset
 
         private Dataset CreateNew(DatasetDTO dto)
         {//TODO lock
-            var mydataset = new Dataset {Name = dto.Name, Owner = (string) Request.Items["userid"]};
+            var mydataset = new Dataset {Name = dto.Name, Owner = (string) Request.Items["userid"], Metadata = dto.Metadata};
             Db.Insert(mydataset);
             mydataset.Id = Db.GetLastInsertId();
             return mydataset;

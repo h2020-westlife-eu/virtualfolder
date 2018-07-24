@@ -10,24 +10,11 @@
   
 
   <div class="w3-card-2 w3-padding w3-margin-right">
-    <p>This is currently prototype of dataset manipulating dialogs showing integration with third party tools. </p>
-    <div show.bind="showlist">
-      <table class="w3-table">
-        <tr ><td class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</td>
-
-        </tr>
-        <tr repeat.for="item of datasetlist"><td class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</td>
-          <td click.delegate="removedataset(item)"
-                class="w3-button w3-btn">&times;</td>
-        </tr>
-      </table>
-    </div>
     
-    <div show.bind="!showlist">
+    <div>
       <div class="w3-display-container w3-large w3-hover-green" click.delegate="unselectdataset(item)">${name}</div>
-
       <form>
-        PDB or related item to add:<br/>
+        Related PDB,Uniprot,.. items to add:<br/>
         <vf-autocomplete-search submit.call="additem(item)" placeholder="1cbs (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>
       </form>
 
@@ -40,7 +27,24 @@
           <dataitem item.bind="item"></dataitem>
         </li>
       </ul>
-
+      <p>free text metadata:</p>
+      <!--ace config-theme="ace/theme/eclipse"
+           config-mode="ace/mode/json">
+        {
+        "menu": {
+        "id": "file",
+        "value": "File",
+        "popup": {
+        "menuitem": [
+        {"value": "New", "onclick": "CreateNewDoc()"},
+        {"value": "Open", "onclick": "OpenDoc()"},
+        {"value": "Close", "onclick": "CloseDoc()"}
+        ]
+        }
+        }
+        }
+        
+      </ace-->
       dataset name:
       <input value.bind="name" change.trigger="changename()"/>
       <br/>
