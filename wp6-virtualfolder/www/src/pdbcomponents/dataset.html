@@ -7,10 +7,12 @@
   <require from="./hideable"></require>
   <require from="../autocomplete/vfAutocompleteSearch"></require>
   <!--require from="formio"></require-->
-  
+  <require from="codemirror/lib/codemirror.css"></require>
+  <require from="codemirror/theme/eclipse.css"></require>
 
   <div class="w3-card-2 w3-padding w3-margin-right">
-    
+    <button type="button" click.delegate="load()">Load metadata</button>
+    <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Save metadata</button>
     <div>
       <div class="w3-display-container w3-large w3-hover-green" click.delegate="unselectdataset(item)">${name}</div>
       <form>
@@ -28,6 +30,10 @@
         </li>
       </ul>
       <p>free text metadata:</p>
+      <textarea ref="contentarea">
+
+      </textarea>
+
       <!--ace config-theme="ace/theme/eclipse"
            config-mode="ace/mode/json">
         {
@@ -43,14 +49,12 @@
         }
         }
         }
-        
+
       </ace-->
-      dataset name:
-      <input value.bind="name" change.trigger="changename()"/>
+      dataset name: ${name}
       <br/>
 
       <!-- will be enabled after backend service is available -->
-      <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
     </div>
 
   </div>

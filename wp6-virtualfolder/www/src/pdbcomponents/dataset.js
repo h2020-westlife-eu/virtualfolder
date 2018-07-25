@@ -3,10 +3,15 @@
  */
 
 import 'whatwg-fetch';
-import {ProjectApi} from "../components/projectapi";
+import {ProjectApi} from '../components/projectapi';
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from '../filepicker/messages';
+
+import * as CodeMirror from 'codemirror';
+import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/htmlmixed/htmlmixed';
+import 'codemirror/mode/javascript/javascript';
 //import {Vfstorage} from '../utils/vfstorage';
 
 
@@ -15,48 +20,48 @@ import {SelectedFile} from '../filepicker/messages';
  *
  */
 export class Dataset {
-  static inject = [ProjectApi,EventAggregator];
+  static inject = [ProjectApi, EventAggregator];
   @bindable panelid;
 
-  constructor (pa,ea) {
+  constructor(pa, ea) {
     this.pa = pa;
     this.ea = ea;
-    this.showitem=true;
+    this.showitem = true;
     this.baseurl =
-    this.showlist=true;
+    this.showlist = true;
     this.pdbdataset = []; //structure could be {name:"2hhd", type:"pdb|uniprot|file|dir",url:"https://pdbe.org/2hhd.pdb",notes:""}
-    this.pdbdataitem = "";
+    this.pdbdataitem = '';
     this.pdblinkset = [];
-    this.pdbdataitem = "";
+    this.pdbdataitem = '';
     this.submitdisabled2 = true;
-    this.id=0;
+    this.id = 0;
     this.form = {components: [
-        {
-          type: 'textfield',
-          input: true,
-          key: 'firstName',
-          label: 'First Name'
-        },
-        {
-          type: 'textfield',
-          input: true,
-          key: 'lastName',
-          label: 'Last Name'
-        }
-      ]};
-      this.submission = {data:{firstName:"Tomas",lastName:"Kulhanek"}}
+      {
+        type: 'textfield',
+        input: true,
+        key: 'firstName',
+        label: 'First Name'
+      },
+      {
+        type: 'textfield',
+        input: true,
+        key: 'lastName',
+        label: 'Last Name'
+      }
+    ]};
+    this.submission = {data: {firstName: 'Tomas', lastName: 'Kulhanek'}};
   }
 
-  createnewdataset(){
+  createnewdataset() {
     this.pdbdataset = [];
-    this.pdbdataitem = "";
+    this.pdbdataitem = '';
     this.pdblinkset = [];
-    this.pdbdataitem = "";
+    this.pdbdataitem = '';
     this.submitdisabled2 = true;
-    let date = new Date();
+    //let date = new Date();
     //this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
     this.id = 0;
-    this.showlist=false;
+    this.showlist = false;
   }
 
 
@@ -64,16 +69,22 @@ export class Dataset {
   //TODO check,test to trigger only when pdbdataset is changed
   get canSubmit() {
     //console.log("disabled? "+this.pdbdataset.length);
-    if (this.pdbdataset.length>0)
-      return true;
-    else
-      return false;
+    if (this.pdbdataset.length > 0)      {return true;}
+    return false;
   }
 
-  attached(){
+  attached() {
     //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
-    this.s2=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
-
+    this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
+    //let editor = this.el.querySelector('.Codemirror');
+    //prevent blured render if not shown before
+    //if (editor==null)
+    this.codemirror = CodeMirror.fromTextArea(this.contentarea, {
+      lineNumbers: true,
+      mode: 'text/x-less',
+      lineWrapping: true
+    });
+    this.codemirror.refresh();
     //this.s2=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     /*this.pa.getDataset().then(data=>
     {
@@ -84,59 +95,60 @@ export class Dataset {
       })
       */
   }
-  
-  detached(){
-    //unsubscribe 
+
+  detached() {
+    //unsubscribe
     //this.s1.dispose();
     this.s2.dispose();
   }
-  
-  selectFile(file,senderid){
+
+  selectFile(file, senderid) {
     //do some
-    
-    if (this.panelid===senderid) {
-      console.log("metadata of:", file);
+
+    if (this.panelid !== senderid) {
+      console.log('metadata of:', file);
       this.name = file.webdavuri;
+      that.codemirror.setValue(data);
+      that.codemirror.refresh();
     }
   }
 
-  unselectdataset(item){
-    this.showlist=true;
+  unselectdataset(item) {
+    this.showlist = true;
   }
 
-  selectdataset(item){
+  selectdataset(item) {
     //console.log("selectdataset()");
     //console.log(item)
-    this.pa.getDataset(item.Id).then(data=>
-    {
-      this.submitdataset=data;
+    this.pa.getDataset(item.Id).then(data=>    {
+      this.submitdataset = data;
       this.pdbdataset = this.submitdataset.Entries;
       this.name = this.submitdataset.Name;
       this.id = this.submitdataset.Id;
       this.showlist = false;
-    })
+    });
   }
 
-  removedataset(item){
-    alert("Remove dataset not yet implemented.");
+  removedataset(item) {
+    alert('Remove dataset not yet implemented.');
     //console.log(item)
   }
 
-  additem(item){
+  additem(item) {
     this.pdbdataset.unshift(item);
   }
 
-  addDatasetFile(file,senderid) {
-    if (senderid!== this.panelid) {
-      if (window.confirm("The file " + file.name + " will be added to dataset.")) {
-        let item = {Name: file.name, Url: file.publicwebdavuri, Type: "file"};
+  addDatasetFile(file, senderid) {
+    if (senderid !== this.panelid) {
+      if (window.confirm('The file ' + file.name + ' will be added to dataset.')) {
+        let item = {Name: file.name, Url: file.publicwebdavuri, Type: 'file'};
         this.pdbdataset.unshift(item);
       }
     }
   }
 
-  removeitem(itemtodelete){
-    this.pdbdataset = this.pdbdataset.filter(item => item!== itemtodelete);
+  removeitem(itemtodelete) {
+    this.pdbdataset = this.pdbdataset.filter(item => item !== itemtodelete);
   }
 
 
@@ -145,22 +157,32 @@ export class Dataset {
     this.showitem = ! this.showitem;
   }
 
+  load() {
+    this.pa.getDataset(this.name).then(data=>    {
+      this.submitdataset = data;
+      this.pdbdataset = this.submitdataset.Entries;
+      this.name = this.submitdataset.Name;
+      this.id = this.submitdataset.Id;
+      this.showlist = false;
+    });
+  }
 
-  submit(){
+  submit() {
     //console.log("submitting data:");
     this.submitdataset = {};
     this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
-    
-      this.pa.addDataset("/"+this.id,this.submitdataset)
+    this.submitdataset.Metadata = this.codemirror.getValue();
+
+    this.pa.addDataset('/' + this.id, this.submitdataset)
         .then(data =>{
-          this.showlist=true;
-          if (this.id === 0) this.datasetlist.push({Id:data.Id, Name:data.Name});
-          this.showlist=true;
+          this.showlist = true;
+          if (this.id === 0) this.datasetlist.push({Id: data.Id, Name: data.Name});
+          this.showlist = true;
         })
         .catch(error =>{
-          alert('Sorry. Dataset not submitted  at '+this.serviceurl+' error:'+error.response+" status:"+error.statusText)
+          alert('Sorry. Dataset not submitted  at ' + this.serviceurl + ' error:' + error.response + ' status:' + error.statusText);
         });
   }
 }

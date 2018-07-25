@@ -1,5 +1,5 @@
 {
-  "name": "vfui",
+  "name": "vf-ui",
   "type": "project:application",
   "bundler": {
     "id": "webpack",
@@ -45,17 +45,13 @@
     "fileExtension": ".css"
   },
   "editor": {
-    "id": "vscode",
-    "displayName": "Visual Studio Code"
+    "id": "webstorm",
+    "displayName": "WebStorm"
   },
   "unitTestRunner": [
     {
-      "id": "jest",
-      "displayName": "Jest"
-    },
-    {
-      "id": "karma",
-      "displayName": "Karma"
+      "id": "none",
+      "displayName": "None"
     }
   ],
   "integrationTestRunner": {
@@ -69,9 +65,5 @@
     "attributes": "resources/attributes",
     "valueConverters": "resources/value-converters",
     "bindingBehaviors": "resources/binding-behaviors"
-  },
-  "testFramework": {
-    "id": "jasmine",
-    "displayName": "Jasmine"
   }
 }

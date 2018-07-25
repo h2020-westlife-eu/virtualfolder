@@ -8,16 +8,16 @@ import * as Bluebird from 'bluebird';
 
 // remove out if you don't want a Promise polyfill (remove also from webpack.config.js)
 //Bluebird.config({ warnings: { wForgottenReturn: false } });
-Bluebird.config( { warnings: false, longStackTraces: false } );
+Bluebird.config( { warnings: { wForgottenReturn: false }, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
     .plugin(PLATFORM.moduleName('aurelia-formio'))
-    .plugin(PLATFORM.moduleName('aurelia-ace-editor'))
+    //.plugin(PLATFORM.moduleName('aurelia-ace-editor'))
     .feature(PLATFORM.moduleName('resources/index'));
-  
+
   if (environment.debug) {
     aurelia.use.developmentLogging();
   }
