@@ -65,6 +65,20 @@ ln -s /usr/bin/mkdssp /usr/bin/dssp
 #mkdir -p /usr/local/lib/stride
 #freesasa
 #
+
+#autosklearn
+#swig 3 from sources
+wget http://prdownloads.sourceforge.net/swig/swig-3.0.12.tar.gz
+tar -xzf swig-3.0.12.tar.gz
+cd swig-3.0.12
+./configure
+make
+make install
+cd ..
+#auto-sklearn
+curl https://raw.githubusercontent.com/automl/auto-sklearn/master/requirements.txt | xargs -n 1 -L 1 pip install
+pip install auto-sklearn
+
 else
   echo Skipping Jupyter provisioning.
 fi
