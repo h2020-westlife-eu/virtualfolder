@@ -1,7 +1,7 @@
-ace.define('ace/mode/prov-n',["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/text_highlight_rules", "ace/worker/worker_client" ], function(require, exports, module) {
-  var oop = require("ace/lib/oop");
-  var TextMode = require("ace/mode/text").Mode;
-  var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
+ace.define('ace/mode/provn',["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/text_highlight_rules", "ace/worker/worker_client" ], function(acequire, exports, module) {
+  var oop = acequire("ace/lib/oop");
+  var TextMode = acequire("ace/mode/text").Mode;
+  var TextHighlightRules = acequire("ace/mode/text_highlight_rules").TextHighlightRules;
 
   var MyHighlightRules = function() {
     var keywordMapper = this.createKeywordMapper({
@@ -37,27 +37,29 @@ ace.define('ace/mode/prov-n',["require","exports","module","ace/lib/oop","ace/mo
 
   (function() {
 
-    this.$id = "ace/mode/prov-n-mode";
+    this.$id = "ace/mode/provn";
 
-    var WorkerClient = require("ace/worker/worker_client").WorkerClient;
+    console.log("loading worker");
+
+    var WorkerClient = acequire("ace/worker/worker_client").WorkerClient;
     this.createWorker = function(session) {
-      this.$worker = new WorkerClient(["ace"], "ace/worker/prov-n-worker", "MyWorker", "prov-n-worker.js");
-      this.$worker.attachToDocument(session.getDocument());
+      console.log("loading worker2");
+      var worker = new WorkerClient(["ace"], require("../worker/provn"), "ProvnWorker");
+      console.log("loading worker3",worker);
+      worker.attachToDocument(session.getDocument());
 
-      this.$worker.on("errors", function(e) {
+      worker.on("errors", function(e) {
         session.setAnnotations(e.data);
       });
 
-      this.$worker.on("annotate", function(e) {
+      worker.on("annotate", function(e) {
         session.setAnnotations(e.data);
       });
 
-      this.$worker.on("terminate", function() {
+      worker.on("terminate", function() {
         session.clearAnnotations();
       });
-
-      return this.$worker;
-
+      return worker;
     };
 
   }).call(MyMode.prototype);
