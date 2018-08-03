@@ -34,24 +34,16 @@
 
       </textarea>
 
-      <!--ace config-theme="ace/theme/eclipse"
-           config-mode="ace/mode/json">
-        {
-        "menu": {
-        "id": "file",
-        "value": "File",
-        "popup": {
-        "menuitem": [
-        {"value": "New", "onclick": "CreateNewDoc()"},
-        {"value": "Open", "onclick": "OpenDoc()"},
-        {"value": "Close", "onclick": "CloseDoc()"}
-        ]
-        }
-        }
-        }
-
-      </ace-->
-      dataset name: ${name}
+      <p>provenance</p>
+      <textarea ref="provn">document
+        prefix dataset <${name}>
+        entity (e1, dataset:data)
+        agent (author, ${user})
+endDocument
+      </textarea>
+      <button click.delegate="editProvn()">Edit in PROV-N editor</button>
+      <button click.delegate="storeVF()">Store in VF</button>
+      <button click.delegate="submitProvStore()">Submit to ProvStore</button>
       <br/>
 
       <!-- will be enabled after backend service is available -->
