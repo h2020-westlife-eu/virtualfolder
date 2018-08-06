@@ -50,7 +50,22 @@ export class Dataset {
       }
     ]};
     this.submission = {data: {firstName: 'Tomas', lastName: 'Kulhanek'}};
+    this.initialdocument="document  \n\
+    prefix dataset <"+window.location.href+"> \n\
+    entity (e1, dataset:data) \n\
+    agent (author, anonymous) \n\
+endDocument";
+    this.receiveMessage = event =>
+    {
+      console.log("Aliastable() received message:",event.data);
+      this.confirmSettings(event.data);
+    };
+    this.remoteurl="https://portal.west-life.eu/virtualfolder/edit/";
   }
+
+
+
+
 
   createnewdataset() {
     this.pdbdataset = [];
@@ -74,6 +89,14 @@ export class Dataset {
   }
 
   attached() {
+  //adds listener for
+  window.addEventListener("message", this.receiveMessage, false);
+
+  this.initialdocument="document  \n\
+    prefix dataset <"+this.name+"> \n\
+    entity (e1, dataset:data) \n\
+    agent (author, "+this.pa.userinfo.username+") \n\
+    endDocument";
     //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
     //let editor = this.el.querySelector('.Codemirror');
@@ -82,24 +105,16 @@ export class Dataset {
     this.codemirror = CodeMirror.fromTextArea(this.contentarea, {
       lineNumbers: true,
       mode: 'text/x-less',
-      lineWrapping: true
+      lineWrapping: true,
+      readOnly: true
     });
     this.codemirror.refresh();
-    //this.s2=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
-    /*this.pa.getDataset().then(data=>
-    {
-      this.datasetlist = data;
-    })
-      .catch(reason =>{
-        console.log("some error:",reason)
-      })
-      */
   }
 
   detached() {
     //unsubscribe
-    //this.s1.dispose();
     this.s2.dispose();
+    window.removeEventListener("message", this.receiveMessage)
   }
 
   selectFile(file, senderid) {
@@ -184,5 +199,16 @@ export class Dataset {
         .catch(error =>{
           alert('Sorry. Dataset not submitted  at ' + this.serviceurl + ' error:' + error.response + ' status:' + error.statusText);
         });
+  }
+  editprovn(){
+
+  }
+
+  storevf(){
+
+  }
+
+  submitprovstore(){
+
   }
 }

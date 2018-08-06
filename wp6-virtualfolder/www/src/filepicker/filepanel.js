@@ -5,7 +5,7 @@
 import 'whatwg-fetch';
 import {ProjectApi} from '../components/projectapi';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from './messages';
+import {SelectedFile,SelectedMetadata} from './messages';
 import {CheckedFile} from './messages';
 import {HandleLogin,MayLogout} from '../behavior';
 
@@ -111,7 +111,7 @@ export class Filepanel {
     console.log("Filepanel error:", error);
     alert('Sorry. Backend service is not working temporarily. You may browse files from publicly accessible repositories only. If the problem persist, report it to system administrator.'+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
   }
-  
+
   //triggered after this object is placed to DOM
   attached() {
     //read the directory infos
@@ -223,7 +223,7 @@ export class Filepanel {
     //console.log("filepanel.populateFiles()")
     Vfstorage.setValue("filepanel" + this.panelid, this.path);
     //it is assumed that first element is "." describing the content of current dir
-    if (dataresponse.length>0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift(); 
+    if (dataresponse.length>0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift();
     else this.currentdir = null;
     //console.log("populateFiles currentdir:",this.currentdir);
     this.files = dataresponse;//JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
@@ -254,6 +254,10 @@ export class Filepanel {
 
   }
 
+  selectMetadata(file){
+    this.ea.publish(new SelectedMetadata(file, this.panelid));
+  }
+
   selectFile(file) {
     //console.log("selectFile("+file+") panelid:"+this.panelid);
     if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
@@ -261,7 +265,7 @@ export class Filepanel {
 
       //HEAD the file - so it can be obtained - cached by metadata service, fix #45
       //let fileurl = this.serviceurl + this.path + '/' + file.name
-      if (this.path) //path exists -standard file 
+      if (this.path) //path exists -standard file
       this.pa.getFileHead(this.path + '/' + file.name)
         .then(response => {
             //console.log('file head'+fileurl);
@@ -273,9 +277,9 @@ export class Filepanel {
         console.log(error);
       });
       else //path don't exist, probably resource
-        this.ea.publish(new SelectedFile(file, this.panelid));       
+        this.ea.publish(new SelectedFile(file, this.panelid));
       //console.log("SelectedFile",file);
-      
+
       //constructs public url
       /*this.pa.getPublicWebDav()
         .then(data => {

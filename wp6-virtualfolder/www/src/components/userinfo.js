@@ -17,6 +17,7 @@ export class Userinfo {
           this.showuserinfo=false;
         } else {
           this.userinfo = data;
+          this.pa.userinfo=data;
           this.showuserinfo = true;
         }
       })

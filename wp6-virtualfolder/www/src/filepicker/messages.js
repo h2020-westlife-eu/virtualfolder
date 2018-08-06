@@ -9,6 +9,13 @@ export class SelectedFile {
   }
 }
 
+export class SelectedMetadata {
+  constructor(file,senderid){
+    this.file = file;
+    this.senderid = senderid;
+  }
+}
+
 export class CheckedFile {
   constructor(file,senderid){
     this.file = file;

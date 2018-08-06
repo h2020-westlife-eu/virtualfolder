@@ -28,15 +28,17 @@ export class ProjectApi {
           credentials: 'same-origin',
           headers: {
             'Accept': 'application/json'
-          }             
+          }
           //          'X-Requested-With': 'Fetch'
-          // }          
+          // }
         })
     });
     this.putHeaders= new Headers();
     this.putHeaders.append('Accept', 'application/json');
     this.putHeaders.append('Content-Type', 'application/json');
     this.emptyHeaders = new Headers();
+    //global variables to share
+    this.userinfo ={};//no info by default
   }
 
   //generic methods to fetch, serialize to json and log error
@@ -113,7 +115,7 @@ export class ProjectApi {
         throw error;
       });
   }
-  
+
   postJsonLog(url,datatosend) {
     return this.httpclient.fetch(url, {method: 'post', body: json(datatosend)})
       .then(response => response.json())
@@ -125,11 +127,11 @@ export class ProjectApi {
         throw error;
       });
   }
-  
+
   putJsonLog(url,datatosend){
     console.log("put on '" + url + "' test2");
     return this.httpclient.fetch(url, {method: 'PUT', mode:'cors', body: json(datatosend),credentials:'include',headers:this.putHeaders})
-      .then(response => response.json())      
+      .then(response => response.json())
       .then(data => {
         //console.log("putjsonlog",data);
         return data;
@@ -137,7 +139,7 @@ export class ProjectApi {
       .catch(error => {
         console.log("put on '" + url + "' returns error:", error);
         throw error;
-      });     
+      });
   }
 
   //specific methods to specific urls
@@ -178,7 +180,7 @@ export class ProjectApi {
   }
 
   getExportedSettings(publickey, selectedaliases) {
-//use public key and selectedaliases to construct request with params 
+//use public key and selectedaliases to construct request with params
     let queryurl = new URL(this.settingsurl,window.location.href);
     let params = {PublicKey: publickey, SelectedAliases: selectedaliases};
     Object.keys(params).forEach(key => queryurl.searchParams.append(key, params[key]));
@@ -188,7 +190,7 @@ export class ProjectApi {
   }
 
   //    this.client.post(this.localsettingservice)
-  
+
   getPublicKey() {
     return this.postTextLogNoBody(this.settingsurl);
   }

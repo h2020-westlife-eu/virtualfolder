@@ -29,25 +29,24 @@
           <dataitem item.bind="item"></dataitem>
         </li>
       </ul>
-      <p>free text metadata:</p>
-      <textarea ref="contentarea">
-
-      </textarea>
-
+      <p>Provenance (PROV-N):</p>
+      <textarea ref="contentarea" value.bind="initialdocument"></textarea>
+<!--
       <p>provenance</p>
-      <textarea ref="provn">document
+
+      <textarea value.bind="provn">document
         prefix dataset <${name}>
         entity (e1, dataset:data)
         agent (author, ${user})
-endDocument
-      </textarea>
-      <button click.delegate="editProvn()">Edit in PROV-N editor</button>
-      <button click.delegate="storeVF()">Store in VF</button>
-      <button click.delegate="submitProvStore()">Submit to ProvStore</button>
+endDocument</textarea>-->
       <br/>
 
-      <!-- will be enabled after backend service is available -->
     </div>
+    <button type="button" click.delegate="editprovn()">Edit in PROV-N editor</button>
+    <button type="button" click.delegate="storevf()">Store in VF</button>
+    <button type="button" click.delegate="submitprovstore()">Submit to ProvStore</button>
+
+
 
   </div>
 </template>

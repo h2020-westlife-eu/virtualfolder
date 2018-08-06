@@ -18,7 +18,8 @@ export function configure(config) {
     PLATFORM.moduleName('./idelete.html'),
     PLATFORM.moduleName('./inext.html'),
     PLATFORM.moduleName('./icopyicon.html'),
-    PLATFORM.moduleName('./icogs.html')
+    PLATFORM.moduleName('./icogs.html'),
+    PLATFORM.moduleName('./imetadata.html')
   );
 
 }

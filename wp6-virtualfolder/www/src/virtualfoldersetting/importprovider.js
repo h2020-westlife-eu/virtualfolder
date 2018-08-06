@@ -35,7 +35,7 @@ export class Importprovider {
   }
 
   attached() {
-    //adds listener for 
+    //adds listener for
     window.addEventListener("message", this.receiveMessage, false);
     //1. get public key from this VF instance
     this.pa.getPublicKey()
@@ -48,10 +48,14 @@ export class Importprovider {
     });
   }
 
+  dettached() {
+    window.removeEventListener("message", this.receiveMessage)
+  }
+
   submitSettings(settings) {
     this.providers = settings;
   }
-  
+
   importProvider(){
     //2. open popup window with public key to remote public VC
     //this.remoteurl= window.prompt("Enter URL of West-Life Virtual Volder instance:( https://[yourdomain]/virtualfolder/)","https://portal.west-life.eu/virtualfolder/");
@@ -81,23 +85,23 @@ export class Importprovider {
     this.aliases = this.aliasestmp.map(item => {return {oldname:item,newname:item} });
     this.importingSettings=true;
   }
-  
+
   importSettings2(){
     this.importingSettings=false;
     //console.log("importSettings2() aliases:",this.aliases);
-    
+
     this.conflicts = {oldnames:this.aliases.map(item => item.oldname).join(';'),newnames:this.aliases.map(item=>item.newname).join(';')};
     //console.log("importSettings2() conflicts:",this.conflicts);
-    
+
 //4. import the encrypted settings into this VF instance
     //    public class ImportSettings : IReturnVoid
     //     {
     //         public string PublicKey{ get; set; }
     //         public string EncryptedSettings{ get; set; }
     //         public string ConflictedAliases{ get; set; }
-    //         public string NewNameAliases{ get; set; }        
+    //         public string NewNameAliases{ get; set; }
     //     }
-    //let conflicts = this.resolveConflicts(message.aliases);    
+    //let conflicts = this.resolveConflicts(message.aliases);
     let importmessage = {PublicKey:this.publickey,EncryptedSettings:this.message.EncryptedSettings,ConflictedAliases:this.conflicts.oldnames,NewNameAliases:this.conflicts.newnames};
     //console.log("importSettings",importmessage);
     this.pa.putSettings(importmessage)
@@ -108,5 +112,5 @@ export class Importprovider {
       });
 
   }
-  
+
 }
