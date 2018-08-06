@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Editor</title>
+  <style type="text/css" media="screen">
+    body {
+        overflow: hidden;
+    }
+
+    #editor {
+        margin: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+  </style>
+</head>
+<body>
+
+<pre id="editor">
+document
+  prefix dcterms &lt;http://purl.org/dc/terms/&gt;
+  prefix foaf &lt;http://xmlns.com/foaf/0.1/&gt;
+  prefix ex &lt;http://example/&gt;
+
+  entity(ex:article, [dcterms:title="Crime rises in cities"])
+  entity(ex:articleV1)
+  entity(ex:articleV2)
+  entity(ex:dataSet1)
+  entity(ex:dataSet2)
+  entity(ex:regionList)
+  entity(ex:composition)
+  entity(ex:chart1)
+  entity(ex:chart2)
+  entity(ex:blogEntry)
+  activity(ex:compile, -, -)
+  activity(ex:compile2, -, -)
+  activity(ex:compose, -, -)
+  activity(ex:correct, 2012-03-31T09:21:00, 2012-04-01T15:21:00)
+  activity(ex:illustrate, -, -)
+  used(ex:compose, ex:dataSet1, -, [prov:role="ex:dataToCompose"])
+  used(ex:compose, ex:regionList, -, [prov:role="ex:regionsToAggregateBy"])
+  wasGeneratedBy(ex:composition, ex:compose, -)
+  used(ex:illustrate, ex:composition, -)
+  wasGeneratedBy(ex:chart1, ex:illustrate, -)
+  wasGeneratedBy(ex:chart1, ex:compile, 2012-03-02T10:30:00)
+  agent(ex:derek, [prov:type='prov:Person', foaf:givenName="Derek", foaf:mbox="<mailto:derek@example.org>"])
+  wasAssociatedWith(ex:compose, ex:derek, -)
+  wasAssociatedWith(ex:illustrate, ex:derek, -)
+  agent(ex:chartgen, [prov:type='prov:Organization', foaf:name="Chart Generators Inc"])
+  actedOnBehalfOf(ex:derek, ex:chartgen, ex:compose)
+  wasAttributedTo(ex:chart1, ex:derek)
+  wasGeneratedBy(ex:dataSet2, ex:correct, -)
+  used(ex:correct, ex:dataSet1, -)
+  wasDerivedFrom(ex:dataSet2, ex:dataSet1, -, -, -, [prov:type='prov:Revision'])
+  wasDerivedFrom(ex:chart2, ex:dataSet2, -, -, -)
+  wasDerivedFrom(ex:blogEntry, ex:article, -, -, -, [prov:type='prov:Quotation'])
+  specializationOf(ex:articleV1, ex:article)
+  wasDerivedFrom(ex:articleV1, ex:dataSet1, -, -, -)
+  specializationOf(ex:articleV2, ex:article)
+  wasDerivedFrom(ex:articleV2, ex:dataSet2, -, -, -)
+  alternateOf(ex:articleV2, ex:articleV1)
+endDocument
+</pre>
+
+<script src="src/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="prov-n-mode.js" type="text/javascript" charset="utf-8"></script>
+<!--script src="prov-n-worker.js" type="text/javascript" charset="utf-8"></script>
+<script src="worker-base.js" type="text/javascript" charset="utf-8"></script-->
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/twilight");
+    editor.session.setMode("ace/mode/prov-n");
+</script>
+
+</body>
+</html>
