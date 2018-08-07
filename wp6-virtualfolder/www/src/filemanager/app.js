@@ -1,8 +1,6 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedFile} from '../filepicker/messages';
-import {computedFrom} from 'aurelia-framework';
 import {DialogService} from 'aurelia-dialog';
-import {inject} from 'aurelia-framework';
 import {Prompt} from './fmsettings';
 import {HandleLogin,MayLogout,ShowLoginButton} from '../behavior';
 

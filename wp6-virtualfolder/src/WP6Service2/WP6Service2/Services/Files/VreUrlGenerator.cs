@@ -66,7 +66,11 @@ namespace MetadataService.Services.Files
         {
             try
             {
-                if (_authproxy == "") _authproxy = GetAuthProxy(req.Cookies["sessionid"].Value);
+            //gets sessionid from cookie, if not present - empty sessionid - in single deployment scenario (vagrant)
+            var _sessionid ="";
+            try {_sessionid=req.Cookies["sessionid"].Value;}
+            catch (Exception e) {}
+                if (_authproxy == "") _authproxy = GetAuthProxy(_sessionid);
             }
             catch (Exception e)
             {

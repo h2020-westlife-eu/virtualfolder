@@ -44,7 +44,7 @@
                 <ilink show.bind="! file.isdir" href.bind="file.webdavuri"></ilink>
                 <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri"></ilinkfolder>
                 <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
-                <span click.trigger="selectMetadata(file)"><imetadata></imetadata></span>
+                <span click.trigger="selectMetadata(file)" title="show/edit metadata"><imetadata></imetadata></span>
                 </span>
                 <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
               </td>

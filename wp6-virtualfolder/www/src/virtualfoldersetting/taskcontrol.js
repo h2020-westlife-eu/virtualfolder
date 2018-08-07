@@ -1,9 +1,8 @@
 /**
  * Created by Tomas Kulhanek on 7/21/17.
  */
-//import {HttpClient} from 'aurelia-http-client';
+
 import {ProjectApi} from "../components/projectapi";
-import {Vfstorage} from '../utils/vfstorage';
 
 /**
  * taskcontrol component gets available tasks and their status (running/not running)

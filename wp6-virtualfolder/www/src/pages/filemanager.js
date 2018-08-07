@@ -1,6 +1,6 @@
 import {DialogService} from 'aurelia-dialog';
 import {inject} from 'aurelia-framework';
-import {Prompt} from '../filemanager2/fmsettings';
+import {Prompt} from '../filemanager/fmsettings';
 
 @inject(DialogService)
 

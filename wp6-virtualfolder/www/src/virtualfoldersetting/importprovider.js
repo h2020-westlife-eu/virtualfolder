@@ -1,15 +1,9 @@
 /**
  * Created by Tomas Kulhanek on 1/6/17.
  */
-//import {HttpClient} from 'aurelia-http-client';
 import {ProjectApi} from "../components/projectapi";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
-import {Vfstorage} from '../utils/vfstorage';
-import {Aliastable} from "./aliastable";
-
-//let client = new HttpClient();
-
 /**
  * Importprovider component implements workflow to transfer providers from one virtualfodler to another
  */

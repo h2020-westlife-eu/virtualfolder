@@ -11,7 +11,7 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {HttpClient} from 'aurelia-fetch-client';
 import {EditFile} from '../filepicker/messages';
 import {bindable} from 'aurelia-framework';
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from './vfstorage';
 
 //import $ from 'jquery';
 

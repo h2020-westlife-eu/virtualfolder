@@ -1,15 +1,12 @@
 /**
  * Created by Tomas Kulhanek on 1/5/17.
  */
-//import {HttpClient,json} from 'aurelia-fetch-client';
 import {ProjectApi} from "../components/projectapi";
 import {computedFrom} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {DropboxControl} from './dropboxcontrol';
 import {SettingsSelected} from './messages';
-import {Vfstorage} from "../utils/vfstorage";
-import {Dataitem} from "../pdbcomponents/dataitem";
 
 export class Genericcontrol {
 

@@ -1,7 +1,7 @@
 import {bindable, inject} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedTab} from './messages';
-import {VisualizeFile,EditFile} from '../filepicker/messages';
+import {VisualizeFile,EditFile,SelectedMetadata} from '../filepicker/messages';
 //import $ from 'jquery';
 //import {tabs} from 'jquery-ui';
 
@@ -23,10 +23,12 @@ export class Tabs {
     attached(){
       this.s1=this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
       this.s2=this.ea.subscribe(EditFile, msg => this.selectEdit(msg.file,msg.senderid));
+      this.s3=this.ea.subscribe(SelectedMetadata, msg => this.selectMetadata(msg.file,msg.senderid));
     }
     detached(){
       this.s1.dispose();
       this.s2.dispose();
+      this.s3.dispose();
     }
 
     bind() {
@@ -36,9 +38,10 @@ export class Tabs {
       //this.tabs[]
     }
 
+    //visualize ==[2]
     selectVisualize(file,senderid){
       //just switch the tab
-      console.log("selectVisualize senderid:"+senderid)
+      //console.log("selectVisualize senderid:"+senderid)
       if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
         this.activeid.active = false;
 
@@ -47,11 +50,11 @@ export class Tabs {
         this.activeid.active=true;
       }
     }
-
+//edit ==[1]
     selectEdit(file,senderid) {
-      console.log("selectEdit senderid:"+senderid)
+      /*console.log("selectEdit senderid:"+senderid)
       console.log(this.tabs);
-      console.log(this.activeid);
+      console.log(this.activeid);*/
       if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
         this.activeid.active = false;
 
@@ -61,6 +64,18 @@ export class Tabs {
       }
 
     }
+//metadata == [3]
+  selectMetadata(file,senderid) {
+
+    if (!this.activeid.id.startsWith(senderid)) {
+      this.activeid.active = false;
+      this.activeid=this.tabs[3];
+      //new active tab is active
+      this.activeid.active=true;
+      //bubble to panel
+      this.ea.publish(new SelectedTab(this.activeid.id));
+    }
+  }
 
     opentab(tabid){
       //old active tab is not active anymore

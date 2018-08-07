@@ -4,7 +4,7 @@
 
 //import {HttpClient} from 'aurelia-http-client';
 import {ProjectApi} from "../components/projectapi";
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from '../components/vfstorage';
 //import {bindable} from 'aurelia-framework';
 
 

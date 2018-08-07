@@ -1,6 +1,13 @@
 <template>
     <require from="../icons.css"></require>
-    <button class="w3-bold w3-white w3-button w3-block w3-padding-0 w3-border" click.delegate="changeshowit()">${title} <i class="fa fa-caret-down"></i></button>
+
+  <div class="w3-white w3-text-blue-grey" style="width: 100%; height: 1em; margin-bottom:0.5em; border-bottom: 1px solid grey; text-align: center" click.trigger="changeshowit()">
+  <span class="w3-white w3-text-blue-grey w3-hover-blue-gray" style="padding: 0 2px;">
+    ${title} <i class="fa fa-caret-down"></i>
+  </span>
+  </div>
+
+    <!--button class="w3-bold w3-white w3-button w3-block w3-padding-0 w3-border" ></button-->
     <span show.bind="showit" class="vf-transition">
       <slot></slot>
     </span>

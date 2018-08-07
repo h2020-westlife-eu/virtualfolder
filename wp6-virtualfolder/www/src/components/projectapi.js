@@ -1,6 +1,4 @@
 import {HttpClient, json} from 'aurelia-fetch-client';
-import {Vfstorage} from "../utils/vfstorage";
-//import {Csrfheaderinterceptor} from '../components/csrfheaderinterceptor';
 /* Provides methods to return promise of data from REST Project api*/
 
 export class ProjectApi {

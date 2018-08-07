@@ -4,7 +4,6 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted, SettingsSelected} from './messages';
 
-
 export class Storageprovider {
   static inject = [EventAggregator];
 

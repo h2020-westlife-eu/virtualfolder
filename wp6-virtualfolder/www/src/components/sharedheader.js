@@ -14,7 +14,7 @@ export class Sharedheader {
   bind(){
 //    console.log("Sharedheader router navigation",this.router.navigation);
     this.pa.getUserInfo().then(data => {
-      //console.log(data);
+      console.log(data);
       this.userinfo=data;
       //vagrant user - no link
       if (this.userinfo.username ==='vagrant') {
@@ -32,6 +32,7 @@ export class Sharedheader {
         this.userinfo.LogoutLink="/logout";
       }
       if (!this.userinfo.name) this.userinfo.name=this.userinfo.username;
+      this.pa.userinfo=this.userinfo;
       this.showuserinfo=true;
     })
       .catch(error => {

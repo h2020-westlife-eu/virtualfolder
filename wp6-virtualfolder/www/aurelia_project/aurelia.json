@@ -50,8 +50,12 @@
   },
   "unitTestRunner": [
     {
-      "id": "none",
-      "displayName": "None"
+      "id": "jest",
+      "displayName": "Jest"
+    },
+    {
+      "id": "karma",
+      "displayName": "Karma"
     }
   ],
   "integrationTestRunner": {
@@ -65,5 +69,10 @@
     "attributes": "resources/attributes",
     "valueConverters": "resources/value-converters",
     "bindingBehaviors": "resources/binding-behaviors"
+  },
+  "testFramework": {
+    "id": "jasmine",
+    "displayName": "Jasmine"
   }
+
 }

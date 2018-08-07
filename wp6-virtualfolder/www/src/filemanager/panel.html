@@ -3,7 +3,7 @@
     <require from="../pdbcomponents/viewpanel"></require>
     <require from="../pdbcomponents/dataset"></require>
     <require from="../tabs/tabs"></require>
-    <require from='../editor/fileeditor'></require>
+    <require from='../components/fileeditor'></require>
 
   <div class="w3-margin-right w3-margin-left w3-margin-bottom">
     <tabs tabs.bind="paneltabs"></tabs>
@@ -19,7 +19,7 @@
         <viewpanel pid.bind="pid"></viewpanel>
     </div>
 
-    <div if.bind="selectedDataset">
+    <div show.bind="selectedDataset">
       <dataset panelid.bind="pid"></dataset>
     </div>
   </div>

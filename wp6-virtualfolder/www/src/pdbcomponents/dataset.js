@@ -6,13 +6,12 @@ import 'whatwg-fetch';
 import {ProjectApi} from '../components/projectapi';
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from '../filepicker/messages';
+import {SelectedMetadata} from '../filepicker/messages';
 
 import * as CodeMirror from 'codemirror';
 import 'codemirror/mode/clike/clike';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/javascript/javascript';
-//import {Vfstorage} from '../utils/vfstorage';
 
 
 /** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
@@ -98,7 +97,8 @@ endDocument";
     agent (author, "+this.pa.userinfo.username+") \n\
     endDocument";
     //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
-    this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
+    //this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
+    this.s3 = this.ea.subscribe(SelectedMetadata, msg => this.selectFile(msg.file, msg.senderid));
     //let editor = this.el.querySelector('.Codemirror');
     //prevent blured render if not shown before
     //if (editor==null)
@@ -113,18 +113,31 @@ endDocument";
 
   detached() {
     //unsubscribe
-    this.s2.dispose();
+    this.s3.dispose();
     window.removeEventListener("message", this.receiveMessage)
   }
 
   selectFile(file, senderid) {
-    //do some
-
+    console.log('dataset.selectFile()', file);
+    console.log('senderid:', senderid);
+    console.log('userinfo:',this.pa.userinfo);
     if (this.panelid !== senderid) {
       console.log('metadata of:', file);
+      this.datasetfile=file;
       this.name = file.webdavuri;
-      that.codemirror.setValue(data);
-      that.codemirror.refresh();
+      this.initialdocument="document  \n\
+    prefix dataset <"+window.location.protocol+"//"+window.location.host+file.publicwebdavuri+"> \n\
+    prefix virtualfolder <https://portal.west-life.eu/virtualfolder/>\n\
+    prefix westlife <https://about.west-life.eu/>\n\
+    prefix thisvf <"+window.location.href+">\n\
+    prefix user <"+this.pa.userinfo.AccountLink+">\n\
+    entity (dataset:, [prov:label=\""+file.name+ "\", prov:type=\"document\"]) \n\
+    agent (user:"+this.pa.userinfo.username+", [ prov:type=\"prov:Person\" ]) \n\
+    wasAttributedTo(dataset:, user:"+this.pa.userinfo.username+") \n\
+endDocument";
+
+      this.codemirror.setValue(this.initialdocument);
+      this.codemirror.refresh();
     }
   }
 

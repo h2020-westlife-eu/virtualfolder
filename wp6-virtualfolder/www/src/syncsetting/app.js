@@ -1,8 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {HandleLogin, MayLogout,RedirectLogin} from '../behavior';
-//import {HttpClient} from 'aurelia-http-client';
 import {ProjectApi} from "../components/projectapi";
-import {Vfstorage} from "../utils/vfstorage";
+import {Vfstorage} from "../components/vfstorage";
 
 export class App {
   static inject = [EventAggregator,ProjectApi];

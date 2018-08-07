@@ -3,7 +3,7 @@
  */
 import {inject} from 'aurelia-framework';
 import {DialogController} from 'aurelia-dialog';
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from '../components/vfstorage';
 
 @inject(DialogController)
 

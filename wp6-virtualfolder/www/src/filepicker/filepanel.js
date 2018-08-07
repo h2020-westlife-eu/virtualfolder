@@ -10,7 +10,7 @@ import {CheckedFile} from './messages';
 import {HandleLogin,MayLogout} from '../behavior';
 
 import {bindable} from 'aurelia-framework';
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from '../components/vfstorage';
 
 import {Pdbresource} from './pdbresource';
 import {Uniprotresource} from './uniprotresource';

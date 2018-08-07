@@ -1,15 +1,10 @@
 /**
  * Created by Tomas Kulhanek on 1/6/17.
  */
-//import {HttpClient} from 'aurelia-http-client';
 import{ProjectApi} from "../components/projectapi";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
-import {Vfstorage} from '../utils/vfstorage';
 import {HandleLogin,MayLogout} from '../behavior';
-import {Dataitem} from "../pdbcomponents/dataitem";
-
-//let client = new HttpClient();
 
 /**
  * Aliastable component gets the currently registered aliases for file providers
