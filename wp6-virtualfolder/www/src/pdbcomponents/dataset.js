@@ -12,6 +12,7 @@ import * as CodeMirror from 'codemirror';
 import 'codemirror/mode/clike/clike';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/javascript/javascript';
+import * as LZString from '../components/lz-string';
 
 
 /** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
@@ -23,6 +24,7 @@ export class Dataset {
   @bindable panelid;
 
   constructor(pa, ea) {
+    this.popup=null;
     this.pa = pa;
     this.ea = ea;
     this.showitem = true;
@@ -54,17 +56,30 @@ export class Dataset {
     entity (e1, dataset:data) \n\
     agent (author, anonymous) \n\
 endDocument";
+    //register to receive message from pop up window
     this.receiveMessage = event =>
     {
-      console.log("Aliastable() received message:",event.data);
-      this.confirmSettings(event.data);
+      //check whether it's my popup window
+      if (this.popup) {
+        console.log("Dataset() received message:", event.data);
+        let mydata=JSON.parse(event.data);
+        if (mydata && mydata.contentType) {
+          if (mydata.contentType === "text/plain") {
+            this.initialdocument = mydata.content;
+
+          } else if (mydata.contentType === "application/x-lzip") {
+            this.initialdocument = LZString.LZString.decompressFromBase64(mydata.content);
+          }
+          this.codemirror.setValue(this.initialdocument);
+          this.codemirror.refresh();
+          //empty popup
+          this.popup=null;
+        }
+      }
+      //this.confirmSettings(event.data);
     };
     this.remoteurl="https://portal.west-life.eu/virtualfolder/edit/";
   }
-
-
-
-
 
   createnewdataset() {
     this.pdbdataset = [];
@@ -213,8 +228,10 @@ endDocument";
           alert('Sorry. Dataset not submitted  at ' + this.serviceurl + ' error:' + error.response + ' status:' + error.statusText);
         });
   }
-  editprovn(){
 
+  editprovn(){
+    this.docencoded = btoa(this.initialdocument);
+    return this.openwindow("editor/index.html#contentBase64="+this.docencoded);
   }
 
   storevf(){
@@ -223,5 +240,11 @@ endDocument";
 
   submitprovstore(){
 
+  }
+
+  //opens popup window in defined location
+  openwindow(href) {
+    this.popup=window.open(href, 'newwindow', 'width=720, height=480');
+    return false;
   }
 }

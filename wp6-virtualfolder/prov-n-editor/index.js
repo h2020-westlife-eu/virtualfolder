@@ -19,7 +19,7 @@ function sendbackcompressed() {
     //console.log(message);
     var compressed = furl.compressContent(message);
     //console.log(compressed);
-    var cmessage = {"content-type":"application/x-lzip","content":compressed}
+    var cmessage = {"contentType":"application/x-lzip","content":compressed}
     //console.log(cmessage);
     if (window.opener) {
         window.opener.postMessage(JSON.stringify(cmessage), "*");
@@ -32,7 +32,7 @@ function sendbackplain(){
     //console.log(message);
     //var compressed = furl.compressContent(message);
     //console.log(compressed);
-    var cmessage = {"content-type":"text/plain","content":message}
+    var cmessage = {"contentType":"text/plain","content":message}
     //console.log(cmessage);
     if (window.opener) {
         window.opener.postMessage(JSON.stringify(cmessage), "*");
