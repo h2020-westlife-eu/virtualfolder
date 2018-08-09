@@ -11,11 +11,6 @@
 
   <div class="w3-card-2 w3-padding w3-margin-right w3-small">
     <span class="w3-bold w3-center">metadata of ${name}</span>
-    <button class="w3-right-align w3-round-medium w3-green" type="button" click.delegate="load()">Load metadata</button>
-    <button class="w3-right-align w3-round-medium w3-green" type="button" click.delegate="submit()"
-            disabled.bind="!canSubmit">
-      Save metadata
-    </button>
     <hideable title="generic metadata">
       <table>
         <tr>
@@ -56,12 +51,8 @@
           <vf-autocomplete-search submit.call="additem(item)" placeholder="1cbs (PDB entry) or P12355 (Uniprot entry)"
                                   size="40"></vf-autocomplete-search>
         </form>
-
-
-
+        <!-- TODO enable pdb-prints -->
         <pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints>
-
-        <br/>
         <ul>
           <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item.Name}</span>
             <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
@@ -74,14 +65,12 @@
     <hideable title="provenance">
       <textarea ref="contentarea" value.bind="initialdocument"></textarea>
       <br/>
-      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()">Edit in PROV-N editor
-      </button>
-      <button class="w3-round-medium w3-green" type="button" click.delegate="storevf()">Store in VF</button>
-      <button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Submit to
-        ProvStore
-      </button>
+      <div ref="provvis"></div>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()">Edit in PROV-N editor</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Export to ProvStore</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="getprovstoresvg()">Visualize</button>
     </hideable>
-
-
+    <br/>
+    <button class="w3-right-align w3-round-medium w3-green" type="button" click.delegate="submit()">Save metadata</button>
   </div>
 </template>

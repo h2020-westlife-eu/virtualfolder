@@ -114,7 +114,44 @@ export class ProjectApi {
       });
   }
 
+  postTextLog(url,data) {
+    return this.httpclient.fetch(url, {method: 'post', body: data})
+      .then(data=> data.text())
+      .then(data => {
+        return data;
+      })
+      .catch(error => {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+  }
+
+  postHeaderTextLog(url,header,data) {
+    return this.httpclient.fetch(url, {method: 'post', headers: header, body: data})
+      .then(data=> data.text())
+      .then(data => {
+        return data;
+      })
+      .catch(error => {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+  }
+
+  postHeaderJsonLog(url,header,data) {
+    return this.httpclient.fetch(url, {method: 'post', headers: header, body: json(data)})
+      .then(data=> data.json())
+      .then(data => {
+        return data;
+      })
+      .catch(error => {
+        console.log("post on '" + url + "' returns error:", error);
+        throw error;
+      });
+  }
+
   postJsonLog(url,datatosend) {
+    console.log("postjsonlog()",json(datatosend));
     return this.httpclient.fetch(url, {method: 'post', body: json(datatosend)})
       .then(response => response.json())
       .then(data => {
@@ -165,14 +202,19 @@ export class ProjectApi {
     return this.deleteJsonLog(this.fileserviceurl + "/" + alias);
   }
 
-  getDataset(id = "") {
+  getDataset(id) {
     let context = (id === "") ? "" : "/" + id; //prexif slash before id
     return this.fetchJsonLog(this.dataseturl + context);
   }
 
-  addDataset(id = "", dataset) {
+  getDatasetByName(name) {
+    let context = "/name/" + name; //prexif slash before id
+    return this.fetchJsonLog(this.dataseturl + context);
+  }
+
+  addDataset(id, dataset) {
     if (id > 0)
-      return this.putJsonLog(this.dataseturl + "/" + this.id, dataset);
+      return this.putJsonLog(this.dataseturl + "/" + id, dataset);
     else
       return this.postJsonLog(this.dataseturl, dataset)
   }

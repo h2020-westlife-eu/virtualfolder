@@ -60,7 +60,8 @@ usermod -g davfs2 vagrant
 mkdir -p /opt/virtualfolder
 ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
 ln -s $WP6SRC/www/dist /opt/virtualfolder/www
-ln -s $WP6SRC/prov-n-editor /opt/virtualfolder/www/editor
+#no need to ln - editor is coppied into dist folder
+#ln -s $WP6SRC/prov-n-editor /opt/virtualfolder/www/editor
 ln -s $WP6SRC/singlevre /opt/virtualfolder/singlevre
 # chown -R apache:apache /opt/virtualfolder/www
 chmod -R 755 /opt/virtualfolder/www

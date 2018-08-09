@@ -14,7 +14,7 @@ export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
-    .plugin(PLATFORM.moduleName('aurelia-formio'))
+    //.plugin(PLATFORM.moduleName('aurelia-formio'))
     //.plugin(PLATFORM.moduleName('aurelia-ace-editor'))
     .feature(PLATFORM.moduleName('resources/index'));
 

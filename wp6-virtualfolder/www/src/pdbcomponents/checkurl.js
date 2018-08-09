@@ -32,7 +32,7 @@ export class Checkurl {
       })
       .catch(error =>{
         this.showit=false;
-        console.log('checkurl error:'+error);
+        console.log('checkurl error:',error);
         //this.message = this.failmessage;
       });
   }

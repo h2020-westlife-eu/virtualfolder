@@ -7,13 +7,14 @@ import {ProjectApi} from '../components/projectapi';
 import {bindable} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SelectedMetadata} from '../filepicker/messages';
-
 import * as CodeMirror from 'codemirror';
 import 'codemirror/mode/clike/clike';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/javascript/javascript';
 import * as LZString from '../components/lz-string';
+import {Vfstorage} from "../components/vfstorage";
 
+const  removewebdavprefix = (x) => {x.startsWith('/webdav/')?x.slice(0,8):x}; 
 
 /** Dataset handles ViewModel of dataset view, performs AJAX call to dataset service,
  * holds dataset structure and includes dataitems
@@ -61,7 +62,7 @@ endDocument";
     {
       //check whether it's my popup window
       if (this.popup) {
-        console.log("Dataset() received message:", event.data);
+        //console.log("Dataset() received message:", event.data);
         let mydata=JSON.parse(event.data);
         if (mydata && mydata.contentType) {
           if (mydata.contentType === "text/plain") {
@@ -81,7 +82,8 @@ endDocument";
     this.remoteurl="https://portal.west-life.eu/virtualfolder/edit/";
   }
 
-  createnewdataset() {
+  createnewdataset(file) {
+    console.log("createnewdataset()",file)
     this.pdbdataset = [];
     this.pdbdataitem = '';
     this.pdblinkset = [];
@@ -91,6 +93,7 @@ endDocument";
     //this.name="dataset-"+date.getFullYear()+"."+(date.getMonth()+1)+"."+date.getDate();
     this.id = 0;
     this.showlist = false;
+    this.initialdocument = this.initdocument(file);
   }
 
 
@@ -106,11 +109,7 @@ endDocument";
   //adds listener for
   window.addEventListener("message", this.receiveMessage, false);
 
-  this.initialdocument="document  \n\
-    prefix dataset <"+this.name+"> \n\
-    entity (e1, dataset:data) \n\
-    agent (author, "+this.pa.userinfo.username+") \n\
-    endDocument";
+  this.initialdocument=this.initdocument();
     //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     //this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
     this.s3 = this.ea.subscribe(SelectedMetadata, msg => this.selectFile(msg.file, msg.senderid));
@@ -131,28 +130,47 @@ endDocument";
     this.s3.dispose();
     window.removeEventListener("message", this.receiveMessage)
   }
+  
+  initdocument(file){
+    let datasetrow= file ? ("prefix dataset <" + window.location.protocol + "//" + window.location.host + file.publicwebdavuri + "> \n") : "";
+    let entityrow = file ? ("entity (dataset:, [prov:label=\"" + file.name + "\", prov:type=\"document\"]) \n") : "";
+    return  `document    
+    prefix virtualfolder <https://portal.west-life.eu/virtualfolder/>
+    ${datasetrow}
+    prefix westlife <https://about.west-life.eu/>
+    prefix thisvf <${window.location.href}>
+    prefix user <${this.pa.userinfo.AccountLink}>
+    ${entityrow}    
+    agent (user:${this.pa.userinfo.username}, [ prov:type="prov:Person" ]) 
+    wasAttributedTo(dataset:, user:${this.pa.userinfo.username}) 
+endDocument`;
+  }
 
   selectFile(file, senderid) {
-    console.log('dataset.selectFile()', file);
-    console.log('senderid:', senderid);
-    console.log('userinfo:',this.pa.userinfo);
-    if (this.panelid !== senderid) {
-      console.log('metadata of:', file);
-      this.datasetfile=file;
-      this.name = file.webdavuri;
-      this.initialdocument="document  \n\
-    prefix dataset <"+window.location.protocol+"//"+window.location.host+file.publicwebdavuri+"> \n\
-    prefix virtualfolder <https://portal.west-life.eu/virtualfolder/>\n\
-    prefix westlife <https://about.west-life.eu/>\n\
-    prefix thisvf <"+window.location.href+">\n\
-    prefix user <"+this.pa.userinfo.AccountLink+">\n\
-    entity (dataset:, [prov:label=\""+file.name+ "\", prov:type=\"document\"]) \n\
-    agent (user:"+this.pa.userinfo.username+", [ prov:type=\"prov:Person\" ]) \n\
-    wasAttributedTo(dataset:, user:"+this.pa.userinfo.username+") \n\
-endDocument";
 
-      this.codemirror.setValue(this.initialdocument);
-      this.codemirror.refresh();
+    this.id = 0;
+    if (this.panelid !== senderid) {
+      this.datasetfile=file;
+      this.name = file.webdavuri.slice(8);
+      console.log('metadata of:', this.name);
+      this.pa.getDatasetByName(this.name).then(data => {
+        console.log("dataset.selectFile() metadata:",data);
+        if (data) {
+          this.id=data.Id;
+          this.initialdocument = data.Metadata;
+          this.pdbdataset = data.Entries;
+        }else{
+          this.createnewdataset(file);
+          
+        }
+        this.codemirror.setValue(this.initialdocument);
+        this.codemirror.refresh();
+        }
+      ).catch(errorCallback =>{
+        this.createnewdataset(file);
+        this.codemirror.setValue(this.initialdocument);
+        this.codemirror.refresh();
+      });
     }
   }
 
@@ -211,21 +229,21 @@ endDocument";
   }
 
   submit() {
-    //console.log("submitting data:");
+    console.log("submitting data:");
     this.submitdataset = {};
+    //if (this.id>0) 
     this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
     this.submitdataset.Metadata = this.codemirror.getValue();
-
-    this.pa.addDataset('/' + this.id, this.submitdataset)
+    console.log("dataset",this.submitdataset);
+    this.pa.addDataset(this.id,this.submitdataset)
         .then(data =>{
-          this.showlist = true;
-          if (this.id === 0) this.datasetlist.push({Id: data.Id, Name: data.Name});
-          this.showlist = true;
+          this.id=data.Id;
         })
         .catch(error =>{
-          alert('Sorry. Dataset not submitted  at ' + this.serviceurl + ' error:' + error.response + ' status:' + error.statusText);
+          console.log("error:",error);
+          alert('Sorry. Dataset not submitted . Error:' + error.statusText);
         });
   }
 
@@ -235,12 +253,44 @@ endDocument";
   }
 
   storevf(){
-
+    this.submit();
   }
 
   submitprovstore(){
-
+//data=
+    let apikey = Vfstorage.getValue("provstoreapikey",null);
+    let username= Vfstorage.getValue("provstoreusername",null);
+    if (apikey) {
+      let opu='https://openprovenance.org/store/api/v0/documents';
+      let heads= new Headers();
+      heads.append('Content-type','application/provn');
+      heads.append('Authorization','ApiKey'+username+":"+apikey);
+      let body = {content:this.codemirror.getValue(),rec_id:this.name,public:"true"};
+      this.pa.postHeaderJsonLog(opu,heads,body).then(response =>
+      {
+        console.log("submitprovstore",response);
+      }).catch(error =>{
+        console.log(error);
+        alert('Sorry. Dataset not submitted . Error:'+error);
+      })
+    }
   }
+
+  getprovstoresvg(){
+    let formdata=new FormData();
+    //formdata.append('file');
+    formdata.append('translate','svg');
+    //formdata.append('url');
+    formdata.append('type','provn');
+    formdata.append('statements',this.codemirror.getValue());
+    let opu = 'https://openprovenance.org/services/provapi/documents/'
+    this.pa.postTextLog(opu,formdata).then(response=>{
+      //response is svg?
+      console.log("getprovstoresvg()",response);
+      this.provvis.innerHTML = response;
+    });
+  }
+
 
   //opens popup window in defined location
   openwindow(href) {

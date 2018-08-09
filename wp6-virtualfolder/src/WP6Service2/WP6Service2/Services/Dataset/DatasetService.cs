@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MetadataService.Services.Files;
+using ServiceStack.Common.Web;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Cors;
+using ServiceStack.Text;
 
 namespace WP6Service2.Services.Dataset
 {
@@ -47,6 +49,7 @@ namespace WP6Service2.Services.Dataset
 
     /* DTO for API*/
     [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
+    [Route("/dataset/name/{Name*}", "GET")]
     [Route("/dataset", "POST")]
     public class DatasetDTO : IReturn<DatasetDTO>
     {
@@ -117,18 +120,25 @@ namespace WP6Service2.Services.Dataset
         /**returns dataset details */
         public DatasetDTO Get(DatasetDTO dto)
         {
-            var mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
+            Dataset mydataset;
+            try
+            {
+                if (dto.Id > 0) mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
+                else mydataset = Db.Where<Dataset>(x => x.Name == dto.Name).First();
+            }
+            catch (InvalidOperationException e)
+            { //nothing found - first() throws this exception
+                //return dto;                
+                if (dto.Id > 0)
+                    throw HttpError.NotFound("Dataset with id {0} does not exist".Fmt(dto.Id));
+                else
+                    throw HttpError.NotFound("Dataset {0} does not exist".Fmt(dto.Name));
+
+            }
+
+            dto.Id = mydataset.Id;
             dto.Name = mydataset.Name;
-            //var entries = Db.Where<DatasetEntries>(x => x.DatasetId == dto.Id).First();
-            //dto.Entries = Db.Select<DatasetEntry>().ToList();
-            /* RAW SQL seems to produce sqliteexception
-            var myentries = Db.Select<DatasetEntry>(
-                "SELECT * FROM DatasetEntry " +
-                "INNER JOIN DatasetEntries ON DatasetEntries.DatasetEntryId = DatasetEntry.Id" +
-                "WHERE DatasetEntries.DatasetId = "+dto.Id+ ";"
-                ).ToList();
-            dto.Entries = myentries;*/
-            
+            dto.Metadata = mydataset.Metadata;            
             dto.Entries = new List<DatasetEntry>();
             var myentries= Db.Select<DatasetEntries>(x => x.DatasetId == dto.Id).ToList();
             foreach (var myentryid in myentries)
@@ -199,6 +209,7 @@ namespace WP6Service2.Services.Dataset
         private void CreateOrUpdateEntries(DatasetDTO dto, Dataset mydataset)
         {
             var existingre = Db.Where<DatasetEntries>(de => de.DatasetId == mydataset.Id).Select(x => x.DatasetEntryId);
+
             for (var i = 0; i < dto.Entries.Count; i++) //each (var myentry in dto.Entries)
             {
                 var mydatasetEntry = dto.Entries[i];
@@ -245,7 +256,11 @@ namespace WP6Service2.Services.Dataset
             var myowner = (string) Request.Items["userid"];
             var mydataset = Db.Select<Dataset>(x => x.Id == dto.Id && x.Owner == myowner);
             if (mydataset.Count == 0) throw new FileNotFoundException("dataset with Id " + dto.Id);
-            return mydataset.First();
+            var first = mydataset.First();
+            first.Metadata = dto.Metadata;
+            first.Name = dto.Name;
+            Db.Update(first);
+            return first;
         }
 
         public void Delete(DeleteDataset dto)
