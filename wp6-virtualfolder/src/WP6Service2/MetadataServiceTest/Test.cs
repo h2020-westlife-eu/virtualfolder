@@ -61,73 +61,7 @@ namespace MetadataServiceTest
             testpassword = "testkey89012";
         }
 
-        [Test]
-        public void CheckDeletingDatasetWithForeignKeyDisabledTestCase()
-        {
-            //the same as dataset2TestCase - calls NoFK service. Warning released when cascade delete doesnt work =>
-            //foreign key is very probably disabled
-            var client = new JsonServiceClient(_baseUri);
-            var entries = client.Get(new GetEntries());
 
-            var datasetentries = client.Get(new GetDatasetEntries());
-            var dErelations = datasetentries.Count;
-            var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
-            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
-            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
-            var mydto = new DatasetDTO
-            {
-                Name = "testdataset2",
-                Entries = myEntries
-            };
-            var mydto2 = client.Post(mydto);
-
-            entries = client.Get(new GetEntries());
-            Assert.True(entries.Select(x => x.Name).Contains("2hh1"));
-            Assert.True(entries.Select(x => x.Name).Contains("3csa"));
-            Assert.True(entries.Select(x => x.Name).Contains("4yg1"));
-            datasetentries = client.Get(new GetDatasetEntries());
-            Assert.True(datasetentries.Count > dErelations);
-            Assert.True(datasetentries.Count == dErelations + 3);
-
-            client.Delete(new DeleteDatasetNoFk {Id = mydto2.Id});
-
-            datasetentries = client.Get(new GetDatasetEntries());
-            if (datasetentries.Count != dErelations)
-            {
-                Console.Error.WriteLine("Warning: connection foreign key not working - NO CASCADE DELETE.");
-                Assert.Ignore();
-            }
-
-        }
-
-        [Test]
-        public void DatasetUpdateShouldAddOnlyNewEntriesTestCase()
-        {
-            //submit dataset, then update it, check whether only relevant entries were updated - not doubled
-            var client = new JsonServiceClient(_baseUri);
-            var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hh1",Url = "http://www.pdb.org/2hh1"});
-            myEntries.Add(new DatasetEntry(){Name="3csa",Url = "http://www.pdb.org/3csa"});
-            myEntries.Add(new DatasetEntry(){Name="4yg1",Url = "http://www.pdb.org/4yg1"});
-            var mydto = new DatasetDTO
-            {
-                Name = "testdataset3",
-                Entries = myEntries
-            };
-            var mydto2 = client.Post(mydto);
-            Assert.True(mydto2.Entries.Count == 3);
-            
-            mydto2.Entries.Add(new DatasetEntry(){Name="2hhd",Url="http://www.pdb.org/2hhd"});
-            
-            client.Put(mydto2);
-            var mydto4 = client.Get(new DatasetDTO {Id = mydto2.Id});
-
-            Assert.True(mydto4.Entries.Count == 4);
-            //Assert.True(mydto4.Urls.Count==4);
-            Assert.True(mydto4.Entries.Select(x=> x.Name).Contains("2hhd"));
-            //Assert.True(mydto4.Urls.Contains("http://www.pdb.org/2hhd"));
-        }
 
         [Test]
         public void EncryptingAndDecriptingListOfItemsTestCase()
@@ -165,57 +99,6 @@ namespace MetadataServiceTest
             Assert.True(item.loggeduser.Equals(item2.loggeduser)); //nonencrypted items are still same
         }
 
-        [Test]
-        public void PostingDeletingDatasetShouldIncreaseDecreaseEntriesTestCase()
-        {
-            //check no entries 2hh1,3csa,4yg1, get entries relation to dataset - put dataset, check whether entries present
-            //check whether number of relation increased by 3, then delete
-            var client = new JsonServiceClient(_baseUri);
-            var entries = client.Get(new GetEntries());
-            //remove all existing entries
-            foreach (var entry in entries)
-            {
-                try
-                {
-                    client.Delete(new DeleteDataset {Id = entry.Id});
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message+":"+e.StackTrace);
-                }
-            }
-            entries = client.Get(new GetEntries());
-            Assert.False(entries.Select(x => x.Name).Contains("2hh6"));
-            Assert.False(entries.Select(x => x.Name).Contains("3cs6"));
-            Assert.False(entries.Select(x => x.Name).Contains("4yg6"));
-
-            var datasetentries = client.Get(new GetDatasetEntries());
-            var dErelations = datasetentries.Count;
-            var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hh6",Url = "http://www.pdb.org/2hh6"});
-            myEntries.Add(new DatasetEntry(){Name="3cs6",Url = "http://www.pdb.org/3cs6"});
-            myEntries.Add(new DatasetEntry(){Name="4yg6",Url = "http://www.pdb.org/4yg6"});
-
-            var mydto = new DatasetDTO
-            {
-                Name = "testdataset2",
-                Entries = myEntries
-            };
-            var mydto2 = client.Post(mydto);
-
-            entries = client.Get(new GetEntries());
-            Assert.True(entries.Select(x => x.Name).Contains("2hh6"));
-            Assert.True(entries.Select(x => x.Name).Contains("3cs6"));
-            Assert.True(entries.Select(x => x.Name).Contains("4yg6"));
-            datasetentries = client.Get(new GetDatasetEntries());
-            Assert.True(datasetentries.Count > dErelations);
-            Assert.True(datasetentries.Count == dErelations + 3);
-
-            client.Delete(new DeleteDataset {Id = mydto2.Id});
-
-            datasetentries = client.Get(new GetDatasetEntries());
-            Assert.True(datasetentries.Count == dErelations);
-        }
 
         [Test]
         public void PostingDeletingDatasetTestCase()
@@ -226,15 +109,28 @@ namespace MetadataServiceTest
             Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
             Assert.True(all.Count >= 0);
             //    Is.StringStarting("[")); // asserts that the json is array
-            var myEntries = new List<DatasetEntry>();
-            myEntries.Add(new DatasetEntry(){Name="2hhd",Url = "http://www.pdb.org/2hhd"});
-            myEntries.Add(new DatasetEntry(){Name="3csb",Url = "http://www.pdb.org/3csb"});
-            myEntries.Add(new DatasetEntry(){Name="4yg0",Url = "http://www.pdb.org/4yg0"});
+            var myEntries = new List<string>();
+            myEntries.Add("2hhd");
+            myEntries.Add("3csb");
+            myEntries.Add("4yg0");
 
-            var mydto = new DatasetDTO
+            var mydto = new Dataset
             {
                 Name = "testdataset",
-                Entries = myEntries
+                Entries = myEntries,
+                Provenance = @"document 
+                prefix virtualfolder <https://portal.west-life.eu/virtualfolder/> 
+                prefix dataset <http://localhost:8081/webdav/vagrant/filesystem/patient_data/LICENSE> 
+
+                prefix westlife <https://about.west-life.eu/>
+                prefix thisvf <http://localhost:8081/virtualfolder/#/filemanager>
+                prefix user <>
+                entity (dataset:, [prov:label=""LICENSE"", prov:type=""document""]) 
+    
+                agent (user:vagrant, [ prov:type=""prov:Person"" ]) 
+                wasAttributedTo(dataset:, user:vagrant) 
+                endDocument",
+                Metadata = "{size:5,date:07/09/2017,localurl:http://localhost/webdav/vagrant/filesystem}"
             };
 
             var mydto2 = client.Post(mydto);
@@ -246,7 +142,7 @@ namespace MetadataServiceTest
             //var all2 =
             client.Get(new GetDatasets()); //gets all
             //var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
-            var all3 = client.Get(new DatasetDTO {Id = mydto2.Id});
+            var all3 = client.Get(new Dataset {Id = mydto2.Id});
             //var all3 = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
             Console.WriteLine(" DatasetTestCase() all3.name:" + all3.Name + " mydto.Name" + mydto.Name);
             Assert.True(all3.Name == mydto.Name);
@@ -289,9 +185,8 @@ namespace MetadataServiceTest
             {
                 alias = "b2drop_test",
                 type = "B2Drop",
-                securetoken =
-                    "dmFncmFudFM2wAdx6KqWemSjD2Re38CZ9i0xMywQt8x71NwEoJZavTxbiOEga3te+q4cq4pK2gAKTtawu3k0REBz1pGiFiJR+Wnot8pS7d52o+w6x9tW",
-                username = "tomas.kulhanek@stfc.ac.uk",
+                securetoken = System.Environment.GetEnvironmentVariable("VF_TEST_B2DROP_TOKEN"),                
+                username = System.Environment.GetEnvironmentVariable("VF_TEST_B2DROP_USER"),
                 loggeduser="vagrant"
             };
             return pi;
@@ -302,18 +197,14 @@ namespace MetadataServiceTest
         public void DecryptSecretsRegisterB2dropTestCase()
         {
             var pi = createTestProviderItem();
-            try
-            {                                                                
-                SettingsStorageInDB.decrypt(ref pi);
-            }
-            catch (WarningException)
-            {
-                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
-                Assert.Ignore();                
-            }
-            //should decrypt secret token
-            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            //ignore on machines, where pkey is different - cannot decrypt the securetoken
             
+            if (pi.securetoken == null)
+            {
+                Console.WriteLine("Ignoring test B2DROP");
+                Assert.Ignore();
+            }                
+            Console.WriteLine("Testing B2DROP");            
             var client = new JsonServiceClient(_baseUri);
             var providerlist = client.Get(new ProviderItem());            
             var providerlistwithnew = client.Put(pi);
@@ -337,8 +228,7 @@ namespace MetadataServiceTest
             {
                 alias = "dropbox_test",
                 type = "Dropbox",
-                securetoken =
-                    "dmFncmFudEX+37yxPbbSDfjkeDjBmkbcWhZ47fNWLjQnpNnfAV38Gm/NeRZA7199SLzaJekuV//2tdyJRoR19Qc8EZAcvqbjwI6dtlXymSF5OlssD3e9XdYdXEM5b//D2dg6nuYOrMt/24iQ6KIasRSIn3wGNn12sawI73nc00KbwlX5NFJ5/urb/qgczBhO5h7v+0VFLQ==",                
+                securetoken = System.Environment.GetEnvironmentVariable("VF_TEST_DROPBOX_TOKEN"),                                      
                 loggeduser="vagrant"
             };
             return pi;
@@ -348,18 +238,14 @@ namespace MetadataServiceTest
         public void DecryptSecretsRegisterDropboxTestCase()
         {
             var pi = createTestDropboxProviderItem();
-            try
-            {                                                                
-                SettingsStorageInDB.decrypt(ref pi);
-            }
-            catch (WarningException)
-            {
-                //ignore on machines, where pkey is different - cannot decrypt the securetoken 
-                Assert.Ignore();                
-            }
-            //should decrypt secret token
-            Assert.False(pi.securetoken.StartsWith("dmFncm"));
+            //ignore on machines, where pkey is different - cannot decrypt the securetoken
             
+            if (pi.securetoken == null)
+            {
+                Console.WriteLine("Ignoring Dropbox");
+                Assert.Ignore();
+            }   
+            Console.WriteLine("Testing Dropbox");
             var client = new JsonServiceClient(_baseUri);
             var providerlist = client.Get(new ProviderItem());            
             var providerlistwithnew = client.Put(pi);

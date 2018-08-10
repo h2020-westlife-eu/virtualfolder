@@ -52,6 +52,7 @@ export class Dataset {
       }
     ]};
     this.submission = {data: {firstName: 'Tomas', lastName: 'Kulhanek'}};
+    this.initialmetadata = "{}";
     this.initialdocument="document  \n\
     prefix dataset <"+window.location.href+"> \n\
     entity (e1, dataset:data) \n\
@@ -94,6 +95,7 @@ endDocument";
     this.id = 0;
     this.showlist = false;
     this.initialdocument = this.initdocument(file);
+    this.initialmetadata = "{}";
   }
 
 
@@ -123,6 +125,14 @@ endDocument";
       readOnly: true
     });
     this.codemirror.refresh();
+    this.codemirror2 = CodeMirror.fromTextArea(this.metadataarea, {
+      lineNumbers: true,
+      matchBrackets:true,
+      autoCloseBrackets:true,
+      mode: 'application/json',
+      lineWrapping: true
+    });
+    this.codemirror2.refresh();
   }
 
   detached() {
@@ -157,19 +167,33 @@ endDocument`;
         console.log("dataset.selectFile() metadata:",data);
         if (data) {
           this.id=data.Id;
-          this.initialdocument = data.Metadata;
-          this.pdbdataset = data.Entries;
+          this.initialdocument = data.Provenance;
+          this.initialmetadata = data.Metadata;
+          this.pdbdataset = data.Entries; //list of string
+          //console.log("dataset.selectFile() entries",this.pdbdataset);
+          for (let i=0;i<this.pdbdataset.length;i++) {//;if (0;i<) let dataitem of this.pdbdataset){
+            let corrected = this.pdbdataset[i].replace(/([^:{},]*):([^,}{]*)/gi, '"$1":"$2"');
+            //console.log("corrected:",corrected);
+            this.pdbdataset[i] = JSON.parse(corrected);
+          } 
+          //console.log("dataset.selectFile() converted entries",this.pdbdataset);
+          if (!this.pdbdataset) this.pdbdataset =[];
         }else{
           this.createnewdataset(file);
           
         }
         this.codemirror.setValue(this.initialdocument);
         this.codemirror.refresh();
+        this.codemirror2.setValue(this.initialmetadata);
+        this.codemirror2.refresh();
         }
       ).catch(errorCallback =>{
+        console.log("error catched",errorCallback);
         this.createnewdataset(file);
         this.codemirror.setValue(this.initialdocument);
         this.codemirror.refresh();
+        this.codemirror2.setValue(this.initialmetadata);
+        this.codemirror2.refresh();
       });
     }
   }
@@ -222,6 +246,7 @@ endDocument`;
     this.pa.getDataset(this.name).then(data=>    {
       this.submitdataset = data;
       this.pdbdataset = this.submitdataset.Entries;
+      if (!this.pdbdataset) this.pdbdataset = [];
       this.name = this.submitdataset.Name;
       this.id = this.submitdataset.Id;
       this.showlist = false;
@@ -235,7 +260,8 @@ endDocument`;
     this.submitdataset.Id = this.id;
     this.submitdataset.Name = this.name;
     this.submitdataset.Entries = this.pdbdataset;
-    this.submitdataset.Metadata = this.codemirror.getValue();
+    this.submitdataset.Provenance = this.codemirror.getValue();
+    this.submitdataset.metadata =  this.codemirror2.getValue();
     console.log("dataset",this.submitdataset);
     this.pa.addDataset(this.id,this.submitdataset)
         .then(data =>{

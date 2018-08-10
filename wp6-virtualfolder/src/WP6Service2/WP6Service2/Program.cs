@@ -182,13 +182,13 @@ namespace MetadataService
             {
                 var dbsettings = SettingsStorageInDB.getDBSettings(db);
                 var version = new Version(dbsettings.VirtualFolderVersion);
-                if (version.Build < 6768)
+                if (version.Build < 6796)
                 {
                     //remove all datasets and create new dataset table
                         db.DropAndCreateTable<Dataset>();
                     //db.AddColumn(typeof(Dataset),"s");
-                        db.DropAndCreateTable<DatasetEntry>();
-                        db.DropAndCreateTable<DatasetEntries>();
+                        db.DropTable<DatasetEntry>();
+                        db.DropTable<DatasetEntries>();
                     //update version of db
                     SettingsStorageInDB.storeSetting(db);
                 }

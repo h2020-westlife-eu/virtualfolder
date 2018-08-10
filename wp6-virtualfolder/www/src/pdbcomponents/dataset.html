@@ -42,6 +42,8 @@
           <td><a href.bind="datasetfile.publicwebdavuri">${datasetfile.publicwebdavuri}</a></td>
         </tr>
       </table>
+      <label>Free text metadata</label>
+      <textarea ref="metadataarea" value.bind="initialmetadata"></textarea>
     </hideable>
     <hideable title="related entries from public databases (PDB,Uniprot,...)">
       <div>
