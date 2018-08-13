@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using MetadataService;
 using MetadataService.Services.Files;
 using ServiceStack.Common.Web;
 using ServiceStack.DataAnnotations;
@@ -236,13 +237,17 @@ namespace WP6Service2.Services.Dataset
             dto.Owner =  (string) Request.Items["userid"];
             Db.Insert(dto);
             dto.Id = Db.GetLastInsertId();
+            Addscript(dto.Name, dto.Id);
             return dto;
         }
+
+
 
         private Dataset UpdateExisting(Dataset dto)
         {
             dto.Owner =  (string) Request.Items["userid"];
             Db.Update(dto);
+            Addscript(dto.Name, dto.Id);
             return dto;
         }
 
@@ -250,16 +255,57 @@ namespace WP6Service2.Services.Dataset
         {
             try
             {
-                var owner = (string) Request.Items["userid"];
+                var owner = (string) Request.Items["userid"];                
                 if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
-                    Db.DeleteById<Dataset>(dto.Id);                
-                else
+                {
+                    var name = Db.First<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Name;
+                    Db.DeleteById<Dataset>(dto.Id);
+                    Deletescript(name);
+                } else
                     throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);                
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
             {
                 throw new UnauthorizedAccessException();
             }
+        }
+        private const string Vfscriptsdirvariable = "VF_SCRIPTS_DIR";
+        private static readonly string Scriptsdir = Environment.GetEnvironmentVariable(Vfscriptsdirvariable) != null
+            ? Environment.GetEnvironmentVariable(Vfscriptsdirvariable)
+            : "/opt/virtualfolder/scripts/";
+        private static readonly string Mountscript = Scriptsdir+"addProvHeader.sh";
+        
+        //execute script to add apache rule for Link header
+        private void Addscript(string dtoName, long dtoId)
+        {
+            int exitcode;
+            string url = Program.contextpath + "dataset/" + dtoId + "/provenance";
+            string output = Utils.ExecuteShell("/bin/bash", new[]
+            {
+                //"-H -u vagrant", 
+                //TODO make path of mountb2drop script configurable
+                Mountscript,
+                "add",
+                dtoName,
+                url
+            }, out exitcode);
+            Console.WriteLine(output);                        
+        }
+        
+        //execute script to remove apache rule for Link header
+        private void Deletescript(string dtoName)
+        {
+            int exitcode;
+            //string url = Program.contextpath + "dataset/" + dtoId + "/provenance";
+            string output = Utils.ExecuteShell("/bin/bash", new[]
+            {
+                //"-H -u vagrant", 
+                //TODO make path of mountb2drop script configurable
+                Mountscript,
+                "remove",
+                dtoName                
+            }, out exitcode);
+            Console.WriteLine(output);                        
         }
     }
 }

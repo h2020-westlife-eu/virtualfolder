@@ -256,6 +256,6 @@ export class ProjectApi {
   }
 
   getFileHead(filepath) {
-    return this.head(this.fileserviceurl+'/'+filepath);
+    return filepath.startsWith("/")?this.head(this.fileserviceurl+filepath):this.head(this.fileserviceurl+"/"+filepath);
   }
 }

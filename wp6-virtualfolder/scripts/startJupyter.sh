@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HTTPD_CONF="/etc/httpd/conf.d/wp6-repository.conf"
+HTTPD_CONF="/etc/httpd/conf.d/jupyter.conf"
 HTTPD_SERVICE="httpd"
 
 function help {
