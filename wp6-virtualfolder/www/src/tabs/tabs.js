@@ -18,12 +18,18 @@ export class Tabs {
         //this.id = el.id;
         this.element= el;
         this.ea=ea;
+        this.showspecial = false;
     }
     
     attached(){
-      this.s1=this.ea.subscribe(VisualizeFile, msg => this.selectVisualize(msg.file,msg.senderid));
-      this.s2=this.ea.subscribe(EditFile, msg => this.selectEdit(msg.file,msg.senderid));
-      this.s3=this.ea.subscribe(SelectedMetadata, msg => this.selectMetadata(msg.file,msg.senderid));
+      //will switch the tab according of what message is received
+      //visualize ==[2]
+      //edit ==[1]
+      //metadata == [3]
+      this.s1=this.ea.subscribe(VisualizeFile, msg => this.selectTab(2,msg.file,msg.senderid,false));
+      this.s2=this.ea.subscribe(EditFile, msg => this.selectTab(1,msg.file,msg.senderid,false));
+      this.s3=this.ea.subscribe(SelectedMetadata, msg => this.selectTab(3,msg.file,msg.senderid,true));
+      //this.s4=this.ea.subscribe(SpecialTab, msg => this.specialTab(msg.name,msg.senderid));
     }
     detached(){
       this.s1.dispose();
@@ -38,53 +44,28 @@ export class Tabs {
       //this.tabs[]
     }
 
-    //visualize ==[2]
-    selectVisualize(file,senderid){
-      //just switch the tab
-      //console.log("selectVisualize senderid:"+senderid)
-      if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
-        this.activeid.active = false;
-
-        this.activeid=this.tabs[2];
-        //new active tab is active
-        this.activeid.active=true;
-      }
-    }
-//edit ==[1]
-    selectEdit(file,senderid) {
-      /*console.log("selectEdit senderid:"+senderid)
-      console.log(this.tabs);
-      console.log(this.activeid);*/
-      if (!this.activeid.id.startsWith(senderid)) { //TODO presumes active.id = "left.list" "left.view" .. has suffix with senderid
-        this.activeid.active = false;
-
-        this.activeid=this.tabs[1];
-        //new active tab is active
-        this.activeid.active=true;
-      }
-
-    }
-//metadata == [3]
-  selectMetadata(file,senderid) {
-
+  selectTab(tabid,file,senderid,shouldbubble) {
+    //this.showspecial = false; //other message = disable special tab
     if (!this.activeid.id.startsWith(senderid)) {
       this.activeid.active = false;
-      this.activeid=this.tabs[3];
-      //new active tab is active
+      this.activeid=this.tabs[tabid];
       this.activeid.active=true;
-      //bubble to panel
+      //buble
+      if (shouldbubble) 
       this.ea.publish(new SelectedTab(this.activeid.id));
     }
+  }
+  
+  specialTab(name,senderid){
+      this.showspecial=true;
   }
 
     opentab(tabid){
       //old active tab is not active anymore
       this.activeid.active = false;
-
       this.activeid=tabid;
-      //new active tab is active
       this.activeid.active=true;
-        //console.log("Tabs selected:"+this.activeid);
-        this.ea.publish(new SelectedTab(this.activeid.id));
+      //console.log("Tabs selected:"+this.activeid);
+      this.ea.publish(new SelectedTab(this.activeid.id));
     }
 }

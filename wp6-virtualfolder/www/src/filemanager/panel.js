@@ -17,9 +17,11 @@ export class Panel {
         //this.pid = new Date().valueOf();
         this.selectedView=this.selectedVisual=this.selectedDataset=false;
         this.selectedList=true;
+        this.showprovenance = false;
+        this.provenancelink = "";
     }
     attached(){
-      this.s1=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid));
+      this.s1=this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file,msg.senderid,msg.linkheader));
       this.s2=this.ea.subscribe(SelectedTab, msg => this.selectTab(msg.tabid));
     }
     detached(){
@@ -50,22 +52,33 @@ export class Panel {
         }
     }
 
-    selectFile(file,senderid) {
+    selectFile(file,senderid,linkheader) {
+      console.log("selectFile(), linkheader value:",linkheader);
       //default action, visualize pdb, if localStorage.getItem("visualizepdb") is defined then it needs to be true,
       let showpdb = (file.webdavuri.endsWith('pdb') || file.webdavuri.endsWith('ent') || file.webdavuri.endsWith('cif')) ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
-      if (senderid!=this.pid) {
-        if (this.selectedDataset) { //add to dataset
+      if (senderid!=this.pid) { //perform action on second panel
+        this.showprovenance = (typeof linkheader !== 'undefined');
+        console.log("Link header",linkheader);
+        console.log("showprovenanceLink header",linkheader);
+        if (this.showprovenance) {
+          console.log("Link header is available",linkheader);
+          this.provenancelink = linkheader.split('<').pop().split('>').shift();
+        }
+        
+        if (this.selectedDataset) { //dataset tab is active
           this.ea.publish(new DatasetFile(file,senderid));
         }
-        else //visualize/show file
-        if (showpdb) {
-          //visualize
-          this.selectTab(this.ids[2]);
-          this.ea.publish(new VisualizeFile(file,senderid));
-        } else {
-          //edit/raw view
-          this.selectTab(this.ids[1]);
-          this.ea.publish(new EditFile(file,senderid));
+        else //dataset tab is not active - thus probably visualize/show file
+        {
+          if (showpdb) {
+            //visualize
+            this.selectTab(this.ids[2]);
+            this.ea.publish(new VisualizeFile(file, senderid));
+          } else {
+            //edit/raw view
+            this.selectTab(this.ids[1]);
+            this.ea.publish(new EditFile(file, senderid));
+          }
         }
       }
     }

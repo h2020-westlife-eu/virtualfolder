@@ -3,9 +3,11 @@
  */
 
 export class SelectedFile {
-  constructor(file,senderid){
+  constructor(file,senderid,linkheader){
     this.file = file;
     this.senderid = senderid;
+    this.linkheader = linkheader
+    console.log("SelectedFile(), linkheader:",this.linkheader);
   }
 }
 

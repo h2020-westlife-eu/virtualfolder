@@ -142,8 +142,8 @@ endDocument";
   }
   
   initdocument(file){
-    let datasetrow= file ? ("prefix dataset <" + window.location.protocol + "//" + window.location.host + file.publicwebdavuri + "> \n") : "";
-    let entityrow = file ? ("entity (dataset:, [prov:label=\"" + file.name + "\", prov:type=\"document\"]) \n") : "";
+    let datasetrow= file ? ("prefix datafile <" + window.location.protocol + "//" + window.location.host + file.publicwebdavuri + "> \n") : "";
+    let entityrow = file ? ("entity (datafile:, [prov:label=\"" + file.name + "\", prov:type=\"document\"]) \n") : "";
     return  `document    
     prefix virtualfolder <https://portal.west-life.eu/virtualfolder/>
     ${datasetrow}
@@ -152,7 +152,7 @@ endDocument";
     prefix user <${this.pa.userinfo.AccountLink}>
     ${entityrow}    
     agent (user:${this.pa.userinfo.username}, [ prov:type="prov:Person" ]) 
-    wasAttributedTo(dataset:, user:${this.pa.userinfo.username}) 
+    wasAttributedTo(datafile:, user:${this.pa.userinfo.username}) 
 endDocument`;
   }
 

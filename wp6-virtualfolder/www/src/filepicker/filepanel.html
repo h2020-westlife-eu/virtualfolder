@@ -8,7 +8,7 @@
       <uniprotpanel panelid="panelid" if.bind="isUniprot"></uniprotpanel>
 
 
-      <span class="w3-padding-tiny">${path} contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+      <span class="w3-padding-tiny"><i>${path}</i> contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
         <img class="w3-display-position" show.bind="lock" src="../../img/vfloader.gif"/>
         <div class="w3-clear"></div>
 
@@ -52,6 +52,7 @@
             </tbody>
           <thead show.bind="!isFiles">
           <tr>
+            <th></th>
             <th style="text-align:left" >name</th>
             <th colspan="3" style="text-align:left;width:100%">info</th>
             <th title="information icons">i</th>
@@ -62,6 +63,7 @@
 
             <!-- Files/resources from third party storages -->
             <tr class="w3-hover-green" repeat.for="resource of resources">
+              <td><ifolder if.bind="resource.isdir"></ifolder><ifile if.bind="! resource.isdir"></ifile></td>
               <td  click.trigger="selectResource(resource)">${resource.name}</td>
               <td  click.trigger="selectResource(resource)" colspan="3">${resource.info}</td>
               <td class="w3-tiny">

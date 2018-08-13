@@ -23,13 +23,14 @@ export class Filepanel {
     this.ea = ea;
     this.pa = pa;
     this.files = [];
+    //this.dirs = [];
     this.path = "";
     this.lastpath = this.path;
     this.dynatable = {};
     this.sorted = {none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16}
     this.wassorted = this.sorted.none;
-    this.baseresources = [{name: "PDB", info: "Protein Data Bank repository entries from ebi.ac.uk", id: "pdb"}]
-    this.resources = [];
+    this.baseresources = [{name: "PDB", info: "Protein Data Bank repository", id: "pdb",isdir:true}]
+    this.resources = this.baseresources; //[];
     //this.ea.subscribe(PopulateResources, msg => this.populateResource(msg.resources,msg.senderid));
     this.filescount = this.files.length + this.resources.length;
     this.isPdb = this.isUniprot = false;
@@ -41,7 +42,8 @@ export class Filepanel {
 
   bind() {
     this.path = Vfstorage.getValue("filepanel" + this.panelid, "");
-    if (this.path == "") this.resources = this.baseresources;
+    if (this.path === "" || this.path==="/") this.resources = this.baseresources;
+    else this.resources =  [];
     //localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
     this.lastpath = "";
   }
@@ -75,7 +77,10 @@ export class Filepanel {
   }
 
   addUpDir() {
-    this.files.unshift({name: "..", nicesize: "UP-DIR", date: "", available: true,isdir:true}); //up dir item
+    if (this.currentdir) 
+      this.files.unshift({name: "..", nicesize: "UP-DIR", date: this.currentdir.date, available: true,isdir:true,webdavuri:this.currentdir.webdavuri,publicwebdavuri:this.currentdir.publicwebdavuri}); //up dir item
+    else
+      this.files.unshift({name: "..", nicesize: "UP-DIR", isdir:true}); //up dir item
   }
 
   sortByName() {
@@ -156,6 +161,7 @@ export class Filepanel {
 
   //removes last subdirectory
   cdup() {
+    //this.dirs.pop();
     this.lastpath = this.path;
     let sepIndex = this.path.lastIndexOf('/');
     this.path = this.path.substring(0, sepIndex);
@@ -163,13 +169,15 @@ export class Filepanel {
   }
 
   //adds subdirectory to the path
-  cddown(subdir) {
+  cddown(subdir,dir) {
+    //this.dirs.push(dir);
     this.lastpath = this.path;
     this.path += '/' + subdir;
     this.resources = [];
   }
 
   cdroot() {
+    //this.dirs = [];
     this.lastpath = this.path;
     this.path = "";
     this.resources = this.baseresources;
@@ -185,13 +193,13 @@ export class Filepanel {
 
 
   //change folder, reads the folder content and updates the table structure
-  changefolder(folder) {
+  changefolder(folder,dir) {
     if (!this.lock) {
       this.lock = true;
       if (folder) {
         if (folder == '..') this.cdup();
         else if (folder == '/') this.cdroot();
-        else this.cddown(folder);
+        else this.cddown(folder,dir);
       }
       this.pa.getFiles(this.path)
         .then(data => {
@@ -235,13 +243,14 @@ export class Filepanel {
         arr[index].attributes = 16;
         arr[index].date = "";
         arr[index].filetype = 8;
+        arr[index].nicesize = "VF-DIR";arr[index].isdir =true;
       }
       //console.log(arr[index]);
       arr[index].ext = that.extension(arr[index].name); //may return undefined
       arr[index].nicedate = that.dateTimeReviver(null, arr[index].date);
       if (!arr[index].ext) arr[index].ext = "";
       arr[index].available = !!(arr[index].filetype & 8); //available if the filetype attribute contains flag 8
-      if (arr[index].attributes & 16) { arr[index].nicesize = "DIR";arr[index].isdir =true; }
+      if (arr[index].attributes & 16)   { if (!arr[index].nicesize) {arr[index].nicesize = "DIR";arr[index].isdir =true;} }
       else {
         arr[index].isdir =false;
         //convert to 4GB or 30MB or 20kB or 100b
@@ -260,17 +269,20 @@ export class Filepanel {
 
   selectFile(file) {
     //console.log("selectFile("+file+") panelid:"+this.panelid);
-    if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
+    if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name,file);
     else {
-
       //HEAD the file - so it can be obtained - cached by metadata service, fix #45
       //let fileurl = this.serviceurl + this.path + '/' + file.name
       if (this.path) //path exists -standard file
       this.pa.getFileHead(this.path + '/' + file.name)
         .then(response => {
-            //console.log('file head'+fileurl);
-            //console.log(response);
-            this.ea.publish(new SelectedFile(file, this.panelid));
+            //console.log('file head response',response);
+            console.log('filepanel() head response headers has(Link)?',response.headers.has("Link"));
+            console.log('get(link)',response.headers.get("Link"));
+            if (response.headers.has("Link"))
+              this.ea.publish(new SelectedFile(file, this.panelid, response.headers.get("Link")));
+            else
+              this.ea.publish(new SelectedFile(file, this.panelid));
           }
         ).catch(error => {
         console.log("Error when geting metadata information about file:");
