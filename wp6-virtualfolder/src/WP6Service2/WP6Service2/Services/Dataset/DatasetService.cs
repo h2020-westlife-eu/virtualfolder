@@ -237,7 +237,8 @@ namespace WP6Service2.Services.Dataset
             dto.Owner =  (string) Request.Items["userid"];
             Db.Insert(dto);
             dto.Id = Db.GetLastInsertId();
-            Addscript(dto.Name, dto.Id);
+            if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
+            else Addscript(dto.Name, dto.Id);
             return dto;
         }
 
@@ -247,7 +248,8 @@ namespace WP6Service2.Services.Dataset
         {
             dto.Owner =  (string) Request.Items["userid"];
             Db.Update(dto);
-            Addscript(dto.Name, dto.Id);
+            if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
+            else Addscript(dto.Name, dto.Id);
             return dto;
         }
 

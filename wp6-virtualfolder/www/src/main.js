@@ -27,4 +27,10 @@ export function configure(aurelia) {
   }
 
   aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('app')));
+  //hack include other static pages in webpack bundle
+  PLATFORM.moduleName('provenance/main');
+  PLATFORM.moduleName('syncsetting/main');
+  PLATFORM.moduleName('uploaddirpicker/main');
+  PLATFORM.moduleName('filepicker/main');
+
 }

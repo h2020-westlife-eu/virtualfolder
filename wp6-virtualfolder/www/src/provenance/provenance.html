@@ -1,0 +1,17 @@
+<template>
+  <require from="codemirror/lib/codemirror.css"></require>
+  <require from="codemirror/theme/eclipse.css"></require>
+  <hideable title="provenance">
+
+    <span>Provenance
+
+      <button class="w3-round-medium w3-green" type="button" click.delegate="edithere()">Edit</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()" title="pop up window with PROV-N editor">Edit in PROV-N editor</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="getprovstoresvg()">Visualize</button>
+      <!--button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Export to ProvStore</button-->
+      </span>
+    <textarea ref="contentarea" value.bind="provenance"></textarea>
+    <div ref="provvis"></div>
+    <br/>
+  </hideable>
+</template>

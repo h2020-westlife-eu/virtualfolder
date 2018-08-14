@@ -245,6 +245,7 @@ export class Filepanel {
         arr[index].filetype = 8;
         arr[index].nicesize = "VF-DIR";arr[index].isdir =true;
       }
+      arr[index].provenance = false;
       //console.log(arr[index]);
       arr[index].ext = that.extension(arr[index].name); //may return undefined
       arr[index].nicedate = that.dateTimeReviver(null, arr[index].date);
@@ -279,9 +280,14 @@ export class Filepanel {
             //console.log('file head response',response);
             console.log('filepanel() head response headers has(Link)?',response.headers.has("Link"));
             console.log('get(link)',response.headers.get("Link"));
-            if (response.headers.has("Link"))
-              this.ea.publish(new SelectedFile(file, this.panelid, response.headers.get("Link")));
-            else
+            if (response.headers.has("Link")) {
+              let position = this.files.map(function(e) { return e.name; }).indexOf(file.name);
+              this.files[position].provenance = true;
+              this.files[position].provenancelink=response.headers.get("Link").split('<').pop().split('>').shift();;
+              console.log("selectFile() modified file",this.files[position]);
+            }
+              //this.ea.publish(new SelectedFile(file, this.panelid, response.headers.get("Link")));
+            //else
               this.ea.publish(new SelectedFile(file, this.panelid));
           }
         ).catch(error => {

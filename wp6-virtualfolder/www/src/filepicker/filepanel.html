@@ -42,9 +42,15 @@
               <td show.bind="file.webdavuri">
                 <span  show.bind="file.available">
                 <ilink show.bind="! file.isdir" href.bind="file.webdavuri"></ilink>
-                <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri"></ilinkfolder>
+                <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri" title="Go directly to the folder"></ilinkfolder>
                 <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
-                <span click.trigger="selectMetadata(file)" title="show/edit metadata"><imetadata></imetadata></span>
+                    <span show.bind="file.provenance" class="w3-light-green">
+      <span class="w3-tiny" title="Detected provenance metadata. Click to show." click.trigger="selectMetadata(file)"><imetadata></imetadata>prov-o</span>
+      <ilinkfolder title="Go directly to provenance link" href.bind="file.provenancelink"></ilinkfolder>
+    </span>  
+                  <span show.bind="! file.provenance">
+                <i click.trigger="selectMetadata(file)" title="check metadata"><imetadata></imetadata></i>
+                    </span>
                 </span>
                 <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
               </td>

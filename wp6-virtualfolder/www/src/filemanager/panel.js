@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 2/10/17.
  */
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile,VisualizeFile,EditFile,DatasetFile} from '../filepicker/messages';
+import {SelectedFile, VisualizeFile, EditFile, DatasetFile, SelectedMetadata} from '../filepicker/messages';
 import {SelectedTab} from '../tabs/messages';
 import {bindable} from 'aurelia-framework';
 
@@ -57,13 +57,14 @@ export class Panel {
       //default action, visualize pdb, if localStorage.getItem("visualizepdb") is defined then it needs to be true,
       let showpdb = (file.webdavuri.endsWith('pdb') || file.webdavuri.endsWith('ent') || file.webdavuri.endsWith('cif')) ? (typeof(Storage) !== "undefined") ? localStorage.getItem("visualizepdb") ? localStorage.getItem("visualizepdb") === "true" : true : true : false;
       if (senderid!=this.pid) { //perform action on second panel
-        this.showprovenance = (typeof linkheader !== 'undefined');
+        /*this.showprovenance = (typeof linkheader !== 'undefined');
         console.log("Link header",linkheader);
         console.log("showprovenanceLink header",linkheader);
         if (this.showprovenance) {
           console.log("Link header is available",linkheader);
           this.provenancelink = linkheader.split('<').pop().split('>').shift();
-        }
+          this.provenancefile = file;
+        }*/
         
         if (this.selectedDataset) { //dataset tab is active
           this.ea.publish(new DatasetFile(file,senderid));
@@ -82,4 +83,5 @@ export class Panel {
         }
       }
     }
+    
 }

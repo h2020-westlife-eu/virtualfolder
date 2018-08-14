@@ -96,6 +96,9 @@ endDocument";
     this.showlist = false;
     this.initialdocument = this.initdocument(file);
     this.initialmetadata = "{}";
+    this.codemirror.setValue(this.initialdocument);
+    this.codemirror.refresh();
+    this.nometadata= false;
   }
 
 
@@ -111,7 +114,7 @@ endDocument";
   //adds listener for
   window.addEventListener("message", this.receiveMessage, false);
 
-  this.initialdocument=this.initdocument();
+  this.initialdocument="";//this.initdocument();
     //this.s1=this.ea.subscribe(DatasetFile, msg => this.addDatasetFile(msg.file,msg.senderid));
     //this.s2 = this.ea.subscribe(SelectedFile, msg => this.selectFile(msg.file, msg.senderid));
     this.s3 = this.ea.subscribe(SelectedMetadata, msg => this.selectFile(msg.file, msg.senderid));
@@ -155,9 +158,12 @@ endDocument";
     wasAttributedTo(datafile:, user:${this.pa.userinfo.username}) 
 endDocument`;
   }
+  
+  emptyinitialdocument(file){
+    this.nometadata= true; this.nometadatafile=file; this.initialdocument="";
+  }
 
   selectFile(file, senderid) {
-
     this.id = 0;
     if (this.panelid !== senderid) {
       this.datasetfile=file;
@@ -166,6 +172,7 @@ endDocument`;
       this.pa.getDatasetByName(this.name).then(data => {
         console.log("dataset.selectFile() metadata:",data);
         if (data) {
+          this.nometadata = false;
           this.id=data.Id;
           this.initialdocument = data.Provenance;
           this.initialmetadata = data.Metadata;
@@ -179,8 +186,7 @@ endDocument`;
           //console.log("dataset.selectFile() converted entries",this.pdbdataset);
           if (!this.pdbdataset) this.pdbdataset =[];
         }else{
-          this.createnewdataset(file);
-          
+          this.emptyinitialdocument(file);
         }
         this.codemirror.setValue(this.initialdocument);
         this.codemirror.refresh();
@@ -189,13 +195,18 @@ endDocument`;
         }
       ).catch(errorCallback =>{
         console.log("error catched",errorCallback);
-        this.createnewdataset(file);
+        //this.createnewdataset(file);
+        this.emptyinitialdocument(file);
         this.codemirror.setValue(this.initialdocument);
         this.codemirror.refresh();
         this.codemirror2.setValue(this.initialmetadata);
         this.codemirror2.refresh();
       });
     }
+  }
+  
+  generateprovn(){
+    this.createnewdataset(this.nometadatafile);
   }
 
   unselectdataset(item) {
@@ -272,8 +283,13 @@ endDocument`;
           alert('Sorry. Dataset not submitted . Error:' + error.statusText);
         });
   }
+  
+  edithere(){
+    this.codemirror.setOption("readOnly",false);
+  }
 
   editprovn(){
+    this.initialdocument=this.codemirror.getValue();
     this.docencoded = btoa(this.initialdocument);
     return this.openwindow("editor/index.html#contentBase64="+this.docencoded);
   }
@@ -312,7 +328,7 @@ endDocument`;
     let opu = 'https://openprovenance.org/services/provapi/documents/'
     this.pa.postTextLog(opu,formdata).then(response=>{
       //response is svg?
-      console.log("getprovstoresvg()",response);
+      //console.log("getprovstoresvg()",response);
       this.provvis.innerHTML = response;
     });
   }

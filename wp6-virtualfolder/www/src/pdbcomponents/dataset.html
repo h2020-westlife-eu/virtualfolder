@@ -39,7 +39,11 @@
         </tr>
         <tr>
           <td>public url</td>
-          <td><a href.bind="datasetfile.publicwebdavuri">${datasetfile.publicwebdavuri}</a></td>
+          <td><a href.bind="datasetfile.publicwebdavuri" target="_blank">${datasetfile.publicwebdavuri}</a></td>
+        </tr>
+        <tr show.bind="datasetfile.provenance">
+          <td>provenance link</td>
+          <td><a href.bind="datasetfile.provenancelink" target="_blank">${datasetfile.provenancelink}</a></td>
         </tr>
       </table>
       <label>Free text metadata</label>
@@ -65,12 +69,17 @@
     </hideable>
 
     <hideable title="provenance">
-      <textarea ref="contentarea" value.bind="initialdocument"></textarea>
-      <br/>
-      <div ref="provvis"></div>
-      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()">Edit in PROV-N editor</button>
-      <button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Export to ProvStore</button>
+      <span show.bind="nometadata">No specific provenance for this file. <button class="w3-round-medium w3-green" click.delegate="generateprovn()">Generate</button></span>
+      <span show.bind="! nometadata">Provenance stored in VF.
+      
+      <button class="w3-round-medium w3-green" type="button" click.delegate="edithere()">Edit</button>  
+      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()" title="pop up window with PROV-N editor">Edit in PROV-N editor</button>
       <button class="w3-round-medium w3-green" type="button" click.delegate="getprovstoresvg()">Visualize</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Export to ProvStore</button>
+      </span>
+      <textarea ref="contentarea" value.bind="initialdocument"></textarea>
+      <div ref="provvis"></div>
+      <br/>
     </hideable>
     <br/>
     <button class="w3-right-align w3-round-medium w3-green" type="button" click.delegate="submit()">Save metadata</button>
