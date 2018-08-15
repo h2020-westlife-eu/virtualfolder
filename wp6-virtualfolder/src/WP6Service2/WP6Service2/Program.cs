@@ -116,8 +116,8 @@ namespace MetadataService
                 //sets URL context to /metadataservice
                 SetConfig(new EndpointHostConfig
                 {
-                    ServiceStackHandlerFactoryPath = "metadataservice",
-                    WebHostUrl = "/metadataservice"
+                    ServiceStackHandlerFactoryPath = "",
+                    WebHostUrl = "/"
                 });
                 // initialize some basic data in db
                 using (var db = container.Resolve<IDbConnectionFactory>().Open())

@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace MetadataService.Services.Files
 {
@@ -8,7 +10,7 @@ namespace MetadataService.Services.Files
         /// <summary>
         ///     Executes Shell command or script
         /// </summary>
-        public static string ExecuteShell(string shellcommand, string[] args, out int exitcode)
+        public static string ExecuteShell(string shellcommand, string[] args, out int exitcode,bool errortooutput=true,bool useshellexecute=false)
         {
             var psi = new ProcessStartInfo
             {
@@ -19,22 +21,30 @@ namespace MetadataService.Services.Files
             };
             foreach (var arg in args)
                 psi.Arguments += arg + " ";
+            
+            Console.WriteLine("Utils.ExecuteShell() arguments:"+psi.Arguments);
             var p = Process.Start(psi);
             var output = p.StandardOutput.ReadToEnd();
-            output += p.StandardError.ReadToEnd();
+            if (errortooutput) output += p.StandardError.ReadToEnd();
             p.WaitForExit();
             exitcode = p.ExitCode;
             return output;
         }
 
-        public static string ExecuteShell(string shellcommand, string[] args)
+        public static string ExecuteShell(string shellcommand, string[] args,bool errortooutput)
         {
             int exitcode;
-            var output = ExecuteShell(shellcommand, args, out exitcode);
-            output += "Exit code " + exitcode;
+            var output = ExecuteShell(shellcommand, args, out exitcode,errortooutput);
+            if (errortooutput) output += "Exit code " + exitcode;
             return output;
         }
 
+        public static string ExecuteShell(string shellcommand, string[] args)
+        {
+            return ExecuteShell(shellcommand, args, true);
+        }
+
+        
         /// <summary>
         ///     Copies the contents of input to output. Doesn't close either stream.
         /// </summary>

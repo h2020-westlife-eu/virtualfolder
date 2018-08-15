@@ -39,7 +39,7 @@
               <td class="w3-tiny" click.trigger="selectFile(file)">${file.ext}</td>
               <td click.trigger="selectFile(file)">${file.nicesize}</td>
               <td click.trigger="selectFile(file)">${file.nicedate}</td>
-              <td show.bind="file.webdavuri">
+              <td show.bind="file.webdavuri" style="white-space: nowrap">
                 <span  show.bind="file.available">
                 <ilink show.bind="! file.isdir" href.bind="file.webdavuri"></ilink>
                 <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri" title="Go directly to the folder"></ilinkfolder>

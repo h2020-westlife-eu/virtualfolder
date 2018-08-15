@@ -90,6 +90,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Dataset\DatasetService.cs" />
+    <Compile Include="Services\Dataset\ProvStoreProxyService.cs" />
     <Compile Include="Services\Files\ApacheUrlGenerator.cs" />
     <Compile Include="Services\Files\B2DropProvider.cs" />
     <Compile Include="Services\Files\DropboxProvider.cs" />

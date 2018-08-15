@@ -13,6 +13,7 @@ import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/javascript/javascript';
 import * as LZString from '../components/lz-string';
 import {Vfstorage} from "../components/vfstorage";
+import {HttpClient} from "aurelia-http-client";
 
 const  removewebdavprefix = (x) => {x.startsWith('/webdav/')?x.slice(0,8):x}; 
 
@@ -21,13 +22,14 @@ const  removewebdavprefix = (x) => {x.startsWith('/webdav/')?x.slice(0,8):x};
  *
  */
 export class Dataset {
-  static inject = [ProjectApi, EventAggregator];
+  static inject = [ProjectApi, EventAggregator,HttpClient];
   @bindable panelid;
 
-  constructor(pa, ea) {
+  constructor(pa, ea,client) {
     this.popup=null;
     this.pa = pa;
     this.ea = ea;
+    this.oldclient=client;
     this.showitem = true;
     this.baseurl =
     this.showlist = true;
@@ -297,25 +299,80 @@ endDocument`;
   storevf(){
     this.submit();
   }
-
   submitprovstore(){
-//data=
+    this.submitprovstoreproxy();
+  }
+  submitprovstoreproxy(){
+    //sending via proxy - dataservice backend - no cors
+    let apikey = Vfstorage.getValue("provstoreapikey",null);
+    let username= Vfstorage.getValue("provstoreusername",null);
+    if (apikey) {
+      let url = "api/provstoredataset";
+      let datatosend = {
+        Name: this.name,
+        Document: this.codemirror.getValue(),
+        ProvStoreUserName: username,
+        ProvStoreApiKey: apikey
+      }
+      /*  public class ProvStoreProxyDTO
+      {
+        public string Name { get; set; }
+      public string Document { get; set; }
+      public string ProvStoreUserName { get; set; }
+      public string ProvStoreApiKey
+      */
+      this.pa.postJsonLog(url, datatosend).then(response=>{
+        console.log("submitprovstore1() response:",response);
+      }).catch(error =>{
+        console.log(error);
+        alert('Dataset not submitted. Error:'+error);
+      });
+    }  
+  }
+
+  submitprovstoredirectly(){ 
+//Provstore doesn't accept case insensitive CORS #77
     let apikey = Vfstorage.getValue("provstoreapikey",null);
     let username= Vfstorage.getValue("provstoreusername",null);
     if (apikey) {
       let opu='https://openprovenance.org/store/api/v0/documents';
       let heads= new Headers();
-      heads.append('Content-type','application/provn');
-      heads.append('Authorization','ApiKey'+username+":"+apikey);
+      heads.append('Content-Type','text/provenance-notation');
+      heads.append('Authorization','ApiKey '+username+":"+apikey);
+      
       let body = {content:this.codemirror.getValue(),rec_id:this.name,public:"true"};
-      this.pa.postHeaderJsonLog(opu,heads,body).then(response =>
-      {
-        console.log("submitprovstore",response);
+/*      this.oldclient.configure(x =>{
+        x.withHeader('Authorization','ApiKey '+username+":"+apikey);
+        x.withHeader('Content-Type','text/provenance-notation')
+        });
+      //this.oldclient.post(opu, body)
+      // .then(response => {
+*/
+      this.pa.postHeaderJsonLog(opu,heads,body).then(response => {
+        console.log("submitprovstore1() response:",response);
       }).catch(error =>{
         console.log(error);
-        alert('Sorry. Dataset not submitted . Error:'+error);
-      })
+        alert('Dataset not submitted. Error:'+error);
+      });
+//      this.postxhr(opu, body,username, apikey);
     }
+  }
+  
+  postxhr(url,body,username,apikey){
+    let http = new XMLHttpRequest();
+    http.open('POST', url, true);
+    http.setRequestHeader('Content-type', 'text/provenance-notation');
+    http.setRequestHeader('Authorization','ApiKey '+username+":"+apikey);
+    http.onreadystatechange = function() {//Call a function when the state changes.
+      if(http.readyState === 4 && http.status === 200) {
+        
+        console.log("submitprovstore2() response:",http.responseText);
+      } else {
+        alert(http.responseText);
+        console.log("submitprovstore2() response:",http.responseText);
+      }
+    };
+    http.send(body);
   }
 
   getprovstoresvg(){
