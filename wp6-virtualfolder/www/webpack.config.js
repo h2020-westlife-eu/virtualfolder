@@ -102,7 +102,8 @@ module.exports = ({production, server, extractCss, coverage, analyze} = {}) => (
     }),
     new CopyWebpackPlugin([
       { from: 'static' },
-      { context: '../prov-n-editor/dist', from:'**/*', to: 'editor/'}]),
+      { context: '../prov-n-editor/dist', from:'**/*', to: 'editor/'},
+      { context: '../prov-n-widget/dist', from:'**/*', to: 'prov-n-widget/'}]),
     ...when(extractCss, new ExtractTextPlugin({
       filename: production ? '[contenthash].css' : '[id].css',
       allChunks: true

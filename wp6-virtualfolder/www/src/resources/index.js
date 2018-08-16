@@ -8,6 +8,7 @@ export function configure(config) {
     PLATFORM.moduleName('./istaff.html'),
     PLATFORM.moduleName('./ifile.html'),
     PLATFORM.moduleName('./ilink.html'),
+    PLATFORM.moduleName('./ilinkblank.html'),
     PLATFORM.moduleName('./ilinkfolder.html'),
     PLATFORM.moduleName('./icopy'),
     PLATFORM.moduleName('./ifolder.html'),

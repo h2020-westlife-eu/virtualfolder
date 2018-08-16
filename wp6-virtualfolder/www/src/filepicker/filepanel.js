@@ -284,6 +284,7 @@ export class Filepanel {
               let position = this.files.map(function(e) { return e.name; }).indexOf(file.name);
               this.files[position].provenance = true;
               this.files[position].provenancelink=response.headers.get("Link").split('<').pop().split('>').shift();;
+              this.files[position].provenancewidgetlink="prov-n-widget/#url="+this.files[position].provenancelink;
               console.log("selectFile() modified file",this.files[position]);
             }
               //this.ea.publish(new SelectedFile(file, this.panelid, response.headers.get("Link")));

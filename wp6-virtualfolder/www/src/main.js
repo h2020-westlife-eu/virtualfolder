@@ -6,16 +6,12 @@ import * as Bluebird from 'bluebird';
 //initializing fetch polyfill
 //import 'fetch';
 
-// remove out if you don't want a Promise polyfill (remove also from webpack.config.js)
-//Bluebird.config({ warnings: { wForgottenReturn: false } });
 Bluebird.config( { warnings: { wForgottenReturn: false }, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
-    //.plugin(PLATFORM.moduleName('aurelia-formio'))
-    //.plugin(PLATFORM.moduleName('aurelia-ace-editor'))
     .feature(PLATFORM.moduleName('resources/index'));
 
   if (environment.debug) {
@@ -28,7 +24,7 @@ export function configure(aurelia) {
 
   aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('app')));
   //hack include other static pages in webpack bundle
-  PLATFORM.moduleName('provenance/main');
+  //PLATFORM.moduleName('provenance/main');
   PLATFORM.moduleName('syncsetting/main');
   PLATFORM.moduleName('uploaddirpicker/main');
   PLATFORM.moduleName('filepicker/main');

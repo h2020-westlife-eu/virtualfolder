@@ -46,7 +46,8 @@
                 <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
                     <span show.bind="file.provenance" class="w3-light-green">
       <span class="w3-tiny" title="Detected provenance metadata. Click to show." click.trigger="selectMetadata(file)"><imetadata></imetadata>prov-o</span>
-      <ilinkfolder title="Go directly to provenance link" href.bind="file.provenancelink"></ilinkfolder>
+      <ilink title="Download provenance document" href.bind="file.provenancelink"></ilink>
+                      <ilinkblank title="Edit provenance in new tab" href.bind="file.provenancewidgetlink"></ilinkblank>
     </span>  
                   <span show.bind="! file.provenance">
                 <i click.trigger="selectMetadata(file)" title="check metadata"><imetadata></imetadata></i>
