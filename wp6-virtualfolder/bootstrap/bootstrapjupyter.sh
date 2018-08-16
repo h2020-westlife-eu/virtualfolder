@@ -2,8 +2,8 @@
 # put it to cvmfs
 # changed to anaconda
 # cd to desired directory
-DIR=`pwd`
-VERSION=18.08
+#DIR=`pwd`
+#VERSION=18.08
 #ALLOW_JUPYTER=1
 if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
 then 
