@@ -4,7 +4,7 @@
 # cd to desired directory
 DIR=`pwd`
 VERSION=18.08
-ALLOW_JUPYTER=1
+#ALLOW_JUPYTER=1
 if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
 then 
   echo Provisioning Jupyter notebook and dependencies
