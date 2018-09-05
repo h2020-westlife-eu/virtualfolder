@@ -63,9 +63,6 @@ namespace MetadataService.Services.Files
             fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", item.accessurl);
             attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", item.accessurl);            
 
-            ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-
             MountArea();
             Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
         }
@@ -263,6 +260,16 @@ namespace MetadataService.Services.Files
             httpRequest.Timeout = sockTimeout;
             httpRequest.Headers.Add("X-Auth-Token", accessToken);
             httpRequest.Method = "GET";
+            /*
+             * TODO connection to Oneprovider is not checked
+             */
+            httpRequest.ServerCertificateValidationCallback = 
+                delegate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
+                {
+                    Console.WriteLine("Ignore certificate check");
+                    return true;
+                };
+
             try
             {
                 using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
@@ -286,15 +293,6 @@ namespace MetadataService.Services.Files
             }
         }
 
-        private bool validateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
-            SslPolicyErrors policyErrors)
-        {
-            /*
-             * TODO missing implementation
-             */
-            return true;
-        }
-        
         private FileType calcFileType(JObject infos)
         {
             var type = (string) infos[OD_ATTR_TYPE];
