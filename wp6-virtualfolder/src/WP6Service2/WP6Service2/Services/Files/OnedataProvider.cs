@@ -172,8 +172,11 @@ namespace MetadataService.Services.Files
         
         private static ProviderItem AdjProvInfo(ProviderItem pItem)
         {
-            int idx = pItem.accessurl.IndexOf(':');
-            pItem.alias = idx > 0 ? pItem.accessurl.Substring(0, idx) : pItem.accessurl;
+            if (pItem.alias.Trim() == "")
+            {
+                int idx = pItem.accessurl.IndexOf(':');
+                pItem.alias = idx > 0 ? pItem.accessurl.Substring(0, idx) : pItem.accessurl;
+            }
             return pItem;
         }
 
@@ -260,16 +263,26 @@ namespace MetadataService.Services.Files
             httpRequest.Timeout = sockTimeout;
             httpRequest.Headers.Add("X-Auth-Token", accessToken);
             httpRequest.Method = "GET";
-            using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
+            try
             {
-                if (httpResponse.StatusCode != HttpStatusCode.OK)
-                    throw new OnedataClientException(httpResponse.StatusCode, url);
-
-                var streamReader = new StreamReader(httpResponse.GetResponseStream());
-                using (var jsonReader = new JsonTextReader(streamReader))
+                using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
                 {
-                    return JToken.ReadFrom(jsonReader);
+                    if (httpResponse.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new OnedataClientException(httpResponse.StatusCode, url);
+                    }
+
+                    var streamReader = new StreamReader(httpResponse.GetResponseStream());
+                    using (var jsonReader = new JsonTextReader(streamReader))
+                    {
+                        return JToken.ReadFrom(jsonReader);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot process request: "  + ex.Message + " " +ex.StackTrace);
+                throw ex;
             }
         }
 
