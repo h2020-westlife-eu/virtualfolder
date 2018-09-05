@@ -3,12 +3,25 @@
 # changed to anaconda
 # cd to desired directory
 #DIR=`pwd`
-#VERSION=18.02
+#VERSION=18.08
+#ALLOW_JUPYTER=1
 if [[ -n ${ALLOW_JUPYTER} && ${ALLOW_JUPYTER} -eq "1" ]] 
 then 
   echo Provisioning Jupyter notebook and dependencies
-  DIR=$WP6SRC
-  VERSION=jupyter
+  if [[ -n "$DIR" ]]
+  then
+    echo DIR is set to $DIR
+  else 
+    DIR=$WP6SRC
+    echo setting DIR to $DIR
+  fi
+  if [[ -n "$VERSION" ]]
+  then
+    echo VERSION is set to $VERSION
+  else 
+    VERSION=jupyter
+    echo setting VERSION to $VERSION
+  fi
 
 #sudo in case this script is executed after installation
 sudo yum install -y wget bzip2
@@ -34,7 +47,19 @@ conda install -y -c conda-forge bqplot mpld3 ipython-sql
 # jupyter nglview and ssbio
 pip install nglview ssbio
 jupyter-nbextension enable nglview --py --sys-prefix
-DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
+
+#sos polyglot notebook
+pip install sos
+pip install sos-notebook
+python -m sos_notebook.install
+jupyter labextension install jupyterlab-sos
+
+# jupyter prov-o support 
+pip install prov
+
+#link to jupyter installation
+ln -s $DIR/$VERSION /opt/jupyter
+#DIR_ESC=$(echo $DIR/$VERSION | sed 's_/_\\/_g')
 #sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyter.sh
 #sed -i -e "s/\/cvmfs\/west-life.egi.eu\/software\/jupyter\/latest/$DIR_ESC/g" $WP6SRC/scripts/startJupyterlab.sh
 
@@ -49,6 +74,20 @@ ln -s /usr/bin/mkdssp /usr/bin/dssp
 #mkdir -p /usr/local/lib/stride
 #freesasa
 #
+
+#autosklearn
+#swig 3 from sources
+wget http://prdownloads.sourceforge.net/swig/swig-3.0.12.tar.gz
+tar -xzf swig-3.0.12.tar.gz
+cd swig-3.0.12
+./configure
+make
+make install
+cd ..
+#auto-sklearn
+curl https://raw.githubusercontent.com/automl/auto-sklearn/master/requirements.txt | xargs -n 1 -L 1 pip install
+pip install auto-sklearn
+
 else
   echo Skipping Jupyter provisioning.
 fi

@@ -1,15 +1,12 @@
 /**
  * Created by Tomas Kulhanek on 1/5/17.
  */
-//import {HttpClient,json} from 'aurelia-fetch-client';
 import {ProjectApi} from "../components/projectapi";
 import {computedFrom} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSubmitted} from './messages';
 import {DropboxControl} from './dropboxcontrol';
 import {SettingsSelected} from './messages';
-import {Vfstorage} from "../utils/vfstorage";
-import {Dataitem} from "../pdbcomponents/dataitem";
 
 export class Genericcontrol {
 
@@ -32,7 +29,6 @@ export class Genericcontrol {
     //this.client=httpclient;
     this.pa =pa;
 
-    this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
     this.myHeaders = new Headers();
     this.myHeaders.append('Accept', 'application/json');
     this.myHeaders.append('Content-Type', 'application/json');
@@ -82,6 +78,7 @@ export class Genericcontrol {
     //attach parent with the instance
     //this.bindingContext.genericcontrol = this;
     //gets the status of the b2drop connection
+    this.s1 = this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
     this.dropboxauthurl = this.dropboxcontrol.authurl;
     this.pa.getProviders()
       .then(data=>{
@@ -122,6 +119,9 @@ export class Genericcontrol {
     });
     */
     this.dropboxcontrol.initialize();
+  }
+  detached(){
+    this.s1.dispose();
   }
 
   addProvider() {

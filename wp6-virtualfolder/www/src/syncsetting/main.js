@@ -1,25 +1,30 @@
 import environment from './environment';
+import {PLATFORM} from 'aurelia-pal';
+import 'babel-polyfill';
+import * as Bluebird from 'bluebird';
 
-//Configure Bluebird Promises.
-Promise.config({
-  longStackTraces: environment.debug,
-  warnings: {
-    wForgottenReturn: false
-  }
-});
+//initializing fetch polyfill
+//import 'fetch';
+
+// remove out if you don't want a Promise polyfill (remove also from webpack.config.js)
+//Bluebird.config({ warnings: { wForgottenReturn: false } });
+Bluebird.config( { warnings: { wForgottenReturn: false }, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
-    .feature('resources');
+    //.plugin(PLATFORM.moduleName('aurelia-dialog'))
+    //.plugin(PLATFORM.moduleName('aurelia-formio'))
+    //.plugin(PLATFORM.moduleName('aurelia-ace-editor'))
+    .feature(PLATFORM.moduleName('resources/index'));
 
   if (environment.debug) {
     aurelia.use.developmentLogging();
   }
 
   if (environment.testing) {
-    aurelia.use.plugin('aurelia-testing');
+    aurelia.use.plugin(PLATFORM.moduleName('aurelia-testing'));
   }
 
-  aurelia.start().then(() => aurelia.setRoot());
+  aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('syncsetting/app')));
 }

@@ -6,10 +6,10 @@
 import {HttpClient} from 'aurelia-fetch-client'; //fetch
 
 export class Pdbresource {
-  static inject = [HttpClient];
+  //static inject = [HttpClient];
 
-  constructor(httpclient) {
-    this.client=httpclient;
+  constructor() {
+    this.client=new HttpClient();
     this.requesturlpdbid="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=100&wt=json&sort=pdb_id+desc&q=pdb_id:";
     this.requesturlnums="//www.ebi.ac.uk/pdbe/search/pdb/select?rows=0&wt=json&sort=pdb_id+desc&q=pdb_id:";
     this.requesturlfiles="//www.ebi.ac.uk/pdbe/api/pdb/entry/files/";
@@ -54,23 +54,23 @@ export class Pdbresource {
     let that = this;
     
     function fetchLog(url) {
-      return that.client.fetch(url) 
+      return that.client.fetch(url, {headers:{}}) 
         .then(data => {return data});
 
     }
 
     //first level of pdb browsing generates 1* -9*
     function push1_9() {
-      resources.push({name: "..", info: "UP-DIR", id: ""});
+      resources.push({name: "..", info: "UP-DIR", id: "",isdir:true});
       for (var i = 1; i < 10; i++) {
-        resources.push({name: i + "*", info: "pdb entries begining with '" + i + "'", id: resource.id});
+        resources.push({name: i + "*", info: "pdb entries begining with '" + i + "'", id: resource.id,isdir:true});
       }
     }
 
     //second and third level of browsing generates 10* -1z* and 5a0* -5az*
     function push0_9a_z(prefix) {
       {
-        resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
+        resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name,isdir:true});
 
         //let queryurl = that.requesturlpdbid+resource.name;
 
@@ -82,7 +82,7 @@ export class Pdbresource {
               //console.log(data)
               let resources2 = [];
               if (data.response && data.response.numFound) {
-                resources2.push({name:data.responseHeader.params.q.slice(7),info:"("+data.response.numFound+")",id:resource.id})
+                resources2.push({name:data.responseHeader.params.q.slice(7),info:"("+data.response.numFound+")",id:resource.id,isdir:true})
               }
               //do callback
               callback.appendResources(resources2);
@@ -97,7 +97,7 @@ export class Pdbresource {
               //console.log(data)
               let resources2 = [];
               if (data.response && data.response.numFound>0) {
-                resources2.push({name:data.responseHeader.params.q.slice(7),info:"("+data.response.numFound+")",id:resource.id})
+                resources2.push({name:data.responseHeader.params.q.slice(7),info:"("+data.response.numFound+")",id:resource.id,isdir:true})
               }
               //do callback
               callback.appendResources(resources2);
@@ -110,7 +110,7 @@ export class Pdbresource {
     function check0_9a_z(prefix) {
       {
         console.log("check0_9a_z");
-        resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
+        resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name, isdir:true});
         let queryurl = that.requesturlpdbid+resource.name;
         that.client.fetch(queryurl,{headers:{}})
           .then(response => response.json())
@@ -120,7 +120,9 @@ export class Pdbresource {
               if (data.response && data.response.docs) {
 
                   for (let item of data.response.docs) {
-                    item.id=resource.id;item.name= item.pdb_id; item.info = item.title;resources2.push(item);
+                    item.id=resource.id;item.name= item.pdb_id; item.info = item.title;
+                    item.isdir=true;
+                    resources2.push(item);
                   }
               }
               //do callback
@@ -131,7 +133,7 @@ export class Pdbresource {
 
     function getlisttodownload(pdbid){
       console.log("getlisttodownload");
-      resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name});
+      resources.push({name: "..", info: "UP-DIR", id: resource.id,link:resource.name,isdir:true});
       let queryurl = that.requesturlfiles+pdbid;
       //get links to pdb files
       that.client.fetch(queryurl,{headers:{}})
@@ -145,6 +147,7 @@ export class Pdbresource {
                 item.id = resource.id;
                 item.name = item.url.substr(item.url.lastIndexOf("/")+1);
                 item.info = key2+":"+item.label;
+                item.isdir = false;
                 resources2.push(item);
               }
             })
@@ -154,7 +157,7 @@ export class Pdbresource {
         });
 
       //get link to pdb redo files
-      queryurl = that.pdbredourlfiles+pdbid;
+      queryurl = that.pdbredourl+pdbid+"/data.json";
 
       that.client.fetch(queryurl, {method:'head',headers:{}})
         .then(response => {
@@ -167,6 +170,7 @@ export class Pdbresource {
                 item.id = resource.id;
                 item.name = item.url.substr(item.url.lastIndexOf("/")+1);
                 item.info = "PDB REDO files "+suffix;
+                item.isdir=false;
                 resources2.push(item);
               }
           callback.appendResources(resources2);

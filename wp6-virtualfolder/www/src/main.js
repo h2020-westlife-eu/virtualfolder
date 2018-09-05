@@ -1,15 +1,32 @@
-//Configure Bluebird Promises not to throw warnings about aurelia empty promises
-Promise.config({
-  warnings: {
-    wForgottenReturn: false
-  }
-});
+import environment from './environment';
+import {PLATFORM} from 'aurelia-pal';
+import 'babel-polyfill';
+import * as Bluebird from 'bluebird';
+
+//initializing fetch polyfill
+//import 'fetch';
+
+Bluebird.config( { warnings: { wForgottenReturn: false }, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
-    .plugin('aurelia-dialog')
-    .feature('resources')
-    .developmentLogging();
-  aurelia.start().then(() => aurelia.setRoot());
+    .plugin(PLATFORM.moduleName('aurelia-dialog'))
+    .feature(PLATFORM.moduleName('resources/index'));
+
+  if (environment.debug) {
+    aurelia.use.developmentLogging();
+  }
+
+  if (environment.testing) {
+    aurelia.use.plugin(PLATFORM.moduleName('aurelia-testing'));
+  }
+
+  aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('app')));
+  //hack include other static pages in webpack bundle
+  //PLATFORM.moduleName('provenance/main');
+  PLATFORM.moduleName('syncsetting/main');
+  PLATFORM.moduleName('uploaddirpicker/main');
+  PLATFORM.moduleName('filepicker/main');
+
 }

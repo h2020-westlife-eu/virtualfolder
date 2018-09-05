@@ -3,6 +3,15 @@
  */
 
 export class SelectedFile {
+  constructor(file,senderid,linkheader){
+    this.file = file;
+    this.senderid = senderid;
+    this.linkheader = linkheader
+    console.log("SelectedFile(), linkheader:",this.linkheader);
+  }
+}
+
+export class SelectedMetadata {
   constructor(file,senderid){
     this.file = file;
     this.senderid = senderid;

@@ -27,8 +27,9 @@ chown -R apache:apache /var/www/html
 chmod -R 644 /var/www/html
 find /var/www/html -type d -exec chmod ugo+rx {} \;
 
-#add +x permission on all html files which has include directive
-chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
+##add +x permission on all html files which has include directive
+# x-bit hack no longer needed
+#chmod ugo+x `grep -rl '/var/www/html' -e "<\!--\#include"`
 
 yum -y install epel-release
 yum-config-manager --save --setopt=epel/x86_64/metalink.skip_if_unavailable=true
@@ -58,9 +59,12 @@ usermod -g davfs2 vagrant
 
 mkdir -p /opt/virtualfolder
 ln -s $WP6SRC/scripts /opt/virtualfolder/scripts
-ln -s $WP6SRC/www /opt/virtualfolder/www
-chown -R apache:apache /opt/virtualfolder/www
-chmod -R 644 /opt/virtualfolder/www
+ln -s $WP6SRC/www/dist /opt/virtualfolder/www
+#no need to ln - editor is coppied into dist folder
+#ln -s $WP6SRC/prov-n-editor /opt/virtualfolder/www/editor
+ln -s $WP6SRC/singlevre /opt/virtualfolder/singlevre
+# chown -R apache:apache /opt/virtualfolder/www
+chmod -R 755 /opt/virtualfolder/www
 
 dos2unix /opt/virtualfolder/scripts/*
 chmod ugo+x /opt/virtualfolder/scripts/*

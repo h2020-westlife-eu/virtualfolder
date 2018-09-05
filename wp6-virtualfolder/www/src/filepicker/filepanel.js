@@ -5,12 +5,12 @@
 import 'whatwg-fetch';
 import {ProjectApi} from '../components/projectapi';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SelectedFile} from './messages';
+import {SelectedFile,SelectedMetadata} from './messages';
 import {CheckedFile} from './messages';
 import {HandleLogin,MayLogout} from '../behavior';
 
 import {bindable} from 'aurelia-framework';
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from '../components/vfstorage';
 
 import {Pdbresource} from './pdbresource';
 import {Uniprotresource} from './uniprotresource';
@@ -23,13 +23,14 @@ export class Filepanel {
     this.ea = ea;
     this.pa = pa;
     this.files = [];
+    //this.dirs = [];
     this.path = "";
     this.lastpath = this.path;
     this.dynatable = {};
     this.sorted = {none: 0, reverse: 1, byname: 2, bydate: 4, bysize: 8, byext: 16}
     this.wassorted = this.sorted.none;
-    this.baseresources = [{name: "PDB", info: "Protein Data Bank repository entries from ebi.ac.uk", id: "pdb"}]
-    this.resources = [];
+    this.baseresources = [{name: "PDB", info: "Protein Data Bank repository", id: "pdb",isdir:true}]
+    this.resources = this.baseresources; //[];
     //this.ea.subscribe(PopulateResources, msg => this.populateResource(msg.resources,msg.senderid));
     this.filescount = this.files.length + this.resources.length;
     this.isPdb = this.isUniprot = false;
@@ -41,7 +42,8 @@ export class Filepanel {
 
   bind() {
     this.path = Vfstorage.getValue("filepanel" + this.panelid, "");
-    if (this.path == "") this.resources = this.baseresources;
+    if (this.path === "" || this.path==="/") this.resources = this.baseresources;
+    else this.resources =  [];
     //localStorage && (localStorage.getItem("filepanel" + this.panelid)) ? localStorage.getItem("filepanel" + this.panelid) : "";
     this.lastpath = "";
   }
@@ -75,7 +77,10 @@ export class Filepanel {
   }
 
   addUpDir() {
-    this.files.unshift({name: "..", nicesize: "UP-DIR", date: "", available: true}); //up dir item
+    if (this.currentdir) 
+      this.files.unshift({name: "..", nicesize: "UP-DIR", date: this.currentdir.date, available: true,isdir:true,webdavuri:this.currentdir.webdavuri,publicwebdavuri:this.currentdir.publicwebdavuri}); //up dir item
+    else
+      this.files.unshift({name: "..", nicesize: "UP-DIR", isdir:true}); //up dir item
   }
 
   sortByName() {
@@ -111,7 +116,7 @@ export class Filepanel {
     console.log("Filepanel error:", error);
     alert('Sorry. Backend service is not working temporarily. You may browse files from publicly accessible repositories only. If the problem persist, report it to system administrator.'+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
   }
-  
+
   //triggered after this object is placed to DOM
   attached() {
     //read the directory infos
@@ -156,6 +161,7 @@ export class Filepanel {
 
   //removes last subdirectory
   cdup() {
+    //this.dirs.pop();
     this.lastpath = this.path;
     let sepIndex = this.path.lastIndexOf('/');
     this.path = this.path.substring(0, sepIndex);
@@ -163,13 +169,15 @@ export class Filepanel {
   }
 
   //adds subdirectory to the path
-  cddown(subdir) {
+  cddown(subdir,dir) {
+    //this.dirs.push(dir);
     this.lastpath = this.path;
     this.path += '/' + subdir;
     this.resources = [];
   }
 
   cdroot() {
+    //this.dirs = [];
     this.lastpath = this.path;
     this.path = "";
     this.resources = this.baseresources;
@@ -185,13 +193,13 @@ export class Filepanel {
 
 
   //change folder, reads the folder content and updates the table structure
-  changefolder(folder) {
+  changefolder(folder,dir) {
     if (!this.lock) {
       this.lock = true;
       if (folder) {
         if (folder == '..') this.cdup();
         else if (folder == '/') this.cdroot();
-        else this.cddown(folder);
+        else this.cddown(folder,dir);
       }
       this.pa.getFiles(this.path)
         .then(data => {
@@ -223,7 +231,7 @@ export class Filepanel {
     //console.log("filepanel.populateFiles()")
     Vfstorage.setValue("filepanel" + this.panelid, this.path);
     //it is assumed that first element is "." describing the content of current dir
-    if (dataresponse.length>0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift(); 
+    if (dataresponse.length>0 && dataresponse[0].name === ".") this.currentdir = dataresponse.shift();
     else this.currentdir = null;
     //console.log("populateFiles currentdir:",this.currentdir);
     this.files = dataresponse;//JSON.parse(dataresponse);//,this.dateTimeReviver);//populate window list
@@ -235,16 +243,20 @@ export class Filepanel {
         arr[index].attributes = 16;
         arr[index].date = "";
         arr[index].filetype = 8;
+        arr[index].nicesize = "VF-DIR";arr[index].isdir =true;
       }
+      arr[index].provenance = false;
       //console.log(arr[index]);
       arr[index].ext = that.extension(arr[index].name); //may return undefined
       arr[index].nicedate = that.dateTimeReviver(null, arr[index].date);
       if (!arr[index].ext) arr[index].ext = "";
       arr[index].available = !!(arr[index].filetype & 8); //available if the filetype attribute contains flag 8
-      if (arr[index].attributes & 16) arr[index].nicesize = "DIR";
-      else
-      //convert to 4GB or 30MB or 20kB or 100b
+      if (arr[index].attributes & 16)   { if (!arr[index].nicesize) {arr[index].nicesize = "DIR";arr[index].isdir =true;} }
+      else {
+        arr[index].isdir =false;
+        //convert to 4GB or 30MB or 20kB or 100b
         arr[index].nicesize = ~~(arr[index].size / 1000000000) > 0 ? ~~(arr[index].size / 1000000000) + "GB" : (~~(arr[index].size / 1000000) > 0 ? ~~(arr[index].size / 1000000) + "MB" : (~~(arr[index].size / 1000) > 0 ? ~~(arr[index].size / 1000) + "kB" : arr[index].size + " b"));
+      }
     });
     if (this.path.length > 0) {//non root path
       this.addUpDir();
@@ -252,24 +264,41 @@ export class Filepanel {
 
   }
 
+  selectMetadata(file){
+    this.ea.publish(new SelectedMetadata(file, this.panelid));
+  }
+
   selectFile(file) {
     //console.log("selectFile("+file+") panelid:"+this.panelid);
-    if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name);
+    if (file.nicesize.endsWith && file.nicesize.endsWith('DIR')) this.changefolder(file.name,file);
     else {
-
       //HEAD the file - so it can be obtained - cached by metadata service, fix #45
       //let fileurl = this.serviceurl + this.path + '/' + file.name
+      if (this.path) //path exists -standard file
       this.pa.getFileHead(this.path + '/' + file.name)
         .then(response => {
-            //console.log('file head'+fileurl);
-            //console.log(response);
+            //console.log('file head response',response);
+            console.log('filepanel() head response headers has(Link)?',response.headers.has("Link"));
+            console.log('get(link)',response.headers.get("Link"));
+            if (response.headers.has("Link")) {
+              let position = this.files.map(function(e) { return e.name; }).indexOf(file.name);
+              this.files[position].provenance = true;
+              this.files[position].provenancelink=response.headers.get("Link").split('<').pop().split('>').shift();;
+              this.files[position].provenancewidgetlink="prov-n-widget/#url="+this.files[position].provenancelink;
+              console.log("selectFile() modified file",this.files[position]);
+            }
+              //this.ea.publish(new SelectedFile(file, this.panelid, response.headers.get("Link")));
+            //else
+              this.ea.publish(new SelectedFile(file, this.panelid));
           }
         ).catch(error => {
         console.log("Error when geting metadata information about file:");
         console.log(error);
       });
-      console.log("SelectedFile",file);
-      this.ea.publish(new SelectedFile(file, this.panelid));
+      else //path don't exist, probably resource
+        this.ea.publish(new SelectedFile(file, this.panelid));
+      //console.log("SelectedFile",file);
+
       //constructs public url
       /*this.pa.getPublicWebDav()
         .then(data => {

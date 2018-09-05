@@ -8,17 +8,18 @@
       <uniprotpanel panelid="panelid" if.bind="isUniprot"></uniprotpanel>
 
 
-      <span class="w3-padding-tiny">${path} contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
-        <img class="w3-display-position" show.bind="lock" src="img/vfloader.gif"/>
+      <span class="w3-padding-tiny"><i>${path}</i> contains</span><span class="w3-padding-tiny" show.bind="!lock">${filescount} items.</span><button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="refresh()">refresh</button> <button class="w3-round w3-btn w3-blue w3-right w3-padding-tiny w3-margin-right" click.delegate="goroot()">/</button>
+        <img class="w3-display-position" show.bind="lock" src="../../img/vfloader.gif"/>
         <div class="w3-clear"></div>
 
 
         <table id="${panelid}" class.bind="lock? 'w3-disabled': ''">
             <thead show.bind="isFiles">
             <tr>
+                <th></th>
                 <th style="text-align:left" click.delegate="sortByName()">name</th>
                 <th style="text-align:left" click.delegate="sortByExt()">ext</th>
-                <th style="text-align:right" click.delegate="sortBySize()">size</th>
+                <th style="text-align:center" click.delegate="sortBySize()">size</th>
                 <th style="text-align:center" click.delegate="sortByDate()">date</th>
                 <th title="information icons">i</th>
             </tr>
@@ -28,11 +29,37 @@
 
             <!-- Files from mounted storages -->
             <tr class="w3-hover-green" repeat.for="file of files">
-              <td click.trigger="selectFile(file)">${file.name}</td><td click.trigger="selectFile(file)">${file.ext}</td><td class="w3-right">${file.nicesize}</td><td align="center">${file.nicedate}</td><td><span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span></td>
+              <td click.trigger="selectFile(file)"><ifile if.bind="! file.isdir"></ifile><ifolder if.bind="file.isdir"></ifolder></td>
+              <td click.trigger="selectFile(file)" if.bind="! file.isdir" title="click to preview file in right panel">
+          <span style="display:block;overflow:hidden;">
+          ${file.name}
+          </span>
+              </td>
+              <td click.trigger="selectFile(file)" if.bind="file.isdir" title="click to go to directory"><b>${file.name}</b></td>
+              <td class="w3-tiny" click.trigger="selectFile(file)">${file.ext}</td>
+              <td click.trigger="selectFile(file)">${file.nicesize}</td>
+              <td click.trigger="selectFile(file)">${file.nicedate}</td>
+              <td show.bind="file.webdavuri" style="white-space: nowrap">
+                <span  show.bind="file.available">
+                <ilink show.bind="! file.isdir" href.bind="file.webdavuri"></ilink>
+                <ilinkfolder show.bind="file.isdir" href.bind="file.webdavuri" title="Go directly to the folder"></ilinkfolder>
+                <icopy show.bind="file.available" href.bind="file.publicwebdavuri"></icopy>
+                    <span show.bind="file.provenance" class="w3-light-green">
+      <span class="w3-tiny" title="Detected provenance metadata. Click to show." click.trigger="selectMetadata(file)"><imetadata></imetadata>prov-o</span>
+      <ilink title="Download provenance document" href.bind="file.provenancelink"></ilink>
+                      <ilinkblank title="Edit provenance in new tab" href.bind="file.provenancewidgetlink"></ilinkblank>
+    </span>  
+                  <span show.bind="! file.provenance">
+                <i click.trigger="selectMetadata(file)" title="check metadata"><imetadata></imetadata></i>
+                    </span>
+                </span>
+                <span show.bind="! file.available" title="Not available for legacy application. Click or pick the file first to download into Virtual Folder cache.">*</span>
+              </td>
             </tr>
             </tbody>
           <thead show.bind="!isFiles">
           <tr>
+            <th></th>
             <th style="text-align:left" >name</th>
             <th colspan="3" style="text-align:left;width:100%">info</th>
             <th title="information icons">i</th>
@@ -43,6 +70,7 @@
 
             <!-- Files/resources from third party storages -->
             <tr class="w3-hover-green" repeat.for="resource of resources">
+              <td><ifolder if.bind="resource.isdir"></ifolder><ifile if.bind="! resource.isdir"></ifile></td>
               <td  click.trigger="selectResource(resource)">${resource.name}</td>
               <td  click.trigger="selectResource(resource)" colspan="3">${resource.info}</td>
               <td class="w3-tiny">

@@ -1,17 +1,11 @@
 /**
  * Created by Tomas Kulhanek on 1/10/17.
  */
-/**
- * Created by Tomas Kulhanek on 1/5/17.
- */
-
 
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {SettingsSelected} from './messages';
-import {Vfstorage} from '../utils/vfstorage';
+import {Vfstorage} from '../components/vfstorage';
 import 'dropbox';
-
-//let client = new HttpClient();
 
 export class DropboxControl {
 

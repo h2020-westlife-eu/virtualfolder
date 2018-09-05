@@ -99,8 +99,8 @@ namespace MetadataService.Services.Files
                         size = mysize,
                         date = fi.LastWriteTime,
                         filetype = myfiletype,
-                        webdavuri = WEBDAVURL + mypath + fi.Name,
-                        publicwebdavuri = publicwebdavprefix + "/"+ fi.Name
+                        webdavuri = WEBDAVURL + mypath + fi.Name+(isdirectory?"/":""),
+                        publicwebdavuri = publicwebdavprefix + "/"+ fi.Name+(isdirectory?"/":"")
                     });
                 }
                 ;

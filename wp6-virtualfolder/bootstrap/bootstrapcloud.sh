@@ -4,6 +4,7 @@ echo Provisioning West-Life Virtual Folder
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
 #make link to VF and VRE
 ln -s /cvmfs/west-life.egi.eu/software/virtualfolder/latest /opt/virtualfolder
+ln -s /cvmfs/west-life.egi.eu/software/jupyter/latest /opt/jupyter
 ln -s /cvmfs/west-life.egi.eu/software/vre/latest /opt/vre
 if [[ -n ${PORTAL_DEPLOYMENT} && ${PORTAL_DEPLOYMENT} -eq "1" ]]; then echo "portal deployment"; else mv /etc/httpd/conf.d/vre.inc.single /etc/httpd/conf.d/vre.inc; fi
 service rsyslog restart

@@ -1,25 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using MetadataService;
 using MetadataService.Services.Files;
+using ServiceStack.Common.Web;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Cors;
+using ServiceStack.Text;
 
 namespace WP6Service2.Services.Dataset
 {
+
+
+    
     /* database schema */
-    public class Dataset //dataset name, owner, id
+    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
+    [Route("/dataset", "POST")]
+    public class Dataset  : IReturn<Dataset>//dataset name, owner, id, 
     {
         [AutoIncrement]
         public long Id { get; set; }
         public string Owner { get; set; }
         public string Name { get; set; }
+        public List<string> Entries { get; set; } //comma separated or blob of entries
+        [StringLength(int.MaxValue)] //as TEXT
+        public string Metadata { get; set; } //metadata content
+        public string Provenance { get; set; } //metadata content
     }
 
+    [Route("/dataset/name/{Name*}", "GET")]
+    public class DatasetByName : IReturn<Dataset>
+    {
+        public string Name { get; set; }
+    }
+    [Route("/dataset/{Id}/provenance", "GET")]
+    public class ProvenanceOfDataset : IReturn<String>
+    {
+        public long Id { get; set; }
+    }
+
+//obsolete, left for compatibility, not used anymore    
     public class DatasetEntry //entry of a dataset, consist of entryname (2hhd), type (PDB), url (http://pdb.org/2hhd.pdb)
     {
         [AutoIncrement]
@@ -45,32 +70,28 @@ namespace WP6Service2.Services.Dataset
     }
 
     /* DTO for API*/
-    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
+/*    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
+    [Route("/dataset/name/{Name*}", "GET")]
     [Route("/dataset", "POST")]
     public class DatasetDTO : IReturn<DatasetDTO>
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public List<DatasetEntry> Entries { get; set; }
+        public string Metadata { get; set; }
+        public List<DatasetEntry> Entries { get; set; }    
     }
-
+*/
     [Route("/dataset/{Id}", ",DELETE")]
     public class DeleteDataset : IReturnVoid
     {
         public long Id { get; set; }
     }
 
-    [Route("/datasetnofk/{Id}", ",DELETE")]
-    public class DeleteDatasetNoFk : IReturnVoid
-    {
-        public long Id { get; set; }
-    }
 
     [Route("/dataset", "GET,OPTIONS")]
     public class GetDatasets : IReturn<List<GetEntriesResponse>>
     {
     }
-
 
     public class GetEntriesResponse
     {
@@ -78,28 +99,12 @@ namespace WP6Service2.Services.Dataset
         public string Name { get; set; }
     }
 
-    //returns list of entries, which exists in some of the dataset
-    [Route("/entry", "GET,OPTIONS")]
-    public class GetEntries : IReturn<List<GetEntriesResponse>>
-    {
-    }
-
-    [Route("/entry/{Name}", "GET,OPTIONS")] //list of urls associated with the entry name
-    public class GetEntry : IReturn<List<DatasetEntry>>
-    {
-        public string Name { get; set; }
-    }
-
-    [Route("/datasetentry", "GET,OPTIONS")]
-    public class GetDatasetEntries : IReturn<List<DatasetEntries>>
-    {
-    }
 
     [EnableCors(allowCredentials:true)] //options for CORS    
     [VreCookieRequestFilter] //filters authenticated users, sets userid item in request
     public class DatasetService : Service
     {
-        /**returns all entries belonging to this dataset */
+        /**returns all datasets of a user */
         public List<GetEntriesResponse> Get(GetDatasets dtos)
         {
             var owner = (string) Request.Items["userid"];
@@ -112,65 +117,64 @@ namespace WP6Service2.Services.Dataset
         {
         }
 
-        /**returns dataset details */
-        public DatasetDTO Get(DatasetDTO dto)
+        /**returns dataset details, everybody? or owner only*/
+        public Dataset Get(Dataset dto)
         {
-            var mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
-            dto.Name = mydataset.Name;
-            //var entries = Db.Where<DatasetEntries>(x => x.DatasetId == dto.Id).First();
-            //dto.Entries = Db.Select<DatasetEntry>().ToList();
-            /* RAW SQL seems to produce sqliteexception
-            var myentries = Db.Select<DatasetEntry>(
-                "SELECT * FROM DatasetEntry " +
-                "INNER JOIN DatasetEntries ON DatasetEntries.DatasetEntryId = DatasetEntry.Id" +
-                "WHERE DatasetEntries.DatasetId = "+dto.Id+ ";"
-                ).ToList();
-            dto.Entries = myentries;*/
-            
-            dto.Entries = new List<DatasetEntry>();
-            var myentries= Db.Select<DatasetEntries>(x => x.DatasetId == dto.Id).ToList();
-            foreach (var myentryid in myentries)
+            Dataset mydataset;
+            try
             {
-                var myentry = Db.First<DatasetEntry>(x => x.Id == myentryid.DatasetEntryId);
-                dto.Entries.Add(myentry);
+                //TODO return details for everybody or only to owner?? && x.Owner==owner
+                mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
             }
-            return dto;
+            catch (InvalidOperationException e)
+            { //nothing found - first() throws this exception
+                    throw HttpError.NotFound("Dataset with id {0} does not exist".Fmt(dto.Id));
+
+            }
+
+            return mydataset;
         }
 
-        public void Options(DatasetDTO dto) {}
-
-        //returns list of entries, which exists in some of the dataset
-        public List<GetEntriesResponse> Get(GetEntries dtos)
+        //get by name only by owner
+        public Dataset Get(DatasetByName dto)
         {
-            return Db.Select<DatasetEntry>().Select(x => new GetEntriesResponse {Id = x.Id, Name = x.Name}).ToList();
+            Dataset mydataset;
+            try
+            {
+                var owner = (string) Request.Items["userid"];
+              mydataset = Db.Where<Dataset>(x => x.Name == dto.Name && x.Owner==owner).First();
+            }
+            catch (InvalidOperationException e)
+            { //nothing found - first() throws this exception
+                throw HttpError.NotFound("Dataset {0} does not exist".Fmt(dto.Name));                
+            }
+            return mydataset;
         }
 
-        public void Options(GetEntries dtos)
+        public String Get(ProvenanceOfDataset dto)
         {
+            Dataset mydataset;
+            try
+            {
+                mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
+            }
+            catch (InvalidOperationException e)
+            { //nothing found - first() throws this exception
+                throw HttpError.NotFound("Dataset with id {0} does not exist".Fmt(dto.Id));                
+            }
+            return mydataset.Provenance;            
         }
 
-        public List<string> Get(GetEntry dto)
-        {
-            return Db.Where<DatasetEntry>(x => x.Name == dto.Name).Select(x => x.Url).ToList();
-        }
-        
-        public void Options(GetEntry dto) {}
+        public void Options(Dataset dto) {}
 
-        public List<DatasetEntries> Get(GetDatasetEntries dtos)
-        {
-            return Db.Select<DatasetEntries>().ToList();
-        }
-
-        public void Options(GetDatasetEntries dtos) {}
-        /** will store DatasetDTO as tables per DB schema
-*/
-        public DatasetDTO Put(DatasetDTO dto)
+        /* will store DatasetDTO as tables per DB schema */
+        public Dataset Put(Dataset dto)
         {
             try
             {
                 var mydataset = UpdateExisting(dto);
                 dto.Id = mydataset.Id;
-                CreateOrUpdateEntries(dto, mydataset);
+              //  CreateOrUpdateEntries(dto, mydataset);
                 return dto;
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
@@ -179,13 +183,13 @@ namespace WP6Service2.Services.Dataset
             }
         }
 
-        public DatasetDTO Post(DatasetDTO dto)
+        public Dataset Post(Dataset dto)
         {
             try
             {
                 var mydataset = CreateNew(dto);
                 dto.Id = mydataset.Id;
-                CreateOrUpdateEntries(dto, mydataset);
+            //    CreateOrUpdateEntries(dto, mydataset);
                 return dto;
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
@@ -194,18 +198,19 @@ namespace WP6Service2.Services.Dataset
             }
         }
 
-        private void CreateOrUpdateEntries(DatasetDTO dto, Dataset mydataset)
+        /*private void CreateOrUpdateEntries(Dataset dto, Dataset mydataset)
         {
             var existingre = Db.Where<DatasetEntries>(de => de.DatasetId == mydataset.Id).Select(x => x.DatasetEntryId);
+
             for (var i = 0; i < dto.Entries.Count; i++) //each (var myentry in dto.Entries)
             {
                 var mydatasetEntry = dto.Entries[i];
-                /*new DatasetEntry
-                {
-                    Name = dto.Entries[i].Name,
-                    Type = dto.Entries[i].Type,
-                    Url = dto.Entries[i].Url
-                };*/
+                //new DatasetEntry
+                //{
+                //    Name = dto.Entries[i].Name,
+                //    Type = dto.Entries[i].Type,
+                //    Url = dto.Entries[i].Url
+                //};
                 //check if such entry with url exists
                 var dbentry = Db.Where<DatasetEntry>(x => x.Name == dto.Entries[i].Name);
                 var dbentryurls = dbentry.Select(x => x.Url); // &&
@@ -229,32 +234,39 @@ namespace WP6Service2.Services.Dataset
                 }
             }
         }
-
-        private Dataset CreateNew(DatasetDTO dto)
+*/
+        private Dataset CreateNew(Dataset dto)
         {//TODO lock
-            var mydataset = new Dataset {Name = dto.Name, Owner = (string) Request.Items["userid"]};
-            Db.Insert(mydataset);
-            mydataset.Id = Db.GetLastInsertId();
-            return mydataset;
+            dto.Owner =  (string) Request.Items["userid"];
+            Db.Insert(dto);
+            dto.Id = Db.GetLastInsertId();
+            if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
+            else Addscript(dto.Name, dto.Id);
+            return dto;
         }
 
-        private Dataset UpdateExisting(DatasetDTO dto)
+
+
+        private Dataset UpdateExisting(Dataset dto)
         {
-            var myowner = (string) Request.Items["userid"];
-            var mydataset = Db.Select<Dataset>(x => x.Id == dto.Id && x.Owner == myowner);
-            if (mydataset.Count == 0) throw new FileNotFoundException("dataset with Id " + dto.Id);
-            return mydataset.First();
+            dto.Owner =  (string) Request.Items["userid"];
+            Db.Update(dto);
+            if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
+            else Addscript(dto.Name, dto.Id);
+            return dto;
         }
 
         public void Delete(DeleteDataset dto)
         {
-            Db.SqlScalar<int>("PRAGMA foreign_keys=ON;"); //enable foreign keys and cascade delete
             try
             {
-                var owner = (string) Request.Items["userid"];
+                var owner = (string) Request.Items["userid"];                
                 if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
-                    Db.DeleteById<Dataset>(dto.Id);                
-                else
+                {
+                    var name = Db.First<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Name;
+                    Db.DeleteById<Dataset>(dto.Id);
+                    Deletescript(name);
+                } else
                     throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);                
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
@@ -262,24 +274,43 @@ namespace WP6Service2.Services.Dataset
                 throw new UnauthorizedAccessException();
             }
         }
-
-        //for testing purposes
-        public void Delete(DeleteDatasetNoFk dto)
+        private const string Vfscriptsdirvariable = "VF_SCRIPTS_DIR";
+        private static readonly string Scriptsdir = Environment.GetEnvironmentVariable(Vfscriptsdirvariable) != null
+            ? Environment.GetEnvironmentVariable(Vfscriptsdirvariable)
+            : "/opt/virtualfolder/scripts/";
+        private static readonly string Mountscript = Scriptsdir+"addProvHeader.sh";
+        
+        //execute script to add apache rule for Link header
+        private void Addscript(string dtoName, long dtoId)
         {
-            //var fk = Db.SqlScalar<int>("PRAGMA foreign_keys=ON;"); //enable foreign keys and cascade delete
-
-            try
+            int exitcode;
+            string url = Program.contextpath + "dataset/" + dtoId + "/provenance";
+            string output = Utils.ExecuteShell("/bin/bash", new[]
             {
-                var owner = (string) Request.Items["userid"];
-                if (Db.Where<Dataset>(x => x.Id == dto.Id && x.Owner == owner).Count > 0)
-                    Db.DeleteById<Dataset>(dto.Id);
-                else
-                    throw new FileNotFoundException("Cannot delete dataset with Id " + dto.Id);
-            }
-            catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
+                //"-H -u vagrant", 
+                //TODO make path of mountb2drop script configurable
+                Mountscript,
+                "add",
+                dtoName,
+                url
+            }, out exitcode);
+            Console.WriteLine(output);                        
+        }
+        
+        //execute script to remove apache rule for Link header
+        private void Deletescript(string dtoName)
+        {
+            int exitcode;
+            //string url = Program.contextpath + "dataset/" + dtoId + "/provenance";
+            string output = Utils.ExecuteShell("/bin/bash", new[]
             {
-                throw new UnauthorizedAccessException();
-            }
+                //"-H -u vagrant", 
+                //TODO make path of mountb2drop script configurable
+                Mountscript,
+                "remove",
+                dtoName                
+            }, out exitcode);
+            Console.WriteLine(output);                        
         }
     }
 }

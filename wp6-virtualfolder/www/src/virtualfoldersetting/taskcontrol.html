@@ -19,7 +19,10 @@
           <i class="fa fa-stop-circle-o" click.delegate="stoptask(task)"  show.bind="task.Running" title="running - you may stop it"></i>
         </td>
         <td show.bind="task.Updating">
-          <img src="img/vfloader.gif">
+          <img src="../../img/vfloader.gif" title="warning, task url may not be available yet">
+        </td>
+        <td show.bind="task.Warning">
+          <i class="fa fa-exclamation-triangle" title="warning, task url did not respond. Check it manually or restart.">
         </td>
         <td show.bind="task.Running" class="w3-small w3-text-blue w3-hover-text-white">service UI available at: <a href.bind="task.LocalUrl" target="_blank">${task.LocalUrl}</a></td>
       </tr>

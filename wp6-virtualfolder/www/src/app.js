@@ -1,13 +1,15 @@
+//import { PLATFORM } from "aurelia-framework";
+import {PLATFORM} from 'aurelia-pal';
 
 export class App {
   configureRouter(config, router) {
     config.title = 'West-Life Virtual Folder Router';
 
     config.map([
-      {route: ['', 'dashboard'], name: 'dashboard', moduleId: 'pages/virtualfolderhome', nav: true, title: 'Dashboard'},
-      {route: 'setting', name: 'setting', moduleId: 'pages/virtualfoldersetting', nav: true, title: 'Setting'},
-      {route: 'filemanager', name: 'filemanager', moduleId: 'pages/filemanager', nav: true, title: 'File Manager'},
-      {route: 'filepicker', name: 'filepicker', moduleId: 'pages/filepicker', nav: true, title: 'File Picker'}
+      {route: ['', 'dashboard'], name: 'dashboard', moduleId: PLATFORM.moduleName('pages/virtualfolderhome'), nav: true, title: 'Dashboard'},
+      {route: 'setting', name: 'setting', moduleId: PLATFORM.moduleName('pages/virtualfoldersetting'), nav: true, title: 'Setting'},
+      {route: 'filemanager', name: 'filemanager', moduleId: PLATFORM.moduleName('pages/filemanager'), nav: true, title: 'File Manager'},
+      {route: 'filepicker', name: 'filepicker', moduleId: PLATFORM.moduleName('pages/filepicker'), nav: true, title: 'File Picker'}
 
     ]);
     config.mapUnknownRoutes('pages/virtualfoldersetting');

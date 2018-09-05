@@ -17,7 +17,6 @@ export class  Viewpanel {
     constructor(el,ea) {
         this.element = el;
         this.ea = ea;
-      this.ea.subscribe(VisualizeFile, msg => this.viewfile(msg.file,msg.senderid));
         //this.uid = new Date().valueOf().toString();
         this.sourceurl="";
         this.sourceformat="pdb";
@@ -28,7 +27,11 @@ export class  Viewpanel {
 
     attached() {
       //bootstrap only if angular is defined - prevent error in offline mode
+      this.s1=this.ea.subscribe(VisualizeFile, msg => this.viewfile(msg.file,msg.senderid));
       if (typeof(angular) != 'undefined') angular.bootstrap(this.element.querySelector('#pdbviewer'), ['pdb.component.library']);
+    }
+    detached(){
+      this.s1.dispose();
     }
 
     viewfile(file,senderid) {

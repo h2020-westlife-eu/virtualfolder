@@ -1,0 +1,29 @@
+<template>
+    <require from="../filepicker/filepanel"></require>
+    <require from="../pdbcomponents/viewpanel"></require>
+    <require from="../pdbcomponents/dataset"></require>
+    <require from="../tabs/tabs"></require>
+    <require from='../components/fileeditor'></require>
+
+  <div class="w3-margin-right w3-margin-left w3-margin-bottom">
+
+    <tabs tabs.bind="paneltabs"></tabs>
+
+    <div show.bind="selectedList">
+        <filepanel panelid.bind="pid"></filepanel>
+    </div>
+
+    <div show.bind="selectedView">
+        <fileeditor pid.bind="pid"></fileeditor>
+    </div>
+
+    <div show.bind="selectedVisual">
+        <viewpanel pid.bind="pid"></viewpanel>
+    </div>
+
+    <div show.bind="selectedDataset">
+      <dataset panelid.bind="pid"></dataset>
+    </div>
+  </div>
+
+</template>

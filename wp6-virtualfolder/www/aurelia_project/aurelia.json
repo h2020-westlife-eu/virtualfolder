@@ -1,12 +1,28 @@
 {
-  "name": "www",
+  "name": "vf-ui",
   "type": "project:application",
+  "bundler": {
+    "id": "webpack",
+    "displayName": "Webpack"
+  },
+  "build": {
+    "options": {
+      "server": "dev",
+      "extractCss": "prod",
+      "coverage": false
+    }
+  },
   "platform": {
     "id": "web",
     "displayName": "Web",
-    "output": "scripts",
-    "index": "index.html"
-
+    "port": 8080,
+    "hmr": false,
+    "open": false,
+    "output": "dist"
+  },
+  "loader": {
+    "id": "none",
+    "displayName": "None"
   },
   "transpiler": {
     "id": "babel",
@@ -16,144 +32,47 @@
       "plugins": [
         "transform-es2015-modules-amd"
       ]
-    },
-    "source": "src/**/*.js"
+    }
   },
   "markupProcessor": {
-    "id": "none",
-    "displayName": "None",
-    "fileExtension": ".html",
-    "source": "src/**/*.html"
+    "id": "minimum",
+    "displayName": "Minimal Minification",
+    "fileExtension": ".html"
   },
   "cssProcessor": {
     "id": "none",
     "displayName": "None",
-    "fileExtension": ".css",
-    "source": "src/**/*.css"
+    "fileExtension": ".css"
   },
   "editor": {
     "id": "webstorm",
     "displayName": "WebStorm"
   },
-  "unitTestRunner": {
+  "unitTestRunner": [
+    {
+      "id": "jest",
+      "displayName": "Jest"
+    },
+    {
+      "id": "karma",
+      "displayName": "Karma"
+    }
+  ],
+  "integrationTestRunner": {
     "id": "none",
     "displayName": "None"
   },
   "paths": {
     "root": "src",
-    "resources": "src/resources",
-    "elements": "src/resources/elements",
-    "attributes": "src/resources/attributes",
-    "valueConverters": "src/resources/value-converters",
-    "bindingBehaviors": "src/resources/binding-behaviors"
+    "resources": "resources",
+    "elements": "resources/elements",
+    "attributes": "resources/attributes",
+    "valueConverters": "resources/value-converters",
+    "bindingBehaviors": "resources/binding-behaviors"
   },
-  "build": {
-    "targets": [
-      {
-        "id": "web",
-        "displayName": "Web",
-        "output": "scripts",
-        "index": "index.html"
-
-      }
-    ],
-    "loader": {
-      "type": "require",
-      "configTarget": "vendor-bundle.js",
-      "includeBundleMetadataInConfig": "auto",
-      "plugins": [
-        {
-          "name": "text",
-          "extensions": [
-            ".html",
-            ".css"
-          ],
-          "stub": true
-        }
-      ]
-    },
-    "options": {
-      "minify": "stage & prod",
-      "sourcemaps": ""
-    },
-    "bundles": [
-      {
-        "name": "app-bundle.js",
-        "source": [
-          "[**/*.js]",
-          "**/*.{css,html}"
-        ]
-      },
-      {
-        "name": "vendor-bundle.js",
-        "prepend": [
-          "node_modules/bluebird/js/browser/bluebird.core.js",
-          "node_modules/requirejs/require.js"
-        ],
-        "dependencies": [
-          "aurelia-binding",
-          "aurelia-bootstrapper",
-          "aurelia-dependency-injection",
-          "aurelia-event-aggregator",
-          "aurelia-framework",
-          "aurelia-history",
-          "aurelia-history-browser",
-          "aurelia-loader",
-          "aurelia-loader-default",
-          "aurelia-logging",
-          "aurelia-logging-console",
-          "aurelia-metadata",
-          "aurelia-pal",
-          "aurelia-pal-browser",
-          "aurelia-path",
-          "aurelia-polyfills",
-          "aurelia-route-recognizer",
-          "aurelia-router",
-          "aurelia-task-queue",
-          "aurelia-templating",
-          "aurelia-templating-binding",
-          "aurelia-http-client",
-          "whatwg-fetch",
-          "aurelia-fetch-client",
-          {
-            "name":"dropbox",
-            "path": "../node_modules/dropbox/dist",
-            "main": "Dropbox-sdk.min.js"
-          },
-          {
-            "name": "aurelia-dialog",
-            "path": "../node_modules/aurelia-dialog/dist/amd",
-            "main": "aurelia-dialog"
-          },
-          "text",
-          {
-            "name": "codemirror",
-            "path": "../node_modules/codemirror",
-            "main": "lib/codemirror",
-            "resources": [
-              "theme/eclipse.css",
-              "lib/codemirror.css"
-            ]
-          },
-          {
-            "name": "aurelia-templating-resources",
-            "path": "../node_modules/aurelia-templating-resources/dist/amd",
-            "main": "aurelia-templating-resources"
-          },
-          {
-            "name": "aurelia-templating-router",
-            "path": "../node_modules/aurelia-templating-router/dist/amd",
-            "main": "aurelia-templating-router"
-          },
-          {
-            "name": "aurelia-testing",
-            "path": "../node_modules/aurelia-testing/dist/amd",
-            "main": "aurelia-testing",
-            "env": "dev"
-          }
-        ]
-      }
-    ]
+  "testFramework": {
+    "id": "jasmine",
+    "displayName": "Jasmine"
   }
 
 }

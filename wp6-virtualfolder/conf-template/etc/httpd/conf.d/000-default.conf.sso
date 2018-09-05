@@ -50,6 +50,12 @@ LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
   Require valid-user
 </Location>
 
+<Location /virtualfolder/scripts>
+  MellonEnable "off"
+  Satisfy All
+  Require all granted
+</Location>
+
     LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
     
    <Location "/webdav">
@@ -87,6 +93,7 @@ LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
 	# Web UI of VF - are pure HTML, JS, CSS
 	# XBitHack to enable HTML imports on files with x bit set, <!-- import -->
+	Alias "/virtualfolder/scripts" "/opt/virtualfolder/www/scripts"
 	Alias "/virtualfolder" "/opt/virtualfolder/www/"
 	<Directory "/opt/virtualfolder/www">
 	    Require all granted

@@ -18,12 +18,20 @@ namespace MetadataService
     public class Program
     {
         private static AppHost _appHost;
+        private static string VF_CPVAR = "VF_CONTEXTPATH";
+        private static string VF_PVAR = "VF_PORT";
+        public static string contextpath = Environment.GetEnvironmentVariable(VF_CPVAR) != null
+            ? Environment.GetEnvironmentVariable(VF_CPVAR)
+            : "/virtualfolder/api/";
+        public static string port = Environment.GetEnvironmentVariable(VF_PVAR) != null
+            ? Environment.GetEnvironmentVariable(VF_PVAR)
+            : "8001";
 
         //Run it!
         public static void Main(string[] args)
         {
             var port = "8001";
-            var contextpath = "/virtualfolder/api/";
+            //var contextpath = ;
             var listeningOn = "http://*:"+port+contextpath;
             StartHost(listeningOn, args);
 
@@ -108,8 +116,8 @@ namespace MetadataService
                 //sets URL context to /metadataservice
                 SetConfig(new EndpointHostConfig
                 {
-                    ServiceStackHandlerFactoryPath = "metadataservice",
-                    WebHostUrl = "/metadataservice"
+                    ServiceStackHandlerFactoryPath = "",
+                    WebHostUrl = "/"
                 });
                 // initialize some basic data in db
                 using (var db = container.Resolve<IDbConnectionFactory>().Open())
@@ -166,7 +174,25 @@ namespace MetadataService
                     CreateTablesV1705(db);
                     CreateTablesV1707(db);
                     CreateTablesV1805(db);
+                    CreateTablesV1807(db);
                 }
+            }
+
+            private void CreateTablesV1807(IDbConnection db)
+            {
+                var dbsettings = SettingsStorageInDB.getDBSettings(db);
+                var version = new Version(dbsettings.VirtualFolderVersion);
+                if (version.Build < 6796)
+                {
+                    //remove all datasets and create new dataset table
+                        db.DropAndCreateTable<Dataset>();
+                    //db.AddColumn(typeof(Dataset),"s");
+                        db.DropTable<DatasetEntry>();
+                        db.DropTable<DatasetEntries>();
+                    //update version of db
+                    SettingsStorageInDB.storeSetting(db);
+                }
+                //throw new NotImplementedException();
             }
 
             private void CreateTablesV1805(IDbConnection db)

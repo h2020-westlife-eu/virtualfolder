@@ -1,8 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {HandleLogin, MayLogout,RedirectLogin} from '../behavior';
-//import {HttpClient} from 'aurelia-http-client';
 import {ProjectApi} from "../components/projectapi";
-import {Vfstorage} from "../utils/vfstorage";
+import {Vfstorage} from "../components/vfstorage";
 
 export class App {
   static inject = [EventAggregator,ProjectApi];
@@ -16,12 +15,11 @@ export class App {
     this.loadederror = false;
     this.handler = new RedirectLogin();
     //if it detects that it is not logged in - e.g. 403 returned - shows Login button instead
-    this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
-    this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
-    
   }
   
   attached() {
+    this.s1=this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
+    this.s2=this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
     this.params=Vfstorage.getParams(window.location.search.substring(1));
     this.publickey = this.params.PublicKey;
     //gets the status of the b2drop connection
@@ -38,11 +36,15 @@ export class App {
         //handle 403 unauthorized
         this.loading =false;
         this.loadederror = true;
-        if (error.statusCode === 403) {
+        if (error.status === 403) {
           this.ea.publish(new HandleLogin(this.panelid));
         } else
           alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. '+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
       });
+  }
+  detached() {
+    this.s1.dispose();
+    this.s2.dispose();
   }
 
   include(provider) {

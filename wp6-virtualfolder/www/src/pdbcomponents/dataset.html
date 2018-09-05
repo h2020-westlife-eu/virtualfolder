@@ -5,47 +5,83 @@
   <require from="./entry-id"></require>
   <require from="./dataitem"></require>
   <require from="./hideable"></require>
-  <require from="../autocomplete/vfAutocompleteSearch"></require>
+  <require from="./vfAutocompleteSearch"></require>
+  <require from="codemirror/lib/codemirror.css"></require>
+  <require from="codemirror/theme/eclipse.css"></require>
 
-  <div class="w3-card-2 w3-pale-blue w3-padding w3-margin-right">
-    <p>This is currently prototype of dataset manipulating dialogs showing integration with third party tools. </p>
-    <div show.bind="showlist">
-      <table class="w3-table">
-        <tr ><td class="w3-large w3-hover-green" click.delegate="createnewdataset()">Create New Dataset</td>
-
+  <div class="w3-card-2 w3-padding w3-margin-right w3-small">
+    <span class="w3-bold w3-center">metadata of ${name}</span>
+    <hideable title="generic metadata">
+      <table>
+        <tr>
+          <td>name</td>
+          <td>${datasetfile.name}</td>
         </tr>
-        <tr repeat.for="item of datasetlist"><td class="w3-large w3-hover-green" click.delegate="selectdataset(item)">${item.Name}</td>
-          <td click.delegate="removedataset(item)"
-                class="w3-button w3-btn">&times;</td>
+        <tr>
+          <td>extension</td>
+          <td>${datasetfile.ext}</td>
+        </tr>
+        <tr>
+          <td>path</td>
+          <td>${datasetfile.path}</td>
+        </tr>
+        <tr>
+          <td>size</td>
+          <td>${datasetfile.size}</td>
+        </tr>
+        <tr>
+          <td>date</td>
+          <td>${datasetfile.nicedate}</td>
+        </tr>
+        <tr>
+          <td>local url</td>
+          <td><a href.bind="datasetfile.webdavuri">${datasetfile.webdavuri}</a></td>
+        </tr>
+        <tr>
+          <td>public url</td>
+          <td><a href.bind="datasetfile.publicwebdavuri" target="_blank">${datasetfile.publicwebdavuri}</a></td>
+        </tr>
+        <tr show.bind="datasetfile.provenance">
+          <td>provenance link</td>
+          <td><a href.bind="datasetfile.provenancelink" target="_blank">${datasetfile.provenancelink}</a></td>
         </tr>
       </table>
-    </div>
+      <label>Free text metadata</label>
+      <textarea ref="metadataarea" value.bind="initialmetadata"></textarea>
+    </hideable>
+    <hideable title="related entries from public databases (PDB,Uniprot,...)">
+      <div>
 
-    <div show.bind="!showlist">
-      <div class="w3-display-container w3-large w3-hover-green" click.delegate="unselectdataset(item)">${name}</div>
+        <form>
+          Related PDB,Uniprot,.. items to add:<br/>
+          <vf-autocomplete-search submit.call="additem(item)" placeholder="1cbs (PDB entry) or P12355 (Uniprot entry)"
+                                  size="40"></vf-autocomplete-search>
+        </form>
+        <!-- TODO enable pdb-prints -->
+        <pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints>
+        <ul>
+          <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item.Name}</span>
+            <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
+            <dataitem item.bind="item"></dataitem>
+          </li>
+        </ul>
+      </div>
+    </hideable>
 
-      <form>
-        PDB or related item to add:<br/>
-        <vf-autocomplete-search submit.call="additem(item)" placeholder="1cbs (PDB entry) or P12355 (Uniprot entry)" size="40"></vf-autocomplete-search>
-      </form>
-
-      <hr/>
-      <hideable title="PDB Prints"><pdb-prints pdb-ids='${pdbdataset}' settings='{"size": 24 }'></pdb-prints></hideable>
+    <hideable title="provenance">
+      <span show.bind="nometadata">No specific provenance for this file. <button class="w3-round-medium w3-green" click.delegate="generateprovn()">Generate</button></span>
+      <span show.bind="! nometadata">Provenance stored in VF.
+      
+      <button class="w3-round-medium w3-green" type="button" click.delegate="edithere()">Edit</button>  
+      <button class="w3-round-medium w3-green" type="button" click.delegate="editprovn()" title="pop up window with PROV-N editor">Edit in PROV-N editor</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="getprovstoresvg()">Visualize</button>
+      <button class="w3-round-medium w3-green" type="button" click.delegate="submitprovstore()">Export to ProvStore</button>
+      </span>
+      <textarea ref="contentarea" value.bind="initialdocument"></textarea>
+      <div ref="provvis"></div>
       <br/>
-      <ul>
-        <li repeat.for="item of pdbdataset"><span class="w3-black w3-center">${item.Name}</span>
-          <i class="fa fa-remove" click.delegate="removeitem(item)"></i>
-          <dataitem item.bind="item"></dataitem>
-        </li>
-      </ul>
-
-      dataset name:
-      <input value.bind="name" change.trigger="changename()"/>
-      <br/>
-
-      <!-- will be enabled after backend service is available -->
-      <button type="button" click.delegate="submit()" disabled.bind="!canSubmit">Publish dataset</button>
-    </div>
-
+    </hideable>
+    <br/>
+    <button class="w3-right-align w3-round-medium w3-green" type="button" click.delegate="submit()">Save metadata</button>
   </div>
 </template>

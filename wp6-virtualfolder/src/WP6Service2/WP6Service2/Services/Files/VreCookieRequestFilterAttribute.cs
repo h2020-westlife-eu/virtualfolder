@@ -83,6 +83,8 @@ namespace MetadataService.Services.Files
                 //TODO get the providers associated to user
                 req.Items.Add("userid", loggeduser);
                 req.Items.Add("name", loggeduser);
+                req.Items.Add("email", loggeduser);
+                req.Items.Add("groups", loggeduser);
                 if (requestDto.GetType() == typeof(ProviderItem))
                     ((ProviderItem) requestDto).loggeduser = loggeduser;
 //                req.Items.Add("authproxy", authproxy);

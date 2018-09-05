@@ -43,6 +43,18 @@ namespace MetadataService.Services.Files
             DROPBOXURIROOT = "/virtualfolder/api/"+"files/" + alias;
         }
 
+        ~DropboxProvider()
+        {
+            RemoveDir();
+        }
+
+        private void RemoveDir()
+        {
+        //consider to push content to dropbox first
+            Directory.Delete(FILESYSTEMFOLDER,true);
+        }
+
+
         public override object GetFileOrList(string Path,IHttpRequest req)
         {
             var path = Path ?? "";
@@ -245,8 +257,8 @@ namespace MetadataService.Services.Files
                         filetype = FileType.Directory | FileType.Read | FileType.Write |
                                    (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
-                        webdavuri = DROPBOXURIROOT + mypath+ fi.Name, 
-                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name
+                        webdavuri = DROPBOXURIROOT + mypath+ fi.Name+"/", 
+                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name+"/"
                     });
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
