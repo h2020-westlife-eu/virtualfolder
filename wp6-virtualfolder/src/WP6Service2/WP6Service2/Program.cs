@@ -182,8 +182,9 @@ namespace MetadataService
             {
                 var dbsettings = SettingsStorageInDB.getDBSettings(db);
                 var version = new Version(dbsettings.VirtualFolderVersion);
-                if (version.Build < 6796)
+                if (version.Build < 6822)
                 {
+                    Console.WriteLine("Database old. Applying patch 1807. Encrypting selected items.");
                     //remove all datasets and create new dataset table
                         db.DropAndCreateTable<Dataset>();
                     //db.AddColumn(typeof(Dataset),"s");

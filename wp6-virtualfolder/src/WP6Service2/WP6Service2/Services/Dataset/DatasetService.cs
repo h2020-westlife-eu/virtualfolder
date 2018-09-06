@@ -34,6 +34,7 @@ namespace WP6Service2.Services.Dataset
     }
 
     [Route("/dataset/name/{Name*}", "GET")]
+    [Route("/datasetname/{Name*}", "GET")]
     public class DatasetByName : IReturn<Dataset>
     {
         public string Name { get; set; }
@@ -189,12 +190,17 @@ namespace WP6Service2.Services.Dataset
             {
                 var mydataset = CreateNew(dto);
                 dto.Id = mydataset.Id;
-            //    CreateOrUpdateEntries(dto, mydataset);
+                //    CreateOrUpdateEntries(dto, mydataset);
                 return dto;
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
             {
                 throw new UnauthorizedAccessException();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw e;
             }
         }
 
@@ -251,6 +257,7 @@ namespace WP6Service2.Services.Dataset
         {
             dto.Owner =  (string) Request.Items["userid"];
             Db.Update(dto);
+            //call script to add/remove http header into apache conf
             if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
             else Addscript(dto.Name, dto.Id);
             return dto;

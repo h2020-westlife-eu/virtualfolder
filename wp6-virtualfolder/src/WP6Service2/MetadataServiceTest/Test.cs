@@ -36,9 +36,11 @@ namespace MetadataServiceTest
                 Program.StartHost(_baseUri, null);
                 Thread.Sleep(500);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 Console.WriteLine("metadataservice already running by another process, testing ...");
+                Program.StopHost();
             }
         }
 
@@ -106,7 +108,7 @@ namespace MetadataServiceTest
             var client = new JsonServiceClient(_baseUri);
             var all = client.Get(new GetDatasets());
             var firstcount = all.Count;
-            Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
+            //Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
             Assert.True(all.Count >= 0);
             //    Is.StringStarting("[")); // asserts that the json is array
             var myEntries = new List<string>();
@@ -136,7 +138,7 @@ namespace MetadataServiceTest
             var mydto2 = client.Post(mydto);
 
             all = client.Get(new GetDatasets());
-            Console.WriteLine(" DatasetTestCase() all.count:" + all.Count);
+            //Console.WriteLine(" DatasetTestCase() all.count:" + all.Count);
             Assert.True(all.Count == firstcount + 1);
 
             //var all2 =
@@ -144,7 +146,7 @@ namespace MetadataServiceTest
             //var testdto = JsonSerializer.DeserializeFromString<DatasetsDTO>(all2.ToString());
             var all3 = client.Get(new Dataset {Id = mydto2.Id});
             //var all3 = JsonSerializer.DeserializeFromString<DatasetDTO>(all3.ToString());
-            Console.WriteLine(" DatasetTestCase() all3.name:" + all3.Name + " mydto.Name" + mydto.Name);
+            //Console.WriteLine(" DatasetTestCase() all3.name:" + all3.Name + " mydto.Name" + mydto.Name);
             Assert.True(all3.Name == mydto.Name);
             //Assert.True(all3.Entries.Count==mydto.Entries.Count);
             //Assert.True(all3.Entries[0]==mydto.Entries[0]);
@@ -156,7 +158,52 @@ namespace MetadataServiceTest
             all = client.Get(new GetDatasets());
             Assert.True(all.Count == firstcount);
         }
+        [Test]
+        public void PostGetDatasetByNameTestCase()
+        {
+            var client = new JsonServiceClient(_baseUri);
+            var all = client.Get(new GetDatasets());
+            var firstcount = all.Count;
+            //Console.WriteLine(" DatasetTestCase() firstcount:" + firstcount);
+            //Assert.True(all.Count >= 0);
+            //    Is.StringStarting("[")); // asserts that the json is array
+            var myEntries = new List<string>();
+            myEntries.Add("2hhd");
+            myEntries.Add("3csb");
+            myEntries.Add("4yg0");
+            var myname = "test/directory/someother/testdataset";
+            var mydto = new Dataset
+            {
+                Name = myname,
+                Entries = myEntries,
+                Provenance = @"document 
+                prefix virtualfolder <https://portal.west-life.eu/virtualfolder/> 
+                prefix dataset <http://localhost:8081/webdav/vagrant/filesystem/patient_data/LICENSE> 
 
+                prefix westlife <https://about.west-life.eu/>
+                prefix thisvf <http://localhost:8081/virtualfolder/#/filemanager>
+                prefix user <>
+                entity (dataset:, [prov:label=""LICENSE"", prov:type=""document""]) 
+    
+                agent (user:vagrant, [ prov:type=""prov:Person"" ]) 
+                wasAttributedTo(dataset:, user:vagrant) 
+                endDocument",
+                Metadata = "{size:5,date:07/09/2017,localurl:http://localhost/webdav/vagrant/filesystem}"
+            };
+
+            var mydto2 = client.Post(mydto);            
+            var mydtobyid = client.Get(new Dataset(){Id=mydto2.Id});
+            var mydtobyname=client.Get(new DatasetByName(){Name=myname});
+            Assert.AreEqual(mydtobyid.Id,mydtobyname.Id);
+            Assert.AreEqual(mydtobyid.Name,mydtobyname.Name);
+            Assert.AreEqual(mydtobyid.Entries,mydtobyname.Entries);
+            Assert.AreEqual(mydtobyid.Provenance,mydtobyname.Provenance);
+            Assert.AreEqual(mydtobyid.Metadata,mydtobyname.Metadata);            
+            client.Delete(new DeleteDataset {Id = mydto2.Id});
+            all = client.Get(new GetDatasets());
+            //Assert.True(all.Count == firstcount);
+        }
+        
         [Test]
         public void HttpOptionsShouldReturn200OnFileProvidersDatasetTestCase()
         {
@@ -204,7 +251,7 @@ namespace MetadataServiceTest
                 Console.WriteLine("Ignoring test B2DROP");
                 Assert.Ignore();
             }                
-            Console.WriteLine("Testing B2DROP");            
+            //Console.WriteLine("Testing B2DROP");            
             var client = new JsonServiceClient(_baseUri);
             var providerlist = client.Get(new ProviderItem());            
             var providerlistwithnew = client.Put(pi);
@@ -242,10 +289,10 @@ namespace MetadataServiceTest
             
             if (pi.securetoken == null)
             {
-                Console.WriteLine("Ignoring Dropbox");
+                Console.WriteLine("Ignoring test Dropbox");
                 Assert.Ignore();
             }   
-            Console.WriteLine("Testing Dropbox");
+            //Console.WriteLine("Testing Dropbox");
             var client = new JsonServiceClient(_baseUri);
             var providerlist = client.Get(new ProviderItem());            
             var providerlistwithnew = client.Put(pi);
@@ -508,15 +555,15 @@ namespace MetadataServiceTest
             {
                 var zipped = AESThenHMAC.Zip(s);
                 var zipped2 = AESThenHMAC.Zip2(s);
-                Console.WriteLine("Original: "+s+" original length:"+s.Length+" zipped.Length:"+zipped.Length+" zipped2.Length:"+zipped2.Length);
+                //Console.WriteLine("Original: "+s+" original length:"+s.Length+" zipped.Length:"+zipped.Length+" zipped2.Length:"+zipped2.Length);
                 var enc = AESThenHMAC.Encrypt(s,Encoding.Default.GetBytes(pkey),Encoding.Default.GetBytes(iv));
-                Console.WriteLine("Encrypted: "+enc+" encrypted length:"+enc.Length);
+                //Console.WriteLine("Encrypted: "+enc+" encrypted length:"+enc.Length);
                 var dec = AESThenHMAC.Decrypt(enc, Encoding.Default.GetBytes(pkey),Encoding.Default.GetBytes(iv));
                 //test decoded should be equal to original
                 Assert.AreEqual(s,dec);
                 var enc2 = SettingsStorageInDB.getencryptedpath(s);
                 var dec2 = SettingsStorageInDB.getdecryptedpath(enc2);
-                Console.WriteLine("Encrypted2:"+enc2+" encrypted length2:"+enc2.Length);
+                //Console.WriteLine("Encrypted2:"+enc2+" encrypted length2:"+enc2.Length);
                 Assert.AreEqual(s,dec2);
             }
         }
