@@ -11,6 +11,7 @@ service rsyslog restart
 yum -y install epel-release
 yum repolist
 yum -y install davfs2
+yum -y install httpd
 systemctl start httpd
 systemctl enable httpd
 mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife
@@ -18,6 +19,7 @@ chmod go+wx /var/log/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
+yum -y install sudo
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else

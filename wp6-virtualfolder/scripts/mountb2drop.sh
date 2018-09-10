@@ -13,7 +13,7 @@
 # 10.09.2018 tomas - need root priviledges, docker compatible
 
 if [ ! -f "/bin/sudo" ]; then
-  echo "priviledged docker environment"
+  echo "Warning: \"sudo\" is recommended to be installed. Trying as without it"
   SUDOCMD=""
   SECRETFILE=/etc/davfs2/secrets
 else
@@ -91,7 +91,7 @@ function removefstab {
 }
 
 function addsecrets {  
-  mkdir -p /etc/davfs2
+  mkdir -p `dirname ${SECRETFILE}`
   touch ${SECRETFILE}
   if grep -q "$1 $2 " ${SECRETFILE}; then
     echo "secrets already set"
@@ -179,7 +179,7 @@ if [ $1 == 'add' ]; then
   addfstab $2 $LOCALPATH
   addsecrets $LOCALPATH $4 $5
   addapacheproxy $2 $6 $4 $5
-  mkdir -p $3
+  ${SUDOCMD} mkdir -p $3
   if [ ! -d $3 ]; then
     echo "previous mountpoint is corrupted, trying to unmount"
     ${SUDOCMD} umount $3
