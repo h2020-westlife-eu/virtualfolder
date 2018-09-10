@@ -11,7 +11,7 @@ export WP6SRC=/home/vagrant/west-life-wp6-master
 export WP6REMOTEMODULE=${WP6MODULE:4}
 
 # adding X bit to all html with include
-chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
+#chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
 
 ./release-install-dep.sh
 # TODO any service that will point to the /latest from 17.11 will now point to /latest not to /17.11
