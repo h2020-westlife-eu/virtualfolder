@@ -13,7 +13,7 @@ export WP6REMOTEMODULE=${WP6MODULE:4}
 # adding X bit to all html with include
 #chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
 
-./release-install-dep.sh
+#./release-install-dep.sh
 # TODO any service that will point to the /latest from 17.11 will now point to /latest not to /17.11
 # TODO consider whether latest should be kept and pointing to previous version can be made manually only
 # prepare conf files to point to exact version instead of 'latest' link
