@@ -61,6 +61,7 @@ echo "Copying mellon configuration to /etc/httpd/mellon";
 mkdir -p /etc/httpd/mellon
 cp ${WP6SRC}/sp_key.pem ${WP6SRC}/sp_cert.pem ${WP6SRC}/sp-metadata.xml ${WP6SRC}/idp-metadata.xml /etc/httpd/mellon
 chmod 600 /etc/httpd/mellon/sp_key.pem
-cp -f /etc/httpd/conf.d/000-default.conf.sso /etc/httpd/conf.d/000-default.conf 
+cp  -f /etc/httpd/conf.d/000-default.conf.sso /etc/httpd/conf.d/000-default.conf
+service httpd restart 
 printf "Check http://localhost:8080/mellon/metadata \nIf not yet registered, send the metadata file: sp-metadata.xml to West-life AAI provider westlife-aai@ics.muni.cz." 
 fi
