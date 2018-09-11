@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#transcript from bootstrap scripts in order to prepare environment in clean VM
+# transcript from bootstrap, workaround issue: CernVM limits cloud init script to 100 lines
 echo Provisioning West-Life Virtual Folder
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
 #make link to VF and VRE
