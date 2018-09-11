@@ -34,12 +34,12 @@ fi
 if [ -f /vagrant/westlife-metadata.service ]; then
   cp /vagrant/westlife-metadata.service /etc/conf/systemd/system/westlife-metadata.service
 fi
-
 if [ -f /etc/westlife/metadata.key ]
-then
+then   
    source /etc/westlife/metadata.key
    export VF_STORAGE_PKEY
 else
+   yum -y install openssl
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
    echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /etc/westlife/metadata.key
    chmod 700 /etc/westlife
@@ -75,4 +75,3 @@ fi
 # if vagrant dir is present, register it as default filesystem provider for vagrant/default user
 if [ -d /vagrant ]; then /opt/virtualfolder/scripts/addfilesystemprovider.sh; fi
 echo -e "BOOTSTRAP FINISHED, Virtual Folder provisioned.\nTo access VF services launch browser at http://localhost/"
-
