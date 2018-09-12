@@ -25,9 +25,13 @@ export class Sharedheader {
       else if (this.userinfo.username.endsWith("west-life.eu")) {
         this.userinfo.AccountLink="https://auth.west-life.eu/user/";
         this.userinfo.LogoutLink="/mellon/logout?ReturnTo=/";
-      //ARIA user - link to structuralbiology
-      }
+      
+      } else if (this.userinfo.username === "") {
+        //not logged - portal
+        this.showuserinfo = false;
+      } 
       else {
+        //ARIA user - link to structuralbiology
         this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
         this.userinfo.LogoutLink="/logout";
       }

@@ -30,7 +30,7 @@ export class Aliastable {
         
       })
       .catch(error =>{
-        if (error.statusCode === 403) {
+        if (error.status === 403) {
             this.ea.publish(new HandleLogin(this.panelid));
           } else
         alert('Sorry. Backend service is not working temporarily. Wait a moment. If the problem persist, report it to system administrator. HTTP status:'+error.statusCode+' '+error.statusText)
