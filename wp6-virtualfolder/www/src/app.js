@@ -1,17 +1,21 @@
-//import { PLATFORM } from "aurelia-framework";
 import {PLATFORM} from 'aurelia-pal';
-import {HandleLogin, MayLogout, RedirectLogin} from "./behavior";
-
+/*import {HandleLogin, MayLogout, RedirectLogin} from "./behavior";
+import {EventAggregator} from 'aurelia-event-aggregator';
+*/
 export class App {
-  static inject = [EventAggregator];
+/*  static inject = [EventAggregator];
 
   constructor(ea) {
     this.ea = ea;
     this.handler = new RedirectLogin();
+  }
+  
+  attached(){
+    console.log("app attached()");
     this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
     this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
   }
-
+*/
   configureRouter(config, router) {
     config.title = 'West-Life Virtual Folder Router';
 
