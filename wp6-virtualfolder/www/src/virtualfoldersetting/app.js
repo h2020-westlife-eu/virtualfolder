@@ -13,7 +13,6 @@ export class App {
     this.handler = new RedirectLogin();
     this.ea.subscribe(HandleLogin, msg => this.handler.handlelogin());
     this.ea.subscribe(MayLogout, msg => this.handler.maylogout());
-
   }
 
 }

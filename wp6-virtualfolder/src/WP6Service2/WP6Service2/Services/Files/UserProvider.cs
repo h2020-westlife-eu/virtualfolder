@@ -51,6 +51,13 @@ namespace MetadataService.Services.Files
             }
         }
 
+        /** creates instance for user, if there are existing storages, it is mounted/registered within system,
+         * tries to release instances of user's, who doesn't access service for some time
+         * if there are 30 and more concurent users - instances are released after 1 day,
+         * if there are 15 users -instances are release after 2 days ...
+         * The policy might be triggered in future.
+         */
+        
         public static UserProvider GetInstance(string _userid, ISettingsStorage storage,
             IDbConnection db)
         {
@@ -66,7 +73,8 @@ namespace MetadataService.Services.Files
                     //release instances older than month
                     //TimeSpan t = new DateTime()-;
                     var currenttime = new DateTime();
-                    //remove instances older than 15, 10 8 6 5 4 3 2  1 days 
+                    //based on instances count   
+                    //remove instances older than (30/instancescount)+1 = (16,11,9,7,6,5,4,3,2,1..) days 
                     var oldinstances = _instancedates.Where(x => (currenttime - x.Value).TotalDays>( 30 /_instances.Count)+1);//x =>
                     foreach (var oldinstance in oldinstances)
                     {

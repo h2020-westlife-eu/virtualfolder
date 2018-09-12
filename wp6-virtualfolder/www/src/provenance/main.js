@@ -26,5 +26,5 @@ export function configure(aurelia) {
     aurelia.use.plugin(PLATFORM.moduleName('aurelia-testing'));
   }
 
-  aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('filemanager/app')));
+  aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('provenance/app')));
 }

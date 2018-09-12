@@ -8,7 +8,8 @@ export class ProjectApi {
   constructor(httpclient) {
     this.httpclient = httpclient;
     //needs SSO credentials
-    this.metadataapiurl = "api";
+    //virtualfolderbaseurl is global variable - if it is defined use it - otherwise "api";
+    this.metadataapiurl = virtualfolderbaseurl?virtualfolderbaseurl+"/virtualfolder/api":"api";
     this.userinfourl = this.metadataapiurl + "/userinfo";
     this.fileserviceurl = this.metadataapiurl + "/files";
     this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";
