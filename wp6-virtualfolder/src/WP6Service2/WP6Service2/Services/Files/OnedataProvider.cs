@@ -54,7 +54,7 @@ namespace MetadataService.Services.Files
         private readonly string attrAPIURL;
         
         public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
-            : base(AdjProvInfo(item), storage, connection)
+            : base(item, storage, connection)
         {
             accessToken = item.securetoken;
             accessURL = item.accessurl;

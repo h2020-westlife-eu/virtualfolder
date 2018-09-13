@@ -11,6 +11,10 @@ else
   SP_IDENTIFICATION=http://local.west-life.eu
   SP_ENDPOINT=http://localhost:8080/mellon
 fi
+
+if [ -z ${WP6SRC} ]; then
+  WP6SRC=/vagrant
+fi
 ########################################################################
 # SSO preparation
 ########################################################################
@@ -22,20 +26,19 @@ if [ -f /vagrant/sp_key.pem ]; then
   cp /vagrant/*.conf ${WP6SRC}/conf-template/etc/httpd/conf.d/
 fi
 
-#yum -y install wget mod_auth_mellon
-if [ -f /etc/cernvm-release ]; then
+#if [ -f /etc/cernvm-release ]; then
 # cernvm4 has old lasso 2.4.0 and mod_auth_mellon
-  yum -y remove mod_auth_mellon lasso xmlsec1 xmlsec1-openssl
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-1.2.20-7.el7_4.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-openssl-1.2.20-7.el7_4.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gcrypt-1.2.20-7.el7_4.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gnutls-1.2.20-7.el7_4.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-nss-1.2.20-7.el7_4.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/lasso-2.5.1-2.el7.x86_64.rpm
-  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/mod_auth_mellon-0.13.1-1.el7.x86_64.rpm
-else
+#  yum -y remove mod_auth_mellon lasso xmlsec1 xmlsec1-openssl
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-1.2.20-7.el7_4.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-openssl-1.2.20-7.el7_4.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gcrypt-1.2.20-7.el7_4.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-gnutls-1.2.20-7.el7_4.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/xmlsec1-nss-1.2.20-7.el7_4.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/lasso-2.5.1-2.el7.x86_64.rpm
+#  rpm -i http://mirror.centos.org/centos/7/os/x86_64/Packages/mod_auth_mellon-0.13.1-1.el7.x86_64.rpm
+#else
   yum -y install wget mod_auth_mellon
-fi
+#fi
 
 # generate the configuration if not exists, note that sp-metadata.xml needs to be sent to idp-metadata provider
 if [ ! -f ${WP6SRC}/sp_key.pem ]; then
@@ -58,6 +61,7 @@ echo "Copying mellon configuration to /etc/httpd/mellon";
 mkdir -p /etc/httpd/mellon
 cp ${WP6SRC}/sp_key.pem ${WP6SRC}/sp_cert.pem ${WP6SRC}/sp-metadata.xml ${WP6SRC}/idp-metadata.xml /etc/httpd/mellon
 chmod 600 /etc/httpd/mellon/sp_key.pem
-cp -f /etc/httpd/conf.d/000-default.conf.sso /etc/httpd/conf.d/000-default.conf 
+cp  -f /etc/httpd/conf.d/000-default.conf.sso /etc/httpd/conf.d/000-default.conf
+service httpd restart 
 printf "Check http://localhost:8080/mellon/metadata \nIf not yet registered, send the metadata file: sp-metadata.xml to West-life AAI provider westlife-aai@ics.muni.cz." 
 fi

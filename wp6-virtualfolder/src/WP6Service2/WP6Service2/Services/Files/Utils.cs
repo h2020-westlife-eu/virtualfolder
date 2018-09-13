@@ -22,7 +22,7 @@ namespace MetadataService.Services.Files
             foreach (var arg in args)
                 psi.Arguments += arg + " ";
             
-            Console.WriteLine("Utils.ExecuteShell() arguments:"+psi.Arguments);
+            //if (Environment.GetEnvironmentVariable("VF_DEBUG")=="1") Console.WriteLine("Utils.ExecuteShell() arguments:"+psi.Arguments);
             var p = Process.Start(psi);
             var output = p.StandardOutput.ReadToEnd();
             if (errortooutput) output += p.StandardError.ReadToEnd();

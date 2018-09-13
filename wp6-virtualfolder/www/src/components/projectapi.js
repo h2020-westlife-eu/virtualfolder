@@ -1,5 +1,7 @@
 import {HttpClient, json} from 'aurelia-fetch-client';
 /* Provides methods to return promise of data from REST Project api*/
+//declare - not define
+//var virtualfolderbaseurl;
 
 export class ProjectApi {
   static inject = [HttpClient];
@@ -8,7 +10,8 @@ export class ProjectApi {
   constructor(httpclient) {
     this.httpclient = httpclient;
     //needs SSO credentials
-    this.metadataapiurl = "api";
+    //virtualfolderbaseurl is global variable - if it is defined use it - otherwise "api";
+    this.metadataapiurl = window.virtualfolderbaseurl?window.virtualfolderbaseurl+"/virtualfolder/api":"api";
     this.userinfourl = this.metadataapiurl + "/userinfo";
     this.fileserviceurl = this.metadataapiurl + "/files";
     this.getpublicwebdavurl = "/api/authproxy/get_signed_url/";

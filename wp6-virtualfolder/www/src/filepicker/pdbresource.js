@@ -161,19 +161,22 @@ export class Pdbresource {
 
       that.client.fetch(queryurl, {method:'head',headers:{}})
         .then(response => {
-          console.log(response);
-          let resources2 = [];
-          for (let suffix of that.pdbredosuffixes) {
-                let item = {};
-                //all url except for (.zip) are /pdbid/pdbid.suffix
-                item.url=that.pdbredourl+pdbid+(suffix == ".zip"? "": "/"+pdbid)+suffix;
-                item.id = resource.id;
-                item.name = item.url.substr(item.url.lastIndexOf("/")+1);
-                item.info = "PDB REDO files "+suffix;
-                item.isdir=false;
-                resources2.push(item);
-              }
-          callback.appendResources(resources2);
+          //console.log(response);
+          //add pdb-redo resource when it is found
+          if (response.status === 200) {
+            let resources2 = [];
+            for (let suffix of that.pdbredosuffixes) {
+              let item = {};
+              //all url except for (.zip) are /pdbid/pdbid.suffix
+              item.url = that.pdbredourl + pdbid + (suffix == ".zip" ? "" : "/" + pdbid) + suffix;
+              item.id = resource.id;
+              item.name = item.url.substr(item.url.lastIndexOf("/") + 1);
+              item.info = "PDB REDO files " + suffix;
+              item.isdir = false;
+              resources2.push(item);
+            }
+            callback.appendResources(resources2);
+          }
         });
 
       //TODO get links to BMRB files http://bmrb.cerm.unifi.it/search/simplesearch.php?dbname=PDB&pdbid=2hhd&show_bmrbid=on&output=html

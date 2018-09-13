@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#transcript from bootstrap scripts in order to prepare environment in clean VM
+# transcript from bootstrap, workaround issue: CernVM limits cloud init script to 100 lines
 echo Provisioning West-Life Virtual Folder
 cp -R /cvmfs/west-life.egi.eu/software/virtualfolder/latest/conf/* /
 #make link to VF and VRE
@@ -11,6 +11,7 @@ service rsyslog restart
 yum -y install epel-release
 yum repolist
 yum -y install davfs2
+yum -y install httpd
 systemctl start httpd
 systemctl enable httpd
 mkdir -p /srv/virtualfolder /etc/westlife /var/log/westlife /var/lib/westlife
@@ -18,6 +19,7 @@ chmod go+wx /var/log/westlife
 usermod -a -G davfs2 vagrant
 usermod -a -G davfs2 apache
 usermod -g davfs2 vagrant
+yum -y install sudo
 if  grep -q MOUNTB2 /etc/sudoers; then
   echo sudoers already provisioned
 else
@@ -32,12 +34,12 @@ fi
 if [ -f /vagrant/westlife-metadata.service ]; then
   cp /vagrant/westlife-metadata.service /etc/conf/systemd/system/westlife-metadata.service
 fi
-
 if [ -f /etc/westlife/metadata.key ]
-then
+then   
    source /etc/westlife/metadata.key
    export VF_STORAGE_PKEY
 else
+   yum -y install openssl
    export VF_STORAGE_PKEY=`openssl rand -base64 32`
    echo VF_STORAGE_PKEY=$VF_STORAGE_PKEY > /etc/westlife/metadata.key
    chmod 700 /etc/westlife
@@ -73,4 +75,3 @@ fi
 # if vagrant dir is present, register it as default filesystem provider for vagrant/default user
 if [ -d /vagrant ]; then /opt/virtualfolder/scripts/addfilesystemprovider.sh; fi
 echo -e "BOOTSTRAP FINISHED, Virtual Folder provisioned.\nTo access VF services launch browser at http://localhost/"
-

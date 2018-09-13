@@ -114,7 +114,7 @@ export class Filepanel {
 
   handleError(error) {
     console.log("Filepanel error:", error);
-    alert('Sorry. Backend service is not working temporarily. You may browse files from publicly accessible repositories only. If the problem persist, report it to system administrator.'+this.serviceurl+' HTTP status:'+error.statusCode+' '+error.statusText)
+    alert('Sorry. Backend service is not working temporarily. You may browse files from publicly accessible repositories only. If the problem persist, report it to system administrator.'+this.serviceurl+' HTTP status:'+error.status+' '+error.statusText)
   }
 
   //triggered after this object is placed to DOM
@@ -127,10 +127,10 @@ export class Filepanel {
       .catch(error => {
         //this.handleError(error);
       //handle 403 unauthorized
-      if (error.statusCode == 403) {
+      if (error.status === 403) {
         //try to login
         this.ea.publish(new HandleLogin(this.panelid));
-      } else if (error.statusCode == 502 || error.statusCode == 503) {
+      } else if (error.status === 502 || error.status === 503) {
         this.handleError(error);
       } else {
         //try empty path
@@ -206,14 +206,14 @@ export class Filepanel {
             this.populateFiles(data);
             this.lock = false;
         }).catch(error => {
-        if (error.statusCode == 403) {
+        if (error.status === 403) {
           this.lock = false;
           this.path = this.lastpath;
           this.ea.publish(new HandleLogin(this.panelid));
         } else {
           console.log('Error');
           console.log(error);
-          alert('Sorry, response: ' + error.statusCode + ':' + error.statusText + ' when trying to get: ' + this.serviceurl + this.path);
+          alert('Sorry, response: ' + error.status + ':' + error.statusText + ' when trying to get: ' + this.serviceurl + this.path);
           this.lock = false;
           this.path = this.lastpath;
         }

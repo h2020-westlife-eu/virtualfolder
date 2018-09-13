@@ -10,6 +10,18 @@
 #
 # 24.05.2016 tomas - changed directory structure, all mounts will be subdir of 'work', comment owncloudcmd
 # 31.01.2017 tomas - refactor, support multiuser, multiple webdav etc.
+# 10.09.2018 tomas - need root priviledges, docker compatible
+
+if [ ! -f "/bin/sudo" ]; then
+  echo "Warning: \"sudo\" is recommended to be installed. Trying as without it"
+  SUDOCMD=""
+  SECRETFILE=/etc/davfs2/secrets
+else
+  echo "unpriviledged environment, need sudo"
+  SUDOCMD="/bin/sudo -E"
+  SECRETFILE=~/.davfs2/secrets
+fi
+
 
 HTTPD_CONF="/etc/httpd/conf.d/000-default.conf"
 HTTPD_SERVICE="httpd"
@@ -18,12 +30,14 @@ VF_SKIP_APACHE_CONF=1 #will skip to proxy directly to b2drop or webdav - will go
 #VF_SKIP_APACHE_CONF=0
 
 
+
+
 function checkproxy {
   if [ $http_proxy ]; then    
     if grep -q "^proxy" /etc/davfs2/davfs2.conf ; then
        echo "proxy already set"
     else
-       echo "proxy $http_proxy" | sudo tee -a /etc/davfs2/davfs2.conf > /dev/null
+       echo "proxy $http_proxy" | ${SUDOCMD} tee -a /etc/davfs2/davfs2.conf
     fi
   fi
 }
@@ -68,28 +82,28 @@ function addfstab {
   if grep -q "$1 $2 " /etc/fstab; then
     echo "fstab already set"
   else
-    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "$1 $2 davfs noauto,user,file_mode=666,dir_mode=777 0 0" | ${SUDOCMD} tee -a /etc/fstab > /dev/null
   fi
 }
 
 function removefstab {  
-  grep -v "$1 $2 " /etc/fstab > /tmp/fstab  && sudo mv /tmp/fstab /etc/fstab
+  grep -v "$1 $2 " /etc/fstab > /tmp/fstab  && ${SUDOCMD} mv /tmp/fstab /etc/fstab
 }
 
 function addsecrets {  
-  mkdir -p ~/.davfs2
-  touch ~/.davfs2/secrets
-  if grep -q "$1 $2 " ~/.davfs2/secrets; then
+  mkdir -p `dirname ${SECRETFILE}`
+  touch ${SECRETFILE}
+  if grep -q "$1 $2 " ${SECRETFILE}; then
     echo "secrets already set"
   else
-    echo $1 $2 $3 | tee -a ~/.davfs2/secrets > /dev/null
+    echo $1 $2 $3 | ${SUDOCMD} tee -a ${SECRETFILE} > /dev/null 
   fi
-  chmod go-rwx ~/.davfs2/secrets
+  chmod go-rwx ${SECRETFILE}
 }
 
 function removesecrets {  
-  grep -v "$1 $2" ~/.davfs2/secrets > /tmp/secrets && sudo mv /tmp/secrets ~/.davfs2/secrets
-  chmod go-rwx ~/.davfs2/secrets
+  grep -v "$1 $2" ${SECRETFILE} > /tmp/secrets && ${SUDOCMD} mv /tmp/secrets ${SECRETFILE}
+  chmod go-rwx ${SECRETFILE}
 }
 
 function addapacheproxy {
@@ -108,19 +122,21 @@ function addapacheproxy {
     HOST=${HOSTURL[2]}
     echo $HOST
     IFS=" ";
-    echo "<Location $2 >" | sudo -E tee -a $HTTPD_CONF
-    echo "  RequestHeader set Authorization \"Basic $AUTH\"" | sudo -E tee -a $HTTPD_CONF >/dev/null
-    echo "  RequestHeader set Host \"${HOST}\"" | sudo -E tee -a $HTTPD_CONF
-    # on localhost, preservehost leads to ssl proxy error
     if [[ $HOSTNAME == localhost* ]]; then
-        echo "  #ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
+        PRESERVELINE= "  #ProxyPreserveHost On"
     else
-        echo "  ProxyPreserveHost On" | sudo -E tee -a $HTTPD_CONF
+        PRESERVELINE= "  ProxyPreserveHost On"
     fi
-    echo "  ProxyPass \"$1\"" | sudo -E tee -a $HTTPD_CONF
-    echo "  ProxyPassReverse \"$1/\"" | sudo -E tee -a $HTTPD_CONF
-    echo "</Location>" | sudo -E tee -a $HTTPD_CONF
-    sudo service ${HTTPD_SERVICE} reload
+    cat | ${SUDOCMD} tee -a $HTTPD_CONF >/dev/null <<EOL
+<Location $2 >
+  RequestHeader set Authorization "Basic $AUTH"
+  RequestHeader set Host "${HOST}"
+  ${PRESERVELINE}
+  ProxyPass "$1"
+  ProxyPassReverse "$1/"
+</Location>
+EOL
+    service ${HTTPD_SERVICE} reload
   fi
   fi #VF_SKIP_APACHE_CONF
 }
@@ -133,7 +149,7 @@ function removeapacheproxy {
    echo is unset
  elif [ "$L1" -gt "0" ]; then
    let L2=$L1+6 
-   sudo sed -i "$L1,$L2 d" $HTTPD_CONF
+   ${SUDOCMD} sed -i "$L1,$L2 d" $HTTPD_CONF
  fi
 }
 
@@ -163,10 +179,10 @@ if [ $1 == 'add' ]; then
   addfstab $2 $LOCALPATH
   addsecrets $LOCALPATH $4 $5
   addapacheproxy $2 $6 $4 $5
-  mkdir -p $3
+  ${SUDOCMD} mkdir -p $3
   if [ ! -d $3 ]; then
     echo "previous mountpoint is corrupted, trying to unmount"
-    sudo umount $3
+    ${SUDOCMD} umount $3
   fi
   #user needs to be member of group davfs2
   mount $LOCALPATH
@@ -178,7 +194,7 @@ if [ $1 == 'remove' ]; then
   echo "Removing $2 $3"
   #workaround, without sudo doesnt work
   #LOCALPATH=`readlink -f $3`
-  sudo umount $LOCALPATH
+  ${SUDOCMD} umount $LOCALPATH
   rm -d $3
   removeapacheproxy $5
   removefstab $2 $3
@@ -192,7 +208,7 @@ if [ $1 == 'refresh' ]; then
   #LOCALPATH=`readlink -f $3`
   if [ ! -d $3 ]; then
     echo "previous mountpoint is corrupted, trying to unmount"
-    sudo umount $3    
+    ${SUDOCMD} umount $3    
   fi  
   #user needs to be member of group davfs2
   mount $LOCALPATH

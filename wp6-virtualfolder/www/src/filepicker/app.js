@@ -14,7 +14,16 @@ export class App {
   }
 
   selectFile(file){
-    window.opener.postMessage(window.location.protocol+"//"+window.location.host+file.publicwebdavuri, "*");
+    
+    let fileurl="";
+    //full url, will return it
+    if (file.publicwebdavuri.startsWith("http")) fileurl = file.publicwebdavuri;
+      //partial url - e.g. pdb redo, will add protocol
+      else if (file.publicwebdavuri.startsWith("//")) fileurl = window.location.protocol+file.publicwebdavuri;
+      //relative url - local resources, will add protocol and host
+      else fileurl = window.location.protocol+"//"+window.location.host+file.publicwebdavuri;
+    
+    window.opener.postMessage(fileurl, "*");
     window.close();
   }
 

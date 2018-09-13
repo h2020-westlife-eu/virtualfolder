@@ -34,9 +34,12 @@ namespace MetadataService.Services.Files
             Db = connection;
 
             FILESYSTEMFOLDER = Path.Combine(_rootdir, provider.loggeduser, provider.alias);
-            //handle west-life log on - @west-life.eu and other log-on 
-            if (username.EndsWith("@west-life.eu")) Ug = new ApacheUrlGenerator(provider);
-            else Ug = new VreUrlGenerator(provider);
+            //handle west-life log on - @west-life.eu and other log-on
+            //commented - only apacheurlgenerator will be available
+            //if (username.EndsWith("@west-life.eu"))  
+                Ug = new ApacheUrlGenerator(provider);
+            //else 
+//                Ug = new VreUrlGenerator(provider);
             WEBDAVURL = Ug.GetRootWebDavUrl();
             //PUBLICWEBDAVURL = Ug.GetRootPublicWebDavUrl();
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using MetadataService;
 using MetadataService.Services.Files;
 using ServiceStack.Common.Web;
@@ -34,6 +35,7 @@ namespace WP6Service2.Services.Dataset
     }
 
     [Route("/dataset/name/{Name*}", "GET")]
+    [Route("/datasetname/{Name*}", "GET")]
     public class DatasetByName : IReturn<Dataset>
     {
         public string Name { get; set; }
@@ -44,6 +46,12 @@ namespace WP6Service2.Services.Dataset
         public long Id { get; set; }
     }
 
+    [Route("/dataset/{Id}/cerif", "GET")]
+    public class CerifMetadataOfDataset : IReturn<String>
+    {
+        public long Id { get; set; }
+    }
+    
 //obsolete, left for compatibility, not used anymore    
     public class DatasetEntry //entry of a dataset, consist of entryname (2hhd), type (PDB), url (http://pdb.org/2hhd.pdb)
     {
@@ -142,7 +150,7 @@ namespace WP6Service2.Services.Dataset
             try
             {
                 var owner = (string) Request.Items["userid"];
-              mydataset = Db.Where<Dataset>(x => x.Name == dto.Name && x.Owner==owner).First();
+              mydataset = Db.Where<Dataset>(x => (x.Name == dto.Name) && (x.Owner == owner)).First();
             }
             catch (InvalidOperationException e)
             { //nothing found - first() throws this exception
@@ -164,6 +172,35 @@ namespace WP6Service2.Services.Dataset
             }
             return mydataset.Provenance;            
         }
+
+        public String Get(CerifMetadataOfDataset dto)
+        {
+            Dataset mydataset;
+            try
+            {
+                mydataset = Db.Where<Dataset>(x => x.Id == dto.Id).First();
+            }
+            catch (InvalidOperationException e)
+            { //nothing found - first() throws this exception
+                throw HttpError.NotFound("Dataset with id {0} does not exist".Fmt(dto.Id));                
+            }
+            return @"<?xml version=""1.0"" encoding=""utf-8""?>"+ToCerif(mydataset);            
+        }
+
+        private String ToCerif(Dataset ds)
+        {
+            String cerif =@"
+<cfResProd xmlns=""https://www.openaire.eu/cerif_schema/cerif-1.6-2_openaire-1.0.xsd""> 
+  <cfResProdId>" + ds.Id + @"</cfResProdId> 
+  <cfURI>/webdav/"+ ds.Name + @"</cfURI>
+  <cfName>" + ds.Name + @"</cfName> 
+  <cfDescr></cfDescr> 
+  <cfResProd_Class>Dataset</cfResProd_Class>
+  <cfResProd_Class>Restricted Access</cfResProd_Class>   
+</cfResProd>";
+              return cerif;
+        }
+        
 
         public void Options(Dataset dto) {}
 
@@ -189,14 +226,20 @@ namespace WP6Service2.Services.Dataset
             {
                 var mydataset = CreateNew(dto);
                 dto.Id = mydataset.Id;
-            //    CreateOrUpdateEntries(dto, mydataset);
+                //    CreateOrUpdateEntries(dto, mydataset);
                 return dto;
             }
             catch (KeyNotFoundException) //in case Request.Item["userid"] is not set - unauthorized
             {
                 throw new UnauthorizedAccessException();
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw e;
+            }
         }
+
 
         /*private void CreateOrUpdateEntries(Dataset dto, Dataset mydataset)
         {
@@ -238,6 +281,7 @@ namespace WP6Service2.Services.Dataset
         private Dataset CreateNew(Dataset dto)
         {//TODO lock
             dto.Owner =  (string) Request.Items["userid"];
+            if (dto.Name.EndsWith("/")) dto.Name = dto.Name.TrimEnd('/'); 
             Db.Insert(dto);
             dto.Id = Db.GetLastInsertId();
             if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
@@ -251,6 +295,7 @@ namespace WP6Service2.Services.Dataset
         {
             dto.Owner =  (string) Request.Items["userid"];
             Db.Update(dto);
+            //call script to add/remove http header into apache conf
             if (String.IsNullOrEmpty(dto.Provenance)) Deletescript(dto.Name);
             else Addscript(dto.Name, dto.Id);
             return dto;

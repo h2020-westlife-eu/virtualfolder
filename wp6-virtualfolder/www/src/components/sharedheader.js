@@ -25,15 +25,21 @@ export class Sharedheader {
       else if (this.userinfo.username.endsWith("west-life.eu")) {
         this.userinfo.AccountLink="https://auth.west-life.eu/user/";
         this.userinfo.LogoutLink="/mellon/logout?ReturnTo=/";
-      //ARIA user - link to structuralbiology
-      }
-      else {
+      
+      } else {
+        //ARIA user - link to structuralbiology
         this.userinfo.AccountLink = "https://www.structuralbiology.eu/user";
         this.userinfo.LogoutLink="/logout";
       }
       if (!this.userinfo.name) this.userinfo.name=this.userinfo.username;
-      this.pa.userinfo=this.userinfo;
-      this.showuserinfo=true;
+      if (this.userinfo.username === "") {
+        //not logged - portal returns empty
+        this.showuserinfo = false;
+       
+      } else {
+        this.pa.userinfo = this.userinfo;
+        this.showuserinfo = true;
+      }
     })
       .catch(error => {
         console.log("no user info, disable showing it");
