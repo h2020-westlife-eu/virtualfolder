@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -45,7 +46,7 @@ namespace MetadataService.Services.Files
         private readonly string WEBDAV_USER = "apache";   //TODO get from configuration
         private readonly string ONECLIENT_CMD = "/usr/bin/oneclient";
 
-        private readonly int sockTimeout = 60000;
+        private readonly string CURL_ARGS = "--tlsv1.2 -H \"X-Auth-Token: {0}\" --connect-timeout 60 {1}";
 
         private readonly string accessToken;
         private readonly string accessURL;
@@ -253,34 +254,29 @@ namespace MetadataService.Services.Files
 
         private JToken processRequest(string url)
         {
-            HttpWebRequest httpRequest = WebRequest.CreateHttp(url);
-            httpRequest.PreAuthenticate = false;
-            httpRequest.SendChunked = false;
-            httpRequest.KeepAlive = false;
-            httpRequest.Timeout = sockTimeout;
-            httpRequest.Headers.Add("X-Auth-Token", accessToken);
-            httpRequest.Method = "GET";
-            /*
-             * TODO connection to Oneprovider is not checked
-             */
-            httpRequest.ServerCertificateValidationCallback = 
-                delegate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
-                {
-                    Console.WriteLine("Ignore certificate check");
-                    return true;
-                };
-
             try
             {
-                using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
+                var psi = new ProcessStartInfo
                 {
-                    if (httpResponse.StatusCode != HttpStatusCode.OK)
+                    FileName = "curl",
+                    Arguments = string.Format(CURL_ARGS, accessToken, url),
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                };
+
+                using (var curlProc = Process.Start(psi))
+                {
+                    curlProc.WaitForExit();
+                    
+                    if (curlProc.ExitCode > 0)
                     {
-                        throw new OnedataClientException(httpResponse.StatusCode, url);
+                        Console.WriteLine(curlProc.StandardError.ReadToEnd());
+                        throw new Exception("curl error code " + curlProc.ExitCode);
                     }
 
-                    var streamReader = new StreamReader(httpResponse.GetResponseStream());
-                    using (var jsonReader = new JsonTextReader(streamReader))
+                    using (var jsonReader = new JsonTextReader(curlProc.StandardOutput))
                     {
                         return JToken.ReadFrom(jsonReader);
                     }
@@ -289,6 +285,7 @@ namespace MetadataService.Services.Files
             catch (Exception ex)
             {
                 Console.WriteLine("Cannot process request: "  + ex.Message + " " +ex.StackTrace);
+                Console.WriteLine("Command line: " + string.Format(CURL_ARGS, "****", url));
                 throw ex;
             }
         }
@@ -320,38 +317,4 @@ namespace MetadataService.Services.Files
 
     }
     
-    public class OnedataClientException : Exception
-    {
-        private readonly HttpStatusCode statusCode;
-        private readonly string resource;
-
-        public OnedataClientException(HttpStatusCode code, string res) : base()
-        {
-            statusCode = code;
-            resource = res;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}: {1}", resource, statusCode);
-        }
-
-        public override int GetHashCode()
-        {
-            return string.Format("{0}-{1}", resource, statusCode).GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-
-            if (obj.GetType() == typeof(HttpStatusCode))
-                return statusCode == (HttpStatusCode) obj;
-
-            if (obj.GetType() == typeof(OnedataClientException))
-                return statusCode == ((OnedataClientException) obj).statusCode;
-
-            return false;
-        }
-    }
 }
