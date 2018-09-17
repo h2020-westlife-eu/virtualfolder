@@ -157,28 +157,11 @@ namespace MetadataService.Services.Files
             return result;
         }
 
-        /*public override void StoreSettings(ProviderItem pItem)
-        {
-            base.StoreSettings(AdjProvInfo(pItem));
-        }*/
-
         public override bool DeleteSettings()
         {
             Cleanup();
             return base.DeleteSettings();
         }
-        //alias is submited in UI - no need to override
-        /*
-        private static ProviderItem AdjProvInfo(ProviderItem pItem)
-        {
-            if (pItem.alias.Trim() == "")
-            {
-                int idx = pItem.accessurl.IndexOf(':');
-                pItem.alias = idx > 0 ? pItem.accessurl.Substring(0, idx) : pItem.accessurl;
-            }
-            return pItem;
-        }
-        */
 
         private void MountArea()
         {
