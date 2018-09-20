@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
+using Dropbox.Api.Team;
 using MetadataService;
 using MetadataService.Services.Files;
 using ServiceStack.Common.Web;
@@ -16,8 +18,6 @@ using ServiceStack.Text;
 
 namespace WP6Service2.Services.Dataset
 {
-
-
     
     /* database schema */
     [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
@@ -40,6 +40,22 @@ namespace WP6Service2.Services.Dataset
     {
         public string Name { get; set; }
     }
+    
+    
+    //will update provenance record by dat entered
+    [Route("/dataset/provenance/wasprocessed/{Name*}", "POST")]
+    public class DatasetProvenanceByName : IReturn<String>
+    {
+        public string Name { get; set; }
+        public string Toolname { get; set; }
+        public string ToolUrl { get; set; }
+        public string ToolParameters { get; set; }
+        public string FromEntity { get; set; }
+        public string FromEntityUrl { get; set; }
+        public string [] FromEntities { get; set; }
+        public string [] FromEntitiesUrl { get; set; }
+    }
+    
     [Route("/dataset/{Id}/provenance", "GET")]
     public class ProvenanceOfDataset : IReturn<String>
     {
@@ -77,18 +93,6 @@ namespace WP6Service2.Services.Dataset
         public long DatasetEntryId { get; set; }
     }
 
-    /* DTO for API*/
-/*    [Route("/dataset/{Id}", "GET,PUT,OPTIONS")]
-    [Route("/dataset/name/{Name*}", "GET")]
-    [Route("/dataset", "POST")]
-    public class DatasetDTO : IReturn<DatasetDTO>
-    {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public string Metadata { get; set; }
-        public List<DatasetEntry> Entries { get; set; }    
-    }
-*/
     [Route("/dataset/{Id}", ",DELETE")]
     public class DeleteDataset : IReturnVoid
     {
@@ -107,7 +111,6 @@ namespace WP6Service2.Services.Dataset
         public string Name { get; set; }
     }
 
-
     [EnableCors(allowCredentials:true)] //options for CORS    
     [VreCookieRequestFilter] //filters authenticated users, sets userid item in request
     public class DatasetService : Service
@@ -121,11 +124,12 @@ namespace WP6Service2.Services.Dataset
             return result;
         }
 
+        /** allow cors */
         public void Options(GetDatasets dtos)
         {
         }
 
-        /**returns dataset details, everybody? or owner only*/
+        /**returns dataset details, everybody*/
         public Dataset Get(Dataset dto)
         {
             Dataset mydataset;
@@ -137,9 +141,7 @@ namespace WP6Service2.Services.Dataset
             catch (InvalidOperationException e)
             { //nothing found - first() throws this exception
                     throw HttpError.NotFound("Dataset with id {0} does not exist".Fmt(dto.Id));
-
             }
-
             return mydataset;
         }
 
@@ -149,7 +151,7 @@ namespace WP6Service2.Services.Dataset
             Dataset mydataset;
             try
             {
-                var owner = (string) Request.Items["userid"];
+              var owner = (string) Request.Items["userid"];
               mydataset = Db.Where<Dataset>(x => (x.Name == dto.Name) && (x.Owner == owner)).First();
             }
             catch (InvalidOperationException e)
@@ -240,44 +242,19 @@ namespace WP6Service2.Services.Dataset
             }
         }
 
-
-        /*private void CreateOrUpdateEntries(Dataset dto, Dataset mydataset)
+        public String Post(DatasetProvenanceByName dto)
         {
-            var existingre = Db.Where<DatasetEntries>(de => de.DatasetId == mydataset.Id).Select(x => x.DatasetEntryId);
 
-            for (var i = 0; i < dto.Entries.Count; i++) //each (var myentry in dto.Entries)
-            {
-                var mydatasetEntry = dto.Entries[i];
-                //new DatasetEntry
-                //{
-                //    Name = dto.Entries[i].Name,
-                //    Type = dto.Entries[i].Type,
-                //    Url = dto.Entries[i].Url
-                //};
-                //check if such entry with url exists
-                var dbentry = Db.Where<DatasetEntry>(x => x.Name == dto.Entries[i].Name);
-                var dbentryurls = dbentry.Select(x => x.Url); // &&
-                //(x.Url == ((dto.Urls != null) ? dto.Urls[i] : "")));
-                if (dbentryurls.Contains(mydatasetEntry.Url)) //use existing entry
-                {
-                    mydatasetEntry.Id = dbentry.First(x => x.Url == mydatasetEntry.Url).Id;
-                }
-                else //insert new entry
-                {
-                    Db.Insert(mydatasetEntry);
-                    mydatasetEntry.Id = Db.GetLastInsertId();
-                }
-                //insert relation Dataset-Name
-                if (!existingre.Contains(mydatasetEntry.Id))
-                {
-                    var mydatasetentries =
-                        new DatasetEntries {DatasetId = mydataset.Id, DatasetEntryId = mydatasetEntry.Id};
-
-                    Db.Insert(mydatasetentries);
-                }
-            }
+            var mydataset = Get(new DatasetByName {Name = dto.Name});
+            Provenance provn = new Provenance(mydataset.Provenance);
+            provn.AddToolPrefix(dto.Toolname, dto.ToolUrl);
+            provn.AddEntityPrefix(dto.FromEntity, dto.FromEntityUrl);
+            provn.AddWasDerivedFrom( mydataset.Name,dto.FromEntity+":");
+            provn.AddActivity( dto.Toolname, dto.ToolParameters,DateTime.Now.ToString(),"-");
+            return provn.ToString();
         }
-*/
+
+
         private Dataset CreateNew(Dataset dto)
         {//TODO lock
             dto.Owner =  (string) Request.Items["userid"];
@@ -356,6 +333,46 @@ namespace WP6Service2.Services.Dataset
                 dtoName                
             }, out exitcode);
             Console.WriteLine(output);                        
+        }
+    }
+
+    public class Provenance
+    {
+        private StringBuilder provn;
+        public Provenance(string mydatasetProvenance)
+        {
+            provn = new StringBuilder(mydatasetProvenance);
+            
+        }
+
+        public void AddToolPrefix(string dtoToolname, string dtoToolUrl)
+        {
+            //throw new NotImplementedException();
+            provn.Append("  prefix"+dtoToolname+"<"+dtoToolUrl+">\n");
+        }
+
+        public void AddWasDerivedFrom(string thisentity,string dtoFromEntity)
+        {
+            //throw new NotImplementedException();
+            provn.Append("  wasDerivedFrom(" + thisentity + ", " + dtoFromEntity + ")\n");
+        }
+
+        public void AddActivity(string dtoToolname, string dtoToolParameters, string startdate,string enddate)
+        {
+            //throw new NotImplementedException();
+            //activity(wl-tool:haddock2.2, 2018-08-16,2018-08-17, [ex:param1=dataset:run.cns, ex:param2="b"])
+            provn.Append("  activity(" + dtoToolname + ", " + startdate + ", " + enddate + ", [wltoolparam:param='" +
+                         dtoToolParameters + "'])<n");
+        }
+
+        public String ToString()
+        {
+            return "document\n" + provn.ToString() + "endDocument\n";
+        }
+
+        public void AddEntityPrefix(string dtoFromEntity, string dtoFromEntityUrl)
+        {
+            provn.Append("  prefix"+dtoFromEntity+"<"+dtoFromEntityUrl+">\n");
         }
     }
 }

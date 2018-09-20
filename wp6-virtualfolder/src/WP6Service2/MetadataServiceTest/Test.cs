@@ -381,6 +381,7 @@ namespace MetadataServiceTest
                 Console.WriteLine(e.Message);//ignore 
             }
         }
+        
         [Test]
         public void Task2CreateTwiceCheckStartedOnceAndDeleteUserJobServiceTestCase()
         {
@@ -566,6 +567,25 @@ namespace MetadataServiceTest
                 //Console.WriteLine("Encrypted2:"+enc2+" encrypted length2:"+enc2.Length);
                 Assert.AreEqual(s,dec2);
             }
+        }
+
+        [Test]
+        public void ProvenanceTestCase()
+        {
+            var dpbn = new DatasetProvenanceByName(){Name="testprovenance",FromEntity="2hhd",FromEntityUrl = "http://pdbe.ebi.ac.uk/pdb/",Toolname="haddock2.2",ToolUrl="https://wenmr.nl/tools/",ToolParameters="-p 2hhd,1jja,1yga -m 60 -o 234 -p run.csu"};
+            var client=new JsonServiceClient(_baseUri);
+            var response=client.Post(dpbn);
+            Assert.That(response.StartsWith("document"));
+            Assert.That(response.Trim().EndsWith("endDocument"));
+            Assert.That(ContainsRegex(response,"wasDerivedFrom(testprovenance"));
+            //System.Text.RegularExpressions.Regex.IsMatch(s, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            Assert.That(ContainsRegex("activity(haddock2.2"));
+            Assert.That();
+        }
+
+        private bool ContainsRegex(string s, string r)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(s, r, System.Text.RegularExpressions.RegexOptions.IgnoreCase)
         }
 
     }
