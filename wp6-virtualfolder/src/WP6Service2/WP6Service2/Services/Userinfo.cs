@@ -26,6 +26,11 @@ namespace WP6Service2
 		{
 			return new UserinfoResponse {username = (string) Request.Items["userid"], name = (string) Request.Items["name"], email = (string) Request.Items["email"], groups= (string) Request.Items["groups"]};
 		}
+
+		public string GuessOldUserInfo(string newuserid)
+		{
+			return (string) Request.Items["email"];
+		}
 	}
 
 }

@@ -17,7 +17,7 @@ namespace MetadataService.Services.Files
         private readonly Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
         //private readonly string userauthproxy;
 
-        private UserProvider(string _userid, ISettingsStorage storage, IDbConnection db)
+        private UserProvider(string _userid,string _useremail, ISettingsStorage storage, IDbConnection db)
         {
             //userauthproxy = _userauthproxy;
             lock (userlock) //seems two threads enters this section
@@ -28,6 +28,20 @@ namespace MetadataService.Services.Files
                     linkedimpl = new Dictionary<string, AFileProvider>();
                     //retrieve config from db or persistent storage
                     var providers = storage.GetAllConfigs(_userid, db);
+                    
+                    //if empty, check whether DB contains old ARIA configs
+                    if (providers.Count == 0 && (!string.IsNullOrEmpty(_useremail)))
+                    {
+                        //get providers of user with an email - if it was registered from ARIA, then
+                        var olduserid = _useremail; 
+                        var providers2 = storage.GetAllConfigs(olduserid, db);
+                        if (providers2.Count > 0)
+                        {
+                            Console.WriteLine("Warning: User with id'"+_userid+"' has settings in DB stored in old account as id '"+_useremail+"'.");
+                            //TODO migrate to new account, current workaround - use old account.
+                            providers = providers2;
+                        }
+                    }
 
                     foreach (var pf in providers)
                         try
@@ -58,14 +72,14 @@ namespace MetadataService.Services.Files
          * The policy might be triggered in future.
          */
         
-        public static UserProvider GetInstance(string _userid, ISettingsStorage storage,
+        public static UserProvider GetInstance(string _userid,string _useremail, ISettingsStorage storage,
             IDbConnection db)
         {
             if (!_instances.ContainsKey(_userid))
             {
 
                 //create new instance
-                _instances[_userid] = new UserProvider(_userid, storage, db);    
+                _instances[_userid] = new UserProvider(_userid,_useremail, storage, db);    
               //
                 //consider to release instances
                 if (_instances.Count > 1)
@@ -86,6 +100,11 @@ namespace MetadataService.Services.Files
             _instancedates[_userid]= new DateTime();
             return _instances[_userid];
         }
+        
+        public static UserProvider GetInstance(string userid, ISettingsStorage settings, IDbConnection db)
+        {
+            return GetInstance(userid, "", settings, db);
+        }        
 
         /** generates automatic unique alias based on prefix, checks whether it already exists and adds numbered suffix up to 1024 _####
         */
@@ -173,5 +192,6 @@ namespace MetadataService.Services.Files
             Console.WriteLine("provider implementation not found for path:" + request.Providerpath);
             throw new ApplicationException("provider implementation not found for path:" + request.Providerpath);
         }
+
     }
 }
