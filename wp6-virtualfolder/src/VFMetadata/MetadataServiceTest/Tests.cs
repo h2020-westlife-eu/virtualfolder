@@ -1,17 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security;
 using System.Text;
 using System.Threading;
 using MetadataService;
 using MetadataService.Services.Files;
 using MetadataService.Services.Settings;
 using NUnit.Framework;
-using ServiceStack.CacheAccess;
 using ServiceStack.Common;
 using ServiceStack.ServiceClient.Web;
 using WP6Service2.Services.Dataset;
@@ -20,7 +17,7 @@ using WP6Service2.Services.PerUserProcess;
 namespace MetadataServiceTest
 {
     [TestFixture]
-    public class Test
+    public class Tests
     {
         private readonly string _baseUri = "http://localhost:8001/virtualfolder/api/";
         //private readonly string _baseUri = "http://localhost:8002/metadataservice/";

@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("webdavpath2hash")]
+[assembly: AssemblyTitle("WebDavClientTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("webdavpath2hash")]
+[assembly: AssemblyProduct("WebDavClientTest")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3C71ACD7-0A1B-4C87-A6BC-C7F928612E63")]
+[assembly: Guid("21A1099C-13C0-4ED2-8E50-99E6CE1C5A09")]
 
 // Version information for an assembly consists of the following four values:
 //
