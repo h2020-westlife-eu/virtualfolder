@@ -17,13 +17,13 @@ fi
 
 cd $MYCD
 
-if [ -d $WP6SRC/${WP6MODULE}/src/WP6Service ]; then
-  cd $WP6SRC/${WP6MODULE}/src/WP6Service
+if [ -d $WP6SRC/${WP6MODULE}/src/VFMetadata ]; then
+  cd $WP6SRC/${WP6MODULE}/src/VFMetadata
   source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
   #clean from previous try
   echo Building MetadataService
-  rm -rf $WP6SRC/${WP6MODULE}/MetadataService
+  #rm -rf $WP6SRC/${WP6MODULE}/MetadataService
   sudo cert-sync /etc/pki/tls/certs/ca-bundle.crt
-  xbuild $WP6SRC/${WP6MODULE}/src/WP6Service2/Build.proj
+  xbuild $WP6SRC/${WP6MODULE}/src/VFMetadata/VFMetadata.proj
   cd $MYCD
 fi
