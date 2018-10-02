@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <Target Name="Run">
-        <CallTarget Targets="Clean" />
+        <!--CallTarget Targets="Clean" /-->
         <CallTarget Targets="Restore" />
         <CallTarget Targets="Build" />
         <CallTarget Targets="Test" />

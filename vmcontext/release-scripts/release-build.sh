@@ -19,7 +19,7 @@ cd $MYCD
 
 if [ -d $WP6SRC/${WP6MODULE}/src/WP6Service ]; then
   cd $WP6SRC/${WP6MODULE}/src/WP6Service
-  #source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
+  source /cvmfs/west-life.egi.eu/tools/mono/mono-dev-env
   #clean from previous try
   echo Building MetadataService
   rm -rf $WP6SRC/${WP6MODULE}/MetadataService

@@ -1,4 +1,4 @@
 #!/bin/bash
 source /etc/westlife/metadata.key
 export VF_STORAGE_PKEY
-/bin/mono /opt/virtualfolder/MetadataService/webdavhash2path.exe
+/cvmfs/west-life.egi.eu/tools/mono/latest/bin/mono /opt/virtualfolder/MetadataService/webdavhash2path.exe

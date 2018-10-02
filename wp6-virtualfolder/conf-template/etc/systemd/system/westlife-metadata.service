@@ -17,7 +17,7 @@ Environment=VF_DATABASE_FILE=/var/lib/westlife/metadata.sqlite
 EnvironmentFile=/etc/westlife/metadata.key
 PIDFile=/var/run/westlife-metadata.pid
 User=vagrant
-ExecStart=/bin/mono /opt/virtualfolder/MetadataService/MetadataService.exe
+ExecStart=/cvmfs/bin/mono /opt/virtualfolder/MetadataService/MetadataService.exe
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=westlife-metadata

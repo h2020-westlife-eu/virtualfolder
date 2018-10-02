@@ -7,7 +7,7 @@ export WP6MODULE=wp6-virtualfolder
 # keep untouched the rest
 export X509_USER_CERT=/home/vagrant/.ssh/tk.crt
 export X509_USER_KEY=/home/vagrant/.ssh/tk.key
-export WP6SRC=/home/vagrant/west-life-wp6-master
+export WP6SRC=/opt/virtualfolder-src/virtualfolder
 export WP6REMOTEMODULE=${WP6MODULE:4}
 
 # adding X bit to all html with include
