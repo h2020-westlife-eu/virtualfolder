@@ -28,4 +28,6 @@ export WP6REMOTEMODULE=${WP6MODULE:4}
 ./release-copyto.sh www/dist $VERSION www
 #copy Metadataservice binaries
 ./release-mkdir.sh $VERSION/MetadataService
-./release-copyto.sh src/VFMetadata/bin/Release $VERSION MetadataService
+./release-copyto.sh src/VFMetadata/MetadataService/bin/Release $VERSION MetadataService
+./release-copyfile.sh src/VFMetadata/webdavhash2path/bin/Release/webdavhash2path.exe $VERSION MetadataService
+./release-copyfile.sh src/VFMetadata/webdavhash2path/webdavhash2path $VERSION MetadataService
