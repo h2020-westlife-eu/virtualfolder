@@ -33,7 +33,7 @@ for i in {1..3}; do
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
 	  $WP6SRC/scripts/timeout3.sh -t 90 xbuild $WP6SRC/src/VFMetadata/VFMetadata.proj
 	  mkdir /opt/virtualfolder/MetadataService
-	  cp -R $WP6SRC/src/VFMetadata/bin/Release/ /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/MetadataService/bin/Release/* /opt/virtualfolder/MetadataService
     fi
 done
 mkdir -p /var/log/westlife
