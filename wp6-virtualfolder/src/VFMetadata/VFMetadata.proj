@@ -6,6 +6,11 @@
     <Configuration Condition=" '$(Configuration)'=='' ">Release</Configuration>
     <Properties>Configuration=$(Configuration);SolutionDir=$(SolutionDir)</Properties>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Solution Include="*.sln" />
+    <TestProjects Include="**\*Test.csproj" />
+  </ItemGroup>
   
   <Target Name="Run">
     <CallTarget Targets="Clean" />
