@@ -34,6 +34,8 @@ for i in {1..3}; do
 	  $WP6SRC/scripts/timeout3.sh -t 90 xbuild $WP6SRC/src/VFMetadata/VFMetadata.proj
 	  mkdir /opt/virtualfolder/MetadataService
 	  cp $WP6SRC/src/VFMetadata/MetadataService/bin/Release/* /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/webdavhash2path/bin/Release/webdavhash2path.exe /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/webdavhash2path/webdavhash2path /opt/virtualfolder/MetadataService
     fi
 done
 mkdir -p /var/log/westlife
