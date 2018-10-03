@@ -93,6 +93,7 @@
     <Compile Include="Services\Files\FileSystemProvider.cs" />
     <Compile Include="Services\Files\GenericProviderMethods.cs" />
     <Compile Include="Services\Files\IProviderCreator.cs" />
+    <Compile Include="Services\Files\MigrateAliasesService.cs" />
     <Compile Include="Services\Files\OnedataProvider.cs" />
     <Compile Include="Services\Files\ProviderFactory.cs" />
     <Compile Include="Services\Files\ProviderService.cs" />
