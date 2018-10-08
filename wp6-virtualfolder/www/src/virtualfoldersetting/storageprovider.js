@@ -23,11 +23,13 @@ export class Storageprovider {
 
   newProvider(){
     this.showprovider = true;
+    this.showmigrate=false;
     this.showimport=false;
   }
 
   importProvider(){
     this.showprovider = false;
+    this.showmigrate=false;
     this.showimport=true;
   }
 
@@ -43,4 +45,10 @@ export class Storageprovider {
     //get provider info from subcomponent
   }
 
+  migrateProvider(){
+    this.showprovider = false;
+    this.showmigrate=true;
+    this.showimport=false;
+  }
+  
 }

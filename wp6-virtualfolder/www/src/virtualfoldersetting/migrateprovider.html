@@ -1,0 +1,20 @@
+<template>
+  <h2>Migrate old providers</h2>
+  
+  <p>These providers will be migrated. Change the alias if conflicts with existing.</p>
+  <div>
+    <table class="w3-light-grey">
+      <tr class="w3-blue">
+        <th scope="col">Old alias</th>
+        <th scope="col">Import as alias</th>
+      </tr>
+      <tr class="w3-hover-green w3-white" repeat.for="alias of aliases">
+        <td>${alias.oldname}</td>
+        <td><input value.bind="alias.newname" class="w3-bar"/> </td>
+      </tr>
+    </table>
+    Ensure local names do not conflict.
+    <button class="w3-btn w3-round-large w3-blue" click.delegate="migrateProviders()">Confirm import</button>
+  </div>
+
+</template>

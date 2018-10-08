@@ -3,6 +3,7 @@
   <require from="./importprovider"></require>
   <require from="./aliastable"></require>
   <require from="../pdbcomponents/hideable"></require>
+  <require from="./migrateprovider"></require>
 
   <hideable title="Storage providers">
     <div class="w3-container">
@@ -11,12 +12,13 @@
         
         <button  class="w3-btn w3-round-large w3-blue" click.delegate="newProvider()">Add new file provider</button>
         <button  class="w3-btn w3-round-large w3-blue" click.delegate="importProvider()"title="Import from another Virtual Folder instance">Import file provider</button>
-        <button  class="w3-btn w3-round-large w3-blue" click.delegate="migrateProvider()"title="Migrate from ARIA account">Import file provider</button>
+        <button  class="w3-btn w3-round-large w3-blue" click.delegate="migrateProvider()"title="Migrate providers from ARIA account">Migrate old providers</button>
         
       </div>
 
       <genericcontrol show.bind="showprovider" class="w3-half"></genericcontrol>
       <importprovider if.bind="showimport" class="w3-half"></importprovider>
+      <migrateprovider if.bind="showmigrate" class="w3-half"></migrateprovider>
 
     </div>
   </hideable>

@@ -17,6 +17,8 @@ else
   npm install aurelia-cli -g
 fi
 MYCD=`pwd`
+
+# build the main frontend at www
 cd $WP6SRC/www
 chown -R vagrant:vagrant $WP6SRC
 echo Installing npm dependencies
