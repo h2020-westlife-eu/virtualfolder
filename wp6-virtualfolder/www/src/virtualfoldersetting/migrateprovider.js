@@ -32,7 +32,8 @@ export class Migrateprovider {
   }
   
   migrateProviders(){
-    this.pa.postMigrateProviders(this.migrateProvidersDTO)
+    //2. post list of providers which will be migrated to new account
+    this.pa.postMigratableProviders(this.migrateProvidersDTO)
       .then(data => {
         this.ea.publish(new SettingsSubmitted(data));
       });

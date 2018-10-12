@@ -21,6 +21,7 @@ export class ProjectApi {
     //this.serviceurl = Vfstorage.getBaseUrl()+"/metadataservice/files";
     this.settingsurl = this.metadataapiurl + "/settings";
     this.providersurl = this.metadataapiurl + "/providers";
+    this.migrateurl = this.metadataapiurl + "/migratefiles";
     this.httpclient.configure(config => {
       config
         .rejectErrorResponses()
@@ -260,5 +261,13 @@ export class ProjectApi {
 
   getFileHead(filepath) {
     return filepath.startsWith("/")?this.head(this.fileserviceurl+filepath):this.head(this.fileserviceurl+"/"+filepath);
+  }
+  
+  getMigratableProviders() {
+    return this.fetchJsonLog(this.migrateurl);
+  }
+  
+  postMigratableProviders(data) {
+    return this.postJsonLog(this.migrateurl,data)
   }
 }
