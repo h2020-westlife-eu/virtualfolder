@@ -36,7 +36,7 @@ By default, `http://localhost:8080`
 Virtual folder provides WEBDAV API at `http://[vm.ip.address]:[port]/webdav` e.g. `http://localhost:8080/webdav`
 
 Inside VM, the files of the current working directory of host are mounted into <code>/vagrant</code>
-and the repositories of virtual folder are accessible at <code>/home/vagrant/work</code>
+and the repositories of virtual folder are accessible at <code>/srv/virtualfolder</code>
 
 ## Integration
 
