@@ -15,6 +15,7 @@ export class Storageprovider {
   attached(){
     this.s1=this.ea.subscribe(SettingsSubmitted, msg => this.submitSettings(msg.settings) )
     this.s2=this.ea.subscribe(SettingsSelected, msg => this.selectSettings(msg.settings) )
+    this.s3=this.ea.subscribe(SettingsMigrated, msg => this.migrateSettings(msg.settings) )
   }
   detached(){
     this.s1.dispose();
@@ -42,6 +43,12 @@ export class Storageprovider {
   selectSettings(settings){
     //console.log('addProvider: not yet implemented');
     this.showprovider = true;
+    //get provider info from subcomponent
+  }
+
+  migrateSettings(settings){
+    //console.log('addProvider: not yet implemented');
+    this.showmigrate = false;
     //get provider info from subcomponent
   }
 

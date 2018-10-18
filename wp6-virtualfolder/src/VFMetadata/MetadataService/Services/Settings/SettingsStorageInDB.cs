@@ -44,8 +44,15 @@ namespace MetadataService.Services.Settings
         public void StoreSettings(ProviderItem request, IDbConnection Db)
         {
             Db.Open();
-            encrypt(ref request);
-            Db.Insert(request);
+            //encrypt copy
+            var crequest = new ProviderItem()
+            {
+                accessurl = request.accessurl, alias = request.alias, Id = request.Id, loggeduser = request.loggeduser,
+                loggeduserhash = request.loggeduserhash, output = request.output, securetoken = request.securetoken,
+                type = request.type, username = request.username
+            };
+            encrypt(ref crequest);
+            Db.Insert(crequest);
         }
 
         public bool DeleteSettings(string username, string alias, IDbConnection Db)
@@ -108,7 +115,7 @@ namespace MetadataService.Services.Settings
         {
             var dectoken = AESThenHMAC.SimpleDecryptWithPassword(item.securetoken, key,
                 Encoding.UTF8.GetBytes(item.loggeduser).Length);
-            if (dectoken == null) throw new WarningException("not decrypted");
+            if (dectoken == null) throw new WarningException("sectoken of "+item.alias+ " not decrypted.");
             item.securetoken = dectoken;
         }
 

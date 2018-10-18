@@ -32,19 +32,21 @@ namespace MetadataService.Services.Files
             {
                 //get full items from old account
                 var pis = getFullOldUserProviderItems();
+                var oup = getOldUserProviders();
                 var up = getUserProviders();
 
                 //move them the new account
                 foreach (var alias in request.Alias)
                 {
                     var pi2 = pis.First(x => x.alias == alias);
-                    var pi= new ProviderItem(){accessurl = pi2.accessurl,alias=pi2.alias,loggeduser = pi2.loggeduser,securetoken = pi2.securetoken,type=pi2.type,username=pi2.username};
+                    var pi= new ProviderItem(){accessurl = pi2.accessurl,alias=pi2.alias,loggeduser = Request.Items["userid"].ToString(),securetoken = pi2.securetoken,type=pi2.type,username=pi2.username};
                     //what if same already exist? rename if such field is provided
                     if ((request.RenameAlias != null) && (request.RenameAlias.Count > 0))
                     {
                         pi.alias = request.RenameAlias[request.Alias.IndexOf(alias)];
                     }
 
+                    oup.Delete(pi2);
                     up.Add(pi, storage, Db);
                 }
             }

@@ -11,7 +11,6 @@ namespace MetadataService.Services.Files
     {
         private static readonly Dictionary<string, UserProvider> _instances = new Dictionary<string, UserProvider>();
         private static readonly Dictionary<string, DateTime> _instancedates = new Dictionary<string, DateTime>();
-
         private static readonly object userlock = new object();
         private readonly List<ProviderItem> _providers; //list of configured providers
         private readonly Dictionary<string, AFileProvider> linkedimpl; //provider name and linked implementation
@@ -143,14 +142,18 @@ namespace MetadataService.Services.Files
             if (linkedimpl.TryGetValue(request.alias, out provider))
             {
                 provider.DeleteSettings();
-                //attempt to fix issue #66
-                _providers.Remove(_providers.Find(p => p.alias == request.alias));                
-                //destroy provider
-                linkedimpl.Remove(request.alias);
-                return _providers;
             }
-            Console.WriteLine("Cannot delete alias '" + request.alias + "', not found.");
-            throw new ApplicationException("cannot delete alias '" + request.alias + "', not found.");
+            else
+            {
+                Console.WriteLine("Warning on deleting alias '" + request.alias + "'. It is not linked, not found.");
+            }
+
+            //attempt to fix issue #66
+            _providers.Remove(_providers.Find(p => p.alias == request.alias));                
+            //destroy provider
+            linkedimpl.Remove(request.alias);
+            return _providers;                        
+            //throw new ApplicationException("cannot delete alias '" + request.alias + "', not found.");
         }
 
         public List<ProviderItem> getProviderItems()

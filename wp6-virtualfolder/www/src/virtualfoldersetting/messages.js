@@ -19,3 +19,9 @@ export class SettingsRemoved {
     this.settings = settings;
   }
 }
+
+export class SettingsMigrated {
+  constructor(settings){
+    this.settings = settings;
+  }
+}

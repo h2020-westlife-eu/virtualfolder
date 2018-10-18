@@ -51,7 +51,14 @@ namespace MetadataService.Services.Files
         private void RemoveDir()
         {
         //consider to push content to dropbox first
-            Directory.Delete(FILESYSTEMFOLDER,true);
+            try
+            {
+                Directory.Delete(FILESYSTEMFOLDER, true);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("Warning:"+e.Message+e.StackTrace);
+            }
         }
 
 
