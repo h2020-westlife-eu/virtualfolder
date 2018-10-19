@@ -2,7 +2,7 @@
  * Created by Tomas Kulhanek on 5/28/17.
  */
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {SettingsSubmitted, SettingsSelected} from './messages';
+import {SettingsSubmitted, SettingsSelected,SettingsMigrated} from './messages';
 
 export class Storageprovider {
   static inject = [EventAggregator];
