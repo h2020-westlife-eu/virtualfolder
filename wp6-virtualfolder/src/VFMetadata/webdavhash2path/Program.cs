@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Net.Http;
 using MetadataService.Services.Settings;
@@ -22,13 +23,16 @@ namespace webdavhash2path
         
         public static void Main(string[] args)
         {
+            String encpath,path;
+            Stream st;
+            
             while (true)
             {
-                var encpath = Console.ReadLine();
-                var st = Console.OpenStandardOutput();
+                encpath = Console.ReadLine();
+                st = Console.OpenStandardOutput();
                 try
                 {
-                    var path = SettingsStorageInDB.getdecryptedpath(encpath) + System.Environment.NewLine;
+                    path = SettingsStorageInDB.getdecryptedpath(encpath) + System.Environment.NewLine;
                     st.Write(Encoding.ASCII.GetBytes(path),0,path.Length);
                     //ping service - if not mounted/initialized it will initialize it
                     pingrestapi(path);
@@ -41,7 +45,7 @@ namespace webdavhash2path
             }
         }
 
-        /* Will send HTTP HEAD requst to api/files/resourcepath in order to prepare the file for further download
+        /* Will send HTTP HEAD request to api/files/resourcepath in order to prepare the file for further download
          * this will trigger actions on metadataservice level, if the storage is not mounted, it will be mounted etc.
          */
         private static void pingrestapi(string path)

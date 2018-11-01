@@ -249,7 +249,7 @@ namespace MetadataService.Services.Files
                     //TODO introduce GET on file - which will download the file and redirects to webdav uri
                     webdavuri = DROPBOXURIROOT + mypath,
                     //generate public webdavuri for current directory
-                    publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath
+                    publicwebdavuri = Ug.GetPublicWebDavUrl(mypath) + "/"
                 });
                 //mapping FileSystemInfos into list structure returned to client
                 foreach (var fi in list.Entries.Where(i => i.IsFolder))
@@ -265,7 +265,7 @@ namespace MetadataService.Services.Files
                                    (IsLocalDir(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = DROPBOXURIROOT + mypath+ fi.Name+"/", 
-                        publicwebdavuri = Ug.GetRootPublicWebDavUrl() + mypath + fi.Name+"/"
+                        publicwebdavuri = Ug.GetPublicWebDavUrl(mypath + "/"+fi.Name) +"/"
                     });
 
                 foreach (var fi in list.Entries.Where(i => i.IsFile))
@@ -281,7 +281,7 @@ namespace MetadataService.Services.Files
                                    (IsLocal(DROPBOXURIROOT + mypath + fi.Name) ? FileType.Available : FileType.None),
                         //TODO introduce GET on file - which will download the file and redirects to webdav uri
                         webdavuri = LocalOrRemote(DROPBOXURIROOT + mypath + fi.Name),
-                        publicwebdavuri = LocalOrRemotePublic(DROPBOXURIROOT + mypath + fi.Name)
+                        publicwebdavuri = LocalOrRemotePublic(DROPBOXURIROOT, mypath, fi.Name)
                     });
                 
             } while (list.HasMore);
@@ -298,12 +298,14 @@ namespace MetadataService.Services.Files
                 return filepath.Replace(DROPBOXURIROOT + "/", WEBDAVURL);
             return filepath;
         }
-        private string LocalOrRemotePublic(string filepath)
+        
+        private string LocalOrRemotePublic(string uriroot, string filepath,string filename)
         {
             //Console.WriteLine("localorremote() local:["+DROPBOXFOLDER + "/" + s+"] uri:["+WEBDAVURIROOT + "/" + s+"] remoteuri:["+"]");
-            if (IsLocal(filepath))
-                return filepath.Replace(DROPBOXURIROOT, Ug.GetRootPublicWebDavUrl());
-            return filepath;
+            if (IsLocal(uriroot + filepath + filename))
+                return (Ug.GetPublicWebDavUrl(alias+"/"+filepath.TrimEnd('/')) + "/"+filename);
+            //filepath.Replace(DROPBOXURIROOT, Ug.GetRootPublicWebDavUrl());
+            return filepath+filename;
         }
 
         private bool IsLocal(string filepath)

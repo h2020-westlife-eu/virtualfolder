@@ -112,8 +112,9 @@ namespace MetadataService.Services.Files
                 if (Initializedproviders.Contains(FILESYSTEMFOLDER))
                 {
                     Console.WriteLine("provider at " + FILESYSTEMFOLDER + "already initialized for " + username);
-                    var dirnotempty = (Directory.Exists(FILESYSTEMFOLDER) &&
-                                       (Directory.GetFiles(FILESYSTEMFOLDER).Length > 0));
+                    var di = new DirectoryInfo(FILESYSTEMFOLDER);
+                    var fis = di.GetFileSystemInfos();
+                    var dirnotempty = Directory.Exists(FILESYSTEMFOLDER) && (fis.Length > 0);
                     if (dirnotempty) return;
                     else Console.WriteLine("but seems empty, try to reinitialize");
                 }

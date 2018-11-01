@@ -604,32 +604,32 @@ namespace MetadataServiceTest
         [Test]
         public void PostMigrateProviderTestCase()
         {
-            var name = "filesystem_test9";
+            var name = "filesystem_test10";
             var pi = createTestFilesystemProviderItem(name);            
             var client = new JsonServiceClient(_baseUri);
             try {
                 //Create Provider
-                var providerlist = client.Get(new ProviderItem());
-                
+                var providerlist = client.Get(new ProviderItem());                
                 var providerlistwithnew = client.Put(pi);
+                
                 //should register - new providers is added
-                //Assert.True(providerlist.Count < providerlistwithnew.Count);
-                //Assert.True(providerlistwithnew.Last().alias==name);
+                Assert.True(providerlist.Count < providerlistwithnew.Count);
+                Assert.True(providerlistwithnew.Last().alias==name);
                 //test directory exists, it is mounted
-                //Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/"+name));
+                Assert.True(Directory.Exists($"{homeVagrantWork}vagrant/"+name));
                 //test directory is not empty - some dirs or files
-                //Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/"+name).Length>0);
+                Assert.True(Directory.GetFiles($"{homeVagrantWork}vagrant/"+name).Length>0);
 
                 var providerlistold = client.Get(new MigrateAliases());
                 //check whether old (identified by email) contains registered provider
-                //Assert.True(providerlist.Count < providerlistold.Count);
-                //Assert.True(providerlistold.Last().alias==name);
+                Assert.True(providerlist.Count < providerlistold.Count);
+                Assert.True(providerlistold.Last().alias==name);
                 var migratealiases = new MigrateAliases() {Alias = new List<string>() {name},RenameAlias = new List<string>(){name+"_copy"}};
                 
                 var providerlistpost = client.Post(migratealiases);
                 
                 var providerlist2 = client.Get(new ProviderItem());
-                Assert.AreEqual(providerlist.Count +2, providerlist2.Count);
+                Assert.True(providerlist.Count<providerlist2.Count); //the new one is registered
 
                 var providerlistdeleted = client.Delete(pi);
                 //should delete - no provider list is there
