@@ -179,7 +179,9 @@ if [ $1 == 'add' ]; then
   addfstab $2 $LOCALPATH
   addsecrets $LOCALPATH $4 $5
   addapacheproxy $2 $6 $4 $5
-  ${SUDOCMD} mkdir -p $3
+  # make dir as normal user not as root
+  # sudo, otherwise subsequent directories created with root rights will not be accessible for other processes ${SUDOCMD} 
+  mkdir -p $3
   if [ ! -d $3 ]; then
     echo "previous mountpoint is corrupted, trying to unmount"
     ${SUDOCMD} umount $3

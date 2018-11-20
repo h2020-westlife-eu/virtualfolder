@@ -20,8 +20,10 @@
 
         <div show.bind="selectedB2Drop">
           <p>The West-Life VRE uses B2DROP to store data files. B2DROP is a secure and trusted data exchange service for researchers and scientists. 
-            
-          <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">Register</a>
+          Create B2drop account at  
+            <a href="https://b2drop.eudat.eu/pwm/public/NewUser?">Register</a>.</p><p> 
+            Generate username and password for this VirtualFolder at <a href="https://b2drop.eudat.eu/settings/user/security" target="_blank">Generate</a>
+            and copy the generated values to the appropriate fields bellow:
             </p>
           Username:<input  class="w3-bar" type="text" name="username"  maxlength="1024" value.bind="username" placeholder="B2DROP username" /><br/>
           Password:<input  class="w3-bar" type="password" name="securetoken" maxlength="1024" value.bind="password" placeholder="B2DROP password"/><br/>

@@ -18,6 +18,7 @@ $WP6SRC/bootstrap/bootstrapservice.sh
 $WP6SRC/bootstrap/bootstrapscipion.sh
 $WP6SRC/bootstrap/bootstrapvirtuoso.sh
 $WP6SRC/bootstrap/bootstrapjupyter.sh
+$WP6SRC/bootstrap/bootstrapau.sh
 $WP6SRC/bootstrap/bootstrapstart.sh
 if curl -I http://localhost
 then

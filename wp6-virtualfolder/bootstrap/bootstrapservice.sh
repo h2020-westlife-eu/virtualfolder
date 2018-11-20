@@ -12,7 +12,11 @@ if hash mono 2>/dev/null; then
 else
   yum -y install mono-devel
 fi
-yum -y install nuget
+if hash nuget 2>/dev/null; then
+  echo using preinstaled nuget
+else
+  yum -y install nuget  
+fi
 rm -rf /opt/virtualfolder/MetadataService
 # fix http://stackoverflow.com/questions/15181888/
 for i in {1..3}; do
@@ -27,8 +31,11 @@ for i in {1..3}; do
 	  # cp -R $WP6SRC/src /opt/virtualfolder
 
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
-	  $WP6SRC/scripts/timeout3.sh -t 90 xbuild $WP6SRC/src/WP6Service2/Build.proj
-	  cp -R $WP6SRC/MetadataService /opt/virtualfolder
+	  $WP6SRC/scripts/timeout3.sh -t 90 xbuild $WP6SRC/src/VFMetadata/VFMetadata.proj
+	  mkdir /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/MetadataService/bin/Release/* /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/webdavhash2path/bin/Release/webdavhash2path.exe /opt/virtualfolder/MetadataService
+	  cp $WP6SRC/src/VFMetadata/webdavhash2path/webdavhash2path /opt/virtualfolder/MetadataService
     fi
 done
 mkdir -p /var/log/westlife

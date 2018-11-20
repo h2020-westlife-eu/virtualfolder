@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
+    <Configuration Condition=" '$(Configuration)'=='' ">Release</Configuration>
+    <Properties>Configuration=$(Configuration);SolutionDir=$(SolutionDir)</Properties>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Solution Include="*.sln" />
+    <TestProjects Include="**\*Test.csproj" />
+  </ItemGroup>
+  
+  <Target Name="Run">
+    <CallTarget Targets="Clean" />
+    <CallTarget Targets="RestorePackages" />
+    <CallTarget Targets="Build" />
+    <CallTarget Targets="Test" />
+  </Target>
+  
+  <Target Name="RestorePackages">
+    <Message Text="Restore NuGet packages" />
+    <Exec Command="nuget restore &quot;%(Solution.Identity)&quot;" ContinueOnError="False"/>
+  </Target>
+  
+  <Target Name="Clean">
+    <MSBuild Targets="Clean" Projects="@(Solution)" Properties="$(Properties)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="RestorePackages">
+    <MSBuild Targets="Build" Projects="@(Solution)" Properties="$(Properties)" />
+  </Target>
+
+  <Target Name="Rebuild" DependsOnTargets="RestorePackages">
+    <MSBuild Targets="Rebuild" Projects="@(Solution)" Properties="$(Properties)" />
+  </Target>
+  
+  <UsingTask AssemblyFile="packages/MSBuildTasks.1.5.0.235/tools/MSBuild.Community.Tasks.dll" TaskName="NUnit"/>
+  <Target Name="Test" DependsOnTargets="Build">
+      <Message Text="Run tests" />
+      <NUnit Assemblies="MetadataServiceTest/bin/$(Configuration)/MetadataServiceTest.dll" ToolPath="/cvmfs/west-life.egi.eu/tools/mono/latest/bin" Condition=" '$(OS)' == 'Unix'" DisableShadowCopy="True"/>
+      <NUnit Assemblies="MetadataServiceTest/bin/$(Configuration)/MetadataServiceTest.dll" ToolPath="C:\Program Files (x86)\NUnit.org\nunit-console" Condition=" '$(OS)' == 'Windows_NT'" DisableShadowCopy="True"/>
+  </Target>
+
+</Project>

@@ -42,7 +42,7 @@ export class Importprovider {
     });
   }
 
-  dettached() {
+  detached() {
     window.removeEventListener("message", this.receiveMessage)
   }
 
@@ -59,10 +59,6 @@ export class Importprovider {
     this.openwindow(remotesettingsurl);
   }
 
-
-  detached() {
-    window.removeEventListener("message", this.receiveMessage)
-  }
 
   //opens popup window in defined location
   openwindow(href) {

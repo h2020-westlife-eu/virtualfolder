@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AC359467-B3E4-4F73-9078-D56D307E6AD1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MetadataService</RootNamespace>
+    <AssemblyName>MetadataService</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dropbox.Api, Version=4.0.0.0, Culture=neutral, PublicKeyToken=310f0e82fbb45d01">
+      <HintPath>..\packages\Dropbox.Api.4.6.0\lib\net45\Dropbox.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\packages\ServiceStack.OrmLite.Sqlite.Mono.3.9.71\lib\net35\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.3.9.71\lib\net35\ServiceStack.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.Common.3.9.71\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.Common.3.9.71\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.OrmLite.Sqlite.Mono.3.9.71\lib\net35\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.71\lib\net35\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.Sqlite, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.OrmLite.Sqlite.Mono.3.9.71\lib\net35\ServiceStack.OrmLite.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.SqlServer, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.71\lib\net35\ServiceStack.OrmLite.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Redis, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.Redis.3.9.71\lib\net35\ServiceStack.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.ServiceInterface, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.3.9.71\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text, Version=3.9.71.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ServiceStack.Text.3.9.71\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Dataset\DatasetService.cs" />
+    <Compile Include="Services\Dataset\ProvStoreProxyService.cs" />
+    <Compile Include="Services\Files\AFileProvider.cs" />
+    <Compile Include="Services\Files\ApacheUrlGenerator.cs" />
+    <Compile Include="Services\Files\B2DropProvider.cs" />
+    <Compile Include="Services\Files\DropboxProvider.cs" />
+    <Compile Include="Services\Files\FileSystemProvider.cs" />
+    <Compile Include="Services\Files\GenericProviderMethods.cs" />
+    <Compile Include="Services\Files\IProviderCreator.cs" />
+    <Compile Include="Services\Files\MigrateAliasesService.cs" />
+    <Compile Include="Services\Files\OnedataProvider.cs" />
+    <Compile Include="Services\Files\ProviderFactory.cs" />
+    <Compile Include="Services\Files\ProviderService.cs" />
+    <Compile Include="Services\Files\UrlGenerator.cs" />
+    <Compile Include="Services\Files\UserProvider.cs" />
+    <Compile Include="Services\Files\Utils.cs" />
+    <Compile Include="Services\Files\VreCookieRequestFilterAttribute.cs" />
+    <Compile Include="Services\Files\VreUrlGenerator.cs" />
+    <Compile Include="Services\Files\WebDavProvider.cs" />
+    <Compile Include="Services\PerUserProcess\AvailableJobs.cs" />
+    <Compile Include="Services\PerUserProcess\DefaultJob.cs" />
+    <Compile Include="Services\PerUserProcess\IJobStrategy.cs" />
+    <Compile Include="Services\PerUserProcess\JobType.cs" />
+    <Compile Include="Services\PerUserProcess\JupyterJob.cs" />
+    <Compile Include="Services\PerUserProcess\UserJob.cs" />
+    <Compile Include="Services\SBB2DROP.cs" />
+    <Compile Include="Services\SBFiles.cs" />
+    <Compile Include="Services\SBService.cs" />
+    <Compile Include="Services\Settings\AESThenHMAC.cs" />
+    <Compile Include="Services\Settings\ISettingsStorage.cs" />
+    <Compile Include="Services\Settings\RandomPrefix.cs" />
+    <Compile Include="Services\Settings\SettingsExportImport.cs" />
+    <Compile Include="Services\Settings\SettingsStorageInDB.cs" />
+    <Compile Include="Services\Settings\SettingsStorageInFile.cs" />
+    <Compile Include="Services\Settings\SimpleHash.cs" />
+    <Compile Include="Services\StructuralBiologyArtifact.cs" />
+    <Compile Include="Services\Userinfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="sqlite3.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+</Project>
