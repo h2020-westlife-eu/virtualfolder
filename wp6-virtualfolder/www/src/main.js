@@ -6,7 +6,7 @@ import * as Bluebird from 'bluebird';
 //initializing fetch polyfill
 //import 'fetch';
 
-Bluebird.config( { warnings: { wForgottenReturn: true }, longStackTraces: true } );
+Bluebird.config( { warnings: { wForgottenReturn: true }, longStackTraces: false } );
 
 export function configure(aurelia) {
   aurelia.use
