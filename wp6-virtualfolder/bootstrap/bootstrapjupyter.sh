@@ -35,15 +35,15 @@ fi
 $DIR/Miniconda3-latest-Linux-x86_64.sh -b -p $DIR/$VERSION
 $DIR/$VERSION/bin/conda create -y --name py3 python=3
 source $DIR/$VERSION/bin/activate py3
-conda install -y jupyter pymc3 r-irkernel r=3.3.2 tornado=4.5.3 
-conda install -y -c rdkit rdkit
+conda install -y -c rdkit -c conda-forge rdkit jupyter pymc3 r-irkernel r=3.3.2 tornado=4.5.3 scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow scikit-image line_profiler memory_profiler numexpr pandas-datareader netcdf4 pivottablejs jupyterlab bqplot mpld3 ipython-sql
+#conda install -y -c rdkit rdkit
 # machine learning course
-conda install -y scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow 
+#conda install -y scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow 
 # data science handbook
-conda install -y scikit-image line_profiler memory_profiler numexpr pandas-datareader netcdf4 
+#conda install -y scikit-image line_profiler memory_profiler numexpr pandas-datareader netcdf4 
 # jupyter tips and tricks
-conda install -y pivottablejs jupyterlab
-conda install -y -c conda-forge bqplot mpld3 ipython-sql
+#conda install -y pivottablejs jupyterlab
+#conda install -y -c conda-forge bqplot mpld3 ipython-sql
 # jupyter nglview and ssbio
 pip install nglview ssbio
 jupyter-nbextension enable nglview --py --sys-prefix

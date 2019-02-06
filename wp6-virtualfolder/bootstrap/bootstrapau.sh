@@ -7,6 +7,8 @@ if hash npm 2>/dev/null; then
   echo using npm
 else
   echo Installing npm
+  # enable nodejs 8.x
+  curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
   yum -y install npm
 fi
   
