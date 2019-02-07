@@ -37,7 +37,7 @@ $DIR/$VERSION/bin/conda create -y --name py3 python=3
 source $DIR/$VERSION/bin/activate py3
 conda install -y -c rdkit -c bioconda rdkit jupyter pymc3 r-irkernel r=3.3.2 tornado=4.5.3 scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow scikit-image line_profiler memory_profiler numexpr pandas-datareader netcdf4 pivottablejs jupyterlab python-libsbml cobra xmltodict 
 conda install -y -c InsiliChem  prody
-conda install -y -c conda-forge bioservices jupyter_contrib_nbextensions nglview octave octave_kernel ghostscript texinfo bqplot mpld3 ipython-sql
+conda install -y -c conda-forge -c bioconda bioservices jupyter_contrib_nbextensions nglview octave octave_kernel ghostscript texinfo bqplot mpld3 ipython-sql
 #conda install -y -c rdkit rdkit
 # machine learning course
 #conda install -y scikit-learn seaborn keras mkl pandas pillow pydot scipy tensorflow 
