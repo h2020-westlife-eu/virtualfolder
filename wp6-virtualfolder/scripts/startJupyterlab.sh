@@ -115,10 +115,26 @@ if [ $1 == 'add' ]; then
     if [ -z $5 ]; then
       echo launching jupyter without logs
       source /opt/jupyter/bin/activate py3
+      # override conda setting for ld and gcc  
+      # to fix openmodelica libraries issue
+      export LD_LIBRARY_PATH=/usr/lib64;/usr/lib
+      export LD=/usr/bin/ld
+      export GCC=/usr/bin/gcc
+      export CPP=/usr/bin/cpp
+      export CXX=/usr/bin/c++
+      export CC=/bin/cc  
       jupyter lab --port $3 --no-browser &
     else
       echo launching jupyter log to $5
       source /opt/jupyter/bin/activate py3
+      # override conda setting for ld and gcc  
+      # to fix openmodelica libraries issue
+      export LD_LIBRARY_PATH=/usr/lib64;/usr/lib
+      export LD=/usr/bin/ld
+      export GCC=/usr/bin/gcc
+      export CPP=/usr/bin/cpp
+      export CXX=/usr/bin/c++
+      export CC=/bin/cc  
       jupyter lab --port $3 --no-browser >$5 2>&1 &
     fi
     exit

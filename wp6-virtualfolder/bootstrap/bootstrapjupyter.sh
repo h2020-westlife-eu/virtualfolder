@@ -80,7 +80,7 @@ ln -s /usr/bin/mkdssp /usr/bin/dssp
 #stride
 #mkdir -p /usr/local/lib/stride
 #freesasa
-#
+
 
 #autosklearn
 #swig 3 from sources
@@ -94,6 +94,24 @@ cd ..
 #auto-sklearn
 curl https://raw.githubusercontent.com/automl/auto-sklearn/master/requirements.txt | xargs -n 1 -L 1 pip install
 pip install auto-sklearn
+
+# openmodelica, blas-devel and lapack-devel required for OMC 
+wget https://build.openmodelica.org/rpm/el7/omc.repo -O /etc/yum.repos.d/omc.repo
+yum install -y openmodelica-1.13 blas-devel lapack-devel
+
+# omniorb
+#yum install -y omniORB
+# zeromq
+wget https://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-draft/CentOS_7/network:messaging:zeromq:release-draft.repo -O /etc/yum.repos.d/zeromq.repo
+yum install -y zeromq 
+
+# ompython
+pip install -U https://github.com/OpenModelica/OMPython/archive/master.zip
+
+# jupyter openmodelica nb
+pip install -U https://github.com/OpenModelica/jupyter-openmodelica/archive/master.zip
+
+#conda -y -c conda-forge blas lapack
 
 else
   echo Skipping Jupyter provisioning.
