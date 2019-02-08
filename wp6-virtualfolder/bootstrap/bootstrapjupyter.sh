@@ -65,9 +65,6 @@ yum install -y zeromq
 # ompython
 pip install -U https://github.com/OpenModelica/OMPython/archive/master.zip
 
-# jupyter openmodelica nb
-pip install -U https://github.com/OpenModelica/jupyter-openmodelica/archive/master.zip
-
 # jupyter prov-o support 
 pip install prov
 
@@ -80,6 +77,9 @@ pip install sos-notebook
 pip install sos-r
 python -m sos_notebook.install
 jupyter labextension install jupyterlab-sos
+
+# jupyter openmodelica nb
+pip install -U https://github.com/OpenModelica/jupyter-openmodelica/archive/master.zip
 
 #link to jupyter installation
 ln -s $DIR/$VERSION /opt/jupyter
@@ -98,6 +98,13 @@ ln -s /usr/bin/mkdssp /usr/bin/dssp
 #mkdir -p /usr/local/lib/stride
 #freesasa
 
+# install gcc 6 - needed for autosklearn
+# alternatively conda install gxx_linux-64 gcc_linux-64 swig, but will clash with openmodelica libs
+
+yum install -y yum-conf-repos yum-conf-softwarecollections
+yum install -y devtoolset-6
+scl enable devtoolset-6 bash
+gcc --version
 
 #autosklearn
 #swig 3 from sources
