@@ -50,9 +50,29 @@ conda install -y -c conda-forge -c bioconda bioservices jupyter_contrib_nbextens
 
 ##commented as it seems to take too long to install
 ##conda install -y -c conda-forge bqplot mpld3 ipython-sql
+#jupyter-nbextension enable nglview --py --sys-prefix
+
+# openmodelica, blas-devel and lapack-devel required for OMC, it also installs gcc,c++,c compilers
+wget https://build.openmodelica.org/rpm/el7/omc.repo -O /etc/yum.repos.d/omc.repo
+yum install -y openmodelica-1.13 blas-devel lapack-devel
+
+# omniorb
+#yum install -y omniORB
+# zeromq
+wget https://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-draft/CentOS_7/network:messaging:zeromq:release-draft.repo -O /etc/yum.repos.d/zeromq.repo
+yum install -y zeromq 
+
+# ompython
+pip install -U https://github.com/OpenModelica/OMPython/archive/master.zip
+
+# jupyter openmodelica nb
+pip install -U https://github.com/OpenModelica/jupyter-openmodelica/archive/master.zip
+
+# jupyter prov-o support 
+pip install prov
+
 # jupyter nglview and ssbio
 pip install ssbio
-#jupyter-nbextension enable nglview --py --sys-prefix
 
 #sos polyglot notebook
 pip install sos
@@ -60,9 +80,6 @@ pip install sos-notebook
 pip install sos-r
 python -m sos_notebook.install
 jupyter labextension install jupyterlab-sos
-
-# jupyter prov-o support 
-pip install prov
 
 #link to jupyter installation
 ln -s $DIR/$VERSION /opt/jupyter
@@ -94,22 +111,6 @@ cd ..
 #auto-sklearn
 curl https://raw.githubusercontent.com/automl/auto-sklearn/master/requirements.txt | xargs -n 1 -L 1 pip install
 pip install auto-sklearn
-
-# openmodelica, blas-devel and lapack-devel required for OMC 
-wget https://build.openmodelica.org/rpm/el7/omc.repo -O /etc/yum.repos.d/omc.repo
-yum install -y openmodelica-1.13 blas-devel lapack-devel
-
-# omniorb
-#yum install -y omniORB
-# zeromq
-wget https://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-draft/CentOS_7/network:messaging:zeromq:release-draft.repo -O /etc/yum.repos.d/zeromq.repo
-yum install -y zeromq 
-
-# ompython
-pip install -U https://github.com/OpenModelica/OMPython/archive/master.zip
-
-# jupyter openmodelica nb
-pip install -U https://github.com/OpenModelica/jupyter-openmodelica/archive/master.zip
 
 #conda -y -c conda-forge blas lapack
 
