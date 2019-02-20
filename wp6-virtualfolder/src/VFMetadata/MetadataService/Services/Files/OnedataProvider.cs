@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -45,7 +46,7 @@ namespace MetadataService.Services.Files
         private readonly string WEBDAV_USER = "apache";   //TODO get from configuration
         private readonly string ONECLIENT_CMD = "/usr/bin/oneclient";
 
-        private readonly int sockTimeout = 60000;
+        private readonly string CURL_ARGS = "--tlsv1.2 -H \"X-Auth-Token: {0}\" --connect-timeout 60 {1}";
 
         private readonly string accessToken;
         private readonly string accessURL;
@@ -62,9 +63,6 @@ namespace MetadataService.Services.Files
             spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", item.accessurl);
             fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", item.accessurl);
             attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", item.accessurl);            
-
-            ServicePointManager.ServerCertificateValidationCallback = validateRemoteCertificate;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             MountArea();
             Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
@@ -159,25 +157,11 @@ namespace MetadataService.Services.Files
             return result;
         }
 
-        /*public override void StoreSettings(ProviderItem pItem)
-        {
-            base.StoreSettings(AdjProvInfo(pItem));
-        }*/
-
         public override bool DeleteSettings()
         {
             Cleanup();
             return base.DeleteSettings();
         }
-        //alias is submited in UI - no need to override
-        /*
-        private static ProviderItem AdjProvInfo(ProviderItem pItem)
-        {
-            int idx = pItem.accessurl.IndexOf(':');
-            pItem.alias = idx > 0 ? pItem.accessurl.Substring(0, idx) : pItem.accessurl;
-            return pItem;
-        }
-        */
 
         private void MountArea()
         {
@@ -255,35 +239,42 @@ namespace MetadataService.Services.Files
 
         private JToken processRequest(string url)
         {
-            HttpWebRequest httpRequest = WebRequest.CreateHttp(url);
-            httpRequest.PreAuthenticate = false;
-            httpRequest.SendChunked = false;
-            httpRequest.KeepAlive = false;
-            httpRequest.Timeout = sockTimeout;
-            httpRequest.Headers.Add("X-Auth-Token", accessToken);
-            httpRequest.Method = "GET";
-            using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
+            try
             {
-                if (httpResponse.StatusCode != HttpStatusCode.OK)
-                    throw new OnedataClientException(httpResponse.StatusCode, url);
-
-                var streamReader = new StreamReader(httpResponse.GetResponseStream());
-                using (var jsonReader = new JsonTextReader(streamReader))
+                var psi = new ProcessStartInfo
                 {
-                    return JToken.ReadFrom(jsonReader);
+                    FileName = "curl",
+                    Arguments = string.Format(CURL_ARGS, accessToken, url),
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                };
+
+                using (var curlProc = Process.Start(psi))
+                {
+                    curlProc.WaitForExit();
+                    
+                    if (curlProc.ExitCode > 0)
+                    {
+                        Console.WriteLine(curlProc.StandardError.ReadToEnd());
+                        throw new Exception("curl error code " + curlProc.ExitCode);
+                    }
+
+                    using (var jsonReader = new JsonTextReader(curlProc.StandardOutput))
+                    {
+                        return JToken.ReadFrom(jsonReader);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot process request: "  + ex.Message + " " +ex.StackTrace);
+                Console.WriteLine("Command line: " + string.Format(CURL_ARGS, "****", url));
+                throw ex;
             }
         }
 
-        private bool validateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain,
-            SslPolicyErrors policyErrors)
-        {
-            /*
-             * TODO missing implementation
-             */
-            return true;
-        }
-        
         private FileType calcFileType(JObject infos)
         {
             var type = (string) infos[OD_ATTR_TYPE];
@@ -311,38 +302,4 @@ namespace MetadataService.Services.Files
 
     }
     
-    public class OnedataClientException : Exception
-    {
-        private readonly HttpStatusCode statusCode;
-        private readonly string resource;
-
-        public OnedataClientException(HttpStatusCode code, string res) : base()
-        {
-            statusCode = code;
-            resource = res;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}: {1}", resource, statusCode);
-        }
-
-        public override int GetHashCode()
-        {
-            return string.Format("{0}-{1}", resource, statusCode).GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-
-            if (obj.GetType() == typeof(HttpStatusCode))
-                return statusCode == (HttpStatusCode) obj;
-
-            if (obj.GetType() == typeof(OnedataClientException))
-                return statusCode == ((OnedataClientException) obj).statusCode;
-
-            return false;
-        }
-    }
 }
