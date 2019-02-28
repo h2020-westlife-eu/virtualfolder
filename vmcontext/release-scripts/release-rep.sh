@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# release script for wp6-repository
 # change version for every release
 export VERSION=18.05
 export WP6MODULE=wp6-repository

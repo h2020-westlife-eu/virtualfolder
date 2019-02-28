@@ -1,9 +1,18 @@
 
 ## Release scripts
 `release-scripts` contains scripts to publish binary files into CernVM-FS repository with binaries of West-life VF.
+In order to release to cvmfs first
+- modify release.sh and modify version number in variable `VERSION`, e.g. `export VERSION=18.11`
+- check you have X509 keys, you may generate them from p12 file, if it is present in /vagrant directory
+- execute ./release.sh
+- if new version is established, login to cvmfs, using e.g. script `gsissh.sh` and change the link `latest` to link to `[version number]` e.g. for `18.11` execute following:
+```
+cd software/virtualfolder
+ln -s 18.11 latest
+```
 
 ## User data
-`user-data` contains scripts and configuration file to create user-data context for cernvm based virtual machine image.
+`user-data` contains scripts and configuration file to create user-data context for cernvm based virtual machine image. As it refers to CernVM-FS repository it doesn't need to be updated so often (major change in cernvm 4 image (e.g. kernel etc.)).
 - change user-data.sh script which should be executed as root during first boot
 - execute makeseediso.sh which will create iso/ directory and creates an iso image
 

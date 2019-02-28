@@ -54,7 +54,7 @@ conda install -y -c conda-forge -c bioconda bioservices jupyter_contrib_nbextens
 
 # openmodelica, blas-devel and lapack-devel required for OMC, it also installs gcc,c++,c compilers
 wget https://build.openmodelica.org/rpm/el7/omc.repo -O /etc/yum.repos.d/omc.repo
-yum install -y openmodelica-1.13 blas-devel lapack-devel
+yum install -y openmodelica-1.13 blas-devel lapack-devel omniORB
 
 # omniorb
 #yum install -y omniORB

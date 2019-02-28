@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
 # change version for every release
 export VERSION=18.11
-export WP6MODULE=wp6-virtualfolder
-#export WP6MODULE=wp6-repository
 
-# keep untouched the rest
+#change to path to your X509 certs
 export X509_USER_CERT=/home/vagrant/.ssh/tk.crt
 export X509_USER_KEY=/home/vagrant/.ssh/tk.key
+
+# keep untouched the rest
+export WP6MODULE=wp6-virtualfolder
 export WP6SRC=/opt/virtualfolder-src/virtualfolder
+#remote module name will be just 'virtualfolder'
 export WP6REMOTEMODULE=${WP6MODULE:4}
 
-# adding X bit to all html with include
-#chmod ugo+x `grep -rl $WP6SRC'/wp6-virtualfolder/www' -e "<\!--\#include"`
-
-#./release-install-dep.sh
-# TODO any service that will point to the /latest from 17.11 will now point to /latest not to /17.11
-# TODO consider whether latest should be kept and pointing to previous version can be made manually only
+# install and prepare dependencies, ssh keys, gsissh tool, certificates to upload to cvmfs
+./release-install-dep.sh
 # prepare conf files to point to exact version instead of 'latest' link
 ./release-prepare.sh conf-template conf $VERSION -noreplacelatest
 ./release-build.sh
