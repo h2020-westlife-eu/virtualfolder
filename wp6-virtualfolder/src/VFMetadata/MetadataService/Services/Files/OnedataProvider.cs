@@ -54,18 +54,19 @@ namespace MetadataService.Services.Files
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
         
-        public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
-            : base(item, storage, connection)
+        public OnedataProvider(ProviderItem provider, ISettingsStorage storage, IDbConnection connection)
+            : base(provider, storage, connection)
         {
-            accessToken = item.securetoken;
-            accessURL = item.accessurl;
+            WEBDAVURL = UrlGenerator.Webdavroot + provider.loggeduser + "/" + provider.alias + "/";
+            accessToken = provider.securetoken;
+            accessURL = provider.accessurl;
             
-            spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", item.accessurl);
-            fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", item.accessurl);
-            attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", item.accessurl);            
+            spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", provider.accessurl);
+            fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", provider.accessurl);
+            attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", provider.accessurl);
 
             MountArea();
-            Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
+            Console.WriteLine("Initiated Onedata Provider with user " + provider.loggeduser);
         }
 
         public override object GetFileOrList(string path, IHttpRequest req)
