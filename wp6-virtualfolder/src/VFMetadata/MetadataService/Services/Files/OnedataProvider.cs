@@ -43,7 +43,7 @@ namespace MetadataService.Services.Files
         private readonly string OD_SPACE_NAME = "name";
         private readonly string OD_SPACE_PROV = "providers";
 
-        private readonly string WEBDAV_USER = "apache";   //TODO get from configuration
+        private readonly string WEBDAV_USER_VAR = "VF_WEBDAV_USER";
         private readonly string ONECLIENT_CMD = "/usr/bin/oneclient";
 
         private readonly string CURL_ARGS = "--tlsv1.2 -H \"X-Auth-Token: {0}\" --connect-timeout 60 {1}";
@@ -53,6 +53,8 @@ namespace MetadataService.Services.Files
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
+        private readonly string webdav_user;
+        private readonly string auth_user;
         
         public OnedataProvider(ProviderItem provider, ISettingsStorage storage, IDbConnection connection)
             : base(provider, storage, connection)
@@ -60,7 +62,11 @@ namespace MetadataService.Services.Files
             WEBDAVURL = UrlGenerator.Webdavroot + provider.loggeduser + "/" + provider.alias + "/";
             accessToken = provider.securetoken;
             accessURL = provider.accessurl;
-            
+
+            var tmps = Environment.GetEnvironmentVariable(WEBDAV_USER_VAR);
+            webdav_user = string.IsNullOrEmpty(tmps) ? "apache" : tmps;
+            auth_user = provider.loggeduser;
+
             spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", provider.accessurl);
             fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", provider.accessurl);
             attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", provider.accessurl);
@@ -182,9 +188,9 @@ namespace MetadataService.Services.Files
                         if (exitcode>0) Console.WriteLine(output);
                     }
 
-                    if (Environment.UserName != WEBDAV_USER)
+                    if (auth_user != webdav_user)
                         output = Utils.ExecuteShell("/usr/bin/sudo",
-                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "--insecure",
+                            new[]{ "-u", webdav_user, ONECLIENT_CMD, "--insecure",
                                 "-H", this.accessURL, "-t", this.accessToken, FILESYSTEMFOLDER },
                             out exitcode);
                     else
@@ -220,9 +226,9 @@ namespace MetadataService.Services.Files
                 {
                     int exitcode;
                     string output;
-                    if (Environment.UserName != WEBDAV_USER)
+                    if (auth_user != webdav_user)
                         output = Utils.ExecuteShell("/usr/bin/sudo",
-                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "-u", FILESYSTEMFOLDER },
+                            new[]{ "-u", webdav_user, ONECLIENT_CMD, "-u", FILESYSTEMFOLDER },
                             out exitcode);
                     else
                         output = Utils.ExecuteShell(ONECLIENT_CMD, 
