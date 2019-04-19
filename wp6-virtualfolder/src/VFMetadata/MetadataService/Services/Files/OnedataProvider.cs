@@ -52,7 +52,6 @@ namespace MetadataService.Services.Files
         private readonly string ONECLIENT_INSECURE_VAR = "VF_OCLIENT_INSECURE";
 
         private readonly string accessToken;
-        private readonly string accessURL;
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
@@ -67,7 +66,15 @@ namespace MetadataService.Services.Files
         {
             WEBDAVURL = UrlGenerator.Webdavroot + provider.loggeduser + "/" + provider.alias + "/";
             accessToken = provider.securetoken;
-            accessURL = provider.accessurl;
+            string accessURL = provider.accessurl;
+            string oneproviderHost = accessURL;
+            string oneproviderPort = "443";
+            string[] tmpv = accessURL.Split(new Char[] {':'});
+            if (tmpv.Length > 1)
+            {
+                oneproviderHost = tmpv[0];
+                oneproviderPort = tmpv[1];
+            }
 
             var tmps = Environment.GetEnvironmentVariable(WEBDAV_USER_VAR);
             webdavUser = string.IsNullOrWhiteSpace(tmps) ? "apache" : tmps;
@@ -114,9 +121,11 @@ namespace MetadataService.Services.Files
                 mountList.Add("--insecure");
             }
             mountList.Add("-H");
-            mountList.Add(this.accessURL);
+            mountList.Add(oneproviderHost);
+            mountList.Add("-P");
+            mountList.Add(oneproviderPort);
             mountList.Add("-t");
-            mountList.Add(this.accessToken);
+            mountList.Add(accessToken);
             mountList.Add(FILESYSTEMFOLDER);
             mountArgs = mountList.ToArray(typeof(string)) as string[];
 
@@ -301,7 +310,6 @@ namespace MetadataService.Services.Files
                     CreateNoWindow = false,
                 };
 
-Console.WriteLine("Command line: " + string.Format(curlArgs, "****", url));
                 using (var curlProc = Process.Start(psi))
                 {
                     curlProc.WaitForExit();
