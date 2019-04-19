@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -43,29 +44,93 @@ namespace MetadataService.Services.Files
         private readonly string OD_SPACE_NAME = "name";
         private readonly string OD_SPACE_PROV = "providers";
 
-        private readonly string WEBDAV_USER = "apache";   //TODO get from configuration
-        private readonly string ONECLIENT_CMD = "/usr/bin/oneclient";
-
-        private readonly string CURL_ARGS = "--tlsv1.2 -H \"X-Auth-Token: {0}\" --connect-timeout 60 {1}";
+        /* CONFIGURATION VARIABLES */
+        private readonly string WEBDAV_USER_VAR = "VF_WEBDAV_USER";
+        private readonly string ONECLIENT_CMD_VAR = "VF_OCLIENT_CMD";
+        private readonly string ONECLIENT_TO_VAR = "VF_OCLIENT_TIMEOUT";
+        private readonly string ONECLIENT_CACERT_VAR = "VF_OCLIENT_CACERT";
+        private readonly string ONECLIENT_INSECURE_VAR = "VF_OCLIENT_INSECURE";
 
         private readonly string accessToken;
-        private readonly string accessURL;
         private readonly string spaceAPIURL;
         private readonly string fileAPIURL;
         private readonly string attrAPIURL;
+        private readonly string webdavUser;
+        private readonly string authUser;
+        private readonly string oneclientCmd;
+        private readonly string curlArgs;
+        private readonly string[] mountArgs;
         
-        public OnedataProvider(ProviderItem item, ISettingsStorage storage, IDbConnection connection)
-            : base(item, storage, connection)
+        public OnedataProvider(ProviderItem provider, ISettingsStorage storage, IDbConnection connection)
+            : base(provider, storage, connection)
         {
-            accessToken = item.securetoken;
-            accessURL = item.accessurl;
-            
-            spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", item.accessurl);
-            fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", item.accessurl);
-            attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", item.accessurl);            
+            WEBDAVURL = UrlGenerator.Webdavroot + provider.loggeduser + "/" + provider.alias + "/";
+            accessToken = provider.securetoken;
+            string accessURL = provider.accessurl;
+            string oneproviderHost = accessURL;
+            string oneproviderPort = "443";
+            string[] tmpv = accessURL.Split(new Char[] {':'});
+            if (tmpv.Length > 1)
+            {
+                oneproviderHost = tmpv[0];
+                oneproviderPort = tmpv[1];
+            }
+
+            var tmps = Environment.GetEnvironmentVariable(WEBDAV_USER_VAR);
+            webdavUser = string.IsNullOrWhiteSpace(tmps) ? "apache" : tmps;
+            authUser = provider.loggeduser;
+
+            tmps = Environment.GetEnvironmentVariable(ONECLIENT_CMD_VAR);
+            oneclientCmd = string.IsNullOrWhiteSpace(tmps) ? "/usr/bin/oneclient" : tmps;
+
+            tmps = Environment.GetEnvironmentVariable(ONECLIENT_TO_VAR);
+            var timeoutstr = string.IsNullOrWhiteSpace(tmps) ? "60" : tmps;
+            string caCertFile = Environment.GetEnvironmentVariable(ONECLIENT_CACERT_VAR);
+            tmps = Environment.GetEnvironmentVariable(ONECLIENT_INSECURE_VAR);
+            var isInsecure = !string.IsNullOrWhiteSpace(tmps) && tmps.ToLower().Equals("true");
+
+
+            StringBuilder argBuilder = new StringBuilder();
+            argBuilder.Append("--tlsv1.2 ");
+            if (isInsecure)
+            {
+                argBuilder.Append("--insecure ");
+            }
+            else if (!string.IsNullOrWhiteSpace(caCertFile))
+            {
+                argBuilder.Append("--cacert ").Append(caCertFile).Append(" ");
+            }
+            argBuilder.Append("-H \"X-Auth-Token: {0}\" ");
+            argBuilder.Append("--connect-timeout ").Append(timeoutstr).Append(" ");
+            argBuilder.Append("{1}");
+            curlArgs = argBuilder.ToString();
+
+            spaceAPIURL = string.Format("https://{0}/api/v3/oneprovider/spaces", provider.accessurl);
+            fileAPIURL = string.Format("https://{0}/api/v3/oneprovider/files", provider.accessurl);
+            attrAPIURL = string.Format("https://{0}/api/v3/oneprovider/attributes", provider.accessurl);
+
+            ArrayList mountList = new ArrayList();
+            if (authUser != webdavUser)
+            {
+                mountList.Add("-u");
+                mountList.Add(webdavUser);
+                mountList.Add(oneclientCmd);
+            }
+            if (isInsecure)
+            {
+                mountList.Add("--insecure");
+            }
+            mountList.Add("-H");
+            mountList.Add(oneproviderHost);
+            mountList.Add("-P");
+            mountList.Add(oneproviderPort);
+            mountList.Add("-t");
+            mountList.Add(accessToken);
+            mountList.Add(FILESYSTEMFOLDER);
+            mountArgs = mountList.ToArray(typeof(string)) as string[];
 
             MountArea();
-            Console.WriteLine("Initiated Onedata Provider with user " + Environment.UserName);
+            Console.WriteLine("Initiated Onedata Provider with user " + provider.loggeduser);
         }
 
         public override object GetFileOrList(string path, IHttpRequest req)
@@ -181,16 +246,10 @@ namespace MetadataService.Services.Files
                         if (exitcode>0) Console.WriteLine(output);
                     }
 
-                    if (Environment.UserName != WEBDAV_USER)
-                        output = Utils.ExecuteShell("/usr/bin/sudo",
-                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "--insecure",
-                                "-H", this.accessURL, "-t", this.accessToken, FILESYSTEMFOLDER },
-                            out exitcode);
+                    if (authUser != webdavUser)
+                        output = Utils.ExecuteShell("/usr/bin/sudo", mountArgs, out exitcode);
                     else
-                        output = Utils.ExecuteShell(ONECLIENT_CMD,
-                            new[]{ "--insecure", "-H", this.accessURL, "-t", this.accessToken,
-                                 FILESYSTEMFOLDER },
-                             out exitcode);
+                        output = Utils.ExecuteShell(oneclientCmd, mountArgs, out exitcode);
 
                     if (exitcode>0) Console.WriteLine(output);
                 }
@@ -219,12 +278,12 @@ namespace MetadataService.Services.Files
                 {
                     int exitcode;
                     string output;
-                    if (Environment.UserName != WEBDAV_USER)
+                    if (authUser != webdavUser)
                         output = Utils.ExecuteShell("/usr/bin/sudo",
-                            new[]{ "-u", WEBDAV_USER, ONECLIENT_CMD, "-u", FILESYSTEMFOLDER },
+                            new[]{ "-u", webdavUser, oneclientCmd, "-u", FILESYSTEMFOLDER },
                             out exitcode);
                     else
-                        output = Utils.ExecuteShell(ONECLIENT_CMD, 
+                        output = Utils.ExecuteShell(oneclientCmd, 
                             new[]{ "-u", FILESYSTEMFOLDER },
                             out exitcode);
 
@@ -244,7 +303,7 @@ namespace MetadataService.Services.Files
                 var psi = new ProcessStartInfo
                 {
                     FileName = "curl",
-                    Arguments = string.Format(CURL_ARGS, accessToken, url),
+                    Arguments = string.Format(curlArgs, accessToken, url),
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -270,7 +329,7 @@ namespace MetadataService.Services.Files
             catch (Exception ex)
             {
                 Console.WriteLine("Cannot process request: "  + ex.Message + " " +ex.StackTrace);
-                Console.WriteLine("Command line: " + string.Format(CURL_ARGS, "****", url));
+                Console.WriteLine("Command line: " + string.Format(curlArgs, "****", url));
                 throw ex;
             }
         }
